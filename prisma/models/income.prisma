@@ -1,0 +1,31 @@
+model IncomeCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  incomes Income[]
+}
+
+model IncomeSource {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  incomes Income[]
+}
+
+model Income {
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  source      IncomeSource   @relation(fields: [sourceId], references: [id])
+  sourceId    Int
+  category    IncomeCategory @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  totalAmount Decimal
+  frequency   Frequency      @relation(fields: [frequencyId], references: [id])
+  frequencyId Int
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([sourceId, categoryId, frequencyId, createdAt(sort: Desc)])
+}

@@ -1,0 +1,87 @@
+model SupplierCategory {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  suppliers Supplier[]
+}
+
+model ItemCategory {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  items Item[]
+}
+
+model ContractCategory {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  contracts Contract[]
+}
+
+model Supplier {
+  id         Int              @id @default(autoincrement())
+  name       String
+  category   SupplierCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  contracts Contract[]
+  bills     Bill[]
+
+  @@index([categoryId])
+}
+
+model Contract {
+  id             Int              @id @default(autoincrement())
+  name           String
+  category       ContractCategory @relation(fields: [categoryId], references: [id])
+  categoryId     Int
+  supplier       Supplier         @relation(fields: [supplierId], references: [id])
+  supplierId     Int
+  documentNumber String?
+  totalAmount    Decimal
+  frequency      Frequency        @relation(fields: [frequencyId], references: [id])
+  frequencyId    Int
+  startDate      DateTime
+  endDate        DateTime?
+  noticePeriod   Int?
+  createdAt      DateTime         @default(now())
+
+  files FileAsset[]
+
+  @@index([categoryId, supplierId, frequencyId, createdAt(sort: Desc)])
+}
+
+model Bill {
+  id             Int      @id @default(autoincrement())
+  supplier       Supplier @relation(fields: [supplierId], references: [id])
+  supplierId     Int
+  documentNumber String?
+  totalAmount    Decimal
+  date           DateTime
+  markdown       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  items Item[]
+  files FileAsset[]
+
+  @@index([supplierId, createdAt(sort: Desc)])
+}
+
+model Item {
+  id         Int          @id @default(autoincrement())
+  bill       Bill         @relation(fields: [billId], references: [id], onDelete: Cascade)
+  billId     Int
+  name       String
+  category   ItemCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  quantity   Float
+  unitPrice  Decimal
+  totalPrice Decimal
+  warranty   Int?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([billId, categoryId, createdAt(sort: Desc)])
+}

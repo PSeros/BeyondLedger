@@ -1,0 +1,36 @@
+model Frequency {
+  id          Int        @id
+  name        String
+  /// The actual frequenz per year, e.g. name=monthly -> value=12
+  value       Int
+  isRecurring Boolean
+  incomes     Income[]
+  contracts   Contract[]
+}
+
+enum FileStatusChoice {
+  UPLOADED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model FileAsset {
+  id           Int              @id
+  originalName String
+  storedName   String
+  mimeType     String
+  sizeBytes    Int
+  relativePath String
+  status       FileStatusChoice
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  billId Int?
+  bill   Bill? @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  contractId Int?
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([billId, contractId, createdAt(sort: Desc)])
+}

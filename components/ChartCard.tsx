@@ -1,0 +1,181 @@
+"use client";
+
+import {useMemo, useState} from "react";
+import {
+  Card,
+  Button,
+  ButtonGroup,
+  Chip,
+} from "@heroui/react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
+
+type Granularity = "1W" | "1M" | "1Y";
+
+const chartData: Record<Granularity, { label: string; current: number; previous: number }[]> = {
+  "1W": [
+    {label: "Mo", current: 1180, previous: 1160},
+    {label: "Di", current: 1240, previous: 1220},
+    {label: "Mi", current: 1215, previous: 1195},
+    {label: "Do", current: 1320, previous: 1300},
+    {label: "Fr", current: 1410, previous: 1390},
+    {label: "Sa", current: 1390, previous: 1370},
+    {label: "So", current: 1460, previous: 1440},
+  ],
+  "1M": Array.from({length: 30}, (_, i) => ({
+    label: (i + 1).toString(),
+    current: Math.floor(Math.random() * (1300 - 1000 + 1)) + 1000,
+    previous: Math.floor(Math.random() * (1300 - 1000 + 1)) + 1000,
+  })),
+  "1Y": [
+    {label: "Jan", current: 720, previous: 700},
+    {label: "Feb", current: 860, previous: 840},
+    {label: "Mär", current: 810, previous: 790},
+    {label: "Apr", current: 980, previous: 960},
+    {label: "Mai", current: 1050, previous: 1030},
+    {label: "Jun", current: 1160, previous: 1140},
+    {label: "Jul", current: 1240, previous: 1220},
+    {label: "Aug", current: 1210, previous: 1190},
+    {label: "Sep", current: 1330, previous: 1310},
+    {label: "Okt", current: 1390, previous: 1370},
+    {label: "Nov", current: 1420, previous: 1400},
+    {label: "Dez", current: 1460, previous: 1420},
+  ],
+};
+
+export default function ChartCard() {
+  const [granularity, setGranularity] = useState<Granularity>("1W");
+
+  const data = chartData[granularity];
+
+  const {current, previous, changePercent} = useMemo(() => {
+    const current = data[data.length - 1]?.current ?? 0;
+    const previous = data[data.length - 1]?.previous ?? current;
+    const changePercent =
+      previous === 0 ? 0 : ((current - previous) / previous) * 100;
+
+    return {
+      current,
+      previous,
+      changePercent,
+    };
+  }, [data]);
+
+  const isPositive = changePercent >= 0;
+
+  return (
+    <Card className="min-h-fit min-w-fit shrink-0">
+      <Card.Header className="flex gap-4 flex-row items-center justify-between">
+        <div>
+          <p className="text-sm">Expense</p>
+
+          <div className="mt-1 flex items-center gap-3">
+            <h3 className="text-2xl font-semibold tracking-tight">
+              {current.toLocaleString("de-DE", {
+                style: "currency",
+                currency: "EUR",
+                maximumFractionDigits: 0,
+              })}
+            </h3>
+
+            <Chip
+              size="sm"
+              color={isPositive ? "success" : "danger"}
+              variant="soft"
+            >
+              {isPositive ? "+" : ""}
+              {changePercent.toFixed(1)}%
+            </Chip>
+          </div>
+        </div>
+
+        <ButtonGroup size="sm">
+          {(["1W", "1M", "1Y"] as Granularity[]).map((item) => (
+            <Button
+              key={item}
+              variant={granularity === item ? "secondary" : "tertiary"}
+              onPress={() => setGranularity(item)}
+            >
+              {item}
+            </Button>
+          ))}
+        </ButtonGroup>
+      </Card.Header>
+
+      <Card.Content className="pt-2">
+        <div className="h-40">
+          <LineChart
+            data={data}
+            margin={{top: 12, right: 12, left: 0, bottom: 0}}
+            width="100%"
+            height="100%"
+          >
+            <Line
+              type="monotone"
+              dataKey="previous"
+              stroke="color-mix(in srgb, var(--accent) 50%, white)"
+              strokeDasharray="5 5"
+              strokeWidth={3}
+              dot={false}
+              activeDot={{r: 5}}
+            />
+            <Line
+              type="monotone"
+              dataKey="current"
+              stroke="var(--accent)"
+              strokeWidth={3}
+              dot={false}
+              activeDot={{r: 5}}
+            />
+
+            <XAxis
+              dataKey="label"
+              axisLine={false}
+              tickLine={false}
+              tickMargin={10}
+              interval={granularity === "1M" ? 1 : 0}
+              tick={{
+                fontSize: "0.875rem",
+                fill: "var(--muted)",
+              }}
+            />
+
+            <YAxis
+              domain={["dataMin - 80", "dataMax + 80"]}
+              axisLine={false}
+              tickLine={false}
+              tickMargin={10}
+              style={{}}
+              tick={{
+                fontSize: "0.875rem",
+                fill: "var(--muted)",
+              }}
+            />
+
+            <Tooltip
+              cursor={{strokeDasharray: "3 3"}}
+              contentStyle={{
+                borderRadius: "var(--radius)",
+                border: "1px solid var(--default)",
+                background: "var(--surface)",
+                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+              }}
+              formatter={(value) =>
+                Number(value).toLocaleString("de-DE", {
+                  style: "currency",
+                  currency: "EUR",
+                  maximumFractionDigits: 0,
+                })
+              }
+            />
+          </LineChart>
+        </div>
+      </Card.Content>
+    </Card>
+  );
+}
