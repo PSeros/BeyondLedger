@@ -25,6 +25,9 @@ type DataTableProps<T extends DataTableRow> = {
   columns: readonly DataTableColumn<T>[];
   rows: T[];
   className?: string;
+  manualSorting?: boolean;
+  sortDescriptor?: SortDescriptor;
+  onSortChange?: (sortDescriptor: SortDescriptor) => void;
 };
 
 function SortableColumnHeader({
@@ -55,13 +58,23 @@ export default function DataTable<T extends DataTableRow>({
   columns,
   rows,
   className,
+  manualSorting = false,
+  sortDescriptor: sortDescriptorProp,
+  onSortChange,
 }: DataTableProps<T>) {
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+  const [internalSortDescriptor, setInternalSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.id ?? "id",
     direction: "ascending",
   });
 
+  const sortDescriptor = sortDescriptorProp ?? internalSortDescriptor;
+  const handleSortChange = onSortChange ?? setInternalSortDescriptor;
+
   const sortedRows = useMemo(() => {
+    if (manualSorting) {
+      return rows;
+    }
+
     const columnId = String(sortDescriptor.column);
     const column = columns.find((item) => item.id === columnId);
 
@@ -85,7 +98,7 @@ export default function DataTable<T extends DataTableRow>({
 
       return sortDescriptor.direction === "descending" ? comparison * -1 : comparison;
     });
-  }, [columns, rows, sortDescriptor]);
+  }, [columns, manualSorting, rows, sortDescriptor]);
 
   return (
     <Table
@@ -100,7 +113,7 @@ export default function DataTable<T extends DataTableRow>({
           aria-label={ariaLabel}
           className={cn("min-w-full", sortedRows.length === 0 ? "h-full" : "")}
           sortDescriptor={sortDescriptor}
-          onSortChange={setSortDescriptor}
+          onSortChange={handleSortChange}
         >
           <Table.Header columns={columns}>
             {(column) => (

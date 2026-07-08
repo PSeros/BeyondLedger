@@ -1,20 +1,18 @@
+import {Suspense} from "react";
 import ChartCard from "@/components/ChartCard";
 import TopKTableCard from "@/components/TopKTableCard";
-import {getBills} from "@/features/expense/variable/db/db";
 import VfSwitch from "@/components/VFSwitch";
 import PageToolbar from "@/components/PageToolbar";
 import BillTable from "@/features/expense/variable/components/BillTable";
 import BillSearchField from "@/features/expense/variable/components/BillSearchField";
 import BillActions from "@/features/expense/variable/components/BillActions";
 
-export default async function VariablePage() {
-  const bills = await getBills();
-
+export default function VariablePage() {
   return (
     <>
       <PageToolbar
         left={<VfSwitch basePath={"/expense"}/>}
-        center={<BillSearchField/>}
+        center={<Suspense><BillSearchField/></Suspense>}
         right={<BillActions/>}
       />
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
@@ -28,7 +26,9 @@ export default async function VariablePage() {
             </div>
           </div>
           <div className="min-h-0 flex-1 overflow-hidden">
-            <BillTable bills={bills}/>
+            <Suspense>
+              <BillTable/>
+            </Suspense>
           </div>
         </div>
       </div>
