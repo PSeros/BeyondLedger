@@ -1,88 +1,131 @@
 "use client";
 
-import {useMemo} from "react";
+import type {SortDescriptor} from "@heroui/react";
+import {useSearchParams} from "next/navigation";
+import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
 import StatusChip from "@/components/StatusChip";
-import {useContractFilterStore} from "@/features/expense/fixed/store/contractFilterStore";
-import type {LifecycleStatus} from "@/lib/status";
+import type {ContractTableResponse, ContractTableRow, ContractTableSortBy} from "@/features/expense/fixed/types";
 
-type ContractDataTableItem = {
-  id: number;
-  name: string;
-  supplier: string;
-  category: string;
-  totalAmount: number;
-  frequency: string;
-  status: LifecycleStatus;
-};
+const LIMIT = 40;
 
-type ContractDataTableProps = {
-  contracts: ContractDataTableItem[];
-};
+const columns = [
+  {id: "name", name: "Name", isRowHeader: true, allowsSorting: true},
+  {id: "supplier", name: "Supplier", allowsSorting: true},
+  {id: "category", name: "Category", allowsSorting: false},
+  {id: "totalAmount", name: "Total", allowsSorting: true},
+  {id: "frequency", name: "Frequency", allowsSorting: true},
+  {id: "status", name: "Status", allowsSorting: false},
+] as const;
 
-function includesSearch(value: string, search: string) {
-  return value.toLowerCase().includes(search);
+function sortColumnToSortBy(column: string): ContractTableSortBy {
+  switch (column) {
+    case "supplier":
+      return "supplier";
+    case "totalAmount":
+      return "amount";
+    case "frequency":
+      return "frequency";
+    case "name":
+    default:
+      return "name";
+  }
 }
 
-export default function ContractDataTable({contracts}: ContractDataTableProps) {
-  const search = useContractFilterStore((state) => state.search);
-  const category = useContractFilterStore((state) => state.category);
-  const frequency = useContractFilterStore((state) => state.frequency);
-  const status = useContractFilterStore((state) => state.status);
-
-  const filteredContracts = useMemo(() => {
-    const q = search.trim().toLowerCase();
-
-    return contracts.filter((contract) => {
-      const matchesSearch =
-        !q ||
-        includesSearch(contract.name, q) ||
-        includesSearch(contract.supplier, q) ||
-        includesSearch(contract.category, q) ||
-        includesSearch(contract.totalAmount.toString(), q) ||
-        includesSearch(contract.frequency, q) ||
-        includesSearch(contract.status, q)
-
-      const matchesCategory =
-        !category || contract.category === category;
-
-      const matchesFrequency =
-        !frequency || contract.frequency === frequency;
-
-      const matchesStatus =
-        !status || contract.status === status;
-
-      return matchesSearch && matchesCategory && matchesFrequency && matchesStatus;
-    });
-  }, [contracts, search, category, frequency, status]);
-
-  const rows = filteredContracts.map((contract) => ({
+function toTableRow(contract: ContractTableRow) {
+  return {
     id: contract.id,
     name: contract.name,
     supplier: contract.supplier,
     category: contract.category,
-    totalAmount: contract.totalAmount.toLocaleString("de-DE", {
+    totalAmount: contract.amount.toLocaleString("de-DE", {
       style: "currency",
       currency: "EUR",
     }),
     frequency: contract.frequency,
     status: <StatusChip status={contract.status}/>,
-  }));
+  };
+}
 
-  const columns = [
-    {id: "name", name: "Name", isRowHeader: true},
-    {id: "supplier", name: "Supplier"},
-    {id: "category", name: "Category"},
-    {id: "totalAmount", name: "Total"},
-    {id: "frequency", name: "Frequency"},
-    {id: "status", name: "Status"},
-  ] as const;
+export default function ContractDataTable() {
+  const searchParams = useSearchParams();
+  const q = searchParams.get("q") ?? "";
+
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: "name",
+    direction: "ascending",
+  });
+  const [rows, setRows] = useState<ContractTableRow[]>([]);
+  const [nextOffset, setNextOffset] = useState<number | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const isLoadingMoreRef = useRef(false);
+
+  const sortBy = sortColumnToSortBy(String(sortDescriptor.column));
+  const sortDir = sortDescriptor.direction === "descending" ? "desc" : "asc";
+
+  const requestId = useRef(0);
+
+  const fetchRows = useCallback(
+    async (offset: number, mode: "replace" | "append") => {
+      const currentRequestId = ++requestId.current;
+
+      const params = new URLSearchParams({
+        offset: String(offset),
+        limit: String(LIMIT),
+        sortBy,
+        sortDir,
+      });
+
+      if (q) {
+        params.set("q", q);
+      }
+
+      const response = await fetch(`/api/expense/fixed/contracts?${params.toString()}`);
+      const data: ContractTableResponse = await response.json();
+
+      if (currentRequestId !== requestId.current) {
+        return;
+      }
+
+      setRows((previous) => (mode === "append" ? [...previous, ...data.rows] : data.rows));
+      setNextOffset(data.nextOffset);
+
+      if (mode === "append") {
+        isLoadingMoreRef.current = false;
+        setIsLoadingMore(false);
+      }
+    },
+    [q, sortBy, sortDir],
+  );
+
+  useEffect(() => {
+    fetchRows(0, "replace");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, sortBy, sortDir]);
+
+  const handleLoadMore = useCallback(() => {
+    if (nextOffset === null || isLoadingMoreRef.current) {
+      return;
+    }
+
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
+    fetchRows(nextOffset, "append");
+  }, [fetchRows, nextOffset]);
+
+  const tableRows = rows.map(toTableRow);
 
   return (
     <DataTable
       ariaLabel="Fixed expenses"
       columns={columns}
-      rows={rows}
+      rows={tableRows}
+      manualSorting
+      sortDescriptor={sortDescriptor}
+      onSortChange={setSortDescriptor}
+      hasMore={nextOffset !== null}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={handleLoadMore}
     />
   );
 }
