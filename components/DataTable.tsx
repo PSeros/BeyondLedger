@@ -2,7 +2,7 @@
 
 import type {SortDescriptor} from "@heroui/react";
 
-import {EmptyState, Table, cn} from "@heroui/react";
+import {EmptyState, Spinner, Table, cn} from "@heroui/react";
 import {useMemo, useState} from "react";
 import type {Key, ReactNode} from "react";
 import {MdKeyboardArrowUp} from "react-icons/md";
@@ -28,6 +28,9 @@ type DataTableProps<T extends DataTableRow> = {
   manualSorting?: boolean;
   sortDescriptor?: SortDescriptor;
   onSortChange?: (sortDescriptor: SortDescriptor) => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 };
 
 function SortableColumnHeader({
@@ -61,6 +64,9 @@ export default function DataTable<T extends DataTableRow>({
   manualSorting = false,
   sortDescriptor: sortDescriptorProp,
   onSortChange,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
 }: DataTableProps<T>) {
   const [internalSortDescriptor, setInternalSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.id ?? "id",
@@ -146,6 +152,13 @@ export default function DataTable<T extends DataTableRow>({
                 ))}
               </Table.Row>
             ))}
+            {!!hasMore && !!onLoadMore && (
+              <Table.LoadMore isLoading={isLoadingMore} scrollOffset={0} onLoadMore={onLoadMore}>
+                <Table.LoadMoreContent>
+                  <Spinner size="md"/>
+                </Table.LoadMoreContent>
+              </Table.LoadMore>
+            )}
           </Table.Body>
         </Table.Content>
       </Table.ScrollContainer>

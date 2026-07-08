@@ -1,7 +1,6 @@
 "use client";
 
 import type {SortDescriptor} from "@heroui/react";
-import {Button} from "@heroui/react";
 import {useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
@@ -55,7 +54,8 @@ export default function BillDataTable() {
   });
   const [rows, setRows] = useState<BillTableRow[]>([]);
   const [nextOffset, setNextOffset] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const isLoadingMoreRef = useRef(false);
 
   const sortBy = sortColumnToSortBy(String(sortDescriptor.column));
   const sortDir = sortDescriptor.direction === "descending" ? "desc" : "asc";
@@ -65,8 +65,6 @@ export default function BillDataTable() {
   const fetchRows = useCallback(
     async (offset: number, mode: "replace" | "append") => {
       const currentRequestId = ++requestId.current;
-
-      setIsLoading(true);
 
       const params = new URLSearchParams({
         offset: String(offset),
@@ -88,7 +86,11 @@ export default function BillDataTable() {
 
       setRows((previous) => (mode === "append" ? [...previous, ...data.rows] : data.rows));
       setNextOffset(data.nextOffset);
-      setIsLoading(false);
+
+      if (mode === "append") {
+        isLoadingMoreRef.current = false;
+        setIsLoadingMore(false);
+      }
     },
     [q, sortBy, sortDir],
   );
@@ -98,31 +100,29 @@ export default function BillDataTable() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, sortBy, sortDir]);
 
+  const handleLoadMore = useCallback(() => {
+    if (nextOffset === null || isLoadingMoreRef.current) {
+      return;
+    }
+
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
+    fetchRows(nextOffset, "append");
+  }, [fetchRows, nextOffset]);
+
   const tableRows = rows.map(toTableRow);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4">
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <DataTable
-          ariaLabel="Variable expenses"
-          columns={columns}
-          rows={tableRows}
-          manualSorting
-          sortDescriptor={sortDescriptor}
-          onSortChange={setSortDescriptor}
-        />
-      </div>
-      {nextOffset !== null && (
-        <div className="flex shrink-0 justify-center">
-          <Button
-            isDisabled={isLoading}
-            variant="tertiary"
-            onPress={() => fetchRows(nextOffset, "append")}
-          >
-            Load more
-          </Button>
-        </div>
-      )}
-    </div>
+    <DataTable
+      ariaLabel="Variable expenses"
+      columns={columns}
+      rows={tableRows}
+      manualSorting
+      sortDescriptor={sortDescriptor}
+      onSortChange={setSortDescriptor}
+      hasMore={nextOffset !== null}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={handleLoadMore}
+    />
   );
 }
