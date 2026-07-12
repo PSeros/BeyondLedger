@@ -23,9 +23,9 @@ const prisma = new PrismaClient({
 });
 
 const MONTHS_TO_SEED = 36;
-const ONE_OFF_BILLS_PER_MONTH = 24;
-const PROJECT_INCOMES_PER_MONTH = 8;
-const FILES_PER_MONTH = 7;
+const BILLS_PER_MONTH = 16;
+const ONE_OFF_INCOMES_PER_MONTH = 1;
+const FILES_PER_MONTH = 4;
 const today = new Date();
 const START_DATE = new Date(
   Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - MONTHS_TO_SEED + 1, 1),
@@ -85,46 +85,33 @@ async function createLookupRows() {
     ],
   });
 
+  // Household supplier categories — who a family actually spends money with.
   const supplierCategories = await prisma.supplierCategory.createManyAndReturn({
-    data: ["Software", "Utilities", "Office", "Hardware", "Travel", "Services"].map(
+    data: ["Wohnen & Energie", "Lebensmittel", "Freizeit", "Versicherungen", "Mobilität", "Gesundheit"].map(
       (name) => ({name}),
     ),
   });
+  // Item categories — what ends up on a single grocery/pharmacy/gas-station receipt.
   const itemCategories = await prisma.itemCategory.createManyAndReturn({
-    data: [
-      "Subscriptions",
-      "Utilities",
-      "Hardware",
-      "Supplies",
-      "Services",
-      "Travel",
-      "Marketing",
-    ].map((name) => ({name})),
+    data: ["Lebensmittel", "Drogerie", "Haushalt", "Getränke", "Tanken", "Gesundheit", "Sonstiges"].map(
+      (name) => ({name}),
+    ),
   });
+  // Fixed-expense categories — recurring household commitments.
   const contractCategories = await prisma.contractCategory.createManyAndReturn({
-    data: [
-      "Software licenses",
-      "Utilities",
-      "Office services",
-      "Insurance",
-      "Professional services",
-    ].map((name) => ({name})),
+    data: ["Wohnen & Energie", "Freizeit & Abos", "Versicherungen", "Mobilität"].map(
+      (name) => ({name}),
+    ),
   });
   const incomeCategories = await prisma.incomeCategory.createManyAndReturn({
-    data: ["Client work", "Salary", "Reimbursement", "Referral", "Product sales"].map(
+    data: ["Gehalt", "Kindergeld", "Nebeneinkünfte", "Erstattung", "Sonstiges"].map(
       (name) => ({name}),
     ),
   });
   const incomeSources = await prisma.incomeSource.createManyAndReturn({
-    data: [
-      "Payroll",
-      "Acme GmbH",
-      "Globex AG",
-      "Initech",
-      "Umbrella Studio",
-      "Partner Network",
-      "Online Store",
-    ].map((name) => ({name})),
+    data: ["Arbeitgeber", "Familienkasse", "Nebentätigkeit", "Finanzamt", "Privatverkauf"].map(
+      (name) => ({name}),
+    ),
   });
 
   return {
@@ -147,161 +134,220 @@ async function main() {
   const itemCategoryByName = Object.fromEntries(
     lookups.itemCategories.map((category) => [category.name, category]),
   );
-
-  const supplierBlueprints = [
-    ["Notion Labs", "Software"],
-    ["CloudHost Europe", "Software"],
-    ["Figma", "Software"],
-    ["Linear", "Software"],
-    ["Berlin Utility Co", "Utilities"],
-    ["City Waterworks", "Utilities"],
-    ["Office Depot", "Office"],
-    ["Print & Paper GmbH", "Office"],
-    ["ErgoDesk Supply", "Hardware"],
-    ["Laptop World", "Hardware"],
-    ["Rail Europe", "Travel"],
-    ["Lufthansa", "Travel"],
-    ["Search Ads Central", "Services"],
-    ["Tax Advisory Partners", "Services"],
-    ["Courier24", "Services"],
-    ["SecureIT", "Services"],
-  ];
   const supplierCategoryIdByName = Object.fromEntries(
     lookups.supplierCategories.map((category) => [category.name, category.id]),
   );
+  const contractCategoryIdByName = Object.fromEntries(
+    lookups.contractCategories.map((category) => [category.name, category.id]),
+  );
+
+  // First 11 suppliers carry a recurring Contract (rent, utilities, insurance, subscriptions,
+  // memberships). The last 5 are one-off retailers that only ever show up on itemized Bills —
+  // nobody has a "contract" with their supermarket. No overlap between the two groups.
+  const contractSupplierBlueprints = [
+    ["Wohnbau München", "Wohnen & Energie"],
+    ["Stadtwerke München", "Wohnen & Energie"],
+    ["Deutsche Telekom", "Wohnen & Energie"],
+    ["Netflix", "Freizeit"],
+    ["Spotify", "Freizeit"],
+    ["Fitness First", "Freizeit"],
+    ["Allianz", "Versicherungen"],
+    ["DEVK", "Versicherungen"],
+    ["HUK-Coburg", "Versicherungen"],
+    ["ADAC", "Mobilität"],
+    ["Deutsche Bahn", "Mobilität"],
+  ] as const;
+  const billOnlySupplierBlueprints = [
+    ["REWE", "Lebensmittel"],
+    ["ALDI SÜD", "Lebensmittel"],
+    ["EDEKA", "Lebensmittel"],
+    ["Shell Tankstelle", "Mobilität"],
+    ["Apotheke am Markt", "Gesundheit"],
+  ] as const;
+
   const suppliers = await prisma.supplier.createManyAndReturn({
-    data: supplierBlueprints.map(([name, category]) => ({
+    data: [...contractSupplierBlueprints, ...billOnlySupplierBlueprints].map(([name, category]) => ({
       name,
       categoryId: supplierCategoryIdByName[category],
     })),
   });
+  const supplierByName = Object.fromEntries(suppliers.map((supplier) => [supplier.name, supplier]));
 
-  const contractCategoryIdByName = Object.fromEntries(
-    lookups.contractCategories.map((category) => [category.name, category.id]),
-  );
+  // {contract category, display name, billing frequency, per-occurrence amount range}
+  const contractBlueprints = [
+    {supplier: "Wohnbau München", category: "Wohnen & Energie", label: "Miete", frequency: "Monthly", amount: [950, 1450]},
+    {supplier: "Stadtwerke München", category: "Wohnen & Energie", label: "Strom & Gas", frequency: "Monthly", amount: [140, 260]},
+    {supplier: "Deutsche Telekom", category: "Wohnen & Energie", label: "Internet & Telefon", frequency: "Monthly", amount: [35, 65]},
+    {supplier: "Netflix", category: "Freizeit & Abos", label: "Streaming-Abo", frequency: "Monthly", amount: [9, 20]},
+    {supplier: "Spotify", category: "Freizeit & Abos", label: "Streaming-Abo", frequency: "Monthly", amount: [5, 17]},
+    {supplier: "Fitness First", category: "Freizeit & Abos", label: "Mitgliedschaft", frequency: "Monthly", amount: [25, 55]},
+    {supplier: "Allianz", category: "Versicherungen", label: "Hausratversicherung", frequency: "Yearly", amount: [120, 320]},
+    {supplier: "DEVK", category: "Versicherungen", label: "KFZ-Versicherung", frequency: "Yearly", amount: [350, 900]},
+    {supplier: "HUK-Coburg", category: "Versicherungen", label: "Haftpflichtversicherung", frequency: "Yearly", amount: [60, 150]},
+    {supplier: "ADAC", category: "Mobilität", label: "Mitgliedschaft", frequency: "Yearly", amount: [55, 100]},
+    {supplier: "Deutsche Bahn", category: "Mobilität", label: "BahnCard", frequency: "Yearly", amount: [250, 470]},
+  ] as const;
+
   const contracts = await prisma.contract.createManyAndReturn({
-    data: suppliers.slice(0, 12).map((supplier, index) => {
-      const startDate = monthDate(randomInt(0, 8), 1);
-      const categoryName = pick([
-        "Software licenses",
-        "Utilities",
-        "Office services",
-        "Insurance",
-        "Professional services",
-      ]);
+    data: contractBlueprints.map((blueprint, index) => {
+      const supplier = supplierByName[blueprint.supplier];
+      const startDate = monthDate(randomInt(0, 8));
 
       return {
-        name: `${supplier.name} ${categoryName}`,
-        categoryId: contractCategoryIdByName[categoryName],
+        name: `${blueprint.supplier} ${blueprint.label}`,
+        categoryId: contractCategoryIdByName[blueprint.category],
         supplierId: supplier.id,
         documentNumber: `CTR-${supplier.id}-${startDate.getUTCFullYear()}`,
-        totalAmount: toMoney(randomAmount(80, 2800)),
-        frequencyId: pick([
-          frequencyByName.Monthly.id,
-          frequencyByName.Quarterly.id,
-          frequencyByName.Yearly.id,
-        ]),
+        totalAmount: toMoney(randomAmount(blueprint.amount[0], blueprint.amount[1])),
+        frequencyId: frequencyByName[blueprint.frequency].id,
         startDate,
+        // A handful of contracts have already ended (switched provider, cancelled membership).
         endDate: index % 5 === 0 ? addMonths(startDate, randomInt(18, 42)) : null,
         noticePeriod: pick([30, 60, 90]),
       };
     }),
   });
 
-  const salary = lookups.incomeCategories.find((category) => category.name === "Salary")!;
-  const payroll = lookups.incomeSources.find((source) => source.name === "Payroll")!;
+  const salary = lookups.incomeCategories.find((category) => category.name === "Gehalt")!;
+  const childBenefit = lookups.incomeCategories.find((category) => category.name === "Kindergeld")!;
+  const employer = lookups.incomeSources.find((source) => source.name === "Arbeitgeber")!;
+  const familyBenefitsOffice = lookups.incomeSources.find((source) => source.name === "Familienkasse")!;
+
+  const oneOffIncomeCategories = lookups.incomeCategories.filter(
+    (category) => category.name !== "Gehalt" && category.name !== "Kindergeld",
+  );
+  const oneOffIncomeSources = lookups.incomeSources.filter(
+    (source) => source.name !== "Arbeitgeber" && source.name !== "Familienkasse",
+  );
+
   await prisma.income.createMany({
     data: [
       {
-        name: "Monthly payroll",
-        sourceId: payroll.id,
+        name: "Gehalt Hauptverdiener",
+        sourceId: employer.id,
         categoryId: salary.id,
-        totalAmount: "5200.00",
+        totalAmount: "3400.00",
         frequencyId: frequencyByName.Monthly.id,
         startDate: START_DATE,
       },
-      ...Array.from({length: MONTHS_TO_SEED * PROJECT_INCOMES_PER_MONTH}, (_, index) => {
-        const date = monthDate(Math.floor(index / PROJECT_INCOMES_PER_MONTH));
-        const source = pick(lookups.incomeSources.filter((item) => item.id !== payroll.id));
-        const category = pick(
-          lookups.incomeCategories.filter((item) => item.id !== salary.id),
-        );
+      {
+        name: "Kindergeld",
+        sourceId: familyBenefitsOffice.id,
+        categoryId: childBenefit.id,
+        totalAmount: "250.00",
+        frequencyId: frequencyByName.Monthly.id,
+        startDate: START_DATE,
+      },
+      // Occasional extra income: side gigs, tax refunds, selling used items.
+      ...Array.from({length: MONTHS_TO_SEED * ONE_OFF_INCOMES_PER_MONTH}, (_, index) => {
+        const date = monthDate(Math.floor(index / ONE_OFF_INCOMES_PER_MONTH), randomInt(1, 28));
+        const source = pick(oneOffIncomeSources);
+        const category = pick(oneOffIncomeCategories);
 
         return {
           name: `${source.name} ${category.name} ${yyyymm(date)}-${index}`,
           sourceId: source.id,
           categoryId: category.id,
-          totalAmount: toMoney(randomAmount(180, 14500)),
+          totalAmount: toMoney(randomAmount(20, 700)),
           frequencyId: frequencyByName["One-time"].id,
           startDate: date,
-          endDate: Math.random() > 0.7 ? monthDate(Math.floor(index / PROJECT_INCOMES_PER_MONTH), randomInt(15, 28)) : null,
+          endDate: null,
         };
       }),
     ],
   });
 
-  const recurringBillSuppliers = suppliers.slice(0, 8);
-  const billRows = Array.from({length: MONTHS_TO_SEED}, (_, month) => {
-    const recurring = recurringBillSuppliers.map((supplier) => {
-      const date = monthDate(month, randomInt(1, 15));
+  // Weighted pool so the grocery stores and the gas station show up more often than the pharmacy.
+  const billSupplierPool = [
+    ...Array(4).fill("REWE"),
+    ...Array(3).fill("ALDI SÜD"),
+    ...Array(3).fill("EDEKA"),
+    ...Array(4).fill("Shell Tankstelle"),
+    ...Array(2).fill("Apotheke am Markt"),
+  ];
 
-      return {
-        supplierId: supplier.id,
-        documentNumber: `INV-${supplier.id}-${yyyymm(date)}`,
-        totalAmount: "0.00",
-        date,
-        markdown: `Generated recurring invoice from ${supplier.name}.`,
-      };
-    });
-    const oneOff = Array.from({length: ONE_OFF_BILLS_PER_MONTH}, (_, index) => {
-      const supplier = pick(suppliers);
-      const date = monthDate(month);
+  const billRows = Array.from({length: MONTHS_TO_SEED}, (_, month) =>
+    Array.from({length: BILLS_PER_MONTH}, (_, index) => {
+      const supplier = supplierByName[pick(billSupplierPool)];
+      const date = monthDate(month, randomInt(1, 28));
 
       return {
         supplierId: supplier.id,
         documentNumber: `INV-${supplier.id}-${yyyymm(date)}-${index + 1}`,
         totalAmount: "0.00",
         date,
-        markdown: `Generated ${pick(["office", "operations", "project", "travel"])} expense.`,
+        markdown: `Kassenbon von ${supplier.name}.`,
       };
-    });
-
-    return [...recurring, ...oneOff];
-  }).flat();
+    }),
+  ).flat();
 
   const bills = await prisma.bill.createManyAndReturn({data: billRows});
+
   const itemNamesByCategory = {
-    Hardware: ["Monitor", "Laptop dock", "Keyboard", "Headset", "SSD upgrade"],
-    Marketing: ["Search campaign", "Design assets", "Landing page copy"],
-    Services: ["Consulting", "Accounting", "Support package", "Legal review"],
-    Subscriptions: ["Business seats", "Cloud storage", "API usage", "SaaS plan"],
-    Supplies: ["Printer paper", "Pens", "Notebooks", "Packaging"],
-    Travel: ["Train ticket", "Hotel", "Taxi", "Flight"],
-    Utilities: ["Electricity", "Heating", "Water", "Internet"],
+    Lebensmittel: ["Brot", "Milch", "Gemüse", "Obst", "Fleisch", "Käse", "Eier"],
+    Drogerie: ["Shampoo", "Zahnpasta", "Duschgel", "Windeln", "Rasierklingen"],
+    Haushalt: ["Waschmittel", "Küchenrolle", "Spülmittel", "Müllbeutel"],
+    Getränke: ["Mineralwasser", "Orangensaft", "Kaffee", "Bier"],
+    Tanken: ["Benzin", "Diesel", "Autowäsche"],
+    Gesundheit: ["Vitamintabletten", "Schmerzmittel", "Hustensaft", "Pflaster"],
+    Sonstiges: ["Zeitschrift", "Snacks", "Kaugummi", "Batterien"],
   };
-  const categories = Object.keys(itemNamesByCategory) as Array<
-    keyof typeof itemNamesByCategory
-  >;
+  // Which item categories plausibly show up on a given supplier's receipt.
+  const itemCategoriesBySupplier: Record<string, Array<keyof typeof itemNamesByCategory>> = {
+    "REWE": ["Lebensmittel", "Drogerie", "Haushalt", "Getränke", "Sonstiges"],
+    "ALDI SÜD": ["Lebensmittel", "Drogerie", "Haushalt", "Getränke", "Sonstiges"],
+    "EDEKA": ["Lebensmittel", "Drogerie", "Haushalt", "Getränke", "Sonstiges"],
+    "Shell Tankstelle": ["Tanken", "Getränke", "Sonstiges"],
+    "Apotheke am Markt": ["Gesundheit", "Drogerie"],
+  };
+  // Single-purpose suppliers always ring up their defining item first (a gas station visit
+  // without fuel, or a pharmacy visit without anything health-related, would look wrong).
+  const primaryCategoryBySupplier: Partial<Record<string, keyof typeof itemNamesByCategory>> = {
+    "Shell Tankstelle": "Tanken",
+    "Apotheke am Markt": "Gesundheit",
+  };
+  // {unit price range, quantity range} per item category.
+  const itemPricingByCategory: Record<keyof typeof itemNamesByCategory, {price: [number, number]; quantity: [number, number]}> = {
+    Lebensmittel: {price: [0.5, 8], quantity: [1, 6]},
+    Drogerie: {price: [1, 12], quantity: [1, 3]},
+    Haushalt: {price: [1, 15], quantity: [1, 3]},
+    Getränke: {price: [0.5, 15], quantity: [1, 4]},
+    Tanken: {price: [35, 95], quantity: [1, 1]},
+    Gesundheit: {price: [3, 25], quantity: [1, 2]},
+    Sonstiges: {price: [1, 10], quantity: [1, 3]},
+  };
+
+  const supplierById = new Map(suppliers.map((supplier) => [supplier.id, supplier]));
+  const makeItem = (category: keyof typeof itemNamesByCategory) => {
+    const pricing = itemPricingByCategory[category];
+    const quantity = randomInt(pricing.quantity[0], pricing.quantity[1]);
+    const unitPrice = randomAmount(pricing.price[0], pricing.price[1]);
+
+    return {
+      name: pick(itemNamesByCategory[category]),
+      categoryId: itemCategoryByName[category].id,
+      quantity,
+      unitPrice: toMoney(unitPrice),
+      totalPrice: toMoney(quantity * unitPrice),
+      warranty: null,
+    };
+  };
 
   const items = bills
     .map((bill) => {
-      const itemCount = randomInt(1, 5);
+      const supplier = supplierById.get(bill.supplierId)!;
+      const categoriesForSupplier = itemCategoriesBySupplier[supplier.name] ?? ["Sonstiges"];
+      const primaryCategory = primaryCategoryBySupplier[supplier.name];
+      const extraItemCount = randomInt(0, categoriesForSupplier.length > 3 ? 5 : 1);
 
-      return Array.from({length: itemCount}, () => {
-        const category = pick(categories);
-        const quantity = randomInt(1, category === "Subscriptions" ? 25 : 8);
-        const unitPrice = randomAmount(4, category === "Hardware" ? 1800 : 450);
+      const categories = [
+        ...(primaryCategory ? [primaryCategory] : []),
+        ...Array.from({length: primaryCategory ? extraItemCount : Math.max(1, extraItemCount)}, () =>
+          pick(categoriesForSupplier),
+        ),
+      ];
 
-        return {
-          billId: bill.id,
-          name: pick(itemNamesByCategory[category]),
-          categoryId: itemCategoryByName[category].id,
-          quantity,
-          unitPrice: toMoney(unitPrice),
-          totalPrice: toMoney(quantity * unitPrice),
-          warranty: category === "Hardware" ? pick([12, 24, 36]) : null,
-        };
-      });
+      return categories.map((category) => ({billId: bill.id, ...makeItem(category)}));
     })
     .flat();
 
@@ -331,11 +377,11 @@ async function main() {
 
     return {
       id: index + 1,
-      originalName: `invoice-${bill.id}.pdf`,
-      storedName: `seed-invoice-${bill.id}.pdf`,
+      originalName: `beleg-${bill.id}.pdf`,
+      storedName: `seed-beleg-${bill.id}.pdf`,
       mimeType: "application/pdf",
       sizeBytes: randomInt(80000, 900000),
-      relativePath: `seed/invoices/${yyyymm(date)}/invoice-${bill.id}.pdf`,
+      relativePath: `seed/invoices/${yyyymm(date)}/beleg-${bill.id}.pdf`,
       status: pick([
         FileStatusChoice.UPLOADED,
         FileStatusChoice.PROCESSING,
@@ -347,11 +393,11 @@ async function main() {
   });
   const contractFiles = contracts.map((contract, index) => ({
     id: fileAssets.length + index + 1,
-    originalName: `contract-${contract.id}.pdf`,
-    storedName: `seed-contract-${contract.id}.pdf`,
+    originalName: `vertrag-${contract.id}.pdf`,
+    storedName: `seed-vertrag-${contract.id}.pdf`,
     mimeType: "application/pdf",
     sizeBytes: randomInt(120000, 1200000),
-    relativePath: `seed/contracts/contract-${contract.id}.pdf`,
+    relativePath: `seed/contracts/vertrag-${contract.id}.pdf`,
     status: FileStatusChoice.COMPLETED,
     contractId: contract.id,
   }));
