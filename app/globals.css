@@ -46,6 +46,17 @@
     --font-sans: var(--font-inter);
 }
 
+@layer utilities {
+    .scrollbar-hide {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}
+
 .dark,
 [data-theme="dark"] {
     color-scheme: dark;

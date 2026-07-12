@@ -17,7 +17,9 @@ import {
 
 type Granularity = "1W" | "1M" | "1Y";
 
-const chartData: Record<Granularity, { label: string; current: number; previous: number }[]> = {
+type ChartCardPoint = {label: string; current: number | null; previous: number; upcoming?: number | null};
+
+const chartData: Record<Granularity, ChartCardPoint[]> = {
   "1W": [
     {label: "Mo", current: 1180, previous: 1160},
     {label: "Di", current: 1240, previous: 1220},
@@ -48,14 +50,27 @@ const chartData: Record<Granularity, { label: string; current: number; previous:
   ],
 };
 
-export default function ChartCard() {
-  const [granularity, setGranularity] = useState<Granularity>("1W");
+const GRANULARITY_ORDER: Granularity[] = ["1W", "1M", "1Y"];
 
-  const data = chartData[granularity];
+type ChartCardProps = {
+  title?: string;
+  data?: Partial<Record<Granularity, ChartCardPoint[]>>;
+  /** Whether a higher `current` than `previous` is good (income) or bad (expense) news. */
+  polarity?: "higherIsBetter" | "lowerIsBetter";
+};
+
+export default function ChartCard({title = "Expense", data, polarity = "higherIsBetter"}: ChartCardProps = {}) {
+  const source = data ?? chartData;
+  const granularities = GRANULARITY_ORDER.filter((item) => source[item]);
+
+  const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1W");
+
+  const points = useMemo(() => source[granularity] ?? [], [source, granularity]);
 
   const {current, previous, changePercent} = useMemo(() => {
-    const current = data[data.length - 1]?.current ?? 0;
-    const previous = data[data.length - 1]?.previous ?? current;
+    const latest = [...points].reverse().find((point) => point.current !== null);
+    const current = latest?.current ?? 0;
+    const previous = latest?.previous ?? current;
     const changePercent =
       previous === 0 ? 0 : ((current - previous) / previous) * 100;
 
@@ -64,15 +79,16 @@ export default function ChartCard() {
       previous,
       changePercent,
     };
-  }, [data]);
+  }, [points]);
 
   const isPositive = changePercent >= 0;
+  const isGoodTrend = polarity === "higherIsBetter" ? isPositive : !isPositive;
 
   return (
     <Card className="min-h-fit min-w-fit shrink-0">
       <Card.Header className="flex gap-4 flex-row items-center justify-between">
         <div>
-          <p className="text-sm">Expense</p>
+          <p className="text-sm">{title}</p>
 
           <div className="mt-1 flex items-center gap-3">
             <h3 className="text-2xl font-semibold tracking-tight">
@@ -85,7 +101,7 @@ export default function ChartCard() {
 
             <Chip
               size="sm"
-              color={isPositive ? "success" : "danger"}
+              color={isGoodTrend ? "success" : "danger"}
               variant="soft"
             >
               {isPositive ? "+" : ""}
@@ -94,23 +110,25 @@ export default function ChartCard() {
           </div>
         </div>
 
-        <ButtonGroup size="sm">
-          {(["1W", "1M", "1Y"] as Granularity[]).map((item) => (
-            <Button
-              key={item}
-              variant={granularity === item ? "secondary" : "tertiary"}
-              onPress={() => setGranularity(item)}
-            >
-              {item}
-            </Button>
-          ))}
-        </ButtonGroup>
+        {granularities.length > 1 && (
+          <ButtonGroup size="sm">
+            {granularities.map((item) => (
+              <Button
+                key={item}
+                variant={granularity === item ? "secondary" : "tertiary"}
+                onPress={() => setGranularity(item)}
+              >
+                {item}
+              </Button>
+            ))}
+          </ButtonGroup>
+        )}
       </Card.Header>
 
       <Card.Content className="pt-2">
         <div className="h-40">
           <LineChart
-            data={data}
+            data={points}
             margin={{top: 12, right: 12, left: 0, bottom: 0}}
             width="100%"
             height="100%"
@@ -118,6 +136,7 @@ export default function ChartCard() {
             <Line
               type="monotone"
               dataKey="previous"
+              name="Ø"
               stroke="color-mix(in srgb, var(--accent) 50%, white)"
               strokeDasharray="5 5"
               strokeWidth={3}
@@ -127,10 +146,22 @@ export default function ChartCard() {
             <Line
               type="monotone"
               dataKey="current"
+              name="Current"
               stroke="var(--accent)"
               strokeWidth={3}
               dot={false}
               activeDot={{r: 5}}
+            />
+            <Line
+              type="monotone"
+              dataKey="upcoming"
+              name="Upcoming"
+              stroke="var(--accent)"
+              strokeDasharray="5 5"
+              strokeWidth={3}
+              dot={false}
+              activeDot={{r: 5}}
+              connectNulls={false}
             />
 
             <XAxis
@@ -150,6 +181,7 @@ export default function ChartCard() {
               axisLine={false}
               tickLine={false}
               tickMargin={10}
+              tickFormatter={(value) => Number(value).toLocaleString("de-DE", {maximumFractionDigits: 0})}
               style={{}}
               tick={{
                 fontSize: "0.875rem",
@@ -166,11 +198,13 @@ export default function ChartCard() {
                 boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
               }}
               formatter={(value) =>
-                Number(value).toLocaleString("de-DE", {
-                  style: "currency",
-                  currency: "EUR",
-                  maximumFractionDigits: 0,
-                })
+                value === null || value === undefined
+                  ? "–"
+                  : Number(value).toLocaleString("de-DE", {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0,
+                    })
               }
             />
           </LineChart>
