@@ -8,11 +8,25 @@ export type ContractFilterOptions = {
   frequencies: FilterOption[];
 };
 
+// Only offer values that actually occur on a Contract — a supplier/frequency used only by
+// bills or income would be a dead filter option in the fixed-expense domain.
 export async function getContractFilterOptions(): Promise<ContractFilterOptions> {
   const [suppliers, categories, frequencies] = await Promise.all([
-    client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
-    client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
-    client.frequency.findMany({select: {id: true, name: true}, orderBy: {value: "asc"}}),
+    client.supplier.findMany({
+      where: {contracts: {some: {}}},
+      select: {id: true, name: true},
+      orderBy: {name: "asc"},
+    }),
+    client.contractCategory.findMany({
+      where: {contracts: {some: {}}},
+      select: {id: true, name: true},
+      orderBy: {name: "asc"},
+    }),
+    client.frequency.findMany({
+      where: {contracts: {some: {}}},
+      select: {id: true, name: true},
+      orderBy: {value: "asc"},
+    }),
   ]);
 
   return {suppliers, categories, frequencies};

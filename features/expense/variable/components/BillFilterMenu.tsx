@@ -9,10 +9,9 @@ const ALL_KEY = "all";
 
 type BillFilterMenuProps = {
   options: BillFilterOptions;
-  className?: string;
 };
 
-export default function BillFilterMenu({options, className}: BillFilterMenuProps) {
+export default function BillFilterMenu({options}: BillFilterMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,7 +33,7 @@ export default function BillFilterMenu({options, className}: BillFilterMenuProps
   }
 
   return (
-    <div className={className}>
+    <div className="flex flex-col gap-3">
       <FilterSelect
         label="Supplier"
         paramName="supplierId"

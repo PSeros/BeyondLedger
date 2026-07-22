@@ -9,10 +9,9 @@ const ALL_KEY = "all";
 
 type ContractFilterMenuProps = {
   options: ContractFilterOptions;
-  className?: string;
 };
 
-export default function ContractFilterMenu({options, className}: ContractFilterMenuProps) {
+export default function ContractFilterMenu({options}: ContractFilterMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,7 +33,7 @@ export default function ContractFilterMenu({options, className}: ContractFilterM
   }
 
   return (
-    <div className={className}>
+    <div className="flex flex-col gap-3">
       <FilterSelect
         label="Supplier"
         paramName="supplierId"

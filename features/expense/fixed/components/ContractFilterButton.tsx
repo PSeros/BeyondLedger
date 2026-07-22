@@ -9,18 +9,18 @@ type ContractFilterButtonProps = {
   options: ContractFilterOptions;
 };
 
-export default function ContractFilterButton({options}: ContractFilterButtonProps) {
+// `buttonProps` carries the `__button_group_child` marker ButtonGroup injects into its
+// direct children — forward it to the real Button so it keeps its group styling.
+export default function ContractFilterButton({options, ...buttonProps}: ContractFilterButtonProps) {
   return (
     <Popover>
-      <Popover.Trigger>
-        <Button>
-          <LuFilter/>
-          Filter
-        </Button>
-      </Popover.Trigger>
+      <Button {...buttonProps}>
+        <LuFilter/>
+        Filter
+      </Button>
       <Popover.Content>
-        <Popover.Dialog>
-          <ContractFilterMenu options={options} className="flex w-64 flex-col gap-3 p-1"/>
+        <Popover.Dialog className="flex w-64 flex-col gap-3">
+          <ContractFilterMenu options={options}/>
         </Popover.Dialog>
       </Popover.Content>
     </Popover>
