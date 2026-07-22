@@ -1,19 +1,17 @@
 import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
-import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
+import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 import {buildMonthView, buildYearView, dateKey, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {ContractChartData} from "@/features/expense/fixed/types";
 
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
-type GetFixedExpenseChartDataInput = {
-  q?: string;
-};
+type GetFixedExpenseChartDataInput = ContractFilters;
 
-export async function getFixedExpenseChartData({q}: GetFixedExpenseChartDataInput = {}): Promise<ContractChartData> {
+export async function getFixedExpenseChartData(filters: GetFixedExpenseChartDataInput = {}): Promise<ContractChartData> {
   const contracts = await client.contract.findMany({
-    where: buildContractWhere(q),
+    where: buildContractWhere(filters),
     include: {frequency: true},
   });
 

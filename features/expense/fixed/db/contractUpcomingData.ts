@@ -1,20 +1,19 @@
 import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
-import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
+import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 import {addDays, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {ContractUpcomingRow} from "@/features/expense/fixed/types";
 
-type GetUpcomingFixedExpensesInput = {
-  q?: string;
+type GetUpcomingFixedExpensesInput = ContractFilters & {
   withinDays?: number;
 };
 
 export async function getUpcomingFixedExpenses({
-  q,
   withinDays = 30,
+  ...filters
 }: GetUpcomingFixedExpensesInput = {}): Promise<ContractUpcomingRow[]> {
   const contracts = await client.contract.findMany({
-    where: buildContractWhere(q),
+    where: buildContractWhere(filters),
     include: {frequency: true},
   });
 

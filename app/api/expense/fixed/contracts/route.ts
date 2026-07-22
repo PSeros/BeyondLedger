@@ -6,6 +6,11 @@ import type {ContractTableSortBy, ContractTableSortDir} from "@/features/expense
 const SORT_BY_VALUES: readonly ContractTableSortBy[] = ["name", "supplier", "amount", "frequency"];
 const SORT_DIR_VALUES: readonly ContractTableSortDir[] = ["asc", "desc"];
 
+function parsePositiveId(value: string | null): number | undefined {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -27,7 +32,20 @@ export async function GET(request: NextRequest) {
   const rawLimit = Number(params.get("limit"));
   const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 40;
 
-  const result = await getContractTableRows({q, offset, limit, sortBy, sortDir});
+  const supplierId = parsePositiveId(params.get("supplierId"));
+  const categoryId = parsePositiveId(params.get("categoryId"));
+  const frequencyId = parsePositiveId(params.get("frequencyId"));
+
+  const result = await getContractTableRows({
+    q,
+    offset,
+    limit,
+    sortBy,
+    sortDir,
+    supplierId,
+    categoryId,
+    frequencyId,
+  });
 
   return NextResponse.json(result);
 }

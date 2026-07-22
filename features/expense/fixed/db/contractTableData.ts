@@ -1,7 +1,7 @@
 import {client} from "@/lib/prisma";
 import type {Prisma} from "@/prisma/generated/client";
 import {determineStatus} from "@/lib/status";
-import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
+import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 import type {
   ContractTableResponse,
   ContractTableRow,
@@ -9,8 +9,7 @@ import type {
   ContractTableSortDir,
 } from "@/features/expense/fixed/types";
 
-type GetContractTableRowsInput = {
-  q?: string;
+type GetContractTableRowsInput = ContractFilters & {
   offset?: number;
   limit?: number;
   sortBy?: ContractTableSortBy;
@@ -35,14 +34,14 @@ function getContractOrderBy(
 }
 
 export async function getContractTableRows({
-  q = "",
   offset = 0,
   limit = 40,
   sortBy = "name",
   sortDir = "asc",
+  ...filters
 }: GetContractTableRowsInput): Promise<ContractTableResponse> {
   const contracts = await client.contract.findMany({
-    where: buildContractWhere(q),
+    where: buildContractWhere(filters),
     skip: offset,
     take: limit + 1,
     orderBy: getContractOrderBy(sortBy, sortDir),

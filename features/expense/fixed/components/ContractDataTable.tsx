@@ -50,6 +50,9 @@ function toTableRow(contract: ContractTableRow) {
 export default function ContractDataTable() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
+  const supplierId = searchParams.get("supplierId") ?? "";
+  const categoryId = searchParams.get("categoryId") ?? "";
+  const frequencyId = searchParams.get("frequencyId") ?? "";
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "name",
@@ -79,6 +82,15 @@ export default function ContractDataTable() {
       if (q) {
         params.set("q", q);
       }
+      if (supplierId) {
+        params.set("supplierId", supplierId);
+      }
+      if (categoryId) {
+        params.set("categoryId", categoryId);
+      }
+      if (frequencyId) {
+        params.set("frequencyId", frequencyId);
+      }
 
       const response = await fetch(`/api/expense/fixed/contracts?${params.toString()}`);
       const data: ContractTableResponse = await response.json();
@@ -95,13 +107,13 @@ export default function ContractDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, sortBy, sortDir],
+    [q, supplierId, categoryId, frequencyId, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sortBy, sortDir]);
+  }, [q, supplierId, categoryId, frequencyId, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

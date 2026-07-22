@@ -9,11 +9,27 @@ import ContractChartCard from "@/features/expense/fixed/components/ContractChart
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
 
 type FixedPageProps = {
-  searchParams: Promise<{q?: string}>;
+  searchParams: Promise<{
+    q?: string;
+    supplierId?: string;
+    categoryId?: string;
+    frequencyId?: string;
+  }>;
 };
 
+function parseId(value?: string): number | undefined {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 export default async function FixedPage({searchParams}: FixedPageProps) {
-  const {q} = await searchParams;
+  const params = await searchParams;
+  const filters = {
+    q: params.q,
+    supplierId: parseId(params.supplierId),
+    categoryId: parseId(params.categoryId),
+    frequencyId: parseId(params.frequencyId),
+  };
 
   return (
     <>
@@ -27,12 +43,12 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
           <div className="flex shrink-0 flex-row gap-4">
             <div className="w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <ContractChartCard q={q}/>
+                <ContractChartCard {...filters}/>
               </Suspense>
             </div>
             <div className="w-2/5 min-h-0">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <ContractUpcomingCard q={q}/>
+                <ContractUpcomingCard {...filters}/>
               </Suspense>
             </div>
           </div>
