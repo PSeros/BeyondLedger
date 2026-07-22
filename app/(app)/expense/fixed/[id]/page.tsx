@@ -13,7 +13,8 @@ type ContractPageProps = {
 // The intercepted @modal/(.)[id] route renders the same ContractDetail as an overlay instead.
 export default async function ContractPage({params}: ContractPageProps) {
   const {id} = await params;
-  const contract = await getContractById(Number(id));
+  const numericId = Number(id);
+  const contract = Number.isInteger(numericId) ? await getContractById(numericId) : null;
 
   if (!contract) {
     notFound();

@@ -149,7 +149,11 @@ export default function DataTable<T extends DataTableRow>({
             )}
           >
             {sortedRows.map((row) => (
-              <Table.Row key={row.id}>
+              <Table.Row
+                key={row.id}
+                id={String(row.id)}
+                className={onRowAction ? "cursor-pointer" : undefined}
+              >
                 {columns.map((column) => (
                   <Table.Cell key={column.id}>{row[column.id]}</Table.Cell>
                 ))}

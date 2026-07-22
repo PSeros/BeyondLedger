@@ -11,7 +11,8 @@ type InterceptedContractPageProps = {
 // as an overlay. A hard load / direct link hits the standalone [id]/page.tsx instead.
 export default async function InterceptedContractPage({params}: InterceptedContractPageProps) {
   const {id} = await params;
-  const contract = await getContractById(Number(id));
+  const numericId = Number(id);
+  const contract = Number.isInteger(numericId) ? await getContractById(numericId) : null;
 
   if (!contract) {
     notFound();
