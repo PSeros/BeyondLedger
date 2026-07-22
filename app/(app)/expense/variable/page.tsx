@@ -9,11 +9,28 @@ import BillChartCard from "@/features/expense/variable/components/BillChartCard"
 import BillTopKCard from "@/features/expense/variable/components/BillTopKCard";
 
 type VariablePageProps = {
-  searchParams: Promise<{q?: string}>;
+  searchParams: Promise<{
+    q?: string;
+    supplierId?: string;
+    supplierCategoryId?: string;
+    itemCategoryId?: string;
+  }>;
 };
 
+function parseId(value?: string): number | undefined {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 export default async function VariablePage({searchParams}: VariablePageProps) {
-  const {q} = await searchParams;
+  const params = await searchParams;
+  const q = params.q;
+  const filters = {
+    q,
+    supplierId: parseId(params.supplierId),
+    supplierCategoryId: parseId(params.supplierCategoryId),
+    itemCategoryId: parseId(params.itemCategoryId),
+  };
 
   return (
     <>
@@ -27,12 +44,12 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
           <div className="flex shrink-0 flex-row gap-4">
             <div className="w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillChartCard q={q}/>
+                <BillChartCard {...filters}/>
               </Suspense>
             </div>
             <div className="w-2/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillTopKCard q={q}/>
+                <BillTopKCard {...filters}/>
               </Suspense>
             </div>
           </div>

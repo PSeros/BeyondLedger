@@ -1,5 +1,5 @@
 import {client} from "@/lib/prisma";
-import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
+import {buildBillWhere, type BillFilters} from "@/features/expense/variable/db/billWhere";
 import {addDays, average, buildMonthView, buildYearView, dateKey, sumRange, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {BillChartData, BillChartPoint} from "@/features/expense/variable/types";
 
@@ -11,13 +11,11 @@ const WEEK_LOOKBACK = 8;
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
-type GetVariableExpenseChartDataInput = {
-  q?: string;
-};
+type GetVariableExpenseChartDataInput = BillFilters;
 
-export async function getVariableExpenseChartData({q}: GetVariableExpenseChartDataInput = {}): Promise<BillChartData> {
+export async function getVariableExpenseChartData(filters: GetVariableExpenseChartDataInput = {}): Promise<BillChartData> {
   const bills = await client.bill.findMany({
-    where: buildBillWhere(q),
+    where: buildBillWhere(filters),
     select: {date: true, totalAmount: true},
   });
 

@@ -1,16 +1,15 @@
 import {client} from "@/lib/prisma";
-import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
+import {buildBillWhere, type BillFilters} from "@/features/expense/variable/db/billWhere";
 import type {BillTopKRow} from "@/features/expense/variable/types";
 
-type GetTopSuppliersInput = {
-  q?: string;
+type GetTopSuppliersInput = BillFilters & {
   limit?: number;
 };
 
-export async function getTopSuppliers({q, limit = 5}: GetTopSuppliersInput = {}): Promise<BillTopKRow[]> {
+export async function getTopSuppliers({limit = 5, ...filters}: GetTopSuppliersInput = {}): Promise<BillTopKRow[]> {
   const grouped = await client.bill.groupBy({
     by: ["supplierId"],
-    where: buildBillWhere(q),
+    where: buildBillWhere(filters),
     _sum: {totalAmount: true},
     _count: {_all: true},
     orderBy: {_sum: {totalAmount: "desc"}},

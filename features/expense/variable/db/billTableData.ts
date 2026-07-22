@@ -1,10 +1,9 @@
 import {client} from "@/lib/prisma";
 import type {Prisma} from "@/prisma/generated/client";
 import type {BillTableResponse, BillTableRow, BillTableSortBy, BillTableSortDir} from "@/features/expense/variable/types";
-import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
+import {buildBillWhere, type BillFilters} from "@/features/expense/variable/db/billWhere";
 
-type GetBillTableRowsInput = {
-  q?: string;
+type GetBillTableRowsInput = BillFilters & {
   offset?: number;
   limit?: number;
   sortBy?: BillTableSortBy;
@@ -27,14 +26,14 @@ function getBillOrderBy(
 }
 
 export async function getBillTableRows({
-  q = "",
   offset = 0,
   limit = 40,
   sortBy = "date",
   sortDir = "desc",
+  ...filters
 }: GetBillTableRowsInput): Promise<BillTableResponse> {
   const bills = await client.bill.findMany({
-    where: buildBillWhere(q),
+    where: buildBillWhere(filters),
     skip: offset,
     take: limit + 1,
     orderBy: getBillOrderBy(sortBy, sortDir),
