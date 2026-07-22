@@ -96,9 +96,9 @@ function FilterSelect({label, paramName, options, selectedId, onSelect}: FilterS
         </Select.Trigger>
         <Select.Popover>
           <ListBox>
-            <ListBox.Item id={ALL_KEY}>All</ListBox.Item>
+            <ListBox.Item id={ALL_KEY} textValue="All">All</ListBox.Item>
             {options.map((option) => (
-              <ListBox.Item key={option.id} id={String(option.id)}>
+              <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
                 {option.name}
               </ListBox.Item>
             ))}
