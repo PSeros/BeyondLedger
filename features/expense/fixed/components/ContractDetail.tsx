@@ -13,7 +13,7 @@ function formatCurrency(amount: number): string {
 function Field({label, children}: {label: string; children: ReactNode}) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-foreground-500 text-xs uppercase tracking-wide">{label}</dt>
+      <dt className="text-xs text-muted">{label}</dt>
       <dd className="text-sm">{children}</dd>
     </div>
   );
@@ -28,7 +28,7 @@ export default function ContractDetail({contract}: {contract: ContractDetailData
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-3xl font-semibold tracking-tight">{formatCurrency(contract.amount)}</p>
-          <p className="text-foreground-500 text-sm">{contract.frequency}</p>
+          <p className="text-sm text-muted">{contract.frequency}</p>
         </div>
         <StatusChip status={contract.status}/>
       </div>

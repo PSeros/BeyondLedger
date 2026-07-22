@@ -30,7 +30,7 @@ export default async function InterceptedContractPage({params, searchParams}: In
   return (
     <ContractDetailModal
       title={contract.name}
-      headerAction={editing ? undefined : <EditLink id={contract.id}/>}
+      footer={editing ? undefined : <EditLink id={contract.id}/>}
     >
       {editing && options ? (
         <ContractEditForm contract={contract} options={options}/>

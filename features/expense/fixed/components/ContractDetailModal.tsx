@@ -6,39 +6,37 @@ import {useRouter} from "next/navigation";
 
 type ContractDetailModalProps = {
   title: string;
-  headerAction?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
 };
 
 // Backs the intercepted-route modal: it's always open (its presence in the route is what
-// "opens" it), and any dismissal (backdrop, Esc, close button) navigates back to the
-// intercepted-from list page via router.back(), which unmounts the @modal slot.
-export default function ContractDetailModal({title, headerAction, children}: ContractDetailModalProps) {
+// "opens" it). Rendered as a controlled ModalOverlay (Modal.Backdrop) directly — NOT wrapped
+// in Modal (a DialogTrigger), which would expect a pressable trigger child and warn. Any
+// dismissal (backdrop, Esc) navigates back via router.back(), unmounting the @modal slot.
+export default function ContractDetailModal({title, footer, children}: ContractDetailModalProps) {
   const router = useRouter();
 
   return (
-    <Modal
+    <Modal.Backdrop
       isOpen
+      isDismissable
       onOpenChange={(open) => {
         if (!open) {
           router.back();
         }
       }}
     >
-      <Modal.Backdrop>
-        <Modal.Container>
-          <Modal.Dialog>
-            <Modal.Header className="flex flex-row items-center justify-between gap-4">
-              <Modal.Heading>{title}</Modal.Heading>
-              <div className="flex items-center gap-2">
-                {headerAction}
-                <Modal.CloseTrigger/>
-              </div>
-            </Modal.Header>
-            <Modal.Body>{children}</Modal.Body>
-          </Modal.Dialog>
-        </Modal.Container>
-      </Modal.Backdrop>
-    </Modal>
+      <Modal.Container>
+        <Modal.Dialog>
+          <Modal.CloseTrigger/>
+          <Modal.Header>
+            <Modal.Heading>{title}</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body>{children}</Modal.Body>
+          {footer ? <Modal.Footer>{footer}</Modal.Footer> : null}
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 }
