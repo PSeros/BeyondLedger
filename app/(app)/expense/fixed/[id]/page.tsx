@@ -21,19 +21,24 @@ export default async function ContractPage({params}: ContractPageProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl py-4">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
       <Link
         href="/expense/fixed"
-        className="text-foreground-500 hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm"
+        className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
       >
         <LuArrowLeft/>
         Back to fixed expenses
       </Link>
+
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{contract.name}</h1>
+        <p className="text-foreground-500 text-sm">
+          {contract.supplier} · {contract.category}
+        </p>
+      </div>
+
       <Card>
-        <Card.Header>
-          <h1 className="text-lg font-semibold">{contract.name}</h1>
-        </Card.Header>
-        <Card.Content className="pt-2">
+        <Card.Content className="pt-6">
           <ContractDetail contract={contract}/>
         </Card.Content>
       </Card>
