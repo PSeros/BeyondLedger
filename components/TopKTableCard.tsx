@@ -1,3 +1,4 @@
+import type {ReactNode} from "react";
 import {Card} from "@heroui/react";
 
 type TopKTableCardRow = {
@@ -10,9 +11,11 @@ type TopKTableCardRow = {
 type TopKTableCardProps = {
   title?: string;
   rows?: TopKTableCardRow[];
+  /** Optional control rendered at the right of the header (e.g. a view toggle). */
+  headerAction?: ReactNode;
 };
 
-export default function TopKTableCard({title, rows = []}: TopKTableCardProps = {}) {
+export default function TopKTableCard({title, rows = [], headerAction}: TopKTableCardProps = {}) {
   if (!title) {
     return <Card className="h-full"/>;
   }
@@ -21,8 +24,9 @@ export default function TopKTableCard({title, rows = []}: TopKTableCardProps = {
 
   return (
     <Card className="h-full">
-      <Card.Header>
+      <Card.Header className="flex flex-row items-center justify-between gap-4">
         <p className="text-sm">{title}</p>
+        {headerAction}
       </Card.Header>
 
       <Card.Content className="flex flex-col justify-center gap-3 pt-2">
