@@ -11,7 +11,10 @@ const WEEK_LOOKBACK = 8;
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
-type GetVariableExpenseChartDataInput = BillFilters;
+// Chart intentionally ignores the date range (dateFrom/dateTo): its 1W/1M/1Y views are a
+// cumulative "this period vs. rolling average of prior periods" comparison anchored on today,
+// so an arbitrary window would starve the baseline. Only the categorical filters apply here.
+type GetVariableExpenseChartDataInput = Omit<BillFilters, "dateFrom" | "dateTo">;
 
 export async function getVariableExpenseChartData(filters: GetVariableExpenseChartDataInput = {}): Promise<BillChartData> {
   const bills = await client.bill.findMany({

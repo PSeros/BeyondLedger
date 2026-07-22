@@ -50,6 +50,8 @@ export default function BillDataTable() {
   const supplierId = searchParams.get("supplierId") ?? "";
   const supplierCategoryId = searchParams.get("supplierCategoryId") ?? "";
   const itemCategoryId = searchParams.get("itemCategoryId") ?? "";
+  const dateFrom = searchParams.get("dateFrom") ?? "";
+  const dateTo = searchParams.get("dateTo") ?? "";
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "date",
@@ -88,6 +90,12 @@ export default function BillDataTable() {
       if (itemCategoryId) {
         params.set("itemCategoryId", itemCategoryId);
       }
+      if (dateFrom) {
+        params.set("dateFrom", dateFrom);
+      }
+      if (dateTo) {
+        params.set("dateTo", dateTo);
+      }
 
       const response = await fetch(`/api/expense/variable/bills?${params.toString()}`);
       const data: BillTableResponse = await response.json();
@@ -104,13 +112,13 @@ export default function BillDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, supplierId, supplierCategoryId, itemCategoryId, sortBy, sortDir],
+    [q, supplierId, supplierCategoryId, itemCategoryId, dateFrom, dateTo, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, supplierId, supplierCategoryId, itemCategoryId, sortBy, sortDir]);
+  }, [q, supplierId, supplierCategoryId, itemCategoryId, dateFrom, dateTo, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

@@ -4,7 +4,8 @@ import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed
 import {addDays, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {ContractUpcomingRow} from "@/features/expense/fixed/types";
 
-type GetUpcomingFixedExpensesInput = ContractFilters & {
+// Upcoming card restricts to Active contracts by nature, so status is not applicable here.
+type GetUpcomingFixedExpensesInput = Omit<ContractFilters, "status"> & {
   withinDays?: number;
 };
 

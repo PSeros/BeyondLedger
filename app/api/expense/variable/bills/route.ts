@@ -11,6 +11,10 @@ function parsePositiveId(value: string | null): number | undefined {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
+function parseIsoDate(value: string | null): string | undefined {
+  return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -35,6 +39,8 @@ export async function GET(request: NextRequest) {
   const supplierId = parsePositiveId(params.get("supplierId"));
   const supplierCategoryId = parsePositiveId(params.get("supplierCategoryId"));
   const itemCategoryId = parsePositiveId(params.get("itemCategoryId"));
+  const dateFrom = parseIsoDate(params.get("dateFrom"));
+  const dateTo = parseIsoDate(params.get("dateTo"));
 
   const result = await getBillTableRows({
     q,
@@ -45,6 +51,8 @@ export async function GET(request: NextRequest) {
     supplierId,
     supplierCategoryId,
     itemCategoryId,
+    dateFrom,
+    dateTo,
   });
 
   return NextResponse.json(result);

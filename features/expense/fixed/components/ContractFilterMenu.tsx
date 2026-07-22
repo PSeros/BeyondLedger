@@ -3,9 +3,16 @@
 import {startTransition} from "react";
 import {ListBox, Select} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import type {ContractFilterOptions, FilterOption} from "@/features/expense/fixed/db/contractFilterOptions";
+import type {LifecycleStatus} from "@/lib/status";
+import type {ContractFilterOptions} from "@/features/expense/fixed/db/contractFilterOptions";
 
 const ALL_KEY = "all";
+
+const STATUS_OPTIONS: {id: LifecycleStatus; name: string}[] = [
+  {id: "Active", name: "Active"},
+  {id: "Pending", name: "Pending"},
+  {id: "Inactive", name: "Inactive"},
+];
 
 type ContractFilterMenuProps = {
   options: ContractFilterOptions;
@@ -55,6 +62,13 @@ export default function ContractFilterMenu({options}: ContractFilterMenuProps) {
         selectedId={searchParams.get("frequencyId")}
         onSelect={setParam}
       />
+      <FilterSelect
+        label="Status"
+        paramName="status"
+        options={STATUS_OPTIONS}
+        selectedId={searchParams.get("status")}
+        onSelect={setParam}
+      />
     </div>
   );
 }
@@ -62,7 +76,7 @@ export default function ContractFilterMenu({options}: ContractFilterMenuProps) {
 type FilterSelectProps = {
   label: string;
   paramName: string;
-  options: FilterOption[];
+  options: {id: string | number; name: string}[];
   selectedId: string | null;
   onSelect: (name: string, value: string | null) => void;
 };

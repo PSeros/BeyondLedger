@@ -7,7 +7,8 @@ import type {ContractChartData} from "@/features/expense/fixed/types";
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
-type GetFixedExpenseChartDataInput = ContractFilters;
+// Chart restricts to Active contracts by nature, so the status filter is not applicable here.
+type GetFixedExpenseChartDataInput = Omit<ContractFilters, "status">;
 
 export async function getFixedExpenseChartData(filters: GetFixedExpenseChartDataInput = {}): Promise<ContractChartData> {
   const contracts = await client.contract.findMany({

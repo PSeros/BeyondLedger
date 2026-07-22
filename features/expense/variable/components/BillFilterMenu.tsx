@@ -3,6 +3,7 @@
 import {startTransition} from "react";
 import {ListBox, Select} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import BillDateRangeFilter from "@/features/expense/variable/components/BillDateRangeFilter";
 import type {BillFilterOptions, FilterOption} from "@/features/expense/variable/db/billFilterOptions";
 
 const ALL_KEY = "all";
@@ -55,6 +56,7 @@ export default function BillFilterMenu({options}: BillFilterMenuProps) {
         selectedId={searchParams.get("itemCategoryId")}
         onSelect={setParam}
       />
+      <BillDateRangeFilter/>
     </div>
   );
 }

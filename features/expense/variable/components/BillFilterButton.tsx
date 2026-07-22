@@ -19,7 +19,7 @@ export default function BillFilterButton({options, ...buttonProps}: BillFilterBu
         Filter
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-64 flex-col gap-3">
+        <Popover.Dialog className="flex w-72 flex-col gap-3">
           <BillFilterMenu options={options}/>
         </Popover.Dialog>
       </Popover.Content>

@@ -14,6 +14,8 @@ type VariablePageProps = {
     supplierId?: string;
     supplierCategoryId?: string;
     itemCategoryId?: string;
+    dateFrom?: string;
+    dateTo?: string;
   }>;
 };
 
@@ -22,14 +24,24 @@ function parseId(value?: string): number | undefined {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
+function parseIsoDate(value?: string): string | undefined {
+  return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
+
 export default async function VariablePage({searchParams}: VariablePageProps) {
   const params = await searchParams;
-  const q = params.q;
-  const filters = {
-    q,
+  // Categorical filters apply to every section (table, chart, top-k). The date range
+  // applies to the table + top-k only — never the chart (see billChartData).
+  const categoricalFilters = {
+    q: params.q,
     supplierId: parseId(params.supplierId),
     supplierCategoryId: parseId(params.supplierCategoryId),
     itemCategoryId: parseId(params.itemCategoryId),
+  };
+  const topKFilters = {
+    ...categoricalFilters,
+    dateFrom: parseIsoDate(params.dateFrom),
+    dateTo: parseIsoDate(params.dateTo),
   };
 
   return (
@@ -44,12 +56,12 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
           <div className="flex shrink-0 flex-row gap-4">
             <div className="w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillChartCard {...filters}/>
+                <BillChartCard {...categoricalFilters}/>
               </Suspense>
             </div>
             <div className="w-2/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillTopKCard {...filters}/>
+                <BillTopKCard {...topKFilters}/>
               </Suspense>
             </div>
           </div>
