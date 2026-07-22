@@ -31,6 +31,7 @@ type DataTableProps<T extends DataTableRow> = {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
+  onRowAction?: (id: Key) => void;
 };
 
 function SortableColumnHeader({
@@ -67,6 +68,7 @@ export default function DataTable<T extends DataTableRow>({
   hasMore = false,
   isLoadingMore = false,
   onLoadMore,
+  onRowAction,
 }: DataTableProps<T>) {
   const [internalSortDescriptor, setInternalSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.id ?? "id",
@@ -120,6 +122,7 @@ export default function DataTable<T extends DataTableRow>({
           className={cn("min-w-full", sortedRows.length === 0 ? "h-full" : "")}
           sortDescriptor={sortDescriptor}
           onSortChange={handleSortChange}
+          onRowAction={onRowAction ? (key) => onRowAction(key) : undefined}
         >
           <Table.Header columns={columns}>
             {(column) => (

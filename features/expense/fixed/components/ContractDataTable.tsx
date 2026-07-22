@@ -1,7 +1,7 @@
 "use client";
 
 import type {SortDescriptor} from "@heroui/react";
-import {useSearchParams} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
 import StatusChip from "@/components/StatusChip";
@@ -48,6 +48,7 @@ function toTableRow(contract: ContractTableRow) {
 }
 
 export default function ContractDataTable() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
   const supplierId = searchParams.get("supplierId") ?? "";
@@ -142,6 +143,7 @@ export default function ContractDataTable() {
       hasMore={nextOffset !== null}
       isLoadingMore={isLoadingMore}
       onLoadMore={handleLoadMore}
+      onRowAction={(id) => router.push(`/expense/fixed/${String(id)}`)}
     />
   );
 }
