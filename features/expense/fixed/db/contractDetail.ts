@@ -5,8 +5,11 @@ export type ContractDetailData = {
   id: number;
   name: string;
   supplier: string;
+  supplierId: number;
   category: string;
+  categoryId: number;
   frequency: string;
+  frequencyId: number;
   documentNumber: string | null;
   amount: number;
   startDate: string; // ISO
@@ -29,8 +32,11 @@ export async function getContractById(id: number): Promise<ContractDetailData | 
     id: contract.id,
     name: contract.name,
     supplier: contract.supplier.name,
+    supplierId: contract.supplierId,
     category: contract.category.name,
+    categoryId: contract.categoryId,
     frequency: contract.frequency.name,
+    frequencyId: contract.frequencyId,
     documentNumber: contract.documentNumber,
     amount: Number(contract.totalAmount),
     startDate: contract.startDate.toISOString(),

@@ -6,13 +6,14 @@ import {useRouter} from "next/navigation";
 
 type ContractDetailModalProps = {
   title: string;
+  headerAction?: ReactNode;
   children: ReactNode;
 };
 
 // Backs the intercepted-route modal: it's always open (its presence in the route is what
 // "opens" it), and any dismissal (backdrop, Esc, close button) navigates back to the
 // intercepted-from list page via router.back(), which unmounts the @modal slot.
-export default function ContractDetailModal({title, children}: ContractDetailModalProps) {
+export default function ContractDetailModal({title, headerAction, children}: ContractDetailModalProps) {
   const router = useRouter();
 
   return (
@@ -27,9 +28,12 @@ export default function ContractDetailModal({title, children}: ContractDetailMod
       <Modal.Backdrop>
         <Modal.Container>
           <Modal.Dialog>
-            <Modal.Header>
+            <Modal.Header className="flex flex-row items-center justify-between gap-4">
               <Modal.Heading>{title}</Modal.Heading>
-              <Modal.CloseTrigger/>
+              <div className="flex items-center gap-2">
+                {headerAction}
+                <Modal.CloseTrigger/>
+              </div>
             </Modal.Header>
             <Modal.Body>{children}</Modal.Body>
           </Modal.Dialog>
