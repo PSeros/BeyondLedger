@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {Card, Chip} from "@heroui/react";
 
 type UpcomingDueRow = {
@@ -13,6 +14,11 @@ type UpcomingDueCardProps = {
   rows?: UpcomingDueRow[];
   /** Size of the due-date horizon `rows` was fetched for — used to scale the urgency bar. */
   windowDays?: number;
+  /**
+   * When provided, each row becomes a Link to this href — a soft nav that triggers the
+   * detail route (and its intercepted modal). Omit to render plain, non-clickable rows.
+   */
+  hrefForRow?: (id: UpcomingDueRow["id"]) => string;
 };
 
 function formatDueIn(dueDate: Date, today: Date): string {
@@ -24,7 +30,7 @@ function formatDueIn(dueDate: Date, today: Date): string {
   return `in ${days} Tagen`;
 }
 
-export default function UpcomingDueCard({title, rows = [], windowDays = 30}: UpcomingDueCardProps = {}) {
+export default function UpcomingDueCard({title, rows = [], windowDays = 30, hrefForRow}: UpcomingDueCardProps = {}) {
   if (!title) {
     return <Card className="max-h-[268px]"/>;
   }
@@ -50,38 +56,54 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30}: Upc
             const daysUntil = (dueDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000);
             const urgency = Math.min(1, Math.max(0, 1 - daysUntil / windowDays));
 
+            const body = (
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate text-sm">{row.label}</span>
+                  <span className="shrink-0 text-sm font-medium">
+                    {row.amount.toLocaleString("de-DE", {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0,
+                    })}
+                  </span>
+                </div>
+
+                <div className="mt-1 flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted">
+                    {formatDueIn(dueDate, today)} · {dueDate.toLocaleDateString("de-DE")}
+                  </p>
+                  {row.frequency && (
+                    <Chip size="sm" variant="soft" color="accent" className="shrink-0">
+                      <Chip.Label>{row.frequency}</Chip.Label>
+                    </Chip>
+                  )}
+                </div>
+
+                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-default">
+                  <div
+                    className="h-full rounded-full bg-[var(--accent)]"
+                    style={{width: `${Math.max(6, urgency * 100)}%`}}
+                  />
+                </div>
+              </div>
+            );
+
+            if (hrefForRow) {
+              return (
+                <Link
+                  key={row.id}
+                  href={hrefForRow(row.id)}
+                  className="hover:bg-default -mx-2 flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 transition-colors"
+                >
+                  {body}
+                </Link>
+              );
+            }
+
             return (
               <div key={row.id} className="flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm">{row.label}</span>
-                    <span className="shrink-0 text-sm font-medium">
-                      {row.amount.toLocaleString("de-DE", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0,
-                      })}
-                    </span>
-                  </div>
-
-                  <div className="mt-1 flex items-center justify-between gap-2">
-                    <p className="text-xs text-muted">
-                      {formatDueIn(dueDate, today)} · {dueDate.toLocaleDateString("de-DE")}
-                    </p>
-                    {row.frequency && (
-                      <Chip size="sm" variant="soft" color="accent" className="shrink-0">
-                        <Chip.Label>{row.frequency}</Chip.Label>
-                      </Chip>
-                    )}
-                  </div>
-
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-default">
-                    <div
-                      className="h-full rounded-full bg-[var(--accent)]"
-                      style={{width: `${Math.max(6, urgency * 100)}%`}}
-                    />
-                  </div>
-                </div>
+                {body}
               </div>
             );
           })

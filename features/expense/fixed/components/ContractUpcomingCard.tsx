@@ -7,5 +7,12 @@ type ContractUpcomingCardProps = Omit<ContractFilters, "status">;
 export default async function ContractUpcomingCard(filters: ContractUpcomingCardProps) {
   const rows = await getUpcomingFixedExpenses({...filters, withinDays: 30});
 
-  return <UpcomingDueCard title="Upcoming (30 days)" rows={rows} windowDays={30}/>;
+  return (
+    <UpcomingDueCard
+      title="Upcoming (30 days)"
+      rows={rows}
+      windowDays={30}
+      hrefForRow={(id) => `/expense/fixed/${id}`}
+    />
+  );
 }
