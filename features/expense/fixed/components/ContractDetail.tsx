@@ -24,7 +24,10 @@ function Field({label, children}: {label: string; children: ReactNode}) {
 // The name lives in each surface's own header (modal heading / page header), not here.
 export default function ContractDetail({contract}: {contract: ContractDetailData}) {
   return (
-    <div className="flex flex-col gap-6">
+    // text-foreground anchors the default text color: HeroUI's Modal.Body forces text-muted on
+    // its content, which would gray out the values (the standalone Card doesn't). The muted
+    // labels below set their own color, so only the primary content is lifted to foreground.
+    <div className="flex flex-col gap-6 text-foreground">
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-3xl font-semibold tracking-tight">{formatCurrency(contract.amount)}</p>
