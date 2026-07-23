@@ -1,4 +1,5 @@
 import {notFound} from "next/navigation";
+import ModalCloseButton from "@/components/ModalCloseButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractDetailModal from "@/features/expense/fixed/components/ContractDetailModal";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
@@ -30,7 +31,14 @@ export default async function InterceptedContractPage({params, searchParams}: In
   return (
     <ContractDetailModal
       title={contract.name}
-      footer={editing ? undefined : <EditLink id={contract.id}/>}
+      footer={
+        editing ? undefined : (
+          <div className="flex items-center justify-end gap-2">
+            <ModalCloseButton/>
+            <EditLink id={contract.id}/>
+          </div>
+        )
+      }
     >
       {editing && options ? (
         <ContractEditForm contract={contract} options={options}/>

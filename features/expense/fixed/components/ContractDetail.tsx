@@ -28,10 +28,10 @@ export default function ContractDetail({contract}: {contract: ContractDetailData
     // its content, which would gray out the values (the standalone Card doesn't). The muted
     // labels below set their own color, so only the primary content is lifted to foreground.
     <div className="flex flex-col gap-6 text-foreground">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-3xl font-semibold tracking-tight">{formatCurrency(contract.amount)}</p>
-          <p className="text-sm text-muted">{contract.frequency}</p>
+          <p className="text-3xl font-semibold tracking-tight tabular-nums">{formatCurrency(contract.amount)}</p>
+          <p className="mt-1 text-sm text-muted">{contract.frequency}</p>
         </div>
         <StatusChip status={contract.status}/>
       </div>

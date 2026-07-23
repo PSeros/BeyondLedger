@@ -1,4 +1,5 @@
 import {notFound} from "next/navigation";
+import ModalCloseButton from "@/components/ModalCloseButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillDetailModal from "@/features/expense/variable/components/BillDetailModal";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
@@ -30,7 +31,14 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
   return (
     <BillDetailModal
       title={bill.supplier}
-      footer={editing ? undefined : <EditLink id={bill.id}/>}
+      footer={
+        editing ? undefined : (
+          <div className="flex items-center justify-end gap-2">
+            <ModalCloseButton/>
+            <EditLink id={bill.id}/>
+          </div>
+        )
+      }
     >
       {editing && options ? (
         <BillEditForm bill={bill} options={options}/>
