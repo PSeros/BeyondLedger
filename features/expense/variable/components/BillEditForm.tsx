@@ -20,17 +20,21 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const detailPath = `/expense/variable/${bill.id}`;
+  // Edit mode is entered by pushing ?edit onto history (EditLink / Cancel target). Leaving it
+  // must POP that entry with router.back(), not push a fresh detail entry — otherwise the
+  // ?edit entry is left dangling forward and the modal's own close (router.back()) lands back
+  // on it, reopening edit. refresh() then pulls the revalidated data into the detail view.
+  function exitEdit() {
+    router.back();
+    router.refresh();
+  }
 
   async function action(formData: FormData) {
     setPending(true);
     setError(null);
     try {
       await updateBill(bill.id, formData);
-      // Soft-navigate out of edit mode (drops ?edit); works for both the modal (stays
-      // mounted) and the standalone page. refresh() pulls the revalidated data.
-      router.push(detailPath);
-      router.refresh();
+      exitEdit();
     } catch {
       setError("Could not save — please check the fields and try again.");
       setPending(false);
@@ -54,7 +58,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="tertiary" isDisabled={pending} onPress={() => router.push(detailPath)}>
+        <Button type="button" variant="tertiary" isDisabled={pending} onPress={() => router.back()}>
           Cancel
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
