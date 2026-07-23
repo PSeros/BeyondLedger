@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
-import {LuArrowLeft} from "react-icons/lu";
+import {LuArrowLeft, LuRepeat} from "react-icons/lu";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
 import EditLink from "@/features/expense/fixed/components/EditLink";
@@ -40,11 +40,16 @@ export default async function ContractPage({params, searchParams}: ContractPageP
       </Link>
 
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{contract.name}</h1>
-          <p className="text-foreground-500 text-sm">
-            {contract.supplier} · {contract.category}
-          </p>
+        <div className="flex items-start gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
+            <LuRepeat className="size-5"/>
+          </span>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">{contract.name}</h1>
+            <p className="text-foreground-500 text-sm">
+              {contract.supplier} · {contract.category}
+            </p>
+          </div>
         </div>
         {editing ? null : <EditLink id={contract.id}/>}
       </div>

@@ -1,7 +1,8 @@
 import {notFound} from "next/navigation";
+import {LuReceipt} from "react-icons/lu";
+import DetailModal from "@/components/DetailModal";
 import ModalCloseButton from "@/components/ModalCloseButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
-import BillDetailModal from "@/features/expense/variable/components/BillDetailModal";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
 import EditLink from "@/features/expense/variable/components/EditLink";
 import {getBillById} from "@/features/expense/variable/db/billDetail";
@@ -29,8 +30,10 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
   const options = editing ? await getBillFormOptions() : null;
 
   return (
-    <BillDetailModal
+    <DetailModal
+      icon={<LuReceipt className="size-5"/>}
       title={bill.supplier}
+      subtitle={bill.documentNumber ? `Doc. ${bill.documentNumber}` : undefined}
       footer={
         editing ? undefined : (
           <div className="flex items-center justify-end gap-2">
@@ -45,6 +48,6 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
       ) : (
         <BillDetail bill={bill}/>
       )}
-    </BillDetailModal>
+    </DetailModal>
   );
 }

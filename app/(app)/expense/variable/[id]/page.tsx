@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
-import {LuArrowLeft} from "react-icons/lu";
+import {LuArrowLeft, LuReceipt} from "react-icons/lu";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
 import EditLink from "@/features/expense/variable/components/EditLink";
@@ -40,9 +40,16 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
       </Link>
 
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{bill.supplier}</h1>
-          <p className="text-foreground-500 text-sm">{bill.supplierCategory}</p>
+        <div className="flex items-start gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
+            <LuReceipt className="size-5"/>
+          </span>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">{bill.supplier}</h1>
+            <p className="text-foreground-500 text-sm">
+              {bill.documentNumber ? `Doc. ${bill.documentNumber}` : bill.supplierCategory}
+            </p>
+          </div>
         </div>
         {editing ? null : <EditLink id={bill.id}/>}
       </div>

@@ -1,7 +1,8 @@
 import {notFound} from "next/navigation";
+import {LuRepeat} from "react-icons/lu";
+import DetailModal from "@/components/DetailModal";
 import ModalCloseButton from "@/components/ModalCloseButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
-import ContractDetailModal from "@/features/expense/fixed/components/ContractDetailModal";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
 import EditLink from "@/features/expense/fixed/components/EditLink";
 import {getContractById} from "@/features/expense/fixed/db/contractDetail";
@@ -29,8 +30,10 @@ export default async function InterceptedContractPage({params, searchParams}: In
   const options = editing ? await getContractFormOptions() : null;
 
   return (
-    <ContractDetailModal
+    <DetailModal
+      icon={<LuRepeat className="size-5"/>}
       title={contract.name}
+      subtitle={`${contract.supplier} · ${contract.category}`}
       footer={
         editing ? undefined : (
           <div className="flex items-center justify-end gap-2">
@@ -45,6 +48,6 @@ export default async function InterceptedContractPage({params, searchParams}: In
       ) : (
         <ContractDetail contract={contract}/>
       )}
-    </ContractDetailModal>
+    </DetailModal>
   );
 }
