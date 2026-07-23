@@ -47,7 +47,13 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
         <p className="text-sm">{title}</p>
       </Card.Header>
 
-      <Card.Content className="scrollbar-hide flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pt-2">
+      {/*
+        -mx-2 widens this scroll container so a hovered row's -mx-equivalent reach lives INSIDE
+        the clip box: overflow-y-auto forces overflow-x to clip, so a row bleeding past this box
+        would get its rounded corners sliced square. Rows carry px-2 to keep text aligned with
+        the header while their rounded hover fills to this widened edge.
+      */}
+      <Card.Content className="scrollbar-hide -mx-2 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pt-2">
         {rows.length === 0 ? (
           <p className="flex h-full items-center justify-center text-center text-sm text-muted">No data</p>
         ) : (
@@ -94,7 +100,7 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
                 <Link
                   key={row.id}
                   href={hrefForRow(row.id)}
-                  className="hover:bg-default -mx-2 flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 transition-colors"
+                  className="hover:bg-default flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 transition-colors"
                 >
                   {body}
                 </Link>
@@ -102,7 +108,8 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
             }
 
             return (
-              <div key={row.id} className="flex items-center gap-3">
+              // px-2 keeps text aligned with the header despite the container's -mx-2.
+              <div key={row.id} className="flex items-center gap-3 px-2">
                 {body}
               </div>
             );
