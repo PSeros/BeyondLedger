@@ -84,7 +84,7 @@ export default function TopKTableCard({
                   onClick={() => onRowSelect(row.id)}
                   // -mx-2 lets the hover/active fill reach toward the card's padded edge; no
                   // scroll container here, so nothing clips the rounded corners.
-                  className={`hover:bg-default -mx-2 flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 text-left transition-colors ${
+                  className={`hover:bg-default -mx-2 flex cursor-pointer items-center gap-3 rounded-[var(--radius)] px-2 py-1 text-left transition-colors ${
                     isActive ? "bg-default" : ""
                   }`}
                 >

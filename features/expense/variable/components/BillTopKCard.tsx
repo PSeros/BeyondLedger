@@ -6,8 +6,8 @@ type BillTopKCardProps = BillFilters;
 
 export default async function BillTopKCard(filters: BillTopKCardProps) {
   const [supplierRows, itemCategoryRows] = await Promise.all([
-    getTopSuppliers({...filters, limit: 5}),
-    getTopItemCategories({...filters, limit: 5}),
+    getTopSuppliers({...filters, limit: 4}),
+    getTopItemCategories({...filters, limit: 4}),
   ]);
 
   return <BillTopKToggleCard supplierRows={supplierRows} itemCategoryRows={itemCategoryRows}/>;
