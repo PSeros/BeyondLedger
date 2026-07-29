@@ -3,16 +3,23 @@ import type {FilterOption} from "@/features/expense/variable/db/billFilterOption
 
 export type BillFormOptions = {
   suppliers: FilterOption[];
+  itemCategories: FilterOption[];
 };
 
-// Unlike the filter options (scoped to suppliers already used by bills), the edit form must
-// offer every supplier so a bill can be reassigned to any of them. Supplier is the only
-// editable relation on a Bill's top-level fields — item categories live on the nested items.
+// Unlike the filter options (scoped to suppliers/categories already used by bills), the edit
+// form must offer every supplier and every item category so a bill can be reassigned to any
+// supplier and its line items can use any category (including one not yet used by any item).
 export async function getBillFormOptions(): Promise<BillFormOptions> {
-  const suppliers = await client.supplier.findMany({
-    select: {id: true, name: true},
-    orderBy: {name: "asc"},
-  });
+  const [suppliers, itemCategories] = await Promise.all([
+    client.supplier.findMany({
+      select: {id: true, name: true},
+      orderBy: {name: "asc"},
+    }),
+    client.itemCategory.findMany({
+      select: {id: true, name: true},
+      orderBy: {name: "asc"},
+    }),
+  ]);
 
-  return {suppliers};
+  return {suppliers, itemCategories};
 }

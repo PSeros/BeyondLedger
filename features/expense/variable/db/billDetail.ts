@@ -4,6 +4,7 @@ export type BillItemDetail = {
   id: number;
   name: string;
   category: string;
+  categoryId: number;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
@@ -48,6 +49,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
       id: item.id,
       name: item.name,
       category: item.category.name,
+      categoryId: item.categoryId,
       quantity: item.quantity,
       unitPrice: Number(item.unitPrice),
       totalPrice: Number(item.totalPrice),
