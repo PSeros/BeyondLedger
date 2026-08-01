@@ -28,6 +28,7 @@ type ItemRow = {
 };
 
 let uidCounter = 0;
+
 function nextUid(): string {
   uidCounter += 1;
   return `row-${uidCounter}`;
@@ -148,7 +149,8 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
       </TextField>
 
       {hasItems ? (
-        <div className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
+        <div
+          className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
           <span className="text-sm font-medium">Total</span>
           <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{formatCurrency(grandTotal)}</span>
         </div>
@@ -218,7 +220,7 @@ function ItemRowFields({
         <RowNumber label="Qty" value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
         <RowNumber label="Unit €" value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
         <RowNumber
-          label="Warranty (mo.)"
+          label="Warranty"
           value={row.warranty}
           onChange={(warranty) => onChange({warranty})}
           optional
@@ -274,8 +276,8 @@ function RowSelect({
 }) {
   return (
     <Select
-      selectedKey={value || null}
-      onSelectionChange={(key) => onChange(key != null ? String(key) : "")}
+      value={value || null}
+      onChange={(key) => onChange(key != null ? String(key) : "")}
       aria-label={label}
       className="flex flex-col gap-1"
     >
@@ -330,7 +332,7 @@ function SelectField({
   value: string;
 }) {
   return (
-    <Select name={name} defaultSelectedKey={value} className="flex flex-col gap-1">
+    <Select name={name} defaultValue={value} className="flex flex-col gap-1">
       <Label className={labelClass}>{label}</Label>
       <Select.Trigger>
         <Select.Value/>

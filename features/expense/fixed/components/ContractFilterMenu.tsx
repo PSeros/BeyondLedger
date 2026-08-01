@@ -87,8 +87,8 @@ function FilterSelect({label, paramName, options, selectedId, onSelect}: FilterS
       <span className="text-foreground-500 text-sm">{label}</span>
       <Select
         aria-label={label}
-        selectedKey={selectedId ?? ALL_KEY}
-        onSelectionChange={(key) => onSelect(paramName, key === ALL_KEY ? null : String(key))}
+        value={selectedId ?? ALL_KEY}
+        onChange={(key) => onSelect(paramName, key === ALL_KEY ? null : String(key))}
       >
         <Select.Trigger>
           <Select.Value/>

@@ -107,7 +107,7 @@ function SelectField({
   defaultId: number;
 }) {
   return (
-    <Select name={name} defaultSelectedKey={String(defaultId)} className="flex flex-col gap-1">
+    <Select name={name} defaultValue={String(defaultId)} className="flex flex-col gap-1">
       <Label className={labelClass}>{label}</Label>
       <Select.Trigger>
         <Select.Value/>
