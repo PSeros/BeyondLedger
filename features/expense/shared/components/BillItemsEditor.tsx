@@ -1,8 +1,10 @@
 "use client";
 
+import {type Key, useRef, useState} from "react";
 import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
+import CreatePopover, {CREATE_OPTION_ID} from "@/features/expense/shared/components/CreatePopover";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 
 export function formatCurrency(amount: number): string {
@@ -66,13 +68,20 @@ type BillItemsEditorProps = {
   rows: ItemRow[];
   categories: FilterOption[];
   onChange: (rows: ItemRow[]) => void;
+  // When provided, each row's category select offers "+ Add new…"; a created category is added
+  // to the shared list (so every row sees it) and selected in the row that created it. Omitted
+  // by the edit form, which keeps a plain select.
+  onCreateCategory?: (name: string) => Promise<FilterOption>;
 };
 
 // Presentational item-rows editor shared by the Bill create + edit forms. The parent owns the
 // `rows` state (so it can decide layout and whether to show a manual Amount fallback when there
 // are no items); this renders the section header, the add button, the rows, and the empty hint.
-export default function BillItemsEditor({rows, categories, onChange}: BillItemsEditorProps) {
-  const defaultCategoryId = categories[0] ? String(categories[0].id) : "";
+export default function BillItemsEditor({rows, categories, onChange, onCreateCategory}: BillItemsEditorProps) {
+  // Local copy of the category list so an inline-created category appears in every row's select
+  // without a page refresh.
+  const [cats, setCats] = useState<FilterOption[]>(categories);
+  const defaultCategoryId = cats[0] ? String(cats[0].id) : "";
 
   function updateRow(uid: string, patch: Partial<ItemRow>) {
     onChange(rows.map((row) => (row.uid === uid ? {...row, ...patch} : row)));
@@ -85,6 +94,14 @@ export default function BillItemsEditor({rows, categories, onChange}: BillItemsE
   function removeRow(uid: string) {
     onChange(rows.filter((row) => row.uid !== uid));
   }
+
+  const createCategory = onCreateCategory
+    ? async (name: string): Promise<FilterOption> => {
+        const created = await onCreateCategory(name);
+        setCats((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+        return created;
+      }
+    : undefined;
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -102,7 +119,8 @@ export default function BillItemsEditor({rows, categories, onChange}: BillItemsE
             <ItemRowFields
               key={row.uid}
               row={row}
-              categories={categories}
+              categories={cats}
+              onCreateCategory={createCategory}
               onChange={(patch) => updateRow(row.uid, patch)}
               onRemove={() => removeRow(row.uid)}
             />
@@ -118,11 +136,13 @@ export default function BillItemsEditor({rows, categories, onChange}: BillItemsE
 function ItemRowFields({
   row,
   categories,
+  onCreateCategory,
   onChange,
   onRemove,
 }: {
   row: ItemRow;
   categories: FilterOption[];
+  onCreateCategory?: (name: string) => Promise<FilterOption>;
   onChange: (patch: Partial<ItemRow>) => void;
   onRemove: () => void;
 }) {
@@ -161,6 +181,7 @@ function ItemRowFields({
           value={row.categoryId}
           options={categories}
           onChange={(categoryId) => onChange({categoryId})}
+          onCreate={onCreateCategory}
         />
         <RowNumber label="Qty" value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
         <RowNumber label="Unit €" value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
@@ -207,39 +228,72 @@ function RowNumber({
 
 // Controlled category select, one per item row. Posts its value through the row's hidden
 // itemCategoryId input (kept in sync via onChange) so it stays index-aligned with the other
-// repeated item fields on submit.
+// repeated item fields on submit. When `onCreate` is provided it offers a "+ Add new…" row that
+// opens an anchored create popover; the created category is selected in this row.
 function RowSelect({
   label,
   value,
   options,
   onChange,
+  onCreate,
 }: {
   label: string;
   value: string;
   options: FilterOption[];
   onChange: (value: string) => void;
+  onCreate?: (name: string) => Promise<FilterOption>;
 }) {
+  const [creating, setCreating] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  function handleChange(key: Key | null) {
+    if (key === CREATE_OPTION_ID) {
+      setCreating(true);
+      return;
+    }
+    onChange(key != null ? String(key) : "");
+  }
+
+  async function handleCreate(name: string) {
+    if (!onCreate) {
+      return;
+    }
+    const created = await onCreate(name);
+    onChange(String(created.id));
+  }
+
   return (
-    <Select
-      value={value || null}
-      onChange={(key) => onChange(key != null ? String(key) : "")}
-      aria-label={label}
-      className="flex flex-col gap-1"
-    >
-      <Label className={labelClass}>{label}</Label>
-      <Select.Trigger>
-        <Select.Value/>
-        <Select.Indicator/>
-      </Select.Trigger>
-      <Select.Popover>
-        <ListBox>
-          {options.map((option) => (
-            <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
-              {option.name}
-            </ListBox.Item>
-          ))}
-        </ListBox>
-      </Select.Popover>
-    </Select>
+    <div ref={triggerRef} className="flex flex-col gap-1">
+      <Select value={value || null} onChange={handleChange} aria-label={label} className="flex flex-col gap-1">
+        <Label className={labelClass}>{label}</Label>
+        <Select.Trigger>
+          <Select.Value/>
+          <Select.Indicator/>
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {options.map((option) => (
+              <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
+                {option.name}
+              </ListBox.Item>
+            ))}
+            {onCreate ? (
+              <ListBox.Item key={CREATE_OPTION_ID} id={CREATE_OPTION_ID} textValue="Add new">
+                + Add new…
+              </ListBox.Item>
+            ) : null}
+          </ListBox>
+        </Select.Popover>
+      </Select>
+      {onCreate ? (
+        <CreatePopover
+          triggerRef={triggerRef}
+          isOpen={creating}
+          onOpenChange={setCreating}
+          title="New item category"
+          onSubmit={handleCreate}
+        />
+      ) : null}
+    </div>
   );
 }

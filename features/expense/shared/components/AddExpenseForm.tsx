@@ -11,6 +11,9 @@ import BillItemsEditor, {
   type ItemRow,
 } from "@/features/expense/shared/components/BillItemsEditor";
 import {labelClass, SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
+import CreatableSelectField from "@/features/expense/shared/components/CreatableSelectField";
+import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import {createContractCategory, createItemCategory} from "@/features/settings/db/referenceDataMutations";
 import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormOptions";
 
 export type AddExpenseType = "variable" | "fixed";
@@ -83,7 +86,11 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
       {type === "variable" ? (
         <>
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-            <SelectField label="Supplier" name="supplierId" options={options.suppliers}/>
+            <SupplierSelectField
+              name="supplierId"
+              suppliers={options.suppliers}
+              supplierCategories={options.supplierCategories}
+            />
             <TextInputField label="Date" name="date" type="date" defaultValue={today()} isRequired/>
             <TextInputField label="Document number" name="documentNumber"/>
             {/* Amount is auto-summed from the items below when there are any; only a bill with no
@@ -91,7 +98,12 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             {hasItems ? null : <TextInputField label="Amount (€)" name="amount" type="number" isRequired/>}
           </div>
 
-          <BillItemsEditor rows={rows} categories={options.itemCategories} onChange={setRows}/>
+          <BillItemsEditor
+            rows={rows}
+            categories={options.itemCategories}
+            onChange={setRows}
+            onCreateCategory={createItemCategory}
+          />
 
           <TextField name="notes" className="flex flex-col gap-1">
             <Label className={labelClass}>Notes</Label>
@@ -110,8 +122,18 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
         <>
           <TextInputField label="Name" name="name" isRequired/>
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-            <SelectField label="Supplier" name="supplierId" options={options.suppliers}/>
-            <SelectField label="Category" name="categoryId" options={options.contractCategories}/>
+            <SupplierSelectField
+              name="supplierId"
+              suppliers={options.suppliers}
+              supplierCategories={options.supplierCategories}
+            />
+            <CreatableSelectField
+              label="Category"
+              name="categoryId"
+              options={options.contractCategories}
+              createTitle="New contract category"
+              onCreate={createContractCategory}
+            />
             <SelectField label="Frequency" name="frequencyId" options={options.frequencies}/>
             <TextInputField label="Amount (€)" name="amount" type="number" isRequired/>
             <TextInputField label="Start date" name="startDate" type="date" defaultValue={today()} isRequired/>
