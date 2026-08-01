@@ -2,6 +2,7 @@ import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
 import {LuArrowLeft, LuRepeat} from "react-icons/lu";
+import CategoryChip from "@/components/CategoryChip";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
 import EditLink from "@/features/expense/fixed/components/EditLink";
@@ -44,11 +45,12 @@ export default async function ContractPage({params, searchParams}: ContractPageP
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
             <LuRepeat className="size-5"/>
           </span>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{contract.name}</h1>
-            <p className="text-foreground-500 text-sm">
-              {contract.supplier} · {contract.category}
-            </p>
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-semibold tracking-tight">{contract.name}</h1>
+            <div className="text-foreground-500 mt-0.5 flex min-w-0 items-center gap-1.5 text-sm">
+              <span className="truncate">{contract.supplier}</span>
+              <CategoryChip label={contract.category}/>
+            </div>
           </div>
         </div>
         {editing ? null : <EditLink id={contract.id}/>}

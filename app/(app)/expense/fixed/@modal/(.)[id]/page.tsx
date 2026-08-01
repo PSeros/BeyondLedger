@@ -1,6 +1,7 @@
 import {notFound} from "next/navigation";
 import {LuRepeat} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
+import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
@@ -33,7 +34,12 @@ export default async function InterceptedContractPage({params, searchParams}: In
     <DetailModal
       icon={<LuRepeat className="size-5"/>}
       title={contract.name}
-      subtitle={`${contract.supplier} · ${contract.category}`}
+      subtitle={
+        <>
+          <span className="truncate">{contract.supplier}</span>
+          <CategoryChip label={contract.category}/>
+        </>
+      }
       footer={
         editing ? undefined : (
           <div className="flex items-center justify-end gap-2">

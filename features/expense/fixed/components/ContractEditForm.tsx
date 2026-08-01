@@ -1,13 +1,12 @@
 "use client";
 
 import {useState} from "react";
-import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
+import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateContract} from "@/features/expense/fixed/db/contractMutations";
+import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
-import type {ContractFilterOptions, FilterOption} from "@/features/expense/fixed/db/contractFilterOptions";
-
-const labelClass = "text-foreground-500 text-xs uppercase tracking-wide";
+import type {ContractFilterOptions} from "@/features/expense/fixed/db/contractFilterOptions";
 
 type ContractEditFormProps = {
   contract: ContractDetailData;
@@ -45,9 +44,9 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
       <TextInputField label="Name" name="name" defaultValue={contract.name} isRequired/>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-        <SelectField label="Supplier" name="supplierId" options={options.suppliers} defaultId={contract.supplierId}/>
-        <SelectField label="Category" name="categoryId" options={options.categories} defaultId={contract.categoryId}/>
-        <SelectField label="Frequency" name="frequencyId" options={options.frequencies} defaultId={contract.frequencyId}/>
+        <SelectField label="Supplier" name="supplierId" options={options.suppliers} defaultValue={String(contract.supplierId)}/>
+        <SelectField label="Category" name="categoryId" options={options.categories} defaultValue={String(contract.categoryId)}/>
+        <SelectField label="Frequency" name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
         <TextInputField label="Amount (€)" name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
         <TextInputField label="Start date" name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>
         <TextInputField label="End date" name="endDate" type="date" defaultValue={contract.endDate?.slice(0, 10) ?? ""}/>
@@ -71,57 +70,5 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
         </Button>
       </div>
     </form>
-  );
-}
-
-function TextInputField({
-  label,
-  name,
-  defaultValue,
-  type = "text",
-  isRequired,
-}: {
-  label: string;
-  name: string;
-  defaultValue: string;
-  type?: "text" | "number" | "date";
-  isRequired?: boolean;
-}) {
-  return (
-    <TextField name={name} defaultValue={defaultValue} isRequired={isRequired} className="flex flex-col gap-1">
-      <Label className={labelClass}>{label}</Label>
-      <Input type={type} step={type === "number" ? "any" : undefined}/>
-    </TextField>
-  );
-}
-
-function SelectField({
-  label,
-  name,
-  options,
-  defaultId,
-}: {
-  label: string;
-  name: string;
-  options: FilterOption[];
-  defaultId: number;
-}) {
-  return (
-    <Select name={name} defaultValue={String(defaultId)} className="flex flex-col gap-1">
-      <Label className={labelClass}>{label}</Label>
-      <Select.Trigger>
-        <Select.Value/>
-        <Select.Indicator/>
-      </Select.Trigger>
-      <Select.Popover>
-        <ListBox>
-          {options.map((option) => (
-            <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
-              {option.name}
-            </ListBox.Item>
-          ))}
-        </ListBox>
-      </Select.Popover>
-    </Select>
   );
 }

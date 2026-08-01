@@ -2,102 +2,62 @@
 
 import {revalidatePath} from "next/cache";
 import {client} from "@/lib/prisma";
+import {
+  optionalString,
+  parseItems,
+  requireDate,
+  requireId,
+  requireString,
+} from "@/features/expense/shared/db/formData";
 
-function requireString(formData: FormData, key: string): string {
-  const value = formData.get(key);
-  if (typeof value !== "string" || value.trim() === "") {
-    throw new Error(`Missing required field: ${key}`);
-  }
-  return value.trim();
+// Sums the parsed item line totals into a Bill totalAmount (rounded to cents).
+function sumItemTotals(items: {totalPrice: number}[]): number {
+  return Number(items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2));
 }
 
-function optionalString(formData: FormData, key: string): string | null {
-  const value = formData.get(key);
-  return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
+// Reads the manual Amount field, used only when a bill has no line items.
+function readManualAmount(formData: FormData): number {
+  const amount = Number(requireString(formData, "amount"));
+  if (Number.isNaN(amount) || amount < 0) {
+    throw new Error("Invalid amount");
+  }
+  return amount;
 }
 
-function requireId(formData: FormData, key: string): number {
-  const parsed = Number(formData.get(key));
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`Invalid id for field: ${key}`);
-  }
-  return parsed;
-}
+// Creates a new Bill plus its line items in one insert. Mirrors updateBill's parsing: the
+// totalAmount is derived from the items (sum of line totals) whenever there is at least one;
+// a bill with no items uses the manually-entered Amount instead. Revalidates the list so the
+// table, chart, and top-k pick up the new row.
+export async function createBill(formData: FormData): Promise<void> {
+  const supplierId = requireId(formData, "supplierId");
+  const documentNumber = optionalString(formData, "documentNumber");
+  const date = requireDate(formData, "date");
+  const notes = optionalString(formData, "notes");
+  const items = parseItems(formData);
 
-function requireDate(formData: FormData, key: string): Date {
-  const value = requireString(formData, key);
-  const date = new Date(`${value}T00:00:00.000Z`);
-  if (Number.isNaN(date.getTime())) {
-    throw new Error(`Invalid date for field: ${key}`);
-  }
-  return date;
-}
+  const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
-// One desired line item parsed from the form. A blank/absent id means a newly-added row (insert);
-// a positive id means an existing row (update). Existing item ids not present here are deleted.
-type ParsedItem = {
-  id: number | null;
-  name: string;
-  categoryId: number;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  warranty: number | null;
-};
+  await client.bill.create({
+    data: {
+      supplierId,
+      documentNumber,
+      totalAmount,
+      date,
+      markdown: notes,
+      items: {
+        create: items.map((item) => ({
+          name: item.name,
+          categoryId: item.categoryId,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          warranty: item.warranty,
+        })),
+      },
+    },
+  });
 
-// The item rows are posted as repeated same-named fields (itemName, itemCategoryId, …), one entry
-// per row in DOM order, so the parallel getAll() arrays line up by index. Empty-name rows are
-// skipped so a stray blank row can't create a junk item.
-function parseItems(formData: FormData): ParsedItem[] {
-  const ids = formData.getAll("itemId");
-  const names = formData.getAll("itemName");
-  const categoryIds = formData.getAll("itemCategoryId");
-  const quantities = formData.getAll("itemQuantity");
-  const unitPrices = formData.getAll("itemUnitPrice");
-  const warranties = formData.getAll("itemWarranty");
-
-  const items: ParsedItem[] = [];
-  for (let i = 0; i < names.length; i++) {
-    const name = String(names[i] ?? "").trim();
-    if (name === "") {
-      continue;
-    }
-
-    const categoryId = Number(categoryIds[i]);
-    if (!Number.isInteger(categoryId) || categoryId <= 0) {
-      throw new Error(`Invalid category for item: ${name}`);
-    }
-
-    const quantity = Number(quantities[i]);
-    if (Number.isNaN(quantity) || quantity <= 0) {
-      throw new Error(`Invalid quantity for item: ${name}`);
-    }
-
-    const unitPrice = Number(unitPrices[i]);
-    if (Number.isNaN(unitPrice) || unitPrice < 0) {
-      throw new Error(`Invalid unit price for item: ${name}`);
-    }
-
-    const rawId = Number(ids[i]);
-    const id = Number.isInteger(rawId) && rawId > 0 ? rawId : null;
-
-    const rawWarranty = String(warranties[i] ?? "").trim();
-    const warranty = rawWarranty === "" ? null : Number(rawWarranty);
-    if (warranty != null && (!Number.isInteger(warranty) || warranty < 0)) {
-      throw new Error(`Invalid warranty for item: ${name}`);
-    }
-
-    items.push({
-      id,
-      name,
-      categoryId,
-      quantity,
-      unitPrice,
-      totalPrice: Number((quantity * unitPrice).toFixed(2)),
-      warranty,
-    });
-  }
-  return items;
+  revalidatePath("/expense/variable");
 }
 
 // Updates a Bill's own fields plus its nested line items in one transaction. Existing items are
@@ -113,15 +73,7 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
   const notes = optionalString(formData, "notes");
   const items = parseItems(formData);
 
-  let totalAmount: number;
-  if (items.length > 0) {
-    totalAmount = Number(items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2));
-  } else {
-    totalAmount = Number(requireString(formData, "amount"));
-    if (Number.isNaN(totalAmount) || totalAmount < 0) {
-      throw new Error("Invalid amount");
-    }
-  }
+  const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
   await client.$transaction(async (tx) => {
     await tx.bill.update({

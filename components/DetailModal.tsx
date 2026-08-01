@@ -7,12 +7,14 @@ import {useRouter} from "next/navigation";
 type DetailModalProps = {
   icon?: ReactNode;
   title: string;
-  subtitle?: string;
+  // Rendered inline right after the title (e.g. a category chip beside a Bill's supplier title).
+  titleTrailing?: ReactNode;
+  subtitle?: ReactNode;
   footer?: ReactNode;
   children: ReactNode;
 };
 
-export default function DetailModal({icon, title, subtitle, footer, children}: DetailModalProps) {
+export default function DetailModal({icon, title, titleTrailing, subtitle, footer, children}: DetailModalProps) {
   const router = useRouter();
 
   // Route-driven modal: it's always open (its presence in the @modal slot is what "opens" it),
@@ -42,11 +44,19 @@ export default function DetailModal({icon, title, subtitle, footer, children}: D
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
-              <Modal.Heading className="block truncate text-base font-semibold">{title}</Modal.Heading>
-              {subtitle ? <p className="mt-0.5 truncate text-sm text-muted">{subtitle}</p> : null}
+              <div className="flex items-center gap-2">
+                <Modal.Heading className="min-w-0 truncate text-base font-semibold">{title}</Modal.Heading>
+                {titleTrailing}
+              </div>
+              {subtitle ? (
+                <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-sm text-muted">{subtitle}</div>
+              ) : null}
             </div>
           </Modal.Header>
-          <Modal.Body>{children}</Modal.Body>
+          {/* The scroll body spans into the dialog's p-6 (-mx-6) but re-insets its content
+              (px-6) so the overflow clip edge — and the scrollbar — sit in the gutter, not over
+              the content or clipping input focus rings. */}
+          <Modal.Body className="-mx-6 px-6 py-1">{children}</Modal.Body>
           {footer ? <Modal.Footer>{footer}</Modal.Footer> : null}
         </Modal.Dialog>
       </Modal.Container>

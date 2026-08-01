@@ -1,4 +1,3 @@
-import {Chip} from "@heroui/react";
 import {LuShieldCheck} from "react-icons/lu";
 import type {BillDetailData, BillItemDetail} from "@/features/expense/variable/db/billDetail";
 
@@ -42,14 +41,10 @@ export default function BillDetail({bill}: {bill: BillDetailData}) {
     // its content, which would gray out the values (the standalone Card doesn't). The muted
     // labels below set their own color, so only the primary content is lifted to foreground.
     <div className="flex flex-col gap-5 text-foreground">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-3xl font-semibold tracking-tight tabular-nums">{formatCurrency(bill.amount)}</p>
-          <p className="mt-1 text-sm text-muted">{formatDate(bill.date)}</p>
-        </div>
-        <Chip variant="soft" color="accent">
-          <Chip.Label>{bill.supplierCategory}</Chip.Label>
-        </Chip>
+      <div>
+        {/* The supplier-category chip now lives in each surface's header, next to the supplier. */}
+        <p className="text-3xl font-semibold tracking-tight tabular-nums">{formatCurrency(bill.amount)}</p>
+        <p className="mt-1 text-sm text-muted">{formatDate(bill.date)}</p>
       </div>
 
       {bill.notes ? (

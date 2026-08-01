@@ -1,6 +1,7 @@
 import {notFound} from "next/navigation";
 import {LuReceipt} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
+import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
@@ -33,6 +34,7 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
     <DetailModal
       icon={<LuReceipt className="size-5"/>}
       title={bill.supplier}
+      titleTrailing={<CategoryChip label={bill.supplierCategory}/>}
       subtitle={bill.documentNumber ? `Doc. ${bill.documentNumber}` : undefined}
       footer={
         editing ? undefined : (
