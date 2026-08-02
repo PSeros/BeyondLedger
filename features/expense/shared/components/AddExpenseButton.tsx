@@ -28,7 +28,7 @@ export default function AddExpenseButton({options, defaultType, ...buttonProps}:
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>
-        <Modal.Container>
+        <Modal.Container size="lg">
           <Modal.Dialog>
             <Modal.CloseTrigger/>
             <Modal.Header className="flex-row items-start gap-3">
