@@ -252,14 +252,14 @@ function RowSelect({
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <Label className={labelClass}>{label}</Label>
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         <Select
           value={value || null}
           onChange={(key: Key | null) => onChange(key != null ? String(key) : "")}
           aria-label={label}
-          className="flex flex-1 flex-col gap-1"
+          className="flex min-w-0 flex-1 flex-col gap-1"
         >
           <Select.Trigger>
             <Select.Value/>
