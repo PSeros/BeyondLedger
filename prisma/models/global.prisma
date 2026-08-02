@@ -15,6 +15,26 @@ enum FileStatusChoice {
   FAILED
 }
 
+enum PipelineMode {
+  DOCUMENT_AI
+  SEPARATED
+}
+
+// Singleton (always operated on at id: 1 via upsert) holding the AI/OCR provider config used by
+// the document → OCR → auto-added-expense pipeline (Phase 8c/8d). Kept provider-generic (host +
+// model + key). NOTE: apiKey is stored plaintext — acceptable for a personal local app; it is only
+// ever read server-side (see features/settings/db/aiSettings.ts), never sent to the client.
+model AiSettings {
+  id           Int          @id @default(autoincrement())
+  enabled      Boolean      @default(false)
+  apiKey       String       @default("")
+  baseUrl      String?
+  ocrModel     String       @default("mistral-ocr-latest")
+  extractModel String       @default("mistral-small-latest")
+  pipelineMode PipelineMode @default(DOCUMENT_AI)
+  updatedAt    DateTime     @updatedAt
+}
+
 model FileAsset {
   id           Int              @id @default(autoincrement())
   originalName String

@@ -252,6 +252,23 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
 }
 
+export type EnumPipelineModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PipelineMode | Prisma.EnumPipelineModeFieldRefInput<$PrismaModel>
+  in?: $Enums.PipelineMode[]
+  notIn?: $Enums.PipelineMode[]
+  not?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel> | $Enums.PipelineMode
+}
+
+export type EnumPipelineModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PipelineMode | Prisma.EnumPipelineModeFieldRefInput<$PrismaModel>
+  in?: $Enums.PipelineMode[]
+  notIn?: $Enums.PipelineMode[]
+  not?: Prisma.NestedEnumPipelineModeWithAggregatesFilter<$PrismaModel> | $Enums.PipelineMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel>
+}
+
 export type EnumFileStatusChoiceFilter<$PrismaModel = never> = {
   equals?: $Enums.FileStatusChoice | Prisma.EnumFileStatusChoiceFieldRefInput<$PrismaModel>
   in?: $Enums.FileStatusChoice[]
@@ -511,6 +528,23 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumPipelineModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PipelineMode | Prisma.EnumPipelineModeFieldRefInput<$PrismaModel>
+  in?: $Enums.PipelineMode[]
+  notIn?: $Enums.PipelineMode[]
+  not?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel> | $Enums.PipelineMode
+}
+
+export type NestedEnumPipelineModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PipelineMode | Prisma.EnumPipelineModeFieldRefInput<$PrismaModel>
+  in?: $Enums.PipelineMode[]
+  notIn?: $Enums.PipelineMode[]
+  not?: Prisma.NestedEnumPipelineModeWithAggregatesFilter<$PrismaModel> | $Enums.PipelineMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPipelineModeFilter<$PrismaModel>
 }
 
 export type NestedEnumFileStatusChoiceFilter<$PrismaModel = never> = {

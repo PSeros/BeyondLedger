@@ -59,6 +59,7 @@ export const ModelName = {
   Bill: 'Bill',
   Item: 'Item',
   Frequency: 'Frequency',
+  AiSettings: 'AiSettings',
   FileAsset: 'FileAsset',
   IncomeCategory: 'IncomeCategory',
   IncomeSource: 'IncomeSource',
@@ -166,6 +167,20 @@ export const FrequencyScalarFieldEnum = {
 } as const
 
 export type FrequencyScalarFieldEnum = (typeof FrequencyScalarFieldEnum)[keyof typeof FrequencyScalarFieldEnum]
+
+
+export const AiSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  apiKey: 'apiKey',
+  baseUrl: 'baseUrl',
+  ocrModel: 'ocrModel',
+  extractModel: 'extractModel',
+  pipelineMode: 'pipelineMode',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
 
 
 export const FileAssetScalarFieldEnum = {

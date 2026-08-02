@@ -7,6 +7,9 @@ import {LuCheck, LuPencil, LuPlus, LuTrash2, LuX} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow} from "@/features/settings/db/referenceData";
+import type {AiSettingsForm} from "@/features/settings/db/aiSettings";
+import AiSettingsSection from "@/features/settings/components/AiSettingsSection";
+import {SectionCard} from "@/features/settings/components/SectionCard";
 import {
   createContractCategory,
   createFrequency,
@@ -56,7 +59,7 @@ function useMutations() {
   return {run, busy, error, setError};
 }
 
-export default function ReferenceDataManager({data}: {data: ReferenceData}) {
+export default function ReferenceDataManager({data, aiSettings}: {data: ReferenceData; aiSettings: AiSettingsForm}) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="shrink-0 border-b border-separator pb-4">
@@ -64,7 +67,19 @@ export default function ReferenceDataManager({data}: {data: ReferenceData}) {
         <p className="mt-1 text-sm text-muted">Configure how BeyondLedger works.</p>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto py-6">
+      <div className="min-h-0 flex-1 space-y-8 overflow-y-auto py-6">
+        <section className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-base font-semibold">AI / Document processing</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted">
+              Configure the provider that reads uploaded documents and auto-creates expenses from them.
+            </p>
+          </div>
+          <div className="max-w-2xl">
+            <AiSettingsSection settings={aiSettings}/>
+          </div>
+        </section>
+
         <section className="flex flex-col gap-4">
           <div>
             <h2 className="text-base font-semibold">Reference data</h2>
@@ -128,30 +143,6 @@ export default function ReferenceDataManager({data}: {data: ReferenceData}) {
 }
 
 // --- shared building blocks -------------------------------------------------
-
-function SectionCard({title, count, description, children}: {
-  title: string;
-  count?: number;
-  description?: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="border-default bg-surface flex h-full flex-col gap-3 rounded-[var(--radius)] border p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold">{title}</h3>
-          {description ? <p className="mt-0.5 text-xs text-muted">{description}</p> : null}
-        </div>
-        {typeof count === "number" ? (
-          <span className="bg-surface-secondary shrink-0 rounded-full px-2 py-0.5 text-xs tabular-nums text-muted">
-            {count}
-          </span>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
 
 function UsageNote({count, noun}: {count: number; noun: string}) {
   if (count === 0) {

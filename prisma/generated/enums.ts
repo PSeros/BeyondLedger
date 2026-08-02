@@ -17,3 +17,11 @@ export const FileStatusChoice = {
 } as const
 
 export type FileStatusChoice = (typeof FileStatusChoice)[keyof typeof FileStatusChoice]
+
+
+export const PipelineMode = {
+  DOCUMENT_AI: 'DOCUMENT_AI',
+  SEPARATED: 'SEPARATED'
+} as const
+
+export type PipelineMode = (typeof PipelineMode)[keyof typeof PipelineMode]

@@ -58,6 +58,11 @@ export type Item = Prisma.ItemModel
  */
 export type Frequency = Prisma.FrequencyModel
 /**
+ * Model AiSettings
+ * 
+ */
+export type AiSettings = Prisma.AiSettingsModel
+/**
  * Model FileAsset
  * 
  */

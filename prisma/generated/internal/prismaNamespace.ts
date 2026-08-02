@@ -392,6 +392,7 @@ export const ModelName = {
   Bill: 'Bill',
   Item: 'Item',
   Frequency: 'Frequency',
+  AiSettings: 'AiSettings',
   FileAsset: 'FileAsset',
   IncomeCategory: 'IncomeCategory',
   IncomeSource: 'IncomeSource',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "fileAsset" | "incomeCategory" | "incomeSource" | "income"
+    modelProps: "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "fileAsset" | "incomeCategory" | "incomeSource" | "income"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1007,6 +1008,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AiSettings: {
+      payload: Prisma.$AiSettingsPayload<ExtArgs>
+      fields: Prisma.AiSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.AiSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.AiSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.AiSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.AiSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.AiSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        update: {
+          args: Prisma.AiSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.AiSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiSettings>
+        }
+        groupBy: {
+          args: Prisma.AiSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
     FileAsset: {
       payload: Prisma.$FileAssetPayload<ExtArgs>
       fields: Prisma.FileAssetFieldRefs
@@ -1429,6 +1504,20 @@ export const FrequencyScalarFieldEnum = {
 export type FrequencyScalarFieldEnum = (typeof FrequencyScalarFieldEnum)[keyof typeof FrequencyScalarFieldEnum]
 
 
+export const AiSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  apiKey: 'apiKey',
+  baseUrl: 'baseUrl',
+  ocrModel: 'ocrModel',
+  extractModel: 'extractModel',
+  pipelineMode: 'pipelineMode',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
+
+
 export const FileAssetScalarFieldEnum = {
   id: 'id',
   originalName: 'originalName',
@@ -1539,6 +1628,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'PipelineMode'
+ */
+export type EnumPipelineModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PipelineMode'>
     
 
 
@@ -1666,6 +1762,7 @@ export type GlobalOmitConfig = {
   bill?: Prisma.BillOmit
   item?: Prisma.ItemOmit
   frequency?: Prisma.FrequencyOmit
+  aiSettings?: Prisma.AiSettingsOmit
   fileAsset?: Prisma.FileAssetOmit
   incomeCategory?: Prisma.IncomeCategoryOmit
   incomeSource?: Prisma.IncomeSourceOmit
