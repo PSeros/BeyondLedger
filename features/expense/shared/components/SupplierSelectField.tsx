@@ -1,11 +1,11 @@
 "use client";
 
 import {useState} from "react";
-import CreatableSelectField from "@/features/expense/shared/components/CreatableSelectField";
+import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import {createSupplier, createSupplierCategory} from "@/features/settings/db/referenceDataMutations";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 
-// The supplier picker for the Add form. Like CreatableSelectField it offers "+ Add new…", but a
+// The supplier picker for the Add form. Like CreatableSelect it offers "+ Add new…", but a
 // new supplier also needs a SupplierCategory — so its create popover carries a nested creatable
 // category picker (which can itself create a brand-new category). Save runs createSupplier(name,
 // categoryId) and is disabled until a category is chosen.
@@ -23,7 +23,7 @@ export default function SupplierSelectField({
   const [categoryId, setCategoryId] = useState("");
 
   return (
-    <CreatableSelectField
+    <CreatableSelect
       label="Supplier"
       name={name}
       options={suppliers}
@@ -32,7 +32,7 @@ export default function SupplierSelectField({
       canSubmit={categoryId !== ""}
       onCreate={(supplierName) => createSupplier(supplierName, Number(categoryId))}
       extraFields={
-        <CreatableSelectField
+        <CreatableSelect
           label="Category"
           options={supplierCategories}
           createTitle="New supplier category"

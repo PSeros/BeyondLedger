@@ -5,7 +5,7 @@ import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateContract} from "@/features/expense/fixed/db/contractMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
-import CreatableSelectField from "@/features/expense/shared/components/CreatableSelectField";
+import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
 import {createContractCategory} from "@/features/settings/db/referenceDataMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
@@ -53,7 +53,7 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
           supplierCategories={options.supplierCategories}
           defaultValue={String(contract.supplierId)}
         />
-        <CreatableSelectField
+        <CreatableSelect
           label="Category"
           name="categoryId"
           options={options.categories}

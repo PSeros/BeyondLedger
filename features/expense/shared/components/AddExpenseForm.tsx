@@ -11,7 +11,7 @@ import BillItemsEditor, {
   type ItemRow,
 } from "@/features/expense/shared/components/BillItemsEditor";
 import {labelClass, SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
-import CreatableSelectField from "@/features/expense/shared/components/CreatableSelectField";
+import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
 import {createContractCategory, createItemCategory} from "@/features/settings/db/referenceDataMutations";
 import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormOptions";
@@ -127,7 +127,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               suppliers={options.suppliers}
               supplierCategories={options.supplierCategories}
             />
-            <CreatableSelectField
+            <CreatableSelect
               label="Category"
               name="categoryId"
               options={options.contractCategories}
