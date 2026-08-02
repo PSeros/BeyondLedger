@@ -4,22 +4,31 @@ import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
+import IncomeEditForm from "@/features/income/components/IncomeEditForm";
+import EditLink from "@/features/income/components/EditLink";
 import {getIncomeById} from "@/features/income/db/incomeDetail";
+import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 
 type InterceptedFixedIncomePageProps = {
   params: Promise<{id: string}>;
+  searchParams: Promise<{edit?: string}>;
 };
 
 // Intercepted route: soft-navigating to /income/fixed/[id] from within the list renders this as an
 // overlay. A hard load / direct link hits the standalone [id]/page.tsx instead.
-export default async function InterceptedFixedIncomePage({params}: InterceptedFixedIncomePageProps) {
+export default async function InterceptedFixedIncomePage({params, searchParams}: InterceptedFixedIncomePageProps) {
   const {id} = await params;
+  const {edit} = await searchParams;
+  const editing = edit != null;
+
   const numericId = Number(id);
   const income = Number.isInteger(numericId) ? await getIncomeById(numericId) : null;
 
   if (!income) {
     notFound();
   }
+
+  const options = editing ? await getIncomeFormOptions() : null;
 
   return (
     <DetailModal
@@ -32,12 +41,19 @@ export default async function InterceptedFixedIncomePage({params}: InterceptedFi
         </>
       }
       footer={
-        <div className="flex items-center justify-end gap-2">
-          <ModalCloseButton/>
-        </div>
+        editing ? undefined : (
+          <div className="flex items-center justify-end gap-2">
+            <ModalCloseButton/>
+            <EditLink id={income.id} basePath="/income/fixed"/>
+          </div>
+        )
       }
     >
-      <IncomeDetail income={income}/>
+      {editing && options ? (
+        <IncomeEditForm income={income} options={options}/>
+      ) : (
+        <IncomeDetail income={income}/>
+      )}
     </DetailModal>
   );
 }

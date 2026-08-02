@@ -4,22 +4,31 @@ import {Card} from "@heroui/react";
 import {LuArrowLeft, LuRepeat} from "react-icons/lu";
 import CategoryChip from "@/components/CategoryChip";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
+import IncomeEditForm from "@/features/income/components/IncomeEditForm";
+import EditLink from "@/features/income/components/EditLink";
 import {getIncomeById} from "@/features/income/db/incomeDetail";
+import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 
 type FixedIncomePageProps = {
   params: Promise<{id: string}>;
+  searchParams: Promise<{edit?: string}>;
 };
 
 // Standalone full page — rendered on a hard load / direct link to /income/fixed/[id]. The
 // intercepted @modal/(.)[id] route renders the same detail as an overlay instead.
-export default async function FixedIncomeDetailPage({params}: FixedIncomePageProps) {
+export default async function FixedIncomeDetailPage({params, searchParams}: FixedIncomePageProps) {
   const {id} = await params;
+  const {edit} = await searchParams;
+  const editing = edit != null;
+
   const numericId = Number(id);
   const income = Number.isInteger(numericId) ? await getIncomeById(numericId) : null;
 
   if (!income) {
     notFound();
   }
+
+  const options = editing ? await getIncomeFormOptions() : null;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
@@ -44,11 +53,16 @@ export default async function FixedIncomeDetailPage({params}: FixedIncomePagePro
             </div>
           </div>
         </div>
+        {editing ? null : <EditLink id={income.id} basePath="/income/fixed"/>}
       </div>
 
       <Card>
         <Card.Content className="pt-6">
-          <IncomeDetail income={income}/>
+          {editing && options ? (
+            <IncomeEditForm income={income} options={options}/>
+          ) : (
+            <IncomeDetail income={income}/>
+          )}
         </Card.Content>
       </Card>
     </div>
