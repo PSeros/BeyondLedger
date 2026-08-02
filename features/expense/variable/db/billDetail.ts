@@ -1,4 +1,5 @@
 import {client} from "@/lib/prisma";
+import type {FileAttachment} from "@/features/expense/shared/db/fileTypes";
 
 export type BillItemDetail = {
   id: number;
@@ -21,6 +22,7 @@ export type BillDetailData = {
   date: string; // ISO
   notes: string | null;
   items: BillItemDetail[];
+  files: FileAttachment[];
 };
 
 export async function getBillById(id: number): Promise<BillDetailData | null> {
@@ -29,6 +31,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
     include: {
       supplier: {include: {category: true}},
       items: {include: {category: true}, orderBy: {createdAt: "asc"}},
+      files: {orderBy: {createdAt: "desc"}},
     },
   });
 
@@ -54,6 +57,14 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
       unitPrice: Number(item.unitPrice),
       totalPrice: Number(item.totalPrice),
       warranty: item.warranty,
+    })),
+    files: bill.files.map((file) => ({
+      id: file.id,
+      originalName: file.originalName,
+      mimeType: file.mimeType,
+      sizeBytes: file.sizeBytes,
+      status: file.status,
+      createdAt: file.createdAt.toISOString(),
     })),
   };
 }

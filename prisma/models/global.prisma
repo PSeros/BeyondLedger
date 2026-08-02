@@ -16,7 +16,7 @@ enum FileStatusChoice {
 }
 
 model FileAsset {
-  id           Int              @id
+  id           Int              @id @default(autoincrement())
   originalName String
   storedName   String
   mimeType     String

@@ -1,5 +1,7 @@
 import type {ReactNode} from "react";
 import StatusChip from "@/components/StatusChip";
+import EntityAttachments from "@/features/expense/shared/components/EntityAttachments";
+import {deleteFileAsset, uploadContractFile} from "@/features/expense/shared/db/fileMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
 
 function formatDate(iso: string): string {
@@ -43,6 +45,12 @@ export default function ContractDetail({contract}: {contract: ContractDetailData
         </Row>
         <Row label="Document number">{contract.documentNumber ?? "—"}</Row>
       </dl>
+
+      <EntityAttachments
+        files={contract.files}
+        uploadAction={uploadContractFile.bind(null, contract.id)}
+        deleteAction={deleteFileAsset}
+      />
     </div>
   );
 }

@@ -352,7 +352,6 @@ export type FileAssetScalarWhereWithAggregatesInput = {
 }
 
 export type FileAssetCreateInput = {
-  id: number
   originalName: string
   storedName: string
   mimeType: string
@@ -366,7 +365,7 @@ export type FileAssetCreateInput = {
 }
 
 export type FileAssetUncheckedCreateInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -380,7 +379,6 @@ export type FileAssetUncheckedCreateInput = {
 }
 
 export type FileAssetUpdateInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   storedName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -408,7 +406,7 @@ export type FileAssetUncheckedUpdateInput = {
 }
 
 export type FileAssetCreateManyInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -422,7 +420,6 @@ export type FileAssetCreateManyInput = {
 }
 
 export type FileAssetUpdateManyMutationInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   storedName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -602,7 +599,6 @@ export type EnumFileStatusChoiceFieldUpdateOperationsInput = {
 }
 
 export type FileAssetCreateWithoutContractInput = {
-  id: number
   originalName: string
   storedName: string
   mimeType: string
@@ -615,7 +611,7 @@ export type FileAssetCreateWithoutContractInput = {
 }
 
 export type FileAssetUncheckedCreateWithoutContractInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -670,7 +666,6 @@ export type FileAssetScalarWhereInput = {
 }
 
 export type FileAssetCreateWithoutBillInput = {
-  id: number
   originalName: string
   storedName: string
   mimeType: string
@@ -683,7 +678,7 @@ export type FileAssetCreateWithoutBillInput = {
 }
 
 export type FileAssetUncheckedCreateWithoutBillInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -721,7 +716,7 @@ export type FileAssetUpdateManyWithWhereWithoutBillInput = {
 }
 
 export type FileAssetCreateManyContractInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -734,7 +729,6 @@ export type FileAssetCreateManyContractInput = {
 }
 
 export type FileAssetUpdateWithoutContractInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   storedName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -773,7 +767,7 @@ export type FileAssetUncheckedUpdateManyWithoutContractInput = {
 }
 
 export type FileAssetCreateManyBillInput = {
-  id: number
+  id?: number
   originalName: string
   storedName: string
   mimeType: string
@@ -786,7 +780,6 @@ export type FileAssetCreateManyBillInput = {
 }
 
 export type FileAssetUpdateWithoutBillInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   storedName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string

@@ -1,4 +1,6 @@
 import {LuShieldCheck} from "react-icons/lu";
+import EntityAttachments from "@/features/expense/shared/components/EntityAttachments";
+import {deleteFileAsset, uploadBillFile} from "@/features/expense/shared/db/fileMutations";
 import type {BillDetailData, BillItemDetail} from "@/features/expense/variable/db/billDetail";
 
 function formatDate(iso: string): string {
@@ -73,6 +75,12 @@ export default function BillDetail({bill}: {bill: BillDetailData}) {
           {formatCurrency(bill.amount)}
         </span>
       </div>
+
+      <EntityAttachments
+        files={bill.files}
+        uploadAction={uploadBillFile.bind(null, bill.id)}
+        deleteAction={deleteFileAsset}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import {client} from "@/lib/prisma";
 import {determineStatus, type LifecycleStatus} from "@/lib/status";
+import type {FileAttachment} from "@/features/expense/shared/db/fileTypes";
 
 export type ContractDetailData = {
   id: number;
@@ -16,12 +17,18 @@ export type ContractDetailData = {
   endDate: string | null; // ISO
   noticePeriod: number | null;
   status: LifecycleStatus;
+  files: FileAttachment[];
 };
 
 export async function getContractById(id: number): Promise<ContractDetailData | null> {
   const contract = await client.contract.findUnique({
     where: {id},
-    include: {supplier: true, category: true, frequency: true},
+    include: {
+      supplier: true,
+      category: true,
+      frequency: true,
+      files: {orderBy: {createdAt: "desc"}},
+    },
   });
 
   if (!contract) {
@@ -43,5 +50,13 @@ export async function getContractById(id: number): Promise<ContractDetailData | 
     endDate: contract.endDate ? contract.endDate.toISOString() : null,
     noticePeriod: contract.noticePeriod,
     status: determineStatus(contract),
+    files: contract.files.map((file) => ({
+      id: file.id,
+      originalName: file.originalName,
+      mimeType: file.mimeType,
+      sizeBytes: file.sizeBytes,
+      status: file.status,
+      createdAt: file.createdAt.toISOString(),
+    })),
   };
 }
