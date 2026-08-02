@@ -1,10 +1,10 @@
 "use client";
 
-import {type Key, useState} from "react";
-import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
+import {useState} from "react";
+import {Button, Input, Label, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
-import CreatePopover from "@/features/expense/shared/components/CreatePopover";
+import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 
 export function formatCurrency(amount: number): string {
@@ -175,12 +175,13 @@ function ItemRowFields({
       {/* Category flexes to fill; the number fields are pinned narrow (they hold small values and
           don't need equal-track width). On the 2-col mobile layout Category spans the full row. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_4.5rem]">
-        <RowSelect
+        <CreatableSelect
           label="Category"
           value={row.categoryId}
           options={categories}
-          onChange={(categoryId) => onChange({categoryId})}
+          onSelect={(categoryId) => onChange({categoryId})}
           onCreate={onCreateCategory}
+          createTitle="New item category"
           className="col-span-2 sm:col-span-1"
         />
         <RowNumber label="Qty" value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
@@ -226,68 +227,3 @@ function RowNumber({
   );
 }
 
-// Controlled category select, one per item row. Posts its value through the row's hidden
-// itemCategoryId input (kept in sync via onChange) so it stays index-aligned with the other
-// repeated item fields on submit. When `onCreate` is provided a "+" button beside it opens an
-// anchored create popover; the created category is added to the shared list and selected here.
-function RowSelect({
-  label,
-  value,
-  options,
-  onChange,
-  onCreate,
-  className,
-}: {
-  label: string;
-  value: string;
-  options: FilterOption[];
-  onChange: (value: string) => void;
-  onCreate?: (name: string) => Promise<FilterOption>;
-  className?: string;
-}) {
-  async function handleCreate(name: string) {
-    if (!onCreate) {
-      return;
-    }
-    const created = await onCreate(name);
-    onChange(String(created.id));
-  }
-
-  return (
-    <div className={`flex min-w-0 flex-col gap-1${className ? ` ${className}` : ""}`}>
-      <Label className={labelClass}>{label}</Label>
-      {/* When creatable, the "+" is a trailing icon inside the field (left of the chevron) so the
-          select keeps the full cell width; pr-14! reserves room for both icons. See CreatableSelectField. */}
-      <div className="relative min-w-0">
-        <Select
-          value={value || null}
-          onChange={(key: Key | null) => onChange(key != null ? String(key) : "")}
-          aria-label={label}
-          className="w-full min-w-0"
-        >
-          <Select.Trigger className={onCreate ? "w-full pr-14!" : "w-full"}>
-            <Select.Value/>
-            <Select.Indicator/>
-          </Select.Trigger>
-          <Select.Popover>
-            <ListBox>
-              {options.map((option) => (
-                <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
-                  {option.name}
-                </ListBox.Item>
-              ))}
-            </ListBox>
-          </Select.Popover>
-        </Select>
-        {onCreate ? (
-          <CreatePopover
-            title="New item category"
-            triggerLabel="Add item category"
-            triggerClassName="absolute top-1/2 right-7 size-7 min-h-0! min-w-0! -translate-y-1/2 p-0!"
-            onSubmit={handleCreate}
-          />
-        ) : null}
-      </div>
-    </div>
-  );
-}
