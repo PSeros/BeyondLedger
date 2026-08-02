@@ -68,9 +68,6 @@ type BillItemsEditorProps = {
   rows: ItemRow[];
   categories: FilterOption[];
   onChange: (rows: ItemRow[]) => void;
-  // When provided, each row's category select offers "+ Add new…"; a created category is added
-  // to the shared list (so every row sees it) and selected in the row that created it. Omitted
-  // by the edit form, which keeps a plain select.
   onCreateCategory?: (name: string) => Promise<FilterOption>;
 };
 
@@ -97,10 +94,10 @@ export default function BillItemsEditor({rows, categories, onChange, onCreateCat
 
   const createCategory = onCreateCategory
     ? async (name: string): Promise<FilterOption> => {
-        const created = await onCreateCategory(name);
-        setCats((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
-        return created;
-      }
+      const created = await onCreateCategory(name);
+      setCats((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+      return created;
+    }
     : undefined;
 
   return (
@@ -147,7 +144,7 @@ function ItemRowFields({
   onRemove: () => void;
 }) {
   return (
-    <li className="border-default bg-surface-secondary flex flex-col gap-3 rounded-[var(--radius)] border px-3.5 py-3">
+    <li className="border-default bg-surface-secondary flex flex-col gap-3 rounded-(--radius) border px-3.5 py-3">
       {/* Row-scoped hidden id + the getAll()-aligned repeated field names the action parses. */}
       <input type="hidden" name="itemId" value={row.id}/>
       <input type="hidden" name="itemCategoryId" value={row.categoryId}/>
@@ -175,13 +172,16 @@ function ItemRowFields({
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-4">
+      {/* Category flexes to fill; the number fields are pinned narrow (they hold small values and
+          don't need equal-track width). On the 2-col mobile layout Category spans the full row. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_4.5rem]">
         <RowSelect
           label="Category"
           value={row.categoryId}
           options={categories}
           onChange={(categoryId) => onChange({categoryId})}
           onCreate={onCreateCategory}
+          className="col-span-2 sm:col-span-1"
         />
         <RowNumber label="Qty" value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
         <RowNumber label="Unit €" value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
@@ -236,12 +236,14 @@ function RowSelect({
   options,
   onChange,
   onCreate,
+  className,
 }: {
   label: string;
   value: string;
   options: FilterOption[];
   onChange: (value: string) => void;
   onCreate?: (name: string) => Promise<FilterOption>;
+  className?: string;
 }) {
   async function handleCreate(name: string) {
     if (!onCreate) {
@@ -252,7 +254,7 @@ function RowSelect({
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-1">
+    <div className={`flex min-w-0 flex-col gap-1${className ? ` ${className}` : ""}`}>
       <Label className={labelClass}>{label}</Label>
       <div className="flex min-w-0 items-center gap-2">
         <Select

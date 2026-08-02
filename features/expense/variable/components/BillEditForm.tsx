@@ -83,9 +83,9 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
 
       {hasItems ? (
         <div
-          className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
+          className="flex items-center justify-between rounded-(--radius) bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
           <span className="text-sm font-medium">Total</span>
-          <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{formatCurrency(grandTotal)}</span>
+          <span className="text-lg font-semibold tabular-nums text-(--accent)">{formatCurrency(grandTotal)}</span>
         </div>
       ) : null}
 
