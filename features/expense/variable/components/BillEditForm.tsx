@@ -10,7 +10,9 @@ import BillItemsEditor, {
   itemRowFromDetail,
   type ItemRow,
 } from "@/features/expense/shared/components/BillItemsEditor";
-import {labelClass, SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
+import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
+import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import {createItemCategory} from "@/features/settings/db/referenceDataMutations";
 import type {BillDetailData} from "@/features/expense/variable/db/billDetail";
 import type {BillFormOptions} from "@/features/expense/variable/db/billFormOptions";
 
@@ -52,7 +54,12 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-        <SelectField label="Supplier" name="supplierId" options={options.suppliers} defaultValue={String(bill.supplierId)}/>
+        <SupplierSelectField
+          name="supplierId"
+          suppliers={options.suppliers}
+          supplierCategories={options.supplierCategories}
+          defaultValue={String(bill.supplierId)}
+        />
         <TextInputField label="Date" name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>
         <TextInputField label="Document number" name="documentNumber" defaultValue={bill.documentNumber ?? ""}/>
         {/* Amount is auto-summed from the items below when there are any; only a bill left with no
@@ -62,7 +69,12 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
         )}
       </div>
 
-      <BillItemsEditor rows={rows} categories={options.itemCategories} onChange={setRows}/>
+      <BillItemsEditor
+        rows={rows}
+        categories={options.itemCategories}
+        onChange={setRows}
+        onCreateCategory={createItemCategory}
+      />
 
       <TextField name="notes" defaultValue={bill.notes ?? ""} className="flex flex-col gap-1">
         <Label className={labelClass}>Notes</Label>

@@ -5,12 +5,15 @@ import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateContract} from "@/features/expense/fixed/db/contractMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
+import CreatableSelectField from "@/features/expense/shared/components/CreatableSelectField";
+import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import {createContractCategory} from "@/features/settings/db/referenceDataMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
-import type {ContractFilterOptions} from "@/features/expense/fixed/db/contractFilterOptions";
+import type {ContractFormOptions} from "@/features/expense/fixed/db/contractFormOptions";
 
 type ContractEditFormProps = {
   contract: ContractDetailData;
-  options: ContractFilterOptions;
+  options: ContractFormOptions;
 };
 
 export default function ContractEditForm({contract, options}: ContractEditFormProps) {
@@ -44,8 +47,20 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
       <TextInputField label="Name" name="name" defaultValue={contract.name} isRequired/>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-        <SelectField label="Supplier" name="supplierId" options={options.suppliers} defaultValue={String(contract.supplierId)}/>
-        <SelectField label="Category" name="categoryId" options={options.categories} defaultValue={String(contract.categoryId)}/>
+        <SupplierSelectField
+          name="supplierId"
+          suppliers={options.suppliers}
+          supplierCategories={options.supplierCategories}
+          defaultValue={String(contract.supplierId)}
+        />
+        <CreatableSelectField
+          label="Category"
+          name="categoryId"
+          options={options.categories}
+          defaultValue={String(contract.categoryId)}
+          createTitle="New contract category"
+          onCreate={createContractCategory}
+        />
         <SelectField label="Frequency" name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
         <TextInputField label="Amount (€)" name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
         <TextInputField label="Start date" name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>

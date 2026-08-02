@@ -13,10 +13,12 @@ export default function SupplierSelectField({
   name,
   suppliers,
   supplierCategories,
+  defaultValue,
 }: {
   name: string;
   suppliers: FilterOption[];
   supplierCategories: FilterOption[];
+  defaultValue?: string;
 }) {
   const [categoryId, setCategoryId] = useState("");
 
@@ -25,6 +27,7 @@ export default function SupplierSelectField({
       label="Supplier"
       name={name}
       options={suppliers}
+      defaultValue={defaultValue}
       createTitle="New supplier"
       canSubmit={categoryId !== ""}
       onCreate={(supplierName) => createSupplier(supplierName, Number(categoryId))}

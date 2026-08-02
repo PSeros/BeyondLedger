@@ -1,18 +1,17 @@
 "use client";
 
-import {type Key, type ReactNode, useRef, useState} from "react";
+import {type Key, type ReactNode, useState} from "react";
 import {Label, ListBox, Select} from "@heroui/react";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
-import CreatePopover, {CREATE_OPTION_ID} from "@/features/expense/shared/components/CreatePopover";
+import CreatePopover from "@/features/expense/shared/components/CreatePopover";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 
-// A single-select that, in addition to its options, offers a "+ Add new…" row. Choosing it
-// opens an anchored popover mini-form; on save the new row is created via `onCreate`, appended
-// to the local option list, and selected — no page refresh, so a half-filled parent form is
-// preserved. The current selection posts to native FormData through a hidden `<input name>`
-// (like BillItemsEditor's RowSelect), so consuming server actions read it unchanged. Omit
-// `name` and read selection via `onSelect` when embedding this inside another create popover
-// (e.g. the supplier popover's category picker).
+// A single-select paired with a "+" button that opens an anchored create popover; on save the new
+// row is created via `onCreate`, appended to the local option list, and selected — no page refresh,
+// so a half-filled parent form is preserved. The current selection posts to native FormData through
+// a hidden `<input name>`, so consuming server actions read it unchanged. Omit `name` and read
+// selection via `onSelect` when embedding this inside another create popover (e.g. the supplier
+// popover's category picker).
 export default function CreatableSelectField({
   label,
   name,
@@ -36,20 +35,10 @@ export default function CreatableSelectField({
 }) {
   const [opts, setOpts] = useState<FilterOption[]>(options);
   const [selectedId, setSelectedId] = useState<string>(defaultValue);
-  const [creating, setCreating] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
 
   function select(id: string) {
     setSelectedId(id);
     onSelect?.(id);
-  }
-
-  function handleChange(key: Key | null) {
-    if (key === CREATE_OPTION_ID) {
-      setCreating(true);
-      return;
-    }
-    select(key != null ? String(key) : "");
   }
 
   async function handleCreate(draftName: string) {
@@ -60,14 +49,14 @@ export default function CreatableSelectField({
 
   return (
     <div className="flex flex-col gap-1">
-      <div ref={triggerRef}>
+      <Label className={labelClass}>{label}</Label>
+      <div className="flex items-center gap-2">
         <Select
           value={selectedId || null}
-          onChange={handleChange}
+          onChange={(key: Key | null) => select(key != null ? String(key) : "")}
           aria-label={label}
-          className="flex flex-col gap-1"
+          className="flex flex-1 flex-col gap-1"
         >
-          <Label className={labelClass}>{label}</Label>
           <Select.Trigger>
             <Select.Value/>
             <Select.Indicator/>
@@ -79,24 +68,18 @@ export default function CreatableSelectField({
                   {option.name}
                 </ListBox.Item>
               ))}
-              <ListBox.Item key={CREATE_OPTION_ID} id={CREATE_OPTION_ID} textValue="Add new">
-                + Add new…
-              </ListBox.Item>
             </ListBox>
           </Select.Popover>
         </Select>
+        <CreatePopover
+          title={createTitle}
+          triggerLabel={`Add ${label.toLowerCase()}`}
+          extraFields={extraFields}
+          canSubmit={canSubmit}
+          onSubmit={handleCreate}
+        />
       </div>
       {name ? <input type="hidden" name={name} value={selectedId}/> : null}
-
-      <CreatePopover
-        triggerRef={triggerRef}
-        isOpen={creating}
-        onOpenChange={setCreating}
-        title={createTitle}
-        extraFields={extraFields}
-        canSubmit={canSubmit}
-        onSubmit={handleCreate}
-      />
     </div>
   );
 }

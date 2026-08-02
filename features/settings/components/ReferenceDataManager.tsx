@@ -52,62 +52,79 @@ function useMutations() {
 
 export default function ReferenceDataManager({data}: {data: ReferenceData}) {
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">Reference data</h1>
-        <p className="mt-1 text-sm text-muted">
-          The suppliers, categories, and billing frequencies your expenses can reference. Add or tidy
-          these here, or create them on the fly from the Add form. A row used by an existing expense
-          can&apos;t be deleted.
-        </p>
+    <div className="flex h-full min-h-0 flex-col">
+      <header className="shrink-0 border-b border-separator pb-4">
+        <h1 className="text-2xl font-semibold">Settings</h1>
+        <p className="mt-1 text-sm text-muted">Configure how BeyondLedger works.</p>
+      </header>
+
+      <div className="min-h-0 flex-1 overflow-y-auto py-6">
+        <section className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-base font-semibold">Reference data</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted">
+              The suppliers, categories, and billing frequencies your expenses draw from. Add or tidy
+              them here, or create them on the fly from the Add form. A row still used by an expense
+              can&apos;t be deleted.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <div className="md:col-span-2">
+              <SupplierSection suppliers={data.suppliers} categories={data.supplierCategories}/>
+            </div>
+            <FrequencySection frequencies={data.frequencies}/>
+            <NameSection
+              title="Supplier categories"
+              rows={data.supplierCategories}
+              usageNoun="supplier"
+              create={createSupplierCategory}
+              rename={renameSupplierCategory}
+              remove={deleteSupplierCategory}
+            />
+            <NameSection
+              title="Item categories"
+              rows={data.itemCategories}
+              usageNoun="item"
+              create={createItemCategory}
+              rename={renameItemCategory}
+              remove={deleteItemCategory}
+            />
+            <NameSection
+              title="Contract categories"
+              rows={data.contractCategories}
+              usageNoun="contract"
+              create={createContractCategory}
+              rename={renameContractCategory}
+              remove={deleteContractCategory}
+            />
+          </div>
+        </section>
       </div>
-
-      <SupplierSection suppliers={data.suppliers} categories={data.supplierCategories}/>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <NameSection
-          title="Supplier categories"
-          rows={data.supplierCategories}
-          usageNoun="supplier"
-          create={createSupplierCategory}
-          rename={renameSupplierCategory}
-          remove={deleteSupplierCategory}
-        />
-        <NameSection
-          title="Item categories"
-          rows={data.itemCategories}
-          usageNoun="item"
-          create={createItemCategory}
-          rename={renameItemCategory}
-          remove={deleteItemCategory}
-        />
-        <NameSection
-          title="Contract categories"
-          rows={data.contractCategories}
-          usageNoun="contract"
-          create={createContractCategory}
-          rename={renameContractCategory}
-          remove={deleteContractCategory}
-        />
-      </div>
-
-      <FrequencySection frequencies={data.frequencies}/>
     </div>
   );
 }
 
 // --- shared building blocks -------------------------------------------------
 
-function SectionCard({title, description, children}: {
+function SectionCard({title, count, description, children}: {
   title: string;
+  count?: number;
   description?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="border-default bg-surface flex flex-col gap-3 rounded-[var(--radius)] border p-5">
-      <div>
-        <h2 className="text-sm font-semibold">{title}</h2>
-        {description ? <p className="mt-0.5 text-xs text-muted">{description}</p> : null}
+    <section className="border-default bg-surface flex h-full flex-col gap-3 rounded-[var(--radius)] border p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold">{title}</h3>
+          {description ? <p className="mt-0.5 text-xs text-muted">{description}</p> : null}
+        </div>
+        {typeof count === "number" ? (
+          <span className="bg-surface-secondary shrink-0 rounded-full px-2 py-0.5 text-xs tabular-nums text-muted">
+            {count}
+          </span>
+        ) : null}
       </div>
       {children}
     </section>
@@ -223,7 +240,7 @@ function NameSection({title, rows, usageNoun, create, rename, remove}: {
   }
 
   return (
-    <SectionCard title={title} description={`${rows.length} total`}>
+    <SectionCard title={title} count={rows.length}>
       <div className="flex items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={`New ${title}`} className="flex flex-1 flex-col gap-1">
           <Input placeholder="Add new…"/>
@@ -311,10 +328,9 @@ function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; cat
   return (
     <SectionCard
       title="Suppliers"
+      count={suppliers.length}
       description={
-        categories.length === 0
-          ? "Add a supplier category first — every supplier needs one."
-          : `${suppliers.length} total`
+        categories.length === 0 ? "Add a supplier category first — every supplier needs one." : undefined
       }
     >
       <div className="flex flex-wrap items-end gap-2">
@@ -412,6 +428,7 @@ function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
   return (
     <SectionCard
       title="Billing frequencies"
+      count={frequencies.length}
       description="How often a fixed expense bills. Value is billings per year (0 = one-time)."
     >
       <div className="flex flex-wrap items-end gap-2">

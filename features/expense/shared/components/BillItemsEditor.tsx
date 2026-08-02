@@ -1,10 +1,10 @@
 "use client";
 
-import {type Key, useRef, useState} from "react";
+import {type Key, useState} from "react";
 import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
-import CreatePopover, {CREATE_OPTION_ID} from "@/features/expense/shared/components/CreatePopover";
+import CreatePopover from "@/features/expense/shared/components/CreatePopover";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 
 export function formatCurrency(amount: number): string {
@@ -228,8 +228,8 @@ function RowNumber({
 
 // Controlled category select, one per item row. Posts its value through the row's hidden
 // itemCategoryId input (kept in sync via onChange) so it stays index-aligned with the other
-// repeated item fields on submit. When `onCreate` is provided it offers a "+ Add new…" row that
-// opens an anchored create popover; the created category is selected in this row.
+// repeated item fields on submit. When `onCreate` is provided a "+" button beside it opens an
+// anchored create popover; the created category is added to the shared list and selected here.
 function RowSelect({
   label,
   value,
@@ -243,17 +243,6 @@ function RowSelect({
   onChange: (value: string) => void;
   onCreate?: (name: string) => Promise<FilterOption>;
 }) {
-  const [creating, setCreating] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
-
-  function handleChange(key: Key | null) {
-    if (key === CREATE_OPTION_ID) {
-      setCreating(true);
-      return;
-    }
-    onChange(key != null ? String(key) : "");
-  }
-
   async function handleCreate(name: string) {
     if (!onCreate) {
       return;
@@ -263,37 +252,33 @@ function RowSelect({
   }
 
   return (
-    <div ref={triggerRef} className="flex flex-col gap-1">
-      <Select value={value || null} onChange={handleChange} aria-label={label} className="flex flex-col gap-1">
-        <Label className={labelClass}>{label}</Label>
-        <Select.Trigger>
-          <Select.Value/>
-          <Select.Indicator/>
-        </Select.Trigger>
-        <Select.Popover>
-          <ListBox>
-            {options.map((option) => (
-              <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
-                {option.name}
-              </ListBox.Item>
-            ))}
-            {onCreate ? (
-              <ListBox.Item key={CREATE_OPTION_ID} id={CREATE_OPTION_ID} textValue="Add new">
-                + Add new…
-              </ListBox.Item>
-            ) : null}
-          </ListBox>
-        </Select.Popover>
-      </Select>
-      {onCreate ? (
-        <CreatePopover
-          triggerRef={triggerRef}
-          isOpen={creating}
-          onOpenChange={setCreating}
-          title="New item category"
-          onSubmit={handleCreate}
-        />
-      ) : null}
+    <div className="flex flex-col gap-1">
+      <Label className={labelClass}>{label}</Label>
+      <div className="flex items-center gap-2">
+        <Select
+          value={value || null}
+          onChange={(key: Key | null) => onChange(key != null ? String(key) : "")}
+          aria-label={label}
+          className="flex flex-1 flex-col gap-1"
+        >
+          <Select.Trigger>
+            <Select.Value/>
+            <Select.Indicator/>
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {options.map((option) => (
+                <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
+                  {option.name}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
+        {onCreate ? (
+          <CreatePopover title="New item category" triggerLabel="Add item category" onSubmit={handleCreate}/>
+        ) : null}
+      </div>
     </div>
   );
 }
