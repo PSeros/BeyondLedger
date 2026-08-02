@@ -172,9 +172,9 @@ function ItemRowFields({
         </Button>
       </div>
 
-      {/* Category flexes to fill; the number fields are pinned narrow (they hold small values and
-          don't need equal-track width). On the 2-col mobile layout Category spans the full row. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1fr)_4.5rem_4.5rem_4.5rem]">
+      {/* Four equal columns on desktop (Category, Qty, Unit, Warranty). On the 2-col mobile
+          layout Category spans the full row. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CreatableSelect
           label="Category"
           value={row.categoryId}

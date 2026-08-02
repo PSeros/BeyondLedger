@@ -122,7 +122,9 @@ export default function CreatableSelect({
           <span className={`min-w-0 flex-1 truncate text-left${selectedName ? "" : " text-muted"}`}>
             {selectedName ?? placeholder}
           </span>
-          <span className="select__indicator" data-slot="select-default-indicator">
+          {/* data-open drives HeroUI's own `select__indicator[data-open=true]{rotate:180deg}`
+              rule (+ its built-in rotate transition), matching the native select's flip. */}
+          <span className="select__indicator" data-slot="select-default-indicator" data-open={open}>
             <LuChevronDown className="size-4"/>
           </span>
         </AriaButton>
