@@ -2,9 +2,24 @@ import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server";
 import {getIncomeTableRows} from "@/features/income/db/incomeTableData";
 import type {IncomeTableSortBy, IncomeTableSortDir} from "@/features/income/types";
+import type {LifecycleStatus} from "@/lib/status";
 
 const SORT_BY_VALUES: readonly IncomeTableSortBy[] = ["name", "source", "amount", "frequency", "date"];
 const SORT_DIR_VALUES: readonly IncomeTableSortDir[] = ["asc", "desc"];
+const STATUS_VALUES: readonly LifecycleStatus[] = ["Active", "Pending", "Inactive"];
+
+function parsePositiveId(value: string | null): number | undefined {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function parseStatus(value: string | null): LifecycleStatus | undefined {
+  return STATUS_VALUES.includes(value as LifecycleStatus) ? (value as LifecycleStatus) : undefined;
+}
+
+function parseIsoDate(value: string | null): string | undefined {
+  return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
+}
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -30,7 +45,27 @@ export async function GET(request: NextRequest) {
   const rawIsRecurring = params.get("isRecurring");
   const isRecurring = rawIsRecurring === "true" ? true : rawIsRecurring === "false" ? false : undefined;
 
-  const result = await getIncomeTableRows({q, offset, limit, sortBy, sortDir, isRecurring});
+  const sourceId = parsePositiveId(params.get("sourceId"));
+  const categoryId = parsePositiveId(params.get("categoryId"));
+  const frequencyId = parsePositiveId(params.get("frequencyId"));
+  const status = parseStatus(params.get("status"));
+  const dateFrom = parseIsoDate(params.get("dateFrom"));
+  const dateTo = parseIsoDate(params.get("dateTo"));
+
+  const result = await getIncomeTableRows({
+    q,
+    offset,
+    limit,
+    sortBy,
+    sortDir,
+    isRecurring,
+    sourceId,
+    categoryId,
+    frequencyId,
+    status,
+    dateFrom,
+    dateTo,
+  });
 
   return NextResponse.json(result);
 }

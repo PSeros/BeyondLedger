@@ -13,7 +13,7 @@ export default function FixedIncomePage() {
       <PageToolbar
         left={<VfSwitch basePath={"/income"}/>}
         center={<Suspense><IncomeSearchField/></Suspense>}
-        right={<IncomeActions/>}
+        right={<IncomeActions isRecurring={true}/>}
       />
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
         <div className="flex h-full min-h-0 flex-col gap-8">

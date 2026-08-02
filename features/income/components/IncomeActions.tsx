@@ -1,15 +1,21 @@
 import {Button, ButtonGroup} from "@heroui/react";
-import {LuFilter, LuPlus} from "react-icons/lu";
+import {LuPlus} from "react-icons/lu";
+import IncomeFilterButton from "@/features/income/components/IncomeFilterButton";
+import {getIncomeFilterOptions} from "@/features/income/db/incomeFilterOptions";
 
-// Interim inert toolbar actions for the income tabs. The Filter button gets its popover in 9b and
-// the Add button its create modal in 9f; kept inert for now so the table+search phase stands alone.
-export default function IncomeActions() {
+type IncomeActionsProps = {
+  isRecurring: boolean;
+};
+
+// Toolbar actions for an income tab. Filter options are scoped to the tab (recurring vs one-time).
+// The Add button gets its create modal in 9f; kept inert for now. Income has no Upload (OCR is a
+// deliberately expense-only phase).
+export default async function IncomeActions({isRecurring}: IncomeActionsProps) {
+  const filterOptions = await getIncomeFilterOptions(isRecurring);
+
   return (
     <ButtonGroup size="md" variant="tertiary">
-      <Button isDisabled>
-        <LuFilter/>
-        Filter
-      </Button>
+      <IncomeFilterButton options={filterOptions} isRecurring={isRecurring}/>
       <Button isDisabled>
         <ButtonGroup.Separator/>
         <LuPlus/>

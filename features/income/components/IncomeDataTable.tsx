@@ -71,6 +71,12 @@ type IncomeDataTableProps = {
 export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
+  const sourceId = searchParams.get("sourceId") ?? "";
+  const categoryId = searchParams.get("categoryId") ?? "";
+  const frequencyId = searchParams.get("frequencyId") ?? "";
+  const status = searchParams.get("status") ?? "";
+  const dateFrom = searchParams.get("dateFrom") ?? "";
+  const dateTo = searchParams.get("dateTo") ?? "";
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(
     isRecurring
@@ -102,6 +108,24 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
       if (q) {
         params.set("q", q);
       }
+      if (sourceId) {
+        params.set("sourceId", sourceId);
+      }
+      if (categoryId) {
+        params.set("categoryId", categoryId);
+      }
+      if (frequencyId) {
+        params.set("frequencyId", frequencyId);
+      }
+      if (status) {
+        params.set("status", status);
+      }
+      if (dateFrom) {
+        params.set("dateFrom", dateFrom);
+      }
+      if (dateTo) {
+        params.set("dateTo", dateTo);
+      }
 
       const response = await fetch(`/api/income?${params.toString()}`);
       const data: IncomeTableResponse = await response.json();
@@ -118,13 +142,13 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
         setIsLoadingMore(false);
       }
     },
-    [q, isRecurring, sortBy, sortDir],
+    [q, sourceId, categoryId, frequencyId, status, dateFrom, dateTo, isRecurring, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, isRecurring, sortBy, sortDir]);
+  }, [q, sourceId, categoryId, frequencyId, status, dateFrom, dateTo, isRecurring, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {
