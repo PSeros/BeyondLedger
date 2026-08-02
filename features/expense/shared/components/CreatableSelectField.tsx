@@ -50,14 +50,18 @@ export default function CreatableSelectField({
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <Label className={labelClass}>{label}</Label>
-      <div className="flex min-w-0 items-center gap-2">
+      {/* The "+" sits inside the field as a second trailing icon, just left of the dropdown
+          chevron — so the select keeps the full cell width. It's a sibling overlaid on the
+          trigger (not nested inside it: the trigger is itself a button). pr-14! reserves room
+          for both icons; the !-important beats the trigger's `:has(indicator)` padding rule. */}
+      <div className="relative min-w-0">
         <Select
           value={selectedId || null}
           onChange={(key: Key | null) => select(key != null ? String(key) : "")}
           aria-label={label}
-          className="flex min-w-0 flex-1 flex-col gap-1"
+          className="w-full min-w-0"
         >
-          <Select.Trigger>
+          <Select.Trigger className="w-full pr-14!">
             <Select.Value/>
             <Select.Indicator/>
           </Select.Trigger>
@@ -74,6 +78,7 @@ export default function CreatableSelectField({
         <CreatePopover
           title={createTitle}
           triggerLabel={`Add ${label.toLowerCase()}`}
+          triggerClassName="absolute top-1/2 right-7 size-7 min-h-0! min-w-0! -translate-y-1/2 p-0!"
           extraFields={extraFields}
           canSubmit={canSubmit}
           onSubmit={handleCreate}

@@ -256,14 +256,16 @@ function RowSelect({
   return (
     <div className={`flex min-w-0 flex-col gap-1${className ? ` ${className}` : ""}`}>
       <Label className={labelClass}>{label}</Label>
-      <div className="flex min-w-0 items-center gap-2">
+      {/* When creatable, the "+" is a trailing icon inside the field (left of the chevron) so the
+          select keeps the full cell width; pr-14! reserves room for both icons. See CreatableSelectField. */}
+      <div className="relative min-w-0">
         <Select
           value={value || null}
           onChange={(key: Key | null) => onChange(key != null ? String(key) : "")}
           aria-label={label}
-          className="flex min-w-0 flex-1 flex-col gap-1"
+          className="w-full min-w-0"
         >
-          <Select.Trigger>
+          <Select.Trigger className={onCreate ? "w-full pr-14!" : "w-full"}>
             <Select.Value/>
             <Select.Indicator/>
           </Select.Trigger>
@@ -278,7 +280,12 @@ function RowSelect({
           </Select.Popover>
         </Select>
         {onCreate ? (
-          <CreatePopover title="New item category" triggerLabel="Add item category" onSubmit={handleCreate}/>
+          <CreatePopover
+            title="New item category"
+            triggerLabel="Add item category"
+            triggerClassName="absolute top-1/2 right-7 size-7 min-h-0! min-w-0! -translate-y-1/2 p-0!"
+            onSubmit={handleCreate}
+          />
         ) : null}
       </div>
     </div>

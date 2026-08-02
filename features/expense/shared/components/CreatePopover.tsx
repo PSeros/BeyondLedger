@@ -13,12 +13,14 @@ import {labelClass} from "@/features/expense/shared/components/FormFields";
 export default function CreatePopover({
   title,
   triggerLabel,
+  triggerClassName,
   extraFields,
   canSubmit = true,
   onSubmit,
 }: {
   title: string;
   triggerLabel: string;
+  triggerClassName?: string;
   extraFields?: ReactNode;
   canSubmit?: boolean;
   onSubmit: (name: string) => Promise<void>;
@@ -56,7 +58,14 @@ export default function CreatePopover({
 
   return (
     <Popover isOpen={open} onOpenChange={handleOpenChange}>
-      <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={triggerLabel}>
+      <Button
+        type="button"
+        size="sm"
+        variant="tertiary"
+        isIconOnly
+        aria-label={triggerLabel}
+        className={triggerClassName}
+      >
         <LuPlus className="size-4"/>
       </Button>
       <Popover.Content>
