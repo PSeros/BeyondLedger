@@ -3,11 +3,13 @@ import {LuRepeat} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
 import EditLink from "@/features/expense/fixed/components/EditLink";
 import {getContractById} from "@/features/expense/fixed/db/contractDetail";
 import {getContractFormOptions} from "@/features/expense/fixed/db/contractFormOptions";
+import {deleteContract} from "@/features/expense/fixed/db/contractMutations";
 
 type InterceptedContractPageProps = {
   params: Promise<{id: string}>;
@@ -42,9 +44,12 @@ export default async function InterceptedContractPage({params, searchParams}: In
       }
       footer={
         editing ? undefined : (
-          <div className="flex items-center justify-end gap-2">
-            <ModalCloseButton/>
-            <EditLink id={contract.id}/>
+          <div className="flex items-center justify-between gap-2">
+            <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name}/>
+            <div className="flex items-center gap-2">
+              <ModalCloseButton/>
+              <EditLink id={contract.id}/>
+            </div>
           </div>
         )
       }

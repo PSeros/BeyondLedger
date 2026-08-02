@@ -3,11 +3,13 @@ import {LuRepeat} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
 import IncomeEditForm from "@/features/income/components/IncomeEditForm";
 import EditLink from "@/features/income/components/EditLink";
 import {getIncomeById} from "@/features/income/db/incomeDetail";
 import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
+import {deleteIncome} from "@/features/income/db/incomeMutations";
 
 type InterceptedFixedIncomePageProps = {
   params: Promise<{id: string}>;
@@ -42,9 +44,12 @@ export default async function InterceptedFixedIncomePage({params, searchParams}:
       }
       footer={
         editing ? undefined : (
-          <div className="flex items-center justify-end gap-2">
-            <ModalCloseButton/>
-            <EditLink id={income.id} basePath="/income/fixed"/>
+          <div className="flex items-center justify-between gap-2">
+            <DeleteEntityButton id={income.id} action={deleteIncome} label={income.name}/>
+            <div className="flex items-center gap-2">
+              <ModalCloseButton/>
+              <EditLink id={income.id} basePath="/income/fixed"/>
+            </div>
           </div>
         )
       }

@@ -45,3 +45,10 @@ export async function updateIncome(id: number, formData: FormData): Promise<void
   await client.income.update({where: {id}, data: parseIncomeData(formData)});
   revalidateIncome(id);
 }
+
+// Deletes an Income. The detail view navigates back to the list (which the revalidate refreshes).
+export async function deleteIncome(id: number): Promise<void> {
+  await client.income.delete({where: {id}});
+  revalidatePath("/income/fixed");
+  revalidatePath("/income/variable");
+}

@@ -47,3 +47,9 @@ export async function updateContract(id: number, formData: FormData): Promise<vo
   revalidatePath("/expense/fixed");
   revalidatePath(`/expense/fixed/${id}`);
 }
+
+// Deletes a Contract (its FileAssets cascade). The detail view navigates back to the list.
+export async function deleteContract(id: number): Promise<void> {
+  await client.contract.delete({where: {id}});
+  revalidatePath("/expense/fixed");
+}

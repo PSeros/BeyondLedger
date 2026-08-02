@@ -111,3 +111,9 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
   revalidatePath("/expense/variable");
   revalidatePath(`/expense/variable/${id}`);
 }
+
+// Deletes a Bill (its Items + FileAssets cascade). The detail view navigates back to the list.
+export async function deleteBill(id: number): Promise<void> {
+  await client.bill.delete({where: {id}});
+  revalidatePath("/expense/variable");
+}

@@ -70,3 +70,9 @@ export async function getIncomeTableRows({
     nextOffset: incomes.length > limit ? offset + limit : null,
   };
 }
+
+// Unfiltered count for a tab (recurring vs one-time) — drives the page-level empty state that
+// distinguishes "no income of this kind yet" from "no rows match the current filters".
+export async function getIncomeCount(isRecurring: boolean): Promise<number> {
+  return client.income.count({where: {frequency: {isRecurring}}});
+}

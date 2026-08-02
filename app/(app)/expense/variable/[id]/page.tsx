@@ -3,11 +3,13 @@ import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
 import {LuArrowLeft, LuReceipt} from "react-icons/lu";
 import CategoryChip from "@/components/CategoryChip";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
 import EditLink from "@/features/expense/variable/components/EditLink";
 import {getBillById} from "@/features/expense/variable/db/billDetail";
 import {getBillFormOptions} from "@/features/expense/variable/db/billFormOptions";
+import {deleteBill} from "@/features/expense/variable/db/billMutations";
 
 type BillPageProps = {
   params: Promise<{id: string}>;
@@ -55,7 +57,12 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
             ) : null}
           </div>
         </div>
-        {editing ? null : <EditLink id={bill.id}/>}
+        {editing ? null : (
+          <div className="flex items-center gap-2">
+            <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier} redirectTo="/expense/variable"/>
+            <EditLink id={bill.id}/>
+          </div>
+        )}
       </div>
 
       <Card>

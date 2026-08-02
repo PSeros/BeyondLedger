@@ -7,6 +7,8 @@ import IncomeActions from "@/features/income/components/IncomeActions";
 import IncomeChartCard from "@/features/income/components/IncomeChartCard";
 import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard";
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
+import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
+import {getIncomeCount} from "@/features/income/db/incomeTableData";
 
 type FixedIncomePageProps = {
   searchParams: Promise<{
@@ -33,6 +35,8 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
     frequencyId: parseId(params.frequencyId),
   };
 
+  const isEmpty = (await getIncomeCount(true)) === 0;
+
   return (
     <>
       <PageToolbar
@@ -41,25 +45,29 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
         right={<IncomeActions isRecurring={true}/>}
       />
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        <div className="flex h-full min-h-0 flex-col gap-8">
-          <div className="flex shrink-0 flex-row gap-4">
-            <div className="w-3/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeChartCard isRecurring={true} {...filters}/>
-              </Suspense>
+        {isEmpty ? (
+          <IncomeEmptyState isRecurring={true}/>
+        ) : (
+          <div className="flex h-full min-h-0 flex-col gap-8">
+            <div className="flex shrink-0 flex-row gap-4">
+              <div className="w-3/5">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <IncomeChartCard isRecurring={true} {...filters}/>
+                </Suspense>
+              </div>
+              <div className="w-2/5 min-h-0">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <IncomeUpcomingCard {...filters}/>
+                </Suspense>
+              </div>
             </div>
-            <div className="w-2/5 min-h-0">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeUpcomingCard {...filters}/>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <Suspense>
+                <IncomeDataTable isRecurring={true}/>
               </Suspense>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <Suspense>
-              <IncomeDataTable isRecurring={true}/>
-            </Suspense>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

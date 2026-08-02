@@ -3,11 +3,13 @@ import {LuReceipt} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
 import ModalCloseButton from "@/components/ModalCloseButton";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
 import EditLink from "@/features/expense/variable/components/EditLink";
 import {getBillById} from "@/features/expense/variable/db/billDetail";
 import {getBillFormOptions} from "@/features/expense/variable/db/billFormOptions";
+import {deleteBill} from "@/features/expense/variable/db/billMutations";
 
 type InterceptedBillPageProps = {
   params: Promise<{id: string}>;
@@ -38,9 +40,12 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
       subtitle={bill.documentNumber ? `Doc. ${bill.documentNumber}` : undefined}
       footer={
         editing ? undefined : (
-          <div className="flex items-center justify-end gap-2">
-            <ModalCloseButton/>
-            <EditLink id={bill.id}/>
+          <div className="flex items-center justify-between gap-2">
+            <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier}/>
+            <div className="flex items-center gap-2">
+              <ModalCloseButton/>
+              <EditLink id={bill.id}/>
+            </div>
           </div>
         )
       }

@@ -3,11 +3,13 @@ import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
 import {LuArrowLeft, LuBanknote} from "react-icons/lu";
 import CategoryChip from "@/components/CategoryChip";
+import DeleteEntityButton from "@/components/DeleteEntityButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
 import IncomeEditForm from "@/features/income/components/IncomeEditForm";
 import EditLink from "@/features/income/components/EditLink";
 import {getIncomeById} from "@/features/income/db/incomeDetail";
 import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
+import {deleteIncome} from "@/features/income/db/incomeMutations";
 
 type VariableIncomePageProps = {
   params: Promise<{id: string}>;
@@ -53,7 +55,12 @@ export default async function VariableIncomeDetailPage({params, searchParams}: V
             </div>
           </div>
         </div>
-        {editing ? null : <EditLink id={income.id} basePath="/income/variable"/>}
+        {editing ? null : (
+          <div className="flex items-center gap-2">
+            <DeleteEntityButton id={income.id} action={deleteIncome} label={income.name} redirectTo="/income/variable"/>
+            <EditLink id={income.id} basePath="/income/variable"/>
+          </div>
+        )}
       </div>
 
       <Card>

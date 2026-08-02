@@ -7,6 +7,8 @@ import IncomeActions from "@/features/income/components/IncomeActions";
 import IncomeChartCard from "@/features/income/components/IncomeChartCard";
 import IncomeTopKCard from "@/features/income/components/IncomeTopKCard";
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
+import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
+import {getIncomeCount} from "@/features/income/db/incomeTableData";
 
 type VariableIncomePageProps = {
   searchParams: Promise<{
@@ -42,6 +44,8 @@ export default async function VariableIncomePage({searchParams}: VariableIncomeP
     dateTo: parseIsoDate(params.dateTo),
   };
 
+  const isEmpty = (await getIncomeCount(false)) === 0;
+
   return (
     <>
       <PageToolbar
@@ -50,25 +54,29 @@ export default async function VariableIncomePage({searchParams}: VariableIncomeP
         right={<IncomeActions isRecurring={false}/>}
       />
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        <div className="flex h-full min-h-0 flex-col gap-8">
-          <div className="flex shrink-0 flex-row gap-4">
-            <div className="w-3/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeChartCard isRecurring={false} {...categoricalFilters}/>
-              </Suspense>
+        {isEmpty ? (
+          <IncomeEmptyState isRecurring={false}/>
+        ) : (
+          <div className="flex h-full min-h-0 flex-col gap-8">
+            <div className="flex shrink-0 flex-row gap-4">
+              <div className="w-3/5">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <IncomeChartCard isRecurring={false} {...categoricalFilters}/>
+                </Suspense>
+              </div>
+              <div className="w-2/5">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <IncomeTopKCard {...topKFilters}/>
+                </Suspense>
+              </div>
             </div>
-            <div className="w-2/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeTopKCard {...topKFilters}/>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <Suspense>
+                <IncomeDataTable isRecurring={false}/>
               </Suspense>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <Suspense>
-              <IncomeDataTable isRecurring={false}/>
-            </Suspense>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );
