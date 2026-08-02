@@ -13,11 +13,21 @@ export type ReferenceData = {
   supplierCategories: CategoryRow[];
   itemCategories: CategoryRow[];
   contractCategories: CategoryRow[];
+  incomeSources: CategoryRow[];
+  incomeCategories: CategoryRow[];
   frequencies: FrequencyRow[];
 };
 
 export async function getReferenceData(): Promise<ReferenceData> {
-  const [suppliers, supplierCategories, itemCategories, contractCategories, frequencies] = await Promise.all([
+  const [
+    suppliers,
+    supplierCategories,
+    itemCategories,
+    contractCategories,
+    incomeSources,
+    incomeCategories,
+    frequencies,
+  ] = await Promise.all([
     client.supplier.findMany({
       select: {
         id: true,
@@ -40,6 +50,14 @@ export async function getReferenceData(): Promise<ReferenceData> {
       select: {id: true, name: true, _count: {select: {contracts: true}}},
       orderBy: {name: "asc"},
     }),
+    client.incomeSource.findMany({
+      select: {id: true, name: true, _count: {select: {incomes: true}}},
+      orderBy: {name: "asc"},
+    }),
+    client.incomeCategory.findMany({
+      select: {id: true, name: true, _count: {select: {incomes: true}}},
+      orderBy: {name: "asc"},
+    }),
     client.frequency.findMany({
       select: {id: true, name: true, value: true, isRecurring: true, _count: {select: {contracts: true, incomes: true}}},
       orderBy: {value: "asc"},
@@ -57,6 +75,8 @@ export async function getReferenceData(): Promise<ReferenceData> {
     supplierCategories: supplierCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.suppliers})),
     itemCategories: itemCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.items})),
     contractCategories: contractCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.contracts})),
+    incomeSources: incomeSources.map((c) => ({id: c.id, name: c.name, usage: c._count.incomes})),
+    incomeCategories: incomeCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.incomes})),
     frequencies: frequencies.map((f) => ({
       id: f.id,
       name: f.name,

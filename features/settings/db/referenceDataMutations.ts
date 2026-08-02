@@ -20,6 +20,8 @@ function revalidateLookupSurfaces(): void {
   revalidatePath("/settings");
   revalidatePath("/expense/fixed");
   revalidatePath("/expense/variable");
+  revalidatePath("/income/fixed");
+  revalidatePath("/income/variable");
 }
 
 function cleanName(name: string): string {
@@ -133,6 +135,63 @@ export async function renameContractCategory(id: number, name: string): Promise<
 export async function deleteContractCategory(id: number): Promise<void> {
   try {
     await client.contractCategory.delete({where: {id: cleanPositiveId(id)}});
+  } catch (error) {
+    throw toDeleteError(error, "category");
+  }
+  revalidateLookupSurfaces();
+}
+
+// --- IncomeSource -----------------------------------------------------------
+// Name-only lookup (unlike Supplier, an income source has no category).
+
+export async function createIncomeSource(name: string): Promise<FilterOption> {
+  const clean = cleanName(name);
+  assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean);
+  const created = await client.incomeSource.create({data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return created;
+}
+
+export async function renameIncomeSource(id: number, name: string): Promise<FilterOption> {
+  const rowId = cleanPositiveId(id);
+  const clean = cleanName(name);
+  assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean, rowId);
+  const updated = await client.incomeSource.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function deleteIncomeSource(id: number): Promise<void> {
+  try {
+    await client.incomeSource.delete({where: {id: cleanPositiveId(id)}});
+  } catch (error) {
+    throw toDeleteError(error, "source");
+  }
+  revalidateLookupSurfaces();
+}
+
+// --- IncomeCategory ---------------------------------------------------------
+
+export async function createIncomeCategory(name: string): Promise<FilterOption> {
+  const clean = cleanName(name);
+  assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean);
+  const created = await client.incomeCategory.create({data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return created;
+}
+
+export async function renameIncomeCategory(id: number, name: string): Promise<FilterOption> {
+  const rowId = cleanPositiveId(id);
+  const clean = cleanName(name);
+  assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean, rowId);
+  const updated = await client.incomeCategory.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function deleteIncomeCategory(id: number): Promise<void> {
+  try {
+    await client.incomeCategory.delete({where: {id: cleanPositiveId(id)}});
   } catch (error) {
     throw toDeleteError(error, "category");
   }

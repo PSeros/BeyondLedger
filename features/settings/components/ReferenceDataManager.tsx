@@ -10,15 +10,21 @@ import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow} from "@/feat
 import {
   createContractCategory,
   createFrequency,
+  createIncomeCategory,
+  createIncomeSource,
   createItemCategory,
   createSupplier,
   createSupplierCategory,
   deleteContractCategory,
   deleteFrequency,
+  deleteIncomeCategory,
+  deleteIncomeSource,
   deleteItemCategory,
   deleteSupplier,
   deleteSupplierCategory,
   renameContractCategory,
+  renameIncomeCategory,
+  renameIncomeSource,
   renameItemCategory,
   renameSupplierCategory,
   updateFrequency,
@@ -63,9 +69,9 @@ export default function ReferenceDataManager({data}: {data: ReferenceData}) {
           <div>
             <h2 className="text-base font-semibold">Reference data</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              The suppliers, categories, and billing frequencies your expenses draw from. Add or tidy
-              them here, or create them on the fly from the Add form. A row still used by an expense
-              can&apos;t be deleted.
+              The suppliers, categories, income sources, and billing frequencies your expenses and
+              income draw from. Add or tidy them here, or create them on the fly from the Add form. A
+              row still in use can&apos;t be deleted.
             </p>
           </div>
 
@@ -97,6 +103,22 @@ export default function ReferenceDataManager({data}: {data: ReferenceData}) {
               create={createContractCategory}
               rename={renameContractCategory}
               remove={deleteContractCategory}
+            />
+            <NameSection
+              title="Income sources"
+              rows={data.incomeSources}
+              usageNoun="income"
+              create={createIncomeSource}
+              rename={renameIncomeSource}
+              remove={deleteIncomeSource}
+            />
+            <NameSection
+              title="Income categories"
+              rows={data.incomeCategories}
+              usageNoun="income"
+              create={createIncomeCategory}
+              rename={renameIncomeCategory}
+              remove={deleteIncomeCategory}
             />
           </div>
         </section>

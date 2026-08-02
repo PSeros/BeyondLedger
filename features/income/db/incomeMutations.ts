@@ -31,6 +31,14 @@ function revalidateIncome(id: number) {
   revalidatePath(`/income/variable/${id}`);
 }
 
+// Creates a new Income. The chosen frequency's isRecurring decides which tab it appears on, so
+// revalidate both lists; the client closes the modal and refreshes.
+export async function createIncome(formData: FormData): Promise<void> {
+  await client.income.create({data: parseIncomeData(formData)});
+  revalidatePath("/income/fixed");
+  revalidatePath("/income/variable");
+}
+
 // Reads the edit form's FormData and updates the Income's fields; the client form soft-navigates
 // out of edit mode.
 export async function updateIncome(id: number, formData: FormData): Promise<void> {
