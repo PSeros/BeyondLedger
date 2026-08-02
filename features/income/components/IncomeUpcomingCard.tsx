@@ -9,5 +9,12 @@ type IncomeUpcomingCardProps = Omit<IncomeFilters, "status" | "dateFrom" | "date
 export default async function IncomeUpcomingCard(filters: IncomeUpcomingCardProps) {
   const rows = await getUpcomingFixedIncome({...filters, withinDays: 30});
 
-  return <UpcomingDueCard title="Upcoming (30 days)" rows={rows} windowDays={30}/>;
+  return (
+    <UpcomingDueCard
+      title="Upcoming (30 days)"
+      rows={rows}
+      windowDays={30}
+      hrefForRow={(id) => `/income/fixed/${id}`}
+    />
+  );
 }
