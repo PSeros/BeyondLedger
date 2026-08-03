@@ -70,3 +70,9 @@ export async function getContractTableRows({
     nextOffset: contracts.length > limit ? offset + limit : null,
   };
 }
+
+// Unfiltered count — drives the page-level empty state that distinguishes "no contracts yet" from
+// "no rows match the current filters".
+export async function getContractCount(): Promise<number> {
+  return client.contract.count();
+}

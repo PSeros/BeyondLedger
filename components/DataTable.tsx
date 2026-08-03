@@ -119,7 +119,7 @@ export default function DataTable<T extends DataTableRow>({
         className,
       )}
     >
-      <Table.ScrollContainer className="min-h-0 overflow-auto">
+      <Table.ScrollContainer className="min-h-0 overflow-auto [scrollbar-gutter:stable]">
         <Table.Content
           aria-label={ariaLabel}
           className={cn("min-w-full", sortedRows.length === 0 ? "h-full" : "")}

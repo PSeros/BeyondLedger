@@ -151,7 +151,11 @@
   },
   "expense": {
     "addExpense": "Add expense",
-    "addExpenseSubtitle": "Record a variable or fixed expense"
+    "addExpenseSubtitle": "Record a variable or fixed expense",
+    "emptyVariableTitle": "No variable expenses yet",
+    "emptyVariableText": "Add a bill from a receipt, or scan a document to fill it in automatically.",
+    "emptyFixedTitle": "No fixed expenses yet",
+    "emptyFixedText": "Add a recurring contract like rent, insurance, or a subscription."
   },
   "income": {
     "addIncome": "Add income",

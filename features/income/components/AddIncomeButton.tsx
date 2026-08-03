@@ -9,21 +9,29 @@ import type {IncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 
 type AddIncomeButtonProps = {
   options: IncomeFormOptions;
+  // Toolbar usage (default): icon-only + the ButtonGroup separator. Empty-state usage passes
+  // showLabel to render a full labelled primary CTA instead ("Add income").
+  showLabel?: boolean;
 };
 
 // The Add button in the income toolbar's ButtonGroup, opening the Add modal. `buttonProps` carries
 // the `__button_group_child` marker ButtonGroup injects into its direct children — forward it to the
 // real Button so it keeps its group styling. Controlled overlay (local open state), not an
 // intercepted route: Add has no entity id, and interception routes corrupt the dev manifest here.
-export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButtonProps) {
+export default function AddIncomeButton({options, showLabel = false, ...buttonProps}: AddIncomeButtonProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <Button {...buttonProps} aria-label={t("common.add")} onPress={() => setOpen(true)}>
-        <ButtonGroup.Separator/>
+      <Button
+        {...buttonProps}
+        {...(showLabel ? {variant: "primary" as const} : {"aria-label": t("common.add")})}
+        onPress={() => setOpen(true)}
+      >
+        {showLabel ? null : <ButtonGroup.Separator/>}
         <LuPlus/>
+        {showLabel ? t("income.addIncome") : null}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>

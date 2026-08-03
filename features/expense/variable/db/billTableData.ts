@@ -60,3 +60,9 @@ export async function getBillTableRows({
     nextOffset: bills.length > limit ? offset + limit : null,
   };
 }
+
+// Unfiltered count — drives the page-level empty state that distinguishes "no bills yet" from
+// "no rows match the current filters".
+export async function getBillCount(): Promise<number> {
+  return client.bill.count();
+}

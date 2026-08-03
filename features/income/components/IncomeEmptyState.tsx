@@ -29,7 +29,7 @@ export default async function IncomeEmptyState({isRecurring}: IncomeEmptyStatePr
             {isRecurring ? t("emptyFixedText") : t("emptyVariableText")}
           </p>
         </div>
-        <AddIncomeButton options={options}/>
+        <AddIncomeButton options={options} showLabel/>
       </Card.Content>
     </Card>
   );

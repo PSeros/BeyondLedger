@@ -151,7 +151,11 @@
   },
   "expense": {
     "addExpense": "Ausgabe hinzufügen",
-    "addExpenseSubtitle": "Eine variable oder fixe Ausgabe erfassen"
+    "addExpenseSubtitle": "Eine variable oder fixe Ausgabe erfassen",
+    "emptyVariableTitle": "Noch keine variablen Ausgaben",
+    "emptyVariableText": "Füge eine Rechnung von einem Beleg hinzu oder scanne ein Dokument, um sie automatisch auszufüllen.",
+    "emptyFixedTitle": "Noch keine fixen Ausgaben",
+    "emptyFixedText": "Füge einen wiederkehrenden Vertrag hinzu, z. B. Miete, Versicherung oder ein Abo."
   },
   "income": {
     "addIncome": "Einnahme hinzufügen",

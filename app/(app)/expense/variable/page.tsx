@@ -7,6 +7,8 @@ import BillSearchField from "@/features/expense/variable/components/BillSearchFi
 import BillActions from "@/features/expense/variable/components/BillActions";
 import BillChartCard from "@/features/expense/variable/components/BillChartCard";
 import BillTopKCard from "@/features/expense/variable/components/BillTopKCard";
+import ExpenseEmptyState from "@/features/expense/shared/components/ExpenseEmptyState";
+import {getBillCount} from "@/features/expense/variable/db/billTableData";
 
 type VariablePageProps = {
   searchParams: Promise<{
@@ -44,6 +46,8 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
     dateTo: parseIsoDate(params.dateTo),
   };
 
+  const isEmpty = (await getBillCount()) === 0;
+
   return (
     <>
       <PageToolbar
@@ -52,25 +56,29 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
         right={<BillActions/>}
       />
       <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        <div className="flex h-full min-h-0 flex-col gap-8">
-          <div className="flex shrink-0 flex-row gap-4">
-            <div className="w-3/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillChartCard {...categoricalFilters}/>
-              </Suspense>
+        {isEmpty ? (
+          <ExpenseEmptyState variant="variable"/>
+        ) : (
+          <div className="flex h-full min-h-0 flex-col gap-8">
+            <div className="flex shrink-0 flex-row gap-4">
+              <div className="w-3/5">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <BillChartCard {...categoricalFilters}/>
+                </Suspense>
+              </div>
+              <div className="w-2/5">
+                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                  <BillTopKCard {...topKFilters}/>
+                </Suspense>
+              </div>
             </div>
-            <div className="w-2/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillTopKCard {...topKFilters}/>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <Suspense>
+                <BillTable/>
               </Suspense>
             </div>
           </div>
-          <div className="min-h-0 flex-1 overflow-hidden">
-            <Suspense>
-              <BillTable/>
-            </Suspense>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

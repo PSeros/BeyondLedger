@@ -10,6 +10,9 @@ import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormO
 type AddExpenseButtonProps = {
   options: ExpenseFormOptions;
   defaultType: AddExpenseType;
+  // Toolbar usage (default): icon-only + the ButtonGroup separator. Empty-state usage passes
+  // showLabel to render a full labelled primary CTA instead ("Add expense").
+  showLabel?: boolean;
 };
 
 // The Add button in the expense toolbar's ButtonGroup, opening the unified Add modal. Like
@@ -17,15 +20,20 @@ type AddExpenseButtonProps = {
 // into its direct children — forward it to the real Button so it keeps its group styling. The
 // modal is a controlled overlay (local open state) rather than an intercepted route: Add has no
 // entity id, and interception routes have repeatedly corrupted the dev manifest here.
-export default function AddExpenseButton({options, defaultType, ...buttonProps}: AddExpenseButtonProps) {
+export default function AddExpenseButton({options, defaultType, showLabel = false, ...buttonProps}: AddExpenseButtonProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <Button {...buttonProps} aria-label={t("common.add")} onPress={() => setOpen(true)}>
-        <ButtonGroup.Separator/>
+      <Button
+        {...buttonProps}
+        {...(showLabel ? {variant: "primary" as const} : {"aria-label": t("common.add")})}
+        onPress={() => setOpen(true)}
+      >
+        {showLabel ? null : <ButtonGroup.Separator/>}
         <LuPlus/>
+        {showLabel ? t("expense.addExpense") : null}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>

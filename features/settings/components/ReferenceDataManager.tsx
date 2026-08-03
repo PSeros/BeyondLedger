@@ -71,7 +71,7 @@ export default function ReferenceDataManager({data, aiSettings, locale}: {data: 
         <p className="mt-1 text-sm text-muted">{t("subtitle")}</p>
       </header>
 
-      <div className="min-h-0 flex-1 space-y-8 overflow-y-auto py-6">
+      <div className="min-h-0 flex-1 space-y-8 overflow-y-auto py-6 [scrollbar-gutter:stable]">
         <section className="flex flex-col gap-4">
           <div>
             <h2 className="text-base font-semibold">{t("languageHeading")}</h2>
