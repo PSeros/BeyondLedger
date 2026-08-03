@@ -248,7 +248,7 @@
     "uploadFailedTitle": "Upload fehlgeschlagen",
     "discardUpload": "Upload verwerfen",
     "scanDocuments": "Dokumente scannen",
-    "scanSubtitle": "Eine Rechnung aus einem Beleg oder einer Rechnung extrahieren",
+    "scanSubtitle": "Rechnungsdaten aus einem Beleg auslesen",
     "dropHere": "Dokument hierher ziehen & ablegen",
     "orText": "oder",
     "browse": "Dateien durchsuchen",

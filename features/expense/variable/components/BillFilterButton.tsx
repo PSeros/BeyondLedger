@@ -16,9 +16,8 @@ export default function BillFilterButton({options, ...buttonProps}: BillFilterBu
   const t = useTranslations("filters");
   return (
     <Popover>
-      <Button {...buttonProps}>
+      <Button {...buttonProps} aria-label={t("filter")}>
         <LuFilter/>
-        {t("filter")}
       </Button>
       <Popover.Content>
         <Popover.Dialog className="flex w-72 flex-col gap-3">

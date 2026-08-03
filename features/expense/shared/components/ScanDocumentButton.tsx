@@ -113,10 +113,9 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
 
   return (
     <>
-      <Button {...buttonProps} onPress={() => setPickerOpen(true)}>
+      <Button {...buttonProps} aria-label={t("upload")} onPress={() => setPickerOpen(true)}>
         <ButtonGroup.Separator/>
         <LuUpload/>
-        {t("upload")}
       </Button>
 
       <UploadDropzoneModal isOpen={pickerOpen} onOpenChange={setPickerOpen} onSubmit={onSubmit}/>

@@ -23,10 +23,9 @@ export default function AddExpenseButton({options, defaultType, ...buttonProps}:
 
   return (
     <>
-      <Button {...buttonProps} onPress={() => setOpen(true)}>
+      <Button {...buttonProps} aria-label={t("common.add")} onPress={() => setOpen(true)}>
         <ButtonGroup.Separator/>
         <LuPlus/>
-        {t("common.add")}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>
@@ -36,7 +35,7 @@ export default function AddExpenseButton({options, defaultType, ...buttonProps}:
             <Modal.Header className="flex-row items-start gap-3">
               <div className="min-w-0 flex-1">
                 <Modal.Heading className="block truncate text-base font-semibold">{t("expense.addExpense")}</Modal.Heading>
-                <p className="mt-0.5 truncate text-sm text-muted">{t("expense.addExpenseSubtitle")}</p>
+                <p className="mt-0.5 text-sm text-muted">{t("expense.addExpenseSubtitle")}</p>
               </div>
             </Modal.Header>
             {/* Scroll body spans into the dialog's p-6 (-mx-6) but re-insets its content (px-6)

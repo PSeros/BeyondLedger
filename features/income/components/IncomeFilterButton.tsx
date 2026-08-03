@@ -17,9 +17,8 @@ export default function IncomeFilterButton({options, isRecurring, ...buttonProps
   const t = useTranslations("filters");
   return (
     <Popover>
-      <Button {...buttonProps}>
+      <Button {...buttonProps} aria-label={t("filter")}>
         <LuFilter/>
-        {t("filter")}
       </Button>
       <Popover.Content>
         <Popover.Dialog className="flex w-64 flex-col gap-3">

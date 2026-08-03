@@ -90,7 +90,7 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
           <Modal.Header className="flex-row items-start gap-3">
             <div className="min-w-0 flex-1">
               <Modal.Heading className="block truncate text-base font-semibold">{t("scanDocuments")}</Modal.Heading>
-              <p className="mt-0.5 truncate text-sm text-muted">{t("scanSubtitle")}</p>
+              <p className="mt-0.5 text-sm text-muted">{t("scanSubtitle")}</p>
             </div>
           </Modal.Header>
           {/* Modal.Body forces text-muted; re-assert text-foreground so the dropzone copy reads normally. */}

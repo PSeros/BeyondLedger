@@ -21,10 +21,9 @@ export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButt
 
   return (
     <>
-      <Button {...buttonProps} onPress={() => setOpen(true)}>
+      <Button {...buttonProps} aria-label={t("common.add")} onPress={() => setOpen(true)}>
         <ButtonGroup.Separator/>
         <LuPlus/>
-        {t("common.add")}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>
@@ -34,7 +33,7 @@ export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButt
             <Modal.Header className="flex-row items-start gap-3">
               <div className="min-w-0 flex-1">
                 <Modal.Heading className="block truncate text-base font-semibold">{t("income.addIncome")}</Modal.Heading>
-                <p className="mt-0.5 truncate text-sm text-muted">
+                <p className="mt-0.5 text-sm text-muted">
                   {t("income.addIncomeSubtitle")}
                 </p>
               </div>

@@ -1,7 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import {useFormatter, useTranslations} from "next-intl";
+import {getFormatter, getTranslations} from "next-intl/server";
 import {Card, Chip} from "@heroui/react";
 
 type UpcomingDueRow = {
@@ -34,10 +32,10 @@ function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Recor
   return t("dueInDays", {days});
 }
 
-export default function UpcomingDueCard({title, rows = [], windowDays = 30, basePath}: UpcomingDueCardProps = {}) {
-  const format = useFormatter();
-  const t = useTranslations("upcoming");
-  const tCommon = useTranslations("common");
+export default async function UpcomingDueCard({title, rows = [], windowDays = 30, basePath}: UpcomingDueCardProps = {}) {
+  const format = await getFormatter();
+  const t = await getTranslations("upcoming");
+  const tCommon = await getTranslations("common");
 
   if (!title) {
     return <Card className="max-h-[268px]"/>;
