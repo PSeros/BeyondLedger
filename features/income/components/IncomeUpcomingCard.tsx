@@ -16,7 +16,7 @@ export default async function IncomeUpcomingCard(filters: IncomeUpcomingCardProp
       title={t("titleDays", {days: 30})}
       rows={rows}
       windowDays={30}
-      hrefForRow={(id) => `/income/fixed/${id}`}
+      basePath="/income/fixed"
     />
   );
 }

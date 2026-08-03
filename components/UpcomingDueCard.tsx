@@ -18,10 +18,11 @@ type UpcomingDueCardProps = {
   /** Size of the due-date horizon `rows` was fetched for — used to scale the urgency bar. */
   windowDays?: number;
   /**
-   * When provided, each row becomes a Link to this href — a soft nav that triggers the
-   * detail route (and its intercepted modal). Omit to render plain, non-clickable rows.
+   * When provided, each row becomes a Link to `${basePath}/${row.id}` — a soft nav that triggers
+   * the detail route (and its intercepted modal). Omit to render plain, non-clickable rows. A plain
+   * string (not a function) so this client component can receive it from its Server Component parents.
    */
-  hrefForRow?: (id: UpcomingDueRow["id"]) => string;
+  basePath?: string;
 };
 
 function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Record<string, number>) => string): string {
@@ -33,7 +34,7 @@ function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Recor
   return t("dueInDays", {days});
 }
 
-export default function UpcomingDueCard({title, rows = [], windowDays = 30, hrefForRow}: UpcomingDueCardProps = {}) {
+export default function UpcomingDueCard({title, rows = [], windowDays = 30, basePath}: UpcomingDueCardProps = {}) {
   const format = useFormatter();
   const t = useTranslations("upcoming");
   const tCommon = useTranslations("common");
@@ -98,11 +99,11 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
               </div>
             );
 
-            if (hrefForRow) {
+            if (basePath) {
               return (
                 <Link
                   key={row.id}
-                  href={hrefForRow(row.id)}
+                  href={`${basePath}/${row.id}`}
                   className="hover:bg-default flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 transition-colors"
                 >
                   {body}

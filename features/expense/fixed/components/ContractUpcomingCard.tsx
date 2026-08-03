@@ -14,7 +14,7 @@ export default async function ContractUpcomingCard(filters: ContractUpcomingCard
       title={t("titleDays", {days: 30})}
       rows={rows}
       windowDays={30}
-      hrefForRow={(id) => `/expense/fixed/${id}`}
+      basePath="/expense/fixed"
     />
   );
 }
