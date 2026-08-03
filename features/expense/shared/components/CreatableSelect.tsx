@@ -1,6 +1,7 @@
 "use client";
 
 import {type Key, type ReactNode, useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button as AriaButton} from "react-aria-components";
 import {Button, Input, Label, ListBox, Popover, TextField} from "@heroui/react";
 import {LuChevronDown, LuPlus} from "react-icons/lu";
@@ -23,7 +24,7 @@ export default function CreatableSelect({
   options,
   value,
   defaultValue = "",
-  placeholder = "Select…",
+  placeholder,
   createTitle,
   onCreate,
   onSelect,
@@ -44,6 +45,7 @@ export default function CreatableSelect({
   canSubmit?: boolean;
   className?: string;
 }) {
+  const t = useTranslations();
   const isControlled = value !== undefined;
   const [internalId, setInternalId] = useState(defaultValue);
   const [internalOpts, setInternalOpts] = useState<FilterOption[]>(options);
@@ -96,7 +98,7 @@ export default function CreatableSelect({
     }
     const trimmed = draft.trim();
     if (trimmed === "") {
-      setError("Name is required.");
+      setError(t("errors.nameRequired"));
       return;
     }
     setPending(true);
@@ -108,7 +110,7 @@ export default function CreatableSelect({
       }
       commitSelection(String(created.id));
     } catch (createError) {
-      setError(createError instanceof Error ? createError.message : "Could not create.");
+      setError(createError instanceof Error ? createError.message : t("errors.couldNotCreate"));
     } finally {
       setPending(false);
     }
@@ -120,7 +122,7 @@ export default function CreatableSelect({
       <Popover isOpen={open} onOpenChange={handleOpenChange}>
         <AriaButton type="button" aria-label={label} className="select__trigger w-full min-w-0">
           <span className={`min-w-0 flex-1 truncate text-left${selectedName ? "" : " text-muted"}`}>
-            {selectedName ?? placeholder}
+            {selectedName ?? placeholder ?? t("forms.select")}
           </span>
           {/* data-open drives HeroUI's own `select__indicator[data-open=true]{rotate:180deg}`
               rule (+ its built-in rotate transition), matching the native select's flip. */}
@@ -141,7 +143,7 @@ export default function CreatableSelect({
                       size="sm"
                       variant="tertiary"
                       isIconOnly
-                      aria-label={`Add ${label.toLowerCase()}`}
+                      aria-label={t("forms.addLabel", {label})}
                       className="size-7 min-h-0! min-w-0! p-0!"
                       onPress={startCreate}
                     >
@@ -165,19 +167,19 @@ export default function CreatableSelect({
               </div>
             ) : (
               <div className="flex flex-col gap-3 p-3">
-                <p className="text-sm font-semibold">{createTitle ?? `New ${label.toLowerCase()}`}</p>
-                <TextField value={draft} onChange={setDraft} autoFocus aria-label="Name" className="flex flex-col gap-1">
-                  <Label className={labelClass}>Name</Label>
-                  <Input placeholder="Name"/>
+                <p className="text-sm font-semibold">{createTitle ?? t("forms.newLabel", {label})}</p>
+                <TextField value={draft} onChange={setDraft} autoFocus aria-label={t("fields.name")} className="flex flex-col gap-1">
+                  <Label className={labelClass}>{t("fields.name")}</Label>
+                  <Input placeholder={t("fields.name")}/>
                 </TextField>
                 {extraFields}
                 {error ? <p className="text-danger text-sm">{error}</p> : null}
                 <div className="flex justify-end gap-2">
                   <Button type="button" size="sm" variant="tertiary" isDisabled={pending} onPress={() => setMode("list")}>
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button type="button" size="sm" variant="primary" isDisabled={pending || !canSubmit} onPress={submitCreate}>
-                    {pending ? "Saving…" : "Add"}
+                    {pending ? t("common.saving") : t("common.add")}
                   </Button>
                 </div>
               </div>

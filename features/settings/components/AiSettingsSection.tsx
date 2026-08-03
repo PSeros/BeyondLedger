@@ -1,6 +1,7 @@
 "use client";
 
 import {type Key, useState} from "react";
+import {useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
 import {LuCheck, LuCircleAlert, LuPlug} from "react-icons/lu";
@@ -14,17 +15,18 @@ import {
 } from "@/features/settings/db/aiSettingsMutations";
 import {SectionCard} from "@/features/settings/components/SectionCard";
 
-const MODE_OPTIONS: {id: PipelineMode; name: string}[] = [
-  {id: "DOCUMENT_AI", name: "Document AI (one-shot)"},
-  {id: "SEPARATED", name: "Separated (OCR → extract)"},
-];
-
 // Edit surface for the AI / document-processing provider config (Phase 8b). Form-shaped
 // (edit-then-Save), unlike the per-row immediate writes in ReferenceDataManager. The raw API key is
 // never sent here — `settings.hasApiKey` tells us whether one is stored; leaving the field blank on
 // Save keeps the existing key.
 export default function AiSettingsSection({settings}: {settings: AiSettingsForm}) {
   const router = useRouter();
+  const t = useTranslations("settings.ai");
+  const tCommon = useTranslations("common");
+  const modeOptions: {id: PipelineMode; name: string}[] = [
+    {id: "DOCUMENT_AI", name: t("modeDocumentAi")},
+    {id: "SEPARATED", name: t("modeSeparated")},
+  ];
   const [enabled, setEnabled] = useState(settings.enabled);
   const [apiKey, setApiKey] = useState("");
   const [baseUrl, setBaseUrl] = useState(settings.baseUrl);
@@ -48,7 +50,7 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
       setSaved(true);
       router.refresh();
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Could not save.");
+      setError(saveError instanceof Error ? saveError.message : t("couldNotSave"));
     } finally {
       setBusy(false);
     }
@@ -60,7 +62,7 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
     try {
       setTestResult(await testAiConnection({apiKey, baseUrl}));
     } catch {
-      setTestResult({ok: false, message: "Could not run the connection test."});
+      setTestResult({ok: false, message: t("couldNotTest")});
     } finally {
       setTesting(false);
     }
@@ -68,31 +70,31 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
 
   return (
     <SectionCard
-      title="Document processing (AI)"
-      description="Provider used to read uploaded documents and auto-create expenses. Provider-generic — set the API key, an optional base URL, and which models to use."
+      title={t("title")}
+      description={t("description")}
     >
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)}/>
-        Enable document processing
+        {t("enable")}
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           value={apiKey}
           onChange={setApiKey}
-          aria-label="API key"
+          aria-label={t("apiKey")}
           className="flex flex-col gap-1 sm:col-span-2"
         >
-          <Label className={labelClass}>API key</Label>
+          <Label className={labelClass}>{t("apiKey")}</Label>
           <Input
             type="password"
             autoComplete="off"
-            placeholder={settings.hasApiKey ? "•••• saved — leave blank to keep" : "Enter API key"}
+            placeholder={settings.hasApiKey ? t("apiKeySavedPlaceholder") : t("apiKeyPlaceholder")}
           />
         </TextField>
 
-        <TextField value={baseUrl} onChange={setBaseUrl} aria-label="Base URL" className="flex flex-col gap-1 sm:col-span-2">
-          <Label className={labelClass}>Base URL (optional)</Label>
+        <TextField value={baseUrl} onChange={setBaseUrl} aria-label={t("baseUrl")} className="flex flex-col gap-1 sm:col-span-2">
+          <Label className={labelClass}>{t("baseUrlLabel")}</Label>
           <Input placeholder="https://api.mistral.ai"/>
         </TextField>
 
@@ -101,17 +103,17 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
           onChange={(key: Key | null) => {
             if (key != null) setPipelineMode(String(key) as PipelineMode);
           }}
-          aria-label="Pipeline mode"
+          aria-label={t("pipelineMode")}
           className="flex flex-col gap-1"
         >
-          <Label className={labelClass}>Pipeline mode</Label>
+          <Label className={labelClass}>{t("pipelineMode")}</Label>
           <Select.Trigger>
             <Select.Value/>
             <Select.Indicator/>
           </Select.Trigger>
           <Select.Popover>
             <ListBox>
-              {MODE_OPTIONS.map((option) => (
+              {modeOptions.map((option) => (
                 <ListBox.Item key={option.id} id={option.id} textValue={option.name}>
                   {option.name}
                 </ListBox.Item>
@@ -120,22 +122,22 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
           </Select.Popover>
         </Select>
 
-        <TextField value={ocrModel} onChange={setOcrModel} aria-label="OCR model" className="flex flex-col gap-1">
-          <Label className={labelClass}>OCR model</Label>
+        <TextField value={ocrModel} onChange={setOcrModel} aria-label={t("ocrModel")} className="flex flex-col gap-1">
+          <Label className={labelClass}>{t("ocrModel")}</Label>
           <Input placeholder="mistral-ocr-latest"/>
         </TextField>
 
         {pipelineMode === "SEPARATED" ? (
-          <TextField value={extractModel} onChange={setExtractModel} aria-label="Extraction model" className="flex flex-col gap-1 sm:col-span-2">
-            <Label className={labelClass}>Extraction model</Label>
+          <TextField value={extractModel} onChange={setExtractModel} aria-label={t("extractModel")} className="flex flex-col gap-1 sm:col-span-2">
+            <Label className={labelClass}>{t("extractModel")}</Label>
             <Input placeholder="mistral-small-latest"/>
-            <p className="text-xs text-muted">Chat model for the extraction step (Separated mode only).</p>
+            <p className="text-xs text-muted">{t("extractModelHint")}</p>
           </TextField>
         ) : null}
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
-      {saved && !error ? <p className="text-sm text-success">Saved.</p> : null}
+      {saved && !error ? <p className="text-sm text-success">{t("saved")}</p> : null}
       {testResult ? (
         <p className={`flex items-center gap-1.5 text-sm ${testResult.ok ? "text-success" : "text-danger"}`}>
           {testResult.ok ? <LuCheck className="size-4"/> : <LuCircleAlert className="size-4"/>}
@@ -145,11 +147,11 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
 
       <div className="flex items-center gap-2">
         <Button type="button" size="sm" variant="primary" isDisabled={busy} onPress={onSave}>
-          Save
+          {tCommon("save")}
         </Button>
         <Button type="button" size="sm" variant="secondary" isDisabled={testing} onPress={onTest}>
           <LuPlug className="size-4"/>
-          {testing ? "Testing…" : "Test connection"}
+          {testing ? t("testing") : t("testConnection")}
         </Button>
       </div>
     </SectionCard>

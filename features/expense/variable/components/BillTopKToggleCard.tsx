@@ -1,6 +1,7 @@
 "use client";
 
 import {startTransition, useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button, ButtonGroup} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import TopKTableCard from "@/components/TopKTableCard";
@@ -13,14 +14,15 @@ type BillTopKToggleCardProps = {
   itemCategoryRows: BillTopKRow[];
 };
 
-const MODE_CONFIG: Record<TopKMode, {label: string; title: string; paramName: string}> = {
-  supplier: {label: "Suppliers", title: "Top Suppliers", paramName: "supplierId"},
-  itemCategory: {label: "Categories", title: "Top Categories", paramName: "itemCategoryId"},
+const MODE_CONFIG: Record<TopKMode, {labelKey: string; titleKey: string; paramName: string}> = {
+  supplier: {labelKey: "suppliers", titleKey: "topSuppliers", paramName: "supplierId"},
+  itemCategory: {labelKey: "categories", titleKey: "topCategories", paramName: "itemCategoryId"},
 };
 
 const MODE_ORDER: TopKMode[] = ["supplier", "itemCategory"];
 
 export default function BillTopKToggleCard({supplierRows, itemCategoryRows}: BillTopKToggleCardProps) {
+  const t = useTranslations("topk");
   const [mode, setMode] = useState<TopKMode>("supplier");
   const router = useRouter();
   const pathname = usePathname();
@@ -53,7 +55,7 @@ export default function BillTopKToggleCard({supplierRows, itemCategoryRows}: Bil
 
   return (
     <TopKTableCard
-      title={MODE_CONFIG[mode].title}
+      title={t(MODE_CONFIG[mode].titleKey)}
       rows={rows}
       onRowSelect={handleRowSelect}
       activeId={activeId ? Number(activeId) : null}
@@ -65,7 +67,7 @@ export default function BillTopKToggleCard({supplierRows, itemCategoryRows}: Bil
               variant={mode === item ? "secondary" : "tertiary"}
               onPress={() => setMode(item)}
             >
-              {MODE_CONFIG[item].label}
+              {t(MODE_CONFIG[item].labelKey)}
             </Button>
           ))}
         </ButtonGroup>

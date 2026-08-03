@@ -1,6 +1,7 @@
 "use server";
 
 import {readFile} from "node:fs/promises";
+import {getTranslations} from "next-intl/server";
 import {FileStatusChoice} from "@/prisma/generated/client";
 import {client} from "@/lib/prisma";
 import {resolveFilePath, saveUploadedFile} from "@/lib/fileStorage";
@@ -23,10 +24,11 @@ const ACCEPTED_MIME_TYPES = new Set([
 ]);
 
 // Pulls the uploaded File out of a FormData "file" field, rejecting empty/absent uploads.
-function readUpload(formData: FormData): File {
+async function readUpload(formData: FormData): Promise<File> {
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    throw new Error("No file was uploaded");
+    const t = await getTranslations("errors");
+    throw new Error(t("noFileUploaded"));
   }
   return file;
 }
@@ -35,9 +37,10 @@ function readUpload(formData: FormData): File {
 // returns its id. Kept fast so the client can immediately open a processing toast; the actual OCR
 // happens in processOcrUpload.
 export async function uploadForOcr(formData: FormData): Promise<{fileId: number}> {
-  const file = readUpload(formData);
+  const file = await readUpload(formData);
   if (!ACCEPTED_MIME_TYPES.has(file.type)) {
-    throw new Error("Unsupported file type. Upload a PDF, PNG, JPEG or WebP.");
+    const t = await getTranslations("errors");
+    throw new Error(t("unsupportedFileType"));
   }
 
   const meta = await saveUploadedFile(file);
@@ -71,7 +74,8 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
     select: {relativePath: true, mimeType: true},
   });
   if (!file) {
-    throw new Error("Uploaded file was not found.");
+    const t = await getTranslations("errors");
+    throw new Error(t("fileNotFound"));
   }
 
   await client.fileAsset.update({
@@ -82,7 +86,8 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
   try {
     const settings = await getAiSettings();
     if (!settings.enabled || settings.apiKey.trim() === "") {
-      throw new Error("AI provider is not configured. Enable it in Settings first.");
+      const t = await getTranslations("errors");
+      throw new Error(t("aiNotConfigured"));
     }
 
     const bytes = new Uint8Array(await readFile(resolveFilePath(file.relativePath)));
@@ -92,7 +97,7 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
 
     return {
       billId,
-      supplierName: draft.supplierName.trim() || "Unknown supplier",
+      supplierName: draft.supplierName.trim() || (await getTranslations("errors"))("unknownSupplier"),
       totalAmount: resolved.totalAmount,
     };
   } catch (error) {
@@ -100,7 +105,7 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
     await client.fileAsset
       .update({where: {id: fileId}, data: {status: FileStatusChoice.FAILED}})
       .catch(() => undefined);
-    throw error instanceof Error ? error : new Error("OCR processing failed.");
+    throw error instanceof Error ? error : new Error((await getTranslations("errors"))("ocrFailed"));
   }
 }
 

@@ -1,3 +1,4 @@
+import {getTranslations} from "next-intl/server";
 import {Card} from "@heroui/react";
 import {LuBanknote, LuRepeat} from "react-icons/lu";
 import AddIncomeButton from "@/features/income/components/AddIncomeButton";
@@ -11,6 +12,7 @@ type IncomeEmptyStateProps = {
 // none) — so a fresh database reads as intentional, with a direct way to add the first entry,
 // instead of blank charts and an empty table.
 export default async function IncomeEmptyState({isRecurring}: IncomeEmptyStateProps) {
+  const t = await getTranslations("income");
   const options = await getIncomeFormOptions();
 
   return (
@@ -21,12 +23,10 @@ export default async function IncomeEmptyState({isRecurring}: IncomeEmptyStatePr
         </span>
         <div>
           <h2 className="text-lg font-semibold">
-            No {isRecurring ? "recurring" : "one-time"} income yet
+            {isRecurring ? t("emptyFixedTitle") : t("emptyVariableTitle")}
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {isRecurring
-              ? "Add a salary, benefit, or any income that repeats on a schedule."
-              : "Add a one-off payment like a refund, side gig, or sale."}
+            {isRecurring ? t("emptyFixedText") : t("emptyVariableText")}
           </p>
         </div>
         <AddIncomeButton options={options}/>

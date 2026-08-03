@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button, ButtonGroup, Modal} from "@heroui/react";
 import {LuPlus} from "react-icons/lu";
 import AddExpenseForm, {type AddExpenseType} from "@/features/expense/shared/components/AddExpenseForm";
@@ -17,6 +18,7 @@ type AddExpenseButtonProps = {
 // modal is a controlled overlay (local open state) rather than an intercepted route: Add has no
 // entity id, and interception routes have repeatedly corrupted the dev manifest here.
 export default function AddExpenseButton({options, defaultType, ...buttonProps}: AddExpenseButtonProps) {
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
 
   return (
@@ -24,7 +26,7 @@ export default function AddExpenseButton({options, defaultType, ...buttonProps}:
       <Button {...buttonProps} onPress={() => setOpen(true)}>
         <ButtonGroup.Separator/>
         <LuPlus/>
-        Add
+        {t("common.add")}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>
@@ -33,8 +35,8 @@ export default function AddExpenseButton({options, defaultType, ...buttonProps}:
             <Modal.CloseTrigger/>
             <Modal.Header className="flex-row items-start gap-3">
               <div className="min-w-0 flex-1">
-                <Modal.Heading className="block truncate text-base font-semibold">Add expense</Modal.Heading>
-                <p className="mt-0.5 truncate text-sm text-muted">Record a variable or fixed expense</p>
+                <Modal.Heading className="block truncate text-base font-semibold">{t("expense.addExpense")}</Modal.Heading>
+                <p className="mt-0.5 truncate text-sm text-muted">{t("expense.addExpenseSubtitle")}</p>
               </div>
             </Modal.Header>
             {/* Scroll body spans into the dialog's p-6 (-mx-6) but re-insets its content (px-6)

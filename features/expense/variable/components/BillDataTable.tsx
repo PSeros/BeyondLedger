@@ -1,19 +1,13 @@
 "use client";
 
 import type {SortDescriptor} from "@heroui/react";
+import {useFormatter, useTranslations} from "next-intl";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
 import type {BillTableResponse, BillTableRow, BillTableSortBy} from "@/features/expense/variable/types";
 
 const LIMIT = 40;
-
-const columns = [
-  {id: "supplier", name: "Supplier", isRowHeader: true, allowsSorting: true},
-  {id: "category", name: "Category", allowsSorting: false},
-  {id: "totalAmount", name: "Total", allowsSorting: true},
-  {id: "date", name: "Date", allowsSorting: true},
-] as const;
 
 function sortColumnToSortBy(column: string): BillTableSortBy {
   switch (column) {
@@ -27,26 +21,28 @@ function sortColumnToSortBy(column: string): BillTableSortBy {
   }
 }
 
-function toTableRow(bill: BillTableRow) {
-  return {
-    id: bill.id,
-    supplier: bill.supplier,
-    category: bill.supplierCategory,
-    totalAmount: bill.amount.toLocaleString("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }),
-    date: new Date(bill.date).toLocaleString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    }),
-  };
-}
-
 export default function BillDataTable() {
   const router = useRouter();
+  const t = useTranslations();
+  const format = useFormatter();
   const searchParams = useSearchParams();
+
+  const columns = [
+    {id: "supplier", name: t("fields.supplier"), isRowHeader: true, allowsSorting: true},
+    {id: "category", name: t("fields.category"), allowsSorting: false},
+    {id: "totalAmount", name: t("fields.total"), allowsSorting: true},
+    {id: "date", name: t("fields.date"), allowsSorting: true},
+  ] as const;
+
+  function toTableRow(bill: BillTableRow) {
+    return {
+      id: bill.id,
+      supplier: bill.supplier,
+      category: bill.supplierCategory,
+      totalAmount: format.number(bill.amount, "currency"),
+      date: format.dateTime(new Date(bill.date), "long"),
+    };
+  }
   const q = searchParams.get("q") ?? "";
   const supplierId = searchParams.get("supplierId") ?? "";
   const supplierCategoryId = searchParams.get("supplierCategoryId") ?? "";
@@ -135,7 +131,7 @@ export default function BillDataTable() {
 
   return (
     <DataTable
-      ariaLabel="Variable expenses"
+      ariaLabel={t("tables.variableExpenses")}
       columns={columns}
       rows={tableRows}
       manualSorting

@@ -1,12 +1,12 @@
 "use client";
 
 import {useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {Button, Label, Tabs, TextArea, TextField} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {createBill} from "@/features/expense/variable/db/billMutations";
 import {createContract} from "@/features/expense/fixed/db/contractMutations";
 import BillItemsEditor, {
-  formatCurrency,
   grandTotalOf,
   type ItemRow,
 } from "@/features/expense/shared/components/BillItemsEditor";
@@ -37,6 +37,13 @@ type AddExpenseFormProps = {
 // action runs. On success the parent closes the modal and the list refreshes.
 export default function AddExpenseForm({options, defaultType, onClose}: AddExpenseFormProps) {
   const router = useRouter();
+  const t = useTranslations("fields");
+  const tForms = useTranslations("forms");
+  const tCommon = useTranslations("common");
+  const tExpense = useTranslations("expense");
+  const tErrors = useTranslations("errors");
+  const tVf = useTranslations("vf");
+  const format = useFormatter();
   const [type, setType] = useState<AddExpenseType>(defaultType);
   const [rows, setRows] = useState<ItemRow[]>([]);
   const [pending, setPending] = useState(false);
@@ -57,7 +64,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
       onClose();
       router.refresh();
     } catch {
-      setError("Could not save — please check the fields and try again.");
+      setError(tErrors("couldNotSave"));
       setPending(false);
     }
   }
@@ -70,13 +77,13 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
         onSelectionChange={(key) => setType(String(key) as AddExpenseType)}
       >
         <Tabs.ListContainer>
-          <Tabs.List aria-label="Expense type">
+          <Tabs.List aria-label={tForms("expenseType")}>
             <Tabs.Tab id="variable">
-              Variable
+              {tVf("variable")}
               <Tabs.Indicator/>
             </Tabs.Tab>
             <Tabs.Tab id="fixed">
-              Fixed
+              {tVf("fixed")}
               <Tabs.Indicator/>
             </Tabs.Tab>
           </Tabs.List>
@@ -91,11 +98,11 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               suppliers={options.suppliers}
               supplierCategories={options.supplierCategories}
             />
-            <TextInputField label="Date" name="date" type="date" defaultValue={today()} isRequired/>
-            <TextInputField label="Document number" name="documentNumber"/>
+            <TextInputField label={t("date")} name="date" type="date" defaultValue={today()} isRequired/>
+            <TextInputField label={t("documentNumber")} name="documentNumber"/>
             {/* Amount is auto-summed from the items below when there are any; only a bill with no
                 items takes a manually-entered amount. */}
-            {hasItems ? null : <TextInputField label="Amount (€)" name="amount" type="number" isRequired/>}
+            {hasItems ? null : <TextInputField label={t("amount")} name="amount" type="number" isRequired/>}
           </div>
 
           <BillItemsEditor
@@ -106,21 +113,21 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
           />
 
           <TextField name="notes" className="flex flex-col gap-1">
-            <Label className={labelClass}>Notes</Label>
+            <Label className={labelClass}>{t("notes")}</Label>
             <TextArea/>
           </TextField>
 
           {hasItems ? (
             <div
               className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
-              <span className="text-sm font-medium">Total</span>
-              <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{formatCurrency(grandTotal)}</span>
+              <span className="text-sm font-medium">{t("total")}</span>
+              <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{format.number(grandTotal, "currency")}</span>
             </div>
           ) : null}
         </>
       ) : (
         <>
-          <TextInputField label="Name" name="name" isRequired/>
+          <TextInputField label={t("name")} name="name" isRequired/>
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <SupplierSelectField
               name="supplierId"
@@ -128,18 +135,18 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               supplierCategories={options.supplierCategories}
             />
             <CreatableSelect
-              label="Category"
+              label={t("category")}
               name="categoryId"
               options={options.contractCategories}
-              createTitle="New contract category"
+              createTitle={tForms("newContractCategory")}
               onCreate={createContractCategory}
             />
-            <SelectField label="Frequency" name="frequencyId" options={options.frequencies}/>
-            <TextInputField label="Amount (€)" name="amount" type="number" isRequired/>
-            <TextInputField label="Start date" name="startDate" type="date" defaultValue={today()} isRequired/>
-            <TextInputField label="End date" name="endDate" type="date"/>
-            <TextInputField label="Notice period (days)" name="noticePeriod" type="number"/>
-            <TextInputField label="Document number" name="documentNumber"/>
+            <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+            <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
+            <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
+            <TextInputField label={t("endDate")} name="endDate" type="date"/>
+            <TextInputField label={t("noticePeriod")} name="noticePeriod" type="number"/>
+            <TextInputField label={t("documentNumber")} name="documentNumber"/>
           </div>
         </>
       )}
@@ -148,10 +155,10 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="tertiary" isDisabled={pending} onPress={onClose}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
-          {pending ? "Saving…" : "Add expense"}
+          {pending ? tCommon("saving") : tExpense("addExpense")}
         </Button>
       </div>
     </form>

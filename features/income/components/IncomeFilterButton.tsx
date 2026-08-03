@@ -1,5 +1,6 @@
 "use client";
 
+import {useTranslations} from "next-intl";
 import {Button, Popover} from "@heroui/react";
 import {LuFilter} from "react-icons/lu";
 import IncomeFilterMenu from "@/features/income/components/IncomeFilterMenu";
@@ -13,11 +14,12 @@ type IncomeFilterButtonProps = {
 // `buttonProps` carries the `__button_group_child` marker ButtonGroup injects into its direct
 // children — forward it to the real Button so it keeps its group styling.
 export default function IncomeFilterButton({options, isRecurring, ...buttonProps}: IncomeFilterButtonProps) {
+  const t = useTranslations("filters");
   return (
     <Popover>
       <Button {...buttonProps}>
         <LuFilter/>
-        Filter
+        {t("filter")}
       </Button>
       <Popover.Content>
         <Popover.Dialog className="flex w-64 flex-col gap-3">

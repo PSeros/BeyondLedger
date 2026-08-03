@@ -1,6 +1,7 @@
 "use client";
 
 import type {SortDescriptor} from "@heroui/react";
+import {useFormatter, useTranslations} from "next-intl";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
@@ -8,25 +9,6 @@ import StatusChip from "@/components/StatusChip";
 import type {IncomeTableResponse, IncomeTableRow, IncomeTableSortBy} from "@/features/income/types";
 
 const LIMIT = 40;
-
-// Fixed (recurring) income shows Frequency + lifecycle Status; variable (one-time) income shows the
-// occurrence Date (startDate) instead — same one row type, different visible columns.
-const fixedColumns = [
-  {id: "name", name: "Name", isRowHeader: true, allowsSorting: true},
-  {id: "source", name: "Source", allowsSorting: true},
-  {id: "category", name: "Category", allowsSorting: false},
-  {id: "totalAmount", name: "Total", allowsSorting: true},
-  {id: "frequency", name: "Frequency", allowsSorting: true},
-  {id: "status", name: "Status", allowsSorting: false},
-] as const;
-
-const variableColumns = [
-  {id: "name", name: "Name", isRowHeader: true, allowsSorting: true},
-  {id: "source", name: "Source", allowsSorting: true},
-  {id: "category", name: "Category", allowsSorting: false},
-  {id: "totalAmount", name: "Total", allowsSorting: true},
-  {id: "date", name: "Date", allowsSorting: true},
-] as const;
 
 function sortColumnToSortBy(column: string): IncomeTableSortBy {
   switch (column) {
@@ -44,33 +26,48 @@ function sortColumnToSortBy(column: string): IncomeTableSortBy {
   }
 }
 
-function toTableRow(income: IncomeTableRow) {
-  return {
-    id: income.id,
-    name: income.name,
-    source: income.source,
-    category: income.category,
-    totalAmount: income.amount.toLocaleString("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }),
-    frequency: income.frequency,
-    status: <StatusChip status={income.status}/>,
-    date: new Date(income.date).toLocaleString("de-DE", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-    }),
-  };
-}
-
 type IncomeDataTableProps = {
   isRecurring: boolean;
 };
 
 export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
   const router = useRouter();
+  const t = useTranslations();
+  const format = useFormatter();
   const searchParams = useSearchParams();
+
+  // Fixed (recurring) income shows Frequency + lifecycle Status; variable (one-time) income shows
+  // the occurrence Date instead — same one row type, different visible columns.
+  const fixedColumns = [
+    {id: "name", name: t("fields.name"), isRowHeader: true, allowsSorting: true},
+    {id: "source", name: t("fields.source"), allowsSorting: true},
+    {id: "category", name: t("fields.category"), allowsSorting: false},
+    {id: "totalAmount", name: t("fields.total"), allowsSorting: true},
+    {id: "frequency", name: t("fields.frequency"), allowsSorting: true},
+    {id: "status", name: t("fields.status"), allowsSorting: false},
+  ] as const;
+
+  const variableColumns = [
+    {id: "name", name: t("fields.name"), isRowHeader: true, allowsSorting: true},
+    {id: "source", name: t("fields.source"), allowsSorting: true},
+    {id: "category", name: t("fields.category"), allowsSorting: false},
+    {id: "totalAmount", name: t("fields.total"), allowsSorting: true},
+    {id: "date", name: t("fields.date"), allowsSorting: true},
+  ] as const;
+
+  function toTableRow(income: IncomeTableRow) {
+    return {
+      id: income.id,
+      name: income.name,
+      source: income.source,
+      category: income.category,
+      totalAmount: format.number(income.amount, "currency"),
+      frequency: income.frequency,
+      status: <StatusChip status={income.status}/>,
+      date: format.dateTime(new Date(income.date), "long"),
+    };
+  }
+
   const q = searchParams.get("q") ?? "";
   const sourceId = searchParams.get("sourceId") ?? "";
   const categoryId = searchParams.get("categoryId") ?? "";
@@ -165,7 +162,7 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
 
   return (
     <DataTable
-      ariaLabel={isRecurring ? "Fixed income" : "Variable income"}
+      ariaLabel={isRecurring ? t("tables.fixedIncome") : t("tables.variableIncome")}
       columns={isRecurring ? fixedColumns : variableColumns}
       rows={tableRows}
       manualSorting

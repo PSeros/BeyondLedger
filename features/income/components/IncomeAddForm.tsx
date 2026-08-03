@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {createIncome} from "@/features/income/db/incomeMutations";
@@ -24,6 +25,11 @@ type IncomeAddFormProps = {
 // on success the parent closes the modal and the list refreshes.
 export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
   const router = useRouter();
+  const t = useTranslations("fields");
+  const tForms = useTranslations("forms");
+  const tCommon = useTranslations("common");
+  const tIncome = useTranslations("income");
+  const tErrors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,44 +41,44 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
       onClose();
       router.refresh();
     } catch {
-      setError("Could not save — please check the fields and try again.");
+      setError(tErrors("couldNotSave"));
       setPending(false);
     }
   }
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <TextInputField label="Name" name="name" isRequired/>
+      <TextInputField label={t("name")} name="name" isRequired/>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
         <CreatableSelect
-          label="Source"
+          label={t("source")}
           name="sourceId"
           options={options.sources}
-          createTitle="New income source"
+          createTitle={tForms("newIncomeSource")}
           onCreate={createIncomeSource}
         />
         <CreatableSelect
-          label="Category"
+          label={t("category")}
           name="categoryId"
           options={options.categories}
-          createTitle="New income category"
+          createTitle={tForms("newIncomeCategory")}
           onCreate={createIncomeCategory}
         />
-        <SelectField label="Frequency" name="frequencyId" options={options.frequencies}/>
-        <TextInputField label="Amount (€)" name="amount" type="number" isRequired/>
-        <TextInputField label="Start date" name="startDate" type="date" defaultValue={today()} isRequired/>
-        <TextInputField label="End date" name="endDate" type="date"/>
+        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+        <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
+        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
+        <TextInputField label={t("endDate")} name="endDate" type="date"/>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="tertiary" isDisabled={pending} onPress={onClose}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
-          {pending ? "Saving…" : "Add income"}
+          {pending ? tCommon("saving") : tIncome("addIncome")}
         </Button>
       </div>
     </form>

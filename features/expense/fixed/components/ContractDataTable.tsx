@@ -1,6 +1,7 @@
 "use client";
 
 import type {SortDescriptor} from "@heroui/react";
+import {useFormatter, useTranslations} from "next-intl";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useRef, useState} from "react";
 import DataTable from "@/components/DataTable";
@@ -8,15 +9,6 @@ import StatusChip from "@/components/StatusChip";
 import type {ContractTableResponse, ContractTableRow, ContractTableSortBy} from "@/features/expense/fixed/types";
 
 const LIMIT = 40;
-
-const columns = [
-  {id: "name", name: "Name", isRowHeader: true, allowsSorting: true},
-  {id: "supplier", name: "Supplier", allowsSorting: true},
-  {id: "category", name: "Category", allowsSorting: false},
-  {id: "totalAmount", name: "Total", allowsSorting: true},
-  {id: "frequency", name: "Frequency", allowsSorting: true},
-  {id: "status", name: "Status", allowsSorting: false},
-] as const;
 
 function sortColumnToSortBy(column: string): ContractTableSortBy {
   switch (column) {
@@ -32,24 +24,33 @@ function sortColumnToSortBy(column: string): ContractTableSortBy {
   }
 }
 
-function toTableRow(contract: ContractTableRow) {
-  return {
-    id: contract.id,
-    name: contract.name,
-    supplier: contract.supplier,
-    category: contract.category,
-    totalAmount: contract.amount.toLocaleString("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }),
-    frequency: contract.frequency,
-    status: <StatusChip status={contract.status}/>,
-  };
-}
-
 export default function ContractDataTable() {
   const router = useRouter();
+  const t = useTranslations();
+  const format = useFormatter();
   const searchParams = useSearchParams();
+
+  const columns = [
+    {id: "name", name: t("fields.name"), isRowHeader: true, allowsSorting: true},
+    {id: "supplier", name: t("fields.supplier"), allowsSorting: true},
+    {id: "category", name: t("fields.category"), allowsSorting: false},
+    {id: "totalAmount", name: t("fields.total"), allowsSorting: true},
+    {id: "frequency", name: t("fields.frequency"), allowsSorting: true},
+    {id: "status", name: t("fields.status"), allowsSorting: false},
+  ] as const;
+
+  function toTableRow(contract: ContractTableRow) {
+    return {
+      id: contract.id,
+      name: contract.name,
+      supplier: contract.supplier,
+      category: contract.category,
+      totalAmount: format.number(contract.amount, "currency"),
+      frequency: contract.frequency,
+      status: <StatusChip status={contract.status}/>,
+    };
+  }
+
   const q = searchParams.get("q") ?? "";
   const supplierId = searchParams.get("supplierId") ?? "";
   const categoryId = searchParams.get("categoryId") ?? "";
@@ -134,7 +135,7 @@ export default function ContractDataTable() {
 
   return (
     <DataTable
-      ariaLabel="Fixed expenses"
+      ariaLabel={t("tables.fixedExpenses")}
       columns={columns}
       rows={tableRows}
       manualSorting

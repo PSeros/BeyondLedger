@@ -1,11 +1,11 @@
 "use client";
 
 import {useMemo, useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {Button, Label, TextArea, TextField} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateBill} from "@/features/expense/variable/db/billMutations";
 import BillItemsEditor, {
-  formatCurrency,
   grandTotalOf,
   itemRowFromDetail,
   type ItemRow,
@@ -23,6 +23,10 @@ type BillEditFormProps = {
 
 export default function BillEditForm({bill, options}: BillEditFormProps) {
   const router = useRouter();
+  const t = useTranslations("fields");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
+  const format = useFormatter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<ItemRow[]>(() => bill.items.map(itemRowFromDetail));
@@ -46,7 +50,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
       await updateBill(bill.id, formData);
       exitEdit();
     } catch {
-      setError("Could not save — please check the fields and try again.");
+      setError(tErrors("couldNotSave"));
       setPending(false);
     }
   }
@@ -60,12 +64,12 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
           supplierCategories={options.supplierCategories}
           defaultValue={String(bill.supplierId)}
         />
-        <TextInputField label="Date" name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>
-        <TextInputField label="Document number" name="documentNumber" defaultValue={bill.documentNumber ?? ""}/>
+        <TextInputField label={t("date")} name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>
+        <TextInputField label={t("documentNumber")} name="documentNumber" defaultValue={bill.documentNumber ?? ""}/>
         {/* Amount is auto-summed from the items below when there are any; only a bill left with no
             items keeps a manually-entered amount. */}
         {hasItems ? null : (
-          <TextInputField label="Amount (€)" name="amount" type="number" defaultValue={String(bill.amount)} isRequired/>
+          <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(bill.amount)} isRequired/>
         )}
       </div>
 
@@ -77,15 +81,15 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
       />
 
       <TextField name="notes" defaultValue={bill.notes ?? ""} className="flex flex-col gap-1">
-        <Label className={labelClass}>Notes</Label>
+        <Label className={labelClass}>{t("notes")}</Label>
         <TextArea/>
       </TextField>
 
       {hasItems ? (
         <div
           className="flex items-center justify-between rounded-(--radius) bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
-          <span className="text-sm font-medium">Total</span>
-          <span className="text-lg font-semibold tabular-nums text-(--accent)">{formatCurrency(grandTotal)}</span>
+          <span className="text-sm font-medium">{t("total")}</span>
+          <span className="text-lg font-semibold tabular-nums text-(--accent)">{format.number(grandTotal, "currency")}</span>
         </div>
       ) : null}
 
@@ -93,10 +97,10 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="tertiary" isDisabled={pending} onPress={() => router.back()}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
-          {pending ? "Saving…" : "Save"}
+          {pending ? tCommon("saving") : tCommon("save")}
         </Button>
       </div>
     </form>

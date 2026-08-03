@@ -1,3 +1,4 @@
+import {getTranslations} from "next-intl/server";
 import UpcomingDueCard from "@/components/UpcomingDueCard";
 import {getUpcomingFixedIncome} from "@/features/income/db/incomeUpcomingData";
 import type {IncomeFilters} from "@/features/income/db/incomeWhere";
@@ -7,11 +8,12 @@ import type {IncomeFilters} from "@/features/income/db/incomeWhere";
 type IncomeUpcomingCardProps = Omit<IncomeFilters, "status" | "dateFrom" | "dateTo" | "isRecurring">;
 
 export default async function IncomeUpcomingCard(filters: IncomeUpcomingCardProps) {
+  const t = await getTranslations("upcoming");
   const rows = await getUpcomingFixedIncome({...filters, withinDays: 30});
 
   return (
     <UpcomingDueCard
-      title="Upcoming (30 days)"
+      title={t("titleDays", {days: 30})}
       rows={rows}
       windowDays={30}
       hrefForRow={(id) => `/income/fixed/${id}`}

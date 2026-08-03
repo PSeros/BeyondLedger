@@ -1,3 +1,4 @@
+import {getTranslations} from "next-intl/server";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
@@ -31,6 +32,7 @@ export default async function FixedIncomeDetailPage({params, searchParams}: Fixe
   }
 
   const options = editing ? await getIncomeFormOptions() : null;
+  const t = await getTranslations("detail");
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
@@ -39,7 +41,7 @@ export default async function FixedIncomeDetailPage({params, searchParams}: Fixe
         className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
       >
         <LuArrowLeft/>
-        Back to fixed income
+        {t("backToFixedIncome")}
       </Link>
 
       <div className="flex items-start justify-between gap-4">

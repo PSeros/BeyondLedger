@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button, ButtonGroup, Modal} from "@heroui/react";
 import {LuPlus} from "react-icons/lu";
 import IncomeAddForm from "@/features/income/components/IncomeAddForm";
@@ -15,6 +16,7 @@ type AddIncomeButtonProps = {
 // real Button so it keeps its group styling. Controlled overlay (local open state), not an
 // intercepted route: Add has no entity id, and interception routes corrupt the dev manifest here.
 export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButtonProps) {
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
 
   return (
@@ -22,7 +24,7 @@ export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButt
       <Button {...buttonProps} onPress={() => setOpen(true)}>
         <ButtonGroup.Separator/>
         <LuPlus/>
-        Add
+        {t("common.add")}
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>
@@ -31,9 +33,9 @@ export default function AddIncomeButton({options, ...buttonProps}: AddIncomeButt
             <Modal.CloseTrigger/>
             <Modal.Header className="flex-row items-start gap-3">
               <div className="min-w-0 flex-1">
-                <Modal.Heading className="block truncate text-base font-semibold">Add income</Modal.Heading>
+                <Modal.Heading className="block truncate text-base font-semibold">{t("income.addIncome")}</Modal.Heading>
                 <p className="mt-0.5 truncate text-sm text-muted">
-                  Record income — the frequency decides fixed or variable
+                  {t("income.addIncomeSubtitle")}
                 </p>
               </div>
             </Modal.Header>

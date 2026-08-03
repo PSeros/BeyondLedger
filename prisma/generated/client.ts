@@ -87,6 +87,11 @@ export type Frequency = Prisma.FrequencyModel
  */
 export type AiSettings = Prisma.AiSettingsModel
 /**
+ * Model AppSettings
+ * 
+ */
+export type AppSettings = Prisma.AppSettingsModel
+/**
  * Model FileAsset
  * 
  */

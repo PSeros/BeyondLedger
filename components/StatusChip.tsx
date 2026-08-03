@@ -1,4 +1,7 @@
+"use client";
+
 import React from 'react';
+import {useTranslations} from "next-intl";
 import {Chip} from "@heroui/react";
 import {LuCircleAlert, LuCircleCheck, LuCircleX} from "react-icons/lu";
 import type {LifecycleStatus} from "@/lib/status";
@@ -8,6 +11,7 @@ type StatusChipProps = {
 };
 
 export default function StatusChip({status}: StatusChipProps) {
+  const t = useTranslations("status");
   const variant = "soft"
   const style = "w-20"
 
@@ -31,7 +35,7 @@ export default function StatusChip({status}: StatusChipProps) {
   return (
     <Chip variant={variant} color={current.color} className={style}>
       {current.icon}
-      <Chip.Label>{status}</Chip.Label>
+      <Chip.Label>{t(status)}</Chip.Label>
     </Chip>
   );
 }

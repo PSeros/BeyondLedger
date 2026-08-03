@@ -1,10 +1,10 @@
 "use client";
 
 import {useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {Button, ButtonGroup, Modal} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {LuUpload} from "react-icons/lu";
-import {formatCurrency} from "@/features/expense/shared/components/BillItemsEditor";
 import UploadDropzoneModal from "@/features/expense/shared/components/UploadDropzoneModal";
 import {deleteFileAsset} from "@/features/expense/shared/db/fileMutations";
 import {processOcrUpload, retryOcrUpload, uploadForOcr} from "@/features/ocr/db/ocrActions";
@@ -25,6 +25,10 @@ type ErrorInfo = {fileId: number; fileName: string; message: string};
 // __button_group_child marker onto the real Button. Renders nothing when AI is not configured.
 export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocumentButtonProps) {
   const router = useRouter();
+  const t = useTranslations("scan");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
+  const format = useFormatter();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
 
@@ -39,25 +43,25 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
     try {
       const result = await process(fileId);
       closeToast(key);
-      pushToast("Bill added", {
+      pushToast(t("billAdded"), {
         variant: "success",
         timeout: 6000,
-        description: `${result.supplierName} · ${formatCurrency(result.totalAmount)}`,
+        description: `${result.supplierName} · ${format.number(result.totalAmount, "currency")}`,
         actionProps: {
-          children: "Open bill",
+          children: t("openBill"),
           onPress: () => router.push(`/expense/variable/${result.billId}`),
         },
       });
       router.refresh();
     } catch (error) {
       closeToast(key);
-      const message = error instanceof Error ? error.message : "OCR processing failed.";
-      pushToast("Scan failed", {
+      const message = error instanceof Error ? error.message : tErrors("ocrFailed");
+      pushToast(t("scanFailed"), {
         variant: "danger",
         timeout: 10000,
         description: message,
         actionProps: {
-          children: "View details",
+          children: t("viewDetails"),
           onPress: () => setErrorInfo({fileId, fileName, message}),
         },
       });
@@ -67,7 +71,7 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
   // Uploads one file, then runs the pipeline — each file gets its own independent toast.
   async function startScan(file: File) {
     const fileName = file.name;
-    const key = pushToast(`Scanning ${fileName}…`, {isLoading: true, timeout: 0});
+    const key = pushToast(t("scanning", {name: fileName}), {isLoading: true, timeout: 0});
     let fileId: number;
     try {
       const formData = new FormData();
@@ -75,10 +79,10 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
       ({fileId} = await uploadForOcr(formData));
     } catch (error) {
       closeToast(key);
-      pushToast("Upload failed", {
+      pushToast(t("uploadFailedTitle"), {
         variant: "danger",
         timeout: 8000,
-        description: error instanceof Error ? error.message : "Upload failed.",
+        description: error instanceof Error ? error.message : tErrors("uploadFailed"),
       });
       return;
     }
@@ -93,7 +97,7 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
     if (!errorInfo) return;
     const {fileId, fileName} = errorInfo;
     setErrorInfo(null);
-    const key = pushToast(`Scanning ${fileName}…`, {isLoading: true, timeout: 0});
+    const key = pushToast(t("scanning", {name: fileName}), {isLoading: true, timeout: 0});
     void finishPipeline(key, fileId, fileName, retryOcrUpload);
   }
 
@@ -112,7 +116,7 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
       <Button {...buttonProps} onPress={() => setPickerOpen(true)}>
         <ButtonGroup.Separator/>
         <LuUpload/>
-        Upload
+        {t("upload")}
       </Button>
 
       <UploadDropzoneModal isOpen={pickerOpen} onOpenChange={setPickerOpen} onSubmit={onSubmit}/>
@@ -129,7 +133,7 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
             <Modal.CloseTrigger/>
             <Modal.Header className="flex-row items-start gap-3">
               <div className="min-w-0 flex-1">
-                <Modal.Heading className="block truncate text-base font-semibold">Scan failed</Modal.Heading>
+                <Modal.Heading className="block truncate text-base font-semibold">{t("scanFailed")}</Modal.Heading>
                 <p className="mt-0.5 truncate text-sm text-muted">{errorInfo?.fileName}</p>
               </div>
             </Modal.Header>
@@ -139,10 +143,10 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
             </Modal.Body>
             <Modal.Footer>
               <Button type="button" variant="tertiary" onPress={onDiscard}>
-                Discard upload
+                {t("discardUpload")}
               </Button>
               <Button type="button" variant="primary" onPress={onRetry}>
-                Retry
+                {tCommon("retry")}
               </Button>
             </Modal.Footer>
           </Modal.Dialog>

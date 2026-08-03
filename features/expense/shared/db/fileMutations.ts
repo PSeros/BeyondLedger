@@ -1,15 +1,17 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {getTranslations} from "next-intl/server";
 import {FileStatusChoice} from "@/prisma/generated/client";
 import {client} from "@/lib/prisma";
 import {deleteStoredFile, saveUploadedFile} from "@/lib/fileStorage";
 
 // Pulls the uploaded File out of a FormData "file" field, rejecting empty/absent uploads.
-function readUpload(formData: FormData): File {
+async function readUpload(formData: FormData): Promise<File> {
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
-    throw new Error("No file was uploaded");
+    const t = await getTranslations("errors");
+    throw new Error(t("noFileUploaded"));
   }
   return file;
 }
@@ -18,7 +20,7 @@ function readUpload(formData: FormData): File {
 // state (the same lifecycle the OCR pipeline will later drive); for a plain attachment it simply
 // stays there. Revalidates the list + this bill's detail so the attachment shows up immediately.
 export async function uploadBillFile(billId: number, formData: FormData): Promise<void> {
-  const file = readUpload(formData);
+  const file = await readUpload(formData);
   const meta = await saveUploadedFile(file);
 
   await client.fileAsset.create({
@@ -39,7 +41,7 @@ export async function uploadBillFile(billId: number, formData: FormData): Promis
 
 // Stores an uploaded document and attaches it to an existing Contract.
 export async function uploadContractFile(contractId: number, formData: FormData): Promise<void> {
-  const file = readUpload(formData);
+  const file = await readUpload(formData);
   const meta = await saveUploadedFile(file);
 
   await client.fileAsset.create({

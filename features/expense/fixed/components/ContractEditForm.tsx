@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateContract} from "@/features/expense/fixed/db/contractMutations";
@@ -18,6 +19,10 @@ type ContractEditFormProps = {
 
 export default function ContractEditForm({contract, options}: ContractEditFormProps) {
   const router = useRouter();
+  const t = useTranslations("fields");
+  const tForms = useTranslations("forms");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,14 +42,14 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
       await updateContract(contract.id, formData);
       exitEdit();
     } catch {
-      setError("Could not save — please check the fields and try again.");
+      setError(tErrors("couldNotSave"));
       setPending(false);
     }
   }
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <TextInputField label="Name" name="name" defaultValue={contract.name} isRequired/>
+      <TextInputField label={t("name")} name="name" defaultValue={contract.name} isRequired/>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
         <SupplierSelectField
@@ -54,34 +59,34 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
           defaultValue={String(contract.supplierId)}
         />
         <CreatableSelect
-          label="Category"
+          label={t("category")}
           name="categoryId"
           options={options.categories}
           defaultValue={String(contract.categoryId)}
-          createTitle="New contract category"
+          createTitle={tForms("newContractCategory")}
           onCreate={createContractCategory}
         />
-        <SelectField label="Frequency" name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
-        <TextInputField label="Amount (€)" name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
-        <TextInputField label="Start date" name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>
-        <TextInputField label="End date" name="endDate" type="date" defaultValue={contract.endDate?.slice(0, 10) ?? ""}/>
+        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
+        <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
+        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>
+        <TextInputField label={t("endDate")} name="endDate" type="date" defaultValue={contract.endDate?.slice(0, 10) ?? ""}/>
         <TextInputField
-          label="Notice period (days)"
+          label={t("noticePeriod")}
           name="noticePeriod"
           type="number"
           defaultValue={contract.noticePeriod != null ? String(contract.noticePeriod) : ""}
         />
-        <TextInputField label="Document number" name="documentNumber" defaultValue={contract.documentNumber ?? ""}/>
+        <TextInputField label={t("documentNumber")} name="documentNumber" defaultValue={contract.documentNumber ?? ""}/>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="tertiary" isDisabled={pending} onPress={() => router.back()}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
-          {pending ? "Saving…" : "Save"}
+          {pending ? tCommon("saving") : tCommon("save")}
         </Button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import {getTranslations} from "next-intl/server";
 import ChartCard from "@/components/ChartCard";
 import {
   getFixedIncomeChartData,
@@ -10,9 +11,10 @@ type IncomeChartCardProps = IncomeChartFilters & {
 };
 
 export default async function IncomeChartCard({isRecurring, ...filters}: IncomeChartCardProps) {
+  const t = await getTranslations("charts");
   const data = isRecurring
     ? await getFixedIncomeChartData(filters)
     : await getVariableIncomeChartData(filters);
 
-  return <ChartCard title="Income" data={data} polarity="higherIsBetter"/>;
+  return <ChartCard title={t("income")} data={data} polarity="higherIsBetter"/>;
 }

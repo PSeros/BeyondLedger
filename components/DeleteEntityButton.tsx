@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {LuTrash2} from "react-icons/lu";
 import {useRouter} from "next/navigation";
@@ -18,6 +19,8 @@ type DeleteEntityButtonProps = {
 
 export default function DeleteEntityButton({id, action, label, redirectTo}: DeleteEntityButtonProps) {
   const router = useRouter();
+  const t = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export default function DeleteEntityButton({id, action, label, redirectTo}: Dele
       }
       router.refresh();
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Could not delete.");
+      setError(deleteError instanceof Error ? deleteError.message : tErrors("couldNotDelete"));
       setPending(false);
       setConfirming(false);
     }
@@ -45,7 +48,7 @@ export default function DeleteEntityButton({id, action, label, redirectTo}: Dele
       <div className="flex flex-col items-start gap-1">
         <Button type="button" variant="tertiary" size="sm" onPress={() => setConfirming(true)}>
           <LuTrash2 className="size-4"/>
-          Delete
+          {t("delete")}
         </Button>
         {error ? <p className="text-danger text-xs">{error}</p> : null}
       </div>
@@ -54,12 +57,12 @@ export default function DeleteEntityButton({id, action, label, redirectTo}: Dele
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted">Delete {label}?</span>
+      <span className="text-sm text-muted">{t("deleteConfirm", {label})}</span>
       <Button type="button" variant="danger" size="sm" isDisabled={pending} onPress={onConfirm}>
-        {pending ? "Deleting…" : "Yes, delete"}
+        {pending ? t("deleting") : t("yesDelete")}
       </Button>
       <Button type="button" variant="tertiary" size="sm" isDisabled={pending} onPress={() => setConfirming(false)}>
-        Cancel
+        {t("cancel")}
       </Button>
     </div>
   );

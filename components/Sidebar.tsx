@@ -1,14 +1,16 @@
 "use client"
 
 import React from 'react';
+import {useTranslations} from "next-intl";
 import {usePathname, useRouter} from "next/navigation";
-import {getActiveRoute, isActiveRoute, routes} from "@/lib/routes";
+import {isActiveRoute, routes} from "@/lib/routes";
 import {Avatar, Button, Description, Label} from "@heroui/react";
 import {FaUser} from "react-icons/fa6";
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const t = useTranslations("nav")
 
   return (
     <div className="flex flex-col gap-2 w-50 mx-2">
@@ -33,7 +35,7 @@ export default function Sidebar() {
               onPress={() => router.push(route.href)}
               className="justify-start w-full">
               <Icon/>
-              <span>{route.label}</span>
+              <span>{t(route.key)}</span>
             </Button>
           );
         })}

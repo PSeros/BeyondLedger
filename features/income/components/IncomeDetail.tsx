@@ -1,14 +1,7 @@
 import type {ReactNode} from "react";
+import {getFormatter, getTranslations} from "next-intl/server";
 import StatusChip from "@/components/StatusChip";
 import type {IncomeDetailData} from "@/features/income/db/incomeDetail";
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("de-DE", {year: "numeric", month: "long", day: "2-digit"});
-}
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString("de-DE", {style: "currency", currency: "EUR"});
-}
 
 // A single label/value line. Hairline rows (border-t between) read lighter than a boxed grid.
 function Row({label, children}: {label: string; children: ReactNode}) {
@@ -22,23 +15,26 @@ function Row({label, children}: {label: string; children: ReactNode}) {
 
 // Shared, read-only view of an Income — rendered both by the standalone [id] page and the
 // intercepted-route modal, for both tabs. Name + source/category live in each surface's header.
-export default function IncomeDetail({income}: {income: IncomeDetailData}) {
+export default async function IncomeDetail({income}: {income: IncomeDetailData}) {
+  const t = await getTranslations("fields");
+  const format = await getFormatter();
+
   return (
     // text-foreground anchors the default color: HeroUI's Modal.Body forces text-muted, which
     // would gray out the values (the standalone Card doesn't).
     <div className="flex flex-col gap-5 text-foreground">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-3xl font-semibold tracking-tight tabular-nums">{formatCurrency(income.amount)}</p>
+          <p className="text-3xl font-semibold tracking-tight tabular-nums">{format.number(income.amount, "currency")}</p>
           <p className="mt-1 text-sm text-muted">{income.frequency}</p>
         </div>
         <StatusChip status={income.status}/>
       </div>
 
       <dl className="flex flex-col">
-        <Row label={income.isRecurring ? "Start date" : "Date"}>{formatDate(income.startDate)}</Row>
+        <Row label={income.isRecurring ? t("startDate") : t("date")}>{format.dateTime(new Date(income.startDate), "long")}</Row>
         {income.isRecurring ? (
-          <Row label="End date">{income.endDate ? formatDate(income.endDate) : "—"}</Row>
+          <Row label={t("endDate")}>{income.endDate ? format.dateTime(new Date(income.endDate), "long") : "—"}</Row>
         ) : null}
       </dl>
     </div>

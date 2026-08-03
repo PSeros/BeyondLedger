@@ -1,6 +1,7 @@
 "use client";
 
 import {useRef, useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button, Modal} from "@heroui/react";
 import {LuFileText, LuImage, LuUpload, LuX} from "react-icons/lu";
 
@@ -25,6 +26,8 @@ type UploadDropzoneModalProps = {
 // so this is a lightweight equivalent styled with the app's tokens: a dashed drop target that also
 // opens the native file dialog, an accumulating file list with per-row remove, and Upload/Cancel.
 export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: UploadDropzoneModalProps) {
+  const t = useTranslations("scan");
+  const tCommon = useTranslations("common");
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -86,8 +89,8 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
           <Modal.CloseTrigger/>
           <Modal.Header className="flex-row items-start gap-3">
             <div className="min-w-0 flex-1">
-              <Modal.Heading className="block truncate text-base font-semibold">Scan documents</Modal.Heading>
-              <p className="mt-0.5 truncate text-sm text-muted">Extract a bill from a receipt or invoice</p>
+              <Modal.Heading className="block truncate text-base font-semibold">{t("scanDocuments")}</Modal.Heading>
+              <p className="mt-0.5 truncate text-sm text-muted">{t("scanSubtitle")}</p>
             </div>
           </Modal.Header>
           {/* Modal.Body forces text-muted; re-assert text-foreground so the dropzone copy reads normally. */}
@@ -119,12 +122,12 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
                   <LuUpload className="size-6"/>
                 </span>
                 <div>
-                  <p className="text-sm font-medium">Drag &amp; drop a document here</p>
+                  <p className="text-sm font-medium">{t("dropHere")}</p>
                   <p className="mt-1 text-xs text-muted">
-                    or <span className="text-accent underline">browse your files</span>
+                    {t("orText")} <span className="text-accent underline">{t("browse")}</span>
                   </p>
                 </div>
-                <p className="text-xs text-muted">PDF, PNG, JPEG or WebP</p>
+                <p className="text-xs text-muted">{t("acceptedTypes")}</p>
               </div>
 
               <input
@@ -138,7 +141,7 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
 
               {skipped ? (
                 <p className="text-danger text-xs">
-                  Some files were skipped — only PDF, PNG, JPEG and WebP are supported.
+                  {t("someSkipped")}
                 </p>
               ) : null}
 
@@ -163,7 +166,7 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
                         variant="tertiary"
                         size="sm"
                         isIconOnly
-                        aria-label={`Remove ${file.name}`}
+                        aria-label={t("remove", {name: file.name})}
                         onPress={() => setFiles((prev) => prev.filter((_, i) => i !== index))}
                       >
                         <LuX className="size-4"/>
@@ -176,10 +179,10 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
           </Modal.Body>
           <Modal.Footer>
             <Button type="button" variant="tertiary" onPress={() => close(false)}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button type="button" variant="primary" isDisabled={files.length === 0} onPress={submit}>
-              {files.length > 1 ? `Upload ${files.length} files` : "Upload"}
+              {t("uploadButton", {count: files.length})}
             </Button>
           </Modal.Footer>
         </Modal.Dialog>

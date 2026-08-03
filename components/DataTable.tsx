@@ -3,6 +3,7 @@
 import type {SortDescriptor} from "@heroui/react";
 
 import {EmptyState, Spinner, Table, cn} from "@heroui/react";
+import {useLocale, useTranslations} from "next-intl";
 import {useMemo, useState} from "react";
 import type {Key, ReactNode} from "react";
 import {MdKeyboardArrowUp} from "react-icons/md";
@@ -70,6 +71,8 @@ export default function DataTable<T extends DataTableRow>({
   onLoadMore,
   onRowAction,
 }: DataTableProps<T>) {
+  const locale = useLocale();
+  const t = useTranslations("common");
   const [internalSortDescriptor, setInternalSortDescriptor] = useState<SortDescriptor>({
     column: columns[0]?.id ?? "id",
     direction: "ascending",
@@ -98,7 +101,7 @@ export default function DataTable<T extends DataTableRow>({
       if (typeof first === "number" && typeof second === "number") {
         comparison = first - second;
       } else {
-        comparison = String(first ?? "").localeCompare(String(second ?? ""), "de-DE", {
+        comparison = String(first ?? "").localeCompare(String(second ?? ""), locale, {
           numeric: true,
           sensitivity: "base",
         });
@@ -106,7 +109,7 @@ export default function DataTable<T extends DataTableRow>({
 
       return sortDescriptor.direction === "descending" ? comparison * -1 : comparison;
     });
-  }, [columns, manualSorting, rows, sortDescriptor]);
+  }, [columns, manualSorting, rows, sortDescriptor, locale]);
 
   return (
     <Table
@@ -144,7 +147,7 @@ export default function DataTable<T extends DataTableRow>({
             renderEmptyState={() => (
               <EmptyState className="flex h-full w-full flex-col items-center justify-center gap-4 text-center">
                 <LuInbox aria-hidden="true" className="size-20 text-muted"/>
-                <span className="text-sm text-muted">No results found</span>
+                <span className="text-sm text-muted">{t("noResults")}</span>
               </EmptyState>
             )}
           >

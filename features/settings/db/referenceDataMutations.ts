@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import {Prisma} from "@/prisma/generated/client";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
@@ -24,53 +25,66 @@ function revalidateLookupSurfaces(): void {
   revalidatePath("/income/variable");
 }
 
-function cleanName(name: string): string {
+// Error messages are localized (the app's active locale comes from the AppSettings singleton, read
+// server-side by next-intl's request config) since they surface to the user in Settings + the
+// inline "+ Add new…" popovers.
+type EntityKey = "category" | "source" | "supplier" | "frequency";
+
+async function cleanName(name: string): Promise<string> {
   const trimmed = name.trim();
   if (trimmed === "") {
-    throw new Error("Name is required.");
+    const t = await getTranslations("errors");
+    throw new Error(t("nameRequired"));
   }
   return trimmed;
 }
 
-function cleanPositiveId(id: number): number {
+async function cleanPositiveId(id: number): Promise<number> {
   if (!Number.isInteger(id) || id <= 0) {
-    throw new Error("Invalid id.");
+    const t = await getTranslations("errors");
+    throw new Error(t("invalidId"));
   }
   return id;
 }
 
 // SQLite has no case-insensitive Prisma filter (no `mode: "insensitive"`), so we load the
 // existing names and compare lowercased in JS. `exceptId` skips the row being renamed.
-function assertUniqueName(existing: {id: number; name: string}[], name: string, exceptId?: number): void {
+async function assertUniqueName(existing: {id: number; name: string}[], name: string, exceptId?: number): Promise<void> {
   const lower = name.toLowerCase();
   if (existing.some((row) => row.id !== exceptId && row.name.toLowerCase() === lower)) {
-    throw new Error(`"${name}" already exists.`);
+    const t = await getTranslations("errors");
+    throw new Error(t("alreadyExists", {name}));
   }
 }
 
 // Turns Prisma's foreign-key-constraint failure (deleting a row still referenced by an
-// expense) into a friendly message; rethrows anything else.
-function toDeleteError(error: unknown, label: string): Error {
+// expense) into a friendly localized message; rethrows anything else.
+async function toDeleteError(error: unknown, entity: EntityKey): Promise<Error> {
   if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
-    return new Error(`Can't delete this ${label} — it's still used by existing expenses.`);
+    const [t, tEntities] = await Promise.all([getTranslations("errors"), getTranslations("entities")]);
+    return new Error(t("inUse", {label: tEntities(entity)}));
   }
-  return error instanceof Error ? error : new Error("Could not delete.");
+  if (error instanceof Error) {
+    return error;
+  }
+  const t = await getTranslations("errors");
+  return new Error(t("couldNotDelete"));
 }
 
 // --- SupplierCategory -------------------------------------------------------
 
 export async function createSupplierCategory(name: string): Promise<FilterOption> {
-  const clean = cleanName(name);
-  assertUniqueName(await client.supplierCategory.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.supplierCategory.findMany({select: {id: true, name: true}}), clean);
   const created = await client.supplierCategory.create({data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function renameSupplierCategory(id: number, name: string): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  assertUniqueName(await client.supplierCategory.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.supplierCategory.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.supplierCategory.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return updated;
@@ -78,9 +92,9 @@ export async function renameSupplierCategory(id: number, name: string): Promise<
 
 export async function deleteSupplierCategory(id: number): Promise<void> {
   try {
-    await client.supplierCategory.delete({where: {id: cleanPositiveId(id)}});
+    await client.supplierCategory.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "category");
+    throw await toDeleteError(error,"category");
   }
   revalidateLookupSurfaces();
 }
@@ -88,17 +102,17 @@ export async function deleteSupplierCategory(id: number): Promise<void> {
 // --- ItemCategory -----------------------------------------------------------
 
 export async function createItemCategory(name: string): Promise<FilterOption> {
-  const clean = cleanName(name);
-  assertUniqueName(await client.itemCategory.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.itemCategory.findMany({select: {id: true, name: true}}), clean);
   const created = await client.itemCategory.create({data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function renameItemCategory(id: number, name: string): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  assertUniqueName(await client.itemCategory.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.itemCategory.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.itemCategory.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return updated;
@@ -106,9 +120,9 @@ export async function renameItemCategory(id: number, name: string): Promise<Filt
 
 export async function deleteItemCategory(id: number): Promise<void> {
   try {
-    await client.itemCategory.delete({where: {id: cleanPositiveId(id)}});
+    await client.itemCategory.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "category");
+    throw await toDeleteError(error,"category");
   }
   revalidateLookupSurfaces();
 }
@@ -116,17 +130,17 @@ export async function deleteItemCategory(id: number): Promise<void> {
 // --- ContractCategory -------------------------------------------------------
 
 export async function createContractCategory(name: string): Promise<FilterOption> {
-  const clean = cleanName(name);
-  assertUniqueName(await client.contractCategory.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.contractCategory.findMany({select: {id: true, name: true}}), clean);
   const created = await client.contractCategory.create({data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function renameContractCategory(id: number, name: string): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  assertUniqueName(await client.contractCategory.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.contractCategory.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.contractCategory.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return updated;
@@ -134,9 +148,9 @@ export async function renameContractCategory(id: number, name: string): Promise<
 
 export async function deleteContractCategory(id: number): Promise<void> {
   try {
-    await client.contractCategory.delete({where: {id: cleanPositiveId(id)}});
+    await client.contractCategory.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "category");
+    throw await toDeleteError(error,"category");
   }
   revalidateLookupSurfaces();
 }
@@ -145,17 +159,17 @@ export async function deleteContractCategory(id: number): Promise<void> {
 // Name-only lookup (unlike Supplier, an income source has no category).
 
 export async function createIncomeSource(name: string): Promise<FilterOption> {
-  const clean = cleanName(name);
-  assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean);
   const created = await client.incomeSource.create({data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function renameIncomeSource(id: number, name: string): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.incomeSource.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.incomeSource.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return updated;
@@ -163,9 +177,9 @@ export async function renameIncomeSource(id: number, name: string): Promise<Filt
 
 export async function deleteIncomeSource(id: number): Promise<void> {
   try {
-    await client.incomeSource.delete({where: {id: cleanPositiveId(id)}});
+    await client.incomeSource.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "source");
+    throw await toDeleteError(error,"source");
   }
   revalidateLookupSurfaces();
 }
@@ -173,17 +187,17 @@ export async function deleteIncomeSource(id: number): Promise<void> {
 // --- IncomeCategory ---------------------------------------------------------
 
 export async function createIncomeCategory(name: string): Promise<FilterOption> {
-  const clean = cleanName(name);
-  assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean);
   const created = await client.incomeCategory.create({data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function renameIncomeCategory(id: number, name: string): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.incomeCategory.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.incomeCategory.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return updated;
@@ -191,9 +205,9 @@ export async function renameIncomeCategory(id: number, name: string): Promise<Fi
 
 export async function deleteIncomeCategory(id: number): Promise<void> {
   try {
-    await client.incomeCategory.delete({where: {id: cleanPositiveId(id)}});
+    await client.incomeCategory.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "category");
+    throw await toDeleteError(error,"category");
   }
   revalidateLookupSurfaces();
 }
@@ -201,19 +215,19 @@ export async function deleteIncomeCategory(id: number): Promise<void> {
 // --- Supplier ---------------------------------------------------------------
 
 export async function createSupplier(name: string, categoryId: number): Promise<FilterOption> {
-  const clean = cleanName(name);
-  const catId = cleanPositiveId(categoryId);
-  assertUniqueName(await client.supplier.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  const catId = await cleanPositiveId(categoryId);
+  await assertUniqueName(await client.supplier.findMany({select: {id: true, name: true}}), clean);
   const created = await client.supplier.create({data: {name: clean, categoryId: catId}, select: {id: true, name: true}});
   revalidateLookupSurfaces();
   return created;
 }
 
 export async function updateSupplier(id: number, name: string, categoryId: number): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  const catId = cleanPositiveId(categoryId);
-  assertUniqueName(await client.supplier.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  const catId = await cleanPositiveId(categoryId);
+  await assertUniqueName(await client.supplier.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.supplier.update({
     where: {id: rowId},
     data: {name: clean, categoryId: catId},
@@ -225,9 +239,9 @@ export async function updateSupplier(id: number, name: string, categoryId: numbe
 
 export async function deleteSupplier(id: number): Promise<void> {
   try {
-    await client.supplier.delete({where: {id: cleanPositiveId(id)}});
+    await client.supplier.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "supplier");
+    throw await toDeleteError(error,"supplier");
   }
   revalidateLookupSurfaces();
 }
@@ -236,17 +250,18 @@ export async function deleteSupplier(id: number): Promise<void> {
 // Frequency has no autoincrement id (manual @id) plus value (billings per year) and
 // isRecurring. Settings-only — never offered inline. New rows get max(id)+1.
 
-function cleanFrequencyValue(value: number): number {
+async function cleanFrequencyValue(value: number): Promise<number> {
   if (!Number.isInteger(value) || value < 0) {
-    throw new Error("Value must be a whole number of billings per year (0 for one-time).");
+    const t = await getTranslations("errors");
+    throw new Error(t("valueWholeNumber"));
   }
   return value;
 }
 
 export async function createFrequency(name: string, value: number, isRecurring: boolean): Promise<FilterOption> {
-  const clean = cleanName(name);
-  const perYear = cleanFrequencyValue(value);
-  assertUniqueName(await client.frequency.findMany({select: {id: true, name: true}}), clean);
+  const clean = await cleanName(name);
+  const perYear = await cleanFrequencyValue(value);
+  await assertUniqueName(await client.frequency.findMany({select: {id: true, name: true}}), clean);
   const {_max} = await client.frequency.aggregate({_max: {id: true}});
   const id = (_max.id ?? 0) + 1;
   const created = await client.frequency.create({
@@ -263,10 +278,10 @@ export async function updateFrequency(
   value: number,
   isRecurring: boolean,
 ): Promise<FilterOption> {
-  const rowId = cleanPositiveId(id);
-  const clean = cleanName(name);
-  const perYear = cleanFrequencyValue(value);
-  assertUniqueName(await client.frequency.findMany({select: {id: true, name: true}}), clean, rowId);
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  const perYear = await cleanFrequencyValue(value);
+  await assertUniqueName(await client.frequency.findMany({select: {id: true, name: true}}), clean, rowId);
   const updated = await client.frequency.update({
     where: {id: rowId},
     data: {name: clean, value: perYear, isRecurring},
@@ -278,9 +293,9 @@ export async function updateFrequency(
 
 export async function deleteFrequency(id: number): Promise<void> {
   try {
-    await client.frequency.delete({where: {id: cleanPositiveId(id)}});
+    await client.frequency.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
-    throw toDeleteError(error, "frequency");
+    throw await toDeleteError(error,"frequency");
   }
   revalidateLookupSurfaces();
 }

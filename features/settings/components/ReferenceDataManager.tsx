@@ -1,6 +1,7 @@
 "use client";
 
 import {type Key, type ReactNode, useState} from "react";
+import {useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import {Button, Input, Label, ListBox, Popover, Select, TextField} from "@heroui/react";
 import {LuCheck, LuPencil, LuPlus, LuTrash2, LuX} from "react-icons/lu";
@@ -9,6 +10,7 @@ import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions
 import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow} from "@/features/settings/db/referenceData";
 import type {AiSettingsForm} from "@/features/settings/db/aiSettings";
 import AiSettingsSection from "@/features/settings/components/AiSettingsSection";
+import LocaleSettingsSection from "@/features/settings/components/LocaleSettingsSection";
 import {SectionCard} from "@/features/settings/components/SectionCard";
 import {
   createContractCategory,
@@ -39,6 +41,7 @@ import {
 // action's thrown message (duplicate name, in-use delete, …) to the caller.
 function useMutations() {
   const router = useRouter();
+  const t = useTranslations("settings");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +53,7 @@ function useMutations() {
       onDone?.();
       router.refresh();
     } catch (mutationError) {
-      setError(mutationError instanceof Error ? mutationError.message : "Something went wrong.");
+      setError(mutationError instanceof Error ? mutationError.message : t("somethingWrong"));
     } finally {
       setBusy(false);
     }
@@ -59,20 +62,31 @@ function useMutations() {
   return {run, busy, error, setError};
 }
 
-export default function ReferenceDataManager({data, aiSettings}: {data: ReferenceData; aiSettings: AiSettingsForm}) {
+export default function ReferenceDataManager({data, aiSettings, locale}: {data: ReferenceData; aiSettings: AiSettingsForm; locale: string}) {
+  const t = useTranslations("settings");
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="shrink-0 border-b border-separator pb-4">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="mt-1 text-sm text-muted">Configure how BeyondLedger works.</p>
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
+        <p className="mt-1 text-sm text-muted">{t("subtitle")}</p>
       </header>
 
       <div className="min-h-0 flex-1 space-y-8 overflow-y-auto py-6">
         <section className="flex flex-col gap-4">
           <div>
-            <h2 className="text-base font-semibold">AI / Document processing</h2>
+            <h2 className="text-base font-semibold">{t("languageHeading")}</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted">{t("languageDescription")}</p>
+          </div>
+          <div className="max-w-2xl">
+            <LocaleSettingsSection locale={locale}/>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-base font-semibold">{t("aiHeading")}</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              Configure the provider that reads uploaded documents and auto-creates expenses from them.
+              {t("aiHeadingDescription")}
             </p>
           </div>
           <div className="max-w-2xl">
@@ -82,11 +96,9 @@ export default function ReferenceDataManager({data, aiSettings}: {data: Referenc
 
         <section className="flex flex-col gap-4">
           <div>
-            <h2 className="text-base font-semibold">Reference data</h2>
+            <h2 className="text-base font-semibold">{t("refDataHeading")}</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              The suppliers, categories, income sources, and billing frequencies your expenses and
-              income draw from. Add or tidy them here, or create them on the fly from the Add form. A
-              row still in use can&apos;t be deleted.
+              {t("refDataDescription")}
             </p>
           </div>
 
@@ -96,41 +108,36 @@ export default function ReferenceDataManager({data, aiSettings}: {data: Referenc
             </div>
             <FrequencySection frequencies={data.frequencies}/>
             <NameSection
-              title="Supplier categories"
+              title={t("supplierCategories")}
               rows={data.supplierCategories}
-              usageNoun="supplier"
               create={createSupplierCategory}
               rename={renameSupplierCategory}
               remove={deleteSupplierCategory}
             />
             <NameSection
-              title="Item categories"
+              title={t("itemCategories")}
               rows={data.itemCategories}
-              usageNoun="item"
               create={createItemCategory}
               rename={renameItemCategory}
               remove={deleteItemCategory}
             />
             <NameSection
-              title="Contract categories"
+              title={t("contractCategories")}
               rows={data.contractCategories}
-              usageNoun="contract"
               create={createContractCategory}
               rename={renameContractCategory}
               remove={deleteContractCategory}
             />
             <NameSection
-              title="Income sources"
+              title={t("incomeSources")}
               rows={data.incomeSources}
-              usageNoun="income"
               create={createIncomeSource}
               rename={renameIncomeSource}
               remove={deleteIncomeSource}
             />
             <NameSection
-              title="Income categories"
+              title={t("incomeCategories")}
               rows={data.incomeCategories}
-              usageNoun="income"
               create={createIncomeCategory}
               rename={renameIncomeCategory}
               remove={deleteIncomeCategory}
@@ -144,16 +151,12 @@ export default function ReferenceDataManager({data, aiSettings}: {data: Referenc
 
 // --- shared building blocks -------------------------------------------------
 
-function UsageNote({count, noun}: {count: number; noun: string}) {
+function UsageNote({count}: {count: number}) {
+  const t = useTranslations("settings");
   if (count === 0) {
-    return <span className="text-xs text-muted">unused</span>;
+    return <span className="text-xs text-muted">{t("unused")}</span>;
   }
-  return (
-    <span className="text-xs text-muted">
-      {count} {noun}
-      {count === 1 ? "" : "s"}
-    </span>
-  );
+  return <span className="text-xs text-muted">{t("usageCount", {count})}</span>;
 }
 
 function RowShell({children}: {children: ReactNode}) {
@@ -170,10 +173,12 @@ function DeleteButton({label, usage, disabled, onConfirm}: {
   disabled: boolean;
   onConfirm: () => void;
 }) {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
   if (usage > 0) {
     return (
-      <span title="In use — can't delete" className="inline-flex">
-        <Button type="button" size="sm" variant="tertiary" isIconOnly isDisabled aria-label={`Delete ${label} (in use)`}>
+      <span title={t("inUseCantDelete")} className="inline-flex">
+        <Button type="button" size="sm" variant="tertiary" isIconOnly isDisabled aria-label={t("deleteInUseAria", {label})}>
           <LuTrash2 className="size-4"/>
         </Button>
       </span>
@@ -182,16 +187,14 @@ function DeleteButton({label, usage, disabled, onConfirm}: {
 
   return (
     <Popover>
-      <Button type="button" size="sm" variant="tertiary" isIconOnly isDisabled={disabled} aria-label={`Delete ${label}`}>
+      <Button type="button" size="sm" variant="tertiary" isIconOnly isDisabled={disabled} aria-label={t("deleteAria", {label})}>
         <LuTrash2 className="size-4"/>
       </Button>
       <Popover.Content>
         <Popover.Dialog className="flex w-56 flex-col gap-3">
-          <p className="text-sm">
-            Delete <span className="font-medium">{label}</span>?
-          </p>
+          <p className="text-sm">{t("deleteConfirm", {label})}</p>
           <Button type="button" size="sm" variant="danger" onPress={onConfirm}>
-            Delete
+            {tCommon("delete")}
           </Button>
         </Popover.Dialog>
       </Popover.Content>
@@ -233,14 +236,16 @@ function PlainSelect({label, value, options, onChange}: {
 
 // --- name-only category sections (Supplier/Item/Contract categories) --------
 
-function NameSection({title, rows, usageNoun, create, rename, remove}: {
+function NameSection({title, rows, create, rename, remove}: {
   title: string;
   rows: CategoryRow[];
-  usageNoun: string;
   create: (name: string) => Promise<FilterOption>;
   rename: (id: number, name: string) => Promise<FilterOption>;
   remove: (id: number) => Promise<void>;
 }) {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+  const tFields = useTranslations("fields");
   const {run, busy, error, setError} = useMutations();
   const [newName, setNewName] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -255,8 +260,8 @@ function NameSection({title, rows, usageNoun, create, rename, remove}: {
   return (
     <SectionCard title={title} count={rows.length}>
       <div className="flex items-end gap-2">
-        <TextField value={newName} onChange={setNewName} aria-label={`New ${title}`} className="flex flex-1 flex-col gap-1">
-          <Input placeholder="Add new…"/>
+        <TextField value={newName} onChange={setNewName} aria-label={t("newAria", {title})} className="flex flex-1 flex-col gap-1">
+          <Input placeholder={t("addNew")}/>
         </TextField>
         <Button
           type="button"
@@ -266,21 +271,21 @@ function NameSection({title, rows, usageNoun, create, rename, remove}: {
           onPress={() => run(() => create(newName), () => setNewName(""))}
         >
           <LuPlus className="size-4"/>
-          Add
+          {tCommon("add")}
         </Button>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       {rows.length === 0 ? (
-        <p className="text-sm text-muted">None yet.</p>
+        <p className="text-sm text-muted">{t("noneYet")}</p>
       ) : (
         <ul className="flex flex-col">
           {rows.map((row) => (
             <RowShell key={row.id}>
               {editingId === row.id ? (
                 <>
-                  <TextField value={editName} onChange={setEditName} aria-label="Name" className="flex flex-1 flex-col gap-1">
+                  <TextField value={editName} onChange={setEditName} aria-label={tFields("name")} className="flex flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <Button
@@ -288,21 +293,21 @@ function NameSection({title, rows, usageNoun, create, rename, remove}: {
                     size="sm"
                     variant="tertiary"
                     isIconOnly
-                    aria-label="Save"
+                    aria-label={tCommon("save")}
                     isDisabled={busy || editName.trim() === ""}
                     onPress={() => run(() => rename(row.id, editName), () => setEditingId(null))}
                   >
                     <LuCheck className="size-4"/>
                   </Button>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label="Cancel" onPress={() => setEditingId(null)}>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={tCommon("cancel")} onPress={() => setEditingId(null)}>
                     <LuX className="size-4"/>
                   </Button>
                 </>
               ) : (
                 <>
                   <span className="flex-1 truncate text-sm">{row.name}</span>
-                  <UsageNote count={row.usage} noun={usageNoun}/>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={`Edit ${row.name}`} onPress={() => startEdit(row)}>
+                  <UsageNote count={row.usage}/>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
                     <LuPencil className="size-4"/>
                   </Button>
                   <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => remove(row.id))}/>
@@ -319,6 +324,9 @@ function NameSection({title, rows, usageNoun, create, rename, remove}: {
 // --- suppliers (name + category) --------------------------------------------
 
 function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; categories: CategoryRow[]}) {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+  const tFields = useTranslations("fields");
   const {run, busy, error, setError} = useMutations();
   const categoryOptions: FilterOption[] = categories.map((c) => ({id: c.id, name: c.name}));
   const firstCategoryId = categories[0] ? String(categories[0].id) : "";
@@ -340,19 +348,19 @@ function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; cat
 
   return (
     <SectionCard
-      title="Suppliers"
+      title={t("suppliers")}
       count={suppliers.length}
       description={
-        categories.length === 0 ? "Add a supplier category first — every supplier needs one." : undefined
+        categories.length === 0 ? t("addSupplierCategoryFirst") : undefined
       }
     >
       <div className="flex flex-wrap items-end gap-2">
-        <TextField value={newName} onChange={setNewName} aria-label="New supplier name" className="flex min-w-40 flex-1 flex-col gap-1">
-          <Label className={labelClass}>Name</Label>
-          <Input placeholder="Supplier name"/>
+        <TextField value={newName} onChange={setNewName} aria-label={t("newSupplierName")} className="flex min-w-40 flex-1 flex-col gap-1">
+          <Label className={labelClass}>{tFields("name")}</Label>
+          <Input placeholder={t("supplierNamePlaceholder")}/>
         </TextField>
         <div className="min-w-40 flex-1">
-          <PlainSelect label="Category" value={newCategoryId} options={categoryOptions} onChange={setNewCategoryId}/>
+          <PlainSelect label={tFields("category")} value={newCategoryId} options={categoryOptions} onChange={setNewCategoryId}/>
         </div>
         <Button
           type="button"
@@ -362,38 +370,38 @@ function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; cat
           onPress={() => run(() => createSupplier(newName, Number(newCategoryId)), () => setNewName(""))}
         >
           <LuPlus className="size-4"/>
-          Add
+          {tCommon("add")}
         </Button>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       {suppliers.length === 0 ? (
-        <p className="text-sm text-muted">None yet.</p>
+        <p className="text-sm text-muted">{t("noneYet")}</p>
       ) : (
         <ul className="flex flex-col">
           {suppliers.map((row) => (
             <RowShell key={row.id}>
               {editingId === row.id ? (
                 <>
-                  <TextField value={editName} onChange={setEditName} aria-label="Name" className="flex flex-1 flex-col gap-1">
+                  <TextField value={editName} onChange={setEditName} aria-label={tFields("name")} className="flex flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <div className="w-40">
-                    <PlainSelect label="Category" value={editCategoryId} options={categoryOptions} onChange={setEditCategoryId}/>
+                    <PlainSelect label={tFields("category")} value={editCategoryId} options={categoryOptions} onChange={setEditCategoryId}/>
                   </div>
                   <Button
                     type="button"
                     size="sm"
                     variant="tertiary"
                     isIconOnly
-                    aria-label="Save"
+                    aria-label={tCommon("save")}
                     isDisabled={busy || editName.trim() === "" || editCategoryId === ""}
                     onPress={() => run(() => updateSupplier(row.id, editName, Number(editCategoryId)), () => setEditingId(null))}
                   >
                     <LuCheck className="size-4"/>
                   </Button>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label="Cancel" onPress={() => setEditingId(null)}>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={tCommon("cancel")} onPress={() => setEditingId(null)}>
                     <LuX className="size-4"/>
                   </Button>
                 </>
@@ -401,8 +409,8 @@ function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; cat
                 <>
                   <span className="flex-1 truncate text-sm">{row.name}</span>
                   <span className="text-xs text-muted">{row.categoryName}</span>
-                  <UsageNote count={row.usage} noun="expense"/>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={`Edit ${row.name}`} onPress={() => startEdit(row)}>
+                  <UsageNote count={row.usage}/>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
                     <LuPencil className="size-4"/>
                   </Button>
                   <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteSupplier(row.id))}/>
@@ -419,6 +427,9 @@ function SupplierSection({suppliers, categories}: {suppliers: SupplierRow[]; cat
 // --- frequencies (name + value + isRecurring) -------------------------------
 
 function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
+  const t = useTranslations("settings");
+  const tCommon = useTranslations("common");
+  const tFields = useTranslations("fields");
   const {run, busy, error, setError} = useMutations();
   const [newName, setNewName] = useState("");
   const [newValue, setNewValue] = useState("");
@@ -440,22 +451,22 @@ function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
 
   return (
     <SectionCard
-      title="Billing frequencies"
+      title={t("billingFrequencies")}
       count={frequencies.length}
-      description="How often a fixed expense bills. Value is billings per year (0 = one-time)."
+      description={t("frequencyDescription")}
     >
       <div className="flex flex-wrap items-end gap-2">
-        <TextField value={newName} onChange={setNewName} aria-label="New frequency name" className="flex min-w-40 flex-1 flex-col gap-1">
-          <Label className={labelClass}>Name</Label>
-          <Input placeholder="e.g. Monthly"/>
+        <TextField value={newName} onChange={setNewName} aria-label={t("newFrequencyName")} className="flex min-w-40 flex-1 flex-col gap-1">
+          <Label className={labelClass}>{tFields("name")}</Label>
+          <Input placeholder={t("frequencyNamePlaceholder")}/>
         </TextField>
-        <TextField value={newValue} onChange={setNewValue} aria-label="Billings per year" className="flex w-28 flex-col gap-1">
-          <Label className={labelClass}>Per year</Label>
+        <TextField value={newValue} onChange={setNewValue} aria-label={tFields("billingsPerYear")} className="flex w-28 flex-col gap-1">
+          <Label className={labelClass}>{t("perYear")}</Label>
           <Input type="number" step="1" inputMode="numeric" placeholder="12"/>
         </TextField>
         <label className="flex items-center gap-2 pb-2 text-sm">
           <input type="checkbox" checked={newRecurring} onChange={(e) => setNewRecurring(e.target.checked)}/>
-          Recurring
+          {t("recurring")}
         </label>
         <Button
           type="button"
@@ -468,42 +479,42 @@ function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
           })}
         >
           <LuPlus className="size-4"/>
-          Add
+          {tCommon("add")}
         </Button>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       {frequencies.length === 0 ? (
-        <p className="text-sm text-muted">None yet.</p>
+        <p className="text-sm text-muted">{t("noneYet")}</p>
       ) : (
         <ul className="flex flex-col">
           {frequencies.map((row) => (
             <RowShell key={row.id}>
               {editingId === row.id ? (
                 <>
-                  <TextField value={editName} onChange={setEditName} aria-label="Name" className="flex flex-1 flex-col gap-1">
+                  <TextField value={editName} onChange={setEditName} aria-label={tFields("name")} className="flex flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
-                  <TextField value={editValue} onChange={setEditValue} aria-label="Billings per year" className="flex w-24 flex-col gap-1">
+                  <TextField value={editValue} onChange={setEditValue} aria-label={tFields("billingsPerYear")} className="flex w-24 flex-col gap-1">
                     <Input type="number" step="1" inputMode="numeric"/>
                   </TextField>
                   <label className="flex items-center gap-1.5 text-xs">
                     <input type="checkbox" checked={editRecurring} onChange={(e) => setEditRecurring(e.target.checked)}/>
-                    Recurring
+                    {t("recurring")}
                   </label>
                   <Button
                     type="button"
                     size="sm"
                     variant="tertiary"
                     isIconOnly
-                    aria-label="Save"
+                    aria-label={tCommon("save")}
                     isDisabled={busy || editName.trim() === "" || !Number.isInteger(Number(editValue)) || Number(editValue) < 0}
                     onPress={() => run(() => updateFrequency(row.id, editName, Number(editValue), editRecurring), () => setEditingId(null))}
                   >
                     <LuCheck className="size-4"/>
                   </Button>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label="Cancel" onPress={() => setEditingId(null)}>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={tCommon("cancel")} onPress={() => setEditingId(null)}>
                     <LuX className="size-4"/>
                   </Button>
                 </>
@@ -511,10 +522,10 @@ function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
                 <>
                   <span className="flex-1 truncate text-sm">{row.name}</span>
                   <span className="text-xs text-muted">
-                    {row.value}/yr{row.isRecurring ? "" : " · one-time"}
+                    {t("perYearSuffix", {value: row.value})}{row.isRecurring ? "" : ` · ${t("oneTime")}`}
                   </span>
-                  <UsageNote count={row.usage} noun="use"/>
-                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={`Edit ${row.name}`} onPress={() => startEdit(row)}>
+                  <UsageNote count={row.usage}/>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
                     <LuPencil className="size-4"/>
                   </Button>
                   <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteFrequency(row.id))}/>

@@ -1,3 +1,4 @@
+import {getTranslations} from "next-intl/server";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
@@ -31,6 +32,7 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
   }
 
   const options = editing ? await getBillFormOptions() : null;
+  const t = await getTranslations("detail");
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
@@ -39,7 +41,7 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
         className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
       >
         <LuArrowLeft/>
-        Back to variable expenses
+        {t("backToVariableExpenses")}
       </Link>
 
       <div className="flex items-start justify-between gap-4">
@@ -53,7 +55,7 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
               <CategoryChip label={bill.supplierCategory}/>
             </div>
             {bill.documentNumber ? (
-              <p className="text-foreground-500 text-sm">Doc. {bill.documentNumber}</p>
+              <p className="text-foreground-500 text-sm">{t("docNumber", {number: bill.documentNumber})}</p>
             ) : null}
           </div>
         </div>

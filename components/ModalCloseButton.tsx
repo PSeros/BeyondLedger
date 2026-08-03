@@ -1,5 +1,6 @@
 "use client";
 
+import {useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 
 // Footer "Close" action for the intercepted-route detail modals: mirrors the header X and the
@@ -7,6 +8,7 @@ import {useRouter} from "next/navigation";
 // standalone detail pages have their own "Back to …" link instead.
 export default function ModalCloseButton() {
   const router = useRouter();
+  const t = useTranslations("common");
 
   return (
     <button
@@ -14,7 +16,7 @@ export default function ModalCloseButton() {
       onClick={() => router.back()}
       className="text-muted hover:bg-default hover:text-foreground inline-flex items-center rounded-[var(--radius)] px-3 py-1.5 text-sm transition-colors"
     >
-      Close
+      {t("close")}
     </button>
   );
 }

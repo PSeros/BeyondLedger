@@ -1,15 +1,12 @@
 "use client";
 
 import {useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {Button, Input, Label, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
-
-export function formatCurrency(amount: number): string {
-  return amount.toLocaleString("de-DE", {style: "currency", currency: "EUR"});
-}
 
 // One editable line-item row. `uid` is a stable client-only React key (rows are added/removed,
 // so a DB id isn't available for new rows); `id` is the DB id (empty for a not-yet-saved row,
@@ -75,6 +72,7 @@ type BillItemsEditorProps = {
 // `rows` state (so it can decide layout and whether to show a manual Amount fallback when there
 // are no items); this renders the section header, the add button, the rows, and the empty hint.
 export default function BillItemsEditor({rows, categories, onChange, onCreateCategory}: BillItemsEditorProps) {
+  const t = useTranslations("forms");
   // Local copy of the category list so an inline-created category appears in every row's select
   // without a page refresh.
   const [cats, setCats] = useState<FilterOption[]>(categories);
@@ -103,10 +101,10 @@ export default function BillItemsEditor({rows, categories, onChange, onCreateCat
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center justify-between">
-        <p className={labelClass}>Items ({rows.length})</p>
+        <p className={labelClass}>{t("items", {count: rows.length})}</p>
         <Button type="button" size="sm" variant="tertiary" onPress={addRow}>
           <LuPlus className="size-4"/>
-          Add item
+          {t("addItem")}
         </Button>
       </div>
 
@@ -124,7 +122,7 @@ export default function BillItemsEditor({rows, categories, onChange, onCreateCat
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted">No items — add one, or set the amount above.</p>
+        <p className="text-sm text-muted">{t("noItems")}</p>
       )}
     </div>
   );
@@ -143,6 +141,10 @@ function ItemRowFields({
   onChange: (patch: Partial<ItemRow>) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("forms");
+  const tFields = useTranslations("fields");
+  const format = useFormatter();
+
   return (
     <li className="border-default bg-surface-secondary flex flex-col gap-3 rounded-(--radius) border px-3.5 py-3">
       {/* Row-scoped hidden id + the getAll()-aligned repeated field names the action parses. */}
@@ -155,17 +157,17 @@ function ItemRowFields({
           value={row.name}
           onChange={(name) => onChange({name})}
           isRequired
-          aria-label="Item name"
+          aria-label={t("itemName")}
           className="flex-1"
         >
-          <Input placeholder="Item name"/>
+          <Input placeholder={t("itemName")}/>
         </TextField>
         <Button
           type="button"
           size="sm"
           variant="tertiary"
           isIconOnly
-          aria-label="Remove item"
+          aria-label={t("removeItem")}
           onPress={onRemove}
         >
           <LuTrash2 className="size-4"/>
@@ -176,18 +178,19 @@ function ItemRowFields({
           layout Category spans the full row. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <CreatableSelect
-          label="Category"
+          label={tFields("category")}
           value={row.categoryId}
           options={categories}
           onSelect={(categoryId) => onChange({categoryId})}
           onCreate={onCreateCategory}
-          createTitle="New item category"
+          createTitle={t("newItemCategory")}
           className="col-span-2 sm:col-span-1"
         />
-        <RowNumber label="Qty" value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
-        <RowNumber label="Unit €" value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
+        <RowNumber name="itemQuantity" label={tFields("quantity")} value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
+        <RowNumber name="itemUnitPrice" label={tFields("unitPrice")} value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
         <RowNumber
-          label="Warranty"
+          name="itemWarranty"
+          label={tFields("warranty")}
           value={row.warranty}
           onChange={(warranty) => onChange({warranty})}
           optional
@@ -195,18 +198,20 @@ function ItemRowFields({
       </div>
 
       <div className="flex justify-end">
-        <span className="text-sm font-medium tabular-nums">{formatCurrency(lineTotal(row))}</span>
+        <span className="text-sm font-medium tabular-nums">{format.number(lineTotal(row), "currency")}</span>
       </div>
     </li>
   );
 }
 
 function RowNumber({
+  name,
   label,
   value,
   onChange,
   optional,
 }: {
+  name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -214,7 +219,7 @@ function RowNumber({
 }) {
   return (
     <TextField
-      name={label === "Qty" ? "itemQuantity" : label === "Unit €" ? "itemUnitPrice" : "itemWarranty"}
+      name={name}
       value={value}
       onChange={onChange}
       isRequired={!optional}

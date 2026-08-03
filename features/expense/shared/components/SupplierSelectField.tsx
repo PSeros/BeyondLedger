@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import {createSupplier, createSupplierCategory} from "@/features/settings/db/referenceDataMutations";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
@@ -20,22 +21,24 @@ export default function SupplierSelectField({
   supplierCategories: FilterOption[];
   defaultValue?: string;
 }) {
+  const t = useTranslations("fields");
+  const tForms = useTranslations("forms");
   const [categoryId, setCategoryId] = useState("");
 
   return (
     <CreatableSelect
-      label="Supplier"
+      label={t("supplier")}
       name={name}
       options={suppliers}
       defaultValue={defaultValue}
-      createTitle="New supplier"
+      createTitle={tForms("newSupplier")}
       canSubmit={categoryId !== ""}
       onCreate={(supplierName) => createSupplier(supplierName, Number(categoryId))}
       extraFields={
         <CreatableSelect
-          label="Category"
+          label={t("category")}
           options={supplierCategories}
-          createTitle="New supplier category"
+          createTitle={tForms("newSupplierCategory")}
           onCreate={createSupplierCategory}
           onSelect={setCategoryId}
         />

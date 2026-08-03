@@ -60,6 +60,7 @@ export const ModelName = {
   Item: 'Item',
   Frequency: 'Frequency',
   AiSettings: 'AiSettings',
+  AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
   IncomeCategory: 'IncomeCategory',
   IncomeSource: 'IncomeSource',
@@ -181,6 +182,15 @@ export const AiSettingsScalarFieldEnum = {
 } as const
 
 export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
+
+
+export const AppSettingsScalarFieldEnum = {
+  id: 'id',
+  locale: 'locale',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppSettingsScalarFieldEnum = (typeof AppSettingsScalarFieldEnum)[keyof typeof AppSettingsScalarFieldEnum]
 
 
 export const FileAssetScalarFieldEnum = {

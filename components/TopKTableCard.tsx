@@ -1,4 +1,7 @@
+"use client";
+
 import type {ReactNode} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
 
 type TopKTableCardRow = {
@@ -29,6 +32,9 @@ export default function TopKTableCard({
   onRowSelect,
   activeId,
 }: TopKTableCardProps = {}) {
+  const format = useFormatter();
+  const t = useTranslations("common");
+
   if (!title) {
     return <Card className="h-full"/>;
   }
@@ -44,7 +50,7 @@ export default function TopKTableCard({
 
       <Card.Content className="flex flex-col justify-center gap-3 pt-2">
         {rows.length === 0 ? (
-          <p className="text-center text-sm text-muted">No data</p>
+          <p className="text-center text-sm text-muted">{t("noData")}</p>
         ) : (
           rows.map((row, index) => {
             const isActive = activeId != null && row.id === activeId;
@@ -57,11 +63,7 @@ export default function TopKTableCard({
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-sm">{row.label}</span>
                     <span className="shrink-0 text-sm font-medium">
-                      {row.amount.toLocaleString("de-DE", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0,
-                      })}
+                      {format.number(row.amount, "currencyWhole")}
                     </span>
                   </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {startTransition} from "react";
+import {useTranslations} from "next-intl";
 import {ListBox, Select} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import BillDateRangeFilter from "@/features/expense/variable/components/BillDateRangeFilter";
@@ -16,6 +17,7 @@ export default function BillFilterMenu({options}: BillFilterMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations("fields");
 
   function setParam(name: string, value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
@@ -36,21 +38,21 @@ export default function BillFilterMenu({options}: BillFilterMenuProps) {
   return (
     <div className="flex flex-col gap-3">
       <FilterSelect
-        label="Supplier"
+        label={t("supplier")}
         paramName="supplierId"
         options={options.suppliers}
         selectedId={searchParams.get("supplierId")}
         onSelect={setParam}
       />
       <FilterSelect
-        label="Supplier category"
+        label={t("supplierCategory")}
         paramName="supplierCategoryId"
         options={options.supplierCategories}
         selectedId={searchParams.get("supplierCategoryId")}
         onSelect={setParam}
       />
       <FilterSelect
-        label="Item category"
+        label={t("itemCategory")}
         paramName="itemCategoryId"
         options={options.itemCategories}
         selectedId={searchParams.get("itemCategoryId")}
@@ -70,6 +72,7 @@ type FilterSelectProps = {
 };
 
 function FilterSelect({label, paramName, options, selectedId, onSelect}: FilterSelectProps) {
+  const tAll = useTranslations("filters")("all");
   return (
     <label className="flex flex-col gap-1">
       <span className="text-foreground-500 text-sm">{label}</span>
@@ -84,7 +87,7 @@ function FilterSelect({label, paramName, options, selectedId, onSelect}: FilterS
         </Select.Trigger>
         <Select.Popover>
           <ListBox>
-            <ListBox.Item id={ALL_KEY} textValue="All">All</ListBox.Item>
+            <ListBox.Item id={ALL_KEY} textValue={tAll}>{tAll}</ListBox.Item>
             {options.map((option) => (
               <ListBox.Item key={option.id} id={String(option.id)} textValue={option.name}>
                 {option.name}

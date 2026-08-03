@@ -35,6 +35,16 @@ model AiSettings {
   updatedAt    DateTime     @updatedAt
 }
 
+// Singleton (always operated on at id: 1 via upsert) holding app-wide user preferences that must
+// reach Server Components — currently the UI/formatting locale ("en" | "de"). Unlike the theme
+// (client-side via next-themes), locale drives server-rendered output (<html lang>, currency/date
+// formatting, translated strings) so it is persisted in the DB and read server-side.
+model AppSettings {
+  id        Int      @id @default(autoincrement())
+  locale    String   @default("en")
+  updatedAt DateTime @updatedAt
+}
+
 model FileAsset {
   id           Int              @id @default(autoincrement())
   originalName String

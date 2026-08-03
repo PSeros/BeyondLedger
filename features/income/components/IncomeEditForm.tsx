@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateIncome} from "@/features/income/db/incomeMutations";
@@ -17,6 +18,10 @@ type IncomeEditFormProps = {
 
 export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
   const router = useRouter();
+  const t = useTranslations("fields");
+  const tForms = useTranslations("forms");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,46 +40,46 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
       await updateIncome(income.id, formData);
       exitEdit();
     } catch {
-      setError("Could not save — please check the fields and try again.");
+      setError(tErrors("couldNotSave"));
       setPending(false);
     }
   }
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <TextInputField label="Name" name="name" defaultValue={income.name} isRequired/>
+      <TextInputField label={t("name")} name="name" defaultValue={income.name} isRequired/>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5">
         <CreatableSelect
-          label="Source"
+          label={t("source")}
           name="sourceId"
           options={options.sources}
           defaultValue={String(income.sourceId)}
-          createTitle="New income source"
+          createTitle={tForms("newIncomeSource")}
           onCreate={createIncomeSource}
         />
         <CreatableSelect
-          label="Category"
+          label={t("category")}
           name="categoryId"
           options={options.categories}
           defaultValue={String(income.categoryId)}
-          createTitle="New income category"
+          createTitle={tForms("newIncomeCategory")}
           onCreate={createIncomeCategory}
         />
-        <SelectField label="Frequency" name="frequencyId" options={options.frequencies} defaultValue={String(income.frequencyId)}/>
-        <TextInputField label="Amount (€)" name="amount" type="number" defaultValue={String(income.amount)} isRequired/>
-        <TextInputField label="Start date" name="startDate" type="date" defaultValue={income.startDate.slice(0, 10)} isRequired/>
-        <TextInputField label="End date" name="endDate" type="date" defaultValue={income.endDate?.slice(0, 10) ?? ""}/>
+        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} defaultValue={String(income.frequencyId)}/>
+        <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(income.amount)} isRequired/>
+        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={income.startDate.slice(0, 10)} isRequired/>
+        <TextInputField label={t("endDate")} name="endDate" type="date" defaultValue={income.endDate?.slice(0, 10) ?? ""}/>
       </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 
       <div className="flex justify-end gap-2">
         <Button type="button" variant="tertiary" isDisabled={pending} onPress={() => router.back()}>
-          Cancel
+          {tCommon("cancel")}
         </Button>
         <Button type="submit" variant="primary" isDisabled={pending}>
-          {pending ? "Saving…" : "Save"}
+          {pending ? tCommon("saving") : tCommon("save")}
         </Button>
       </div>
     </form>

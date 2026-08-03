@@ -1,6 +1,7 @@
 "use client";
 
 import {useMemo, useState} from "react";
+import {useFormatter, useTranslations} from "next-intl";
 import {
   Card,
   Button,
@@ -59,7 +60,9 @@ type ChartCardProps = {
   polarity?: "higherIsBetter" | "lowerIsBetter";
 };
 
-export default function ChartCard({title = "Expense", data, polarity = "higherIsBetter"}: ChartCardProps = {}) {
+export default function ChartCard({title, data, polarity = "higherIsBetter"}: ChartCardProps = {}) {
+  const format = useFormatter();
+  const t = useTranslations("chart");
   const source = data ?? chartData;
   const granularities = GRANULARITY_ORDER.filter((item) => source[item]);
 
@@ -92,11 +95,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
 
           <div className="mt-1 flex items-center gap-3">
             <h3 className="text-2xl font-semibold tracking-tight">
-              {current.toLocaleString("de-DE", {
-                style: "currency",
-                currency: "EUR",
-                maximumFractionDigits: 0,
-              })}
+              {format.number(current, "currencyWhole")}
             </h3>
 
             <Chip
@@ -136,7 +135,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
             <Line
               type="monotone"
               dataKey="previous"
-              name="Ø"
+              name={t("average")}
               stroke="color-mix(in srgb, var(--accent) 50%, white)"
               strokeDasharray="5 5"
               strokeWidth={3}
@@ -146,7 +145,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
             <Line
               type="monotone"
               dataKey="current"
-              name="Current"
+              name={t("current")}
               stroke="var(--accent)"
               strokeWidth={3}
               dot={false}
@@ -155,7 +154,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
             <Line
               type="monotone"
               dataKey="upcoming"
-              name="Upcoming"
+              name={t("upcoming")}
               stroke="var(--accent)"
               strokeDasharray="5 5"
               strokeWidth={3}
@@ -181,7 +180,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
               axisLine={false}
               tickLine={false}
               tickMargin={10}
-              tickFormatter={(value) => Number(value).toLocaleString("de-DE", {maximumFractionDigits: 0})}
+              tickFormatter={(value) => format.number(Number(value), "integer")}
               style={{}}
               tick={{
                 fontSize: "0.875rem",
@@ -200,11 +199,7 @@ export default function ChartCard({title = "Expense", data, polarity = "higherIs
               formatter={(value) =>
                 value === null || value === undefined
                   ? "–"
-                  : Number(value).toLocaleString("de-DE", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    })
+                  : format.number(Number(value), "currencyWhole")
               }
             />
           </LineChart>

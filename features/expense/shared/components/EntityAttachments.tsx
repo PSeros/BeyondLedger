@@ -1,6 +1,7 @@
 "use client";
 
 import {useRef, useState, useTransition} from "react";
+import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {LuDownload, LuFileText, LuImage, LuPaperclip, LuTrash2, LuUpload} from "react-icons/lu";
@@ -33,6 +34,9 @@ type EntityAttachmentsProps = {
 // fragile overlay-in-overlay).
 export default function EntityAttachments({files, uploadAction, deleteAction}: EntityAttachmentsProps) {
   const router = useRouter();
+  const t = useTranslations("attachments");
+  const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const inputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
@@ -51,7 +55,7 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
         await uploadAction(formData);
         router.refresh();
       } catch (uploadError) {
-        setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
+        setError(uploadError instanceof Error ? uploadError.message : tErrors("uploadFailed"));
       }
     });
   }
@@ -64,7 +68,7 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
         setConfirmingId(null);
         router.refresh();
       } catch (deleteError) {
-        setError(deleteError instanceof Error ? deleteError.message : "Could not delete.");
+        setError(deleteError instanceof Error ? deleteError.message : tErrors("couldNotDelete"));
       }
     });
   }
@@ -74,7 +78,7 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
       <div className="flex items-center justify-between">
         <p className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-muted uppercase">
           <LuPaperclip className="size-3.5"/>
-          Attachments{files.length > 0 ? ` (${files.length})` : ""}
+          {t("title")}{files.length > 0 ? ` (${files.length})` : ""}
         </p>
         <input ref={inputRef} type="file" className="hidden" onChange={onPick}/>
         <Button
@@ -85,14 +89,14 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
           onPress={() => inputRef.current?.click()}
         >
           <LuUpload className="size-4"/>
-          {isPending ? "Uploading…" : "Attach file"}
+          {isPending ? t("uploading") : t("attachFile")}
         </Button>
       </div>
 
       {error ? <p className="text-danger text-xs">{error}</p> : null}
 
       {files.length === 0 ? (
-        <p className="text-sm text-muted">No documents attached yet.</p>
+        <p className="text-sm text-muted">{t("none")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {files.map((file) => (
@@ -114,10 +118,10 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
               {confirmingId === file.id ? (
                 <span className="flex items-center gap-2">
                   <Button type="button" variant="danger" size="sm" isDisabled={isPending} onPress={() => onDelete(file.id)}>
-                    {isPending ? "Deleting…" : "Yes, delete"}
+                    {isPending ? tCommon("deleting") : tCommon("yesDelete")}
                   </Button>
                   <Button type="button" variant="tertiary" size="sm" isDisabled={isPending} onPress={() => setConfirmingId(null)}>
-                    Cancel
+                    {tCommon("cancel")}
                   </Button>
                 </span>
               ) : (
@@ -127,7 +131,7 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
                     variant="tertiary"
                     size="sm"
                     isIconOnly
-                    aria-label={`Download ${file.originalName}`}
+                    aria-label={t("download", {name: file.originalName})}
                     onPress={() => window.open(`/api/files/${file.id}?download=1`, "_blank")}
                   >
                     <LuDownload className="size-4"/>
@@ -137,7 +141,7 @@ export default function EntityAttachments({files, uploadAction, deleteAction}: E
                     variant="tertiary"
                     size="sm"
                     isIconOnly
-                    aria-label={`Delete ${file.originalName}`}
+                    aria-label={t("deleteFile", {name: file.originalName})}
                     onPress={() => setConfirmingId(file.id)}
                   >
                     <LuTrash2 className="size-4"/>

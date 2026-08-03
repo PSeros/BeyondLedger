@@ -1,5 +1,7 @@
 import type {Metadata} from "next";
 import { Inter } from "next/font/google"
+import {NextIntlClientProvider} from "next-intl";
+import {getLocale, getMessages} from "next-intl/server";
 import "./globals.css";
 import GlobalProviders from "@/contexts/GlobalProviders"
 
@@ -14,19 +16,22 @@ const inter = Inter({
   variable: "--font-inter",
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const lang = "de-DE";
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang={lang} className={inter.variable} suppressHydrationWarning>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <body className="h-screen overflow-hidden bg-background font-sans">
-        <GlobalProviders>
-          {children}
-        </GlobalProviders>
+        <NextIntlClientProvider messages={messages}>
+          <GlobalProviders>
+            {children}
+          </GlobalProviders>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import {useFormatter, useTranslations} from "next-intl";
 import {Card, Chip} from "@heroui/react";
 
 type UpcomingDueRow = {
@@ -21,16 +24,20 @@ type UpcomingDueCardProps = {
   hrefForRow?: (id: UpcomingDueRow["id"]) => string;
 };
 
-function formatDueIn(dueDate: Date, today: Date): string {
+function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Record<string, number>) => string): string {
   const days = Math.round((dueDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
 
-  if (days <= 0) return "Heute fällig";
-  if (days === 1) return "Morgen fällig";
+  if (days <= 0) return t("dueToday");
+  if (days === 1) return t("dueTomorrow");
 
-  return `in ${days} Tagen`;
+  return t("dueInDays", {days});
 }
 
 export default function UpcomingDueCard({title, rows = [], windowDays = 30, hrefForRow}: UpcomingDueCardProps = {}) {
+  const format = useFormatter();
+  const t = useTranslations("upcoming");
+  const tCommon = useTranslations("common");
+
   if (!title) {
     return <Card className="max-h-[268px]"/>;
   }
@@ -55,7 +62,7 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
       */}
       <Card.Content className="scrollbar-hide -mx-2 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pt-2">
         {rows.length === 0 ? (
-          <p className="flex h-full items-center justify-center text-center text-sm text-muted">No data</p>
+          <p className="flex h-full items-center justify-center text-center text-sm text-muted">{tCommon("noData")}</p>
         ) : (
           rows.map((row) => {
             const dueDate = new Date(row.dueDate);
@@ -67,17 +74,13 @@ export default function UpcomingDueCard({title, rows = [], windowDays = 30, href
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm">{row.label}</span>
                   <span className="shrink-0 text-sm font-medium">
-                    {row.amount.toLocaleString("de-DE", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    })}
+                    {format.number(row.amount, "currencyWhole")}
                   </span>
                 </div>
 
                 <div className="mt-1 flex items-center justify-between gap-2">
                   <p className="text-xs text-muted">
-                    {formatDueIn(dueDate, today)} · {dueDate.toLocaleDateString("de-DE")}
+                    {formatDueIn(dueDate, today, t)} · {format.dateTime(dueDate, "short")}
                   </p>
                   {row.frequency && (
                     <Chip size="sm" variant="soft" color="accent" className="shrink-0">

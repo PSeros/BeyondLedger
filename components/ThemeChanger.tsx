@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
+import { useTranslations } from "next-intl"
 import { Tabs } from "@heroui/react"
 import { FaSun, FaMoon, FaDesktop } from "react-icons/fa6"
 
@@ -14,6 +15,7 @@ function isThemeValue(value: unknown): value is ThemeValue {
 export default function ThemeChanger() {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
+  const t = useTranslations("theme")
 
   useEffect(() => {
     setMounted(true)
@@ -39,18 +41,18 @@ export default function ThemeChanger() {
       className="w-fit h-fit"
     >
       <Tabs.ListContainer>
-        <Tabs.List aria-label="Theme selection">
-          <Tabs.Tab id="light" aria-label="Use light theme" className={tabStyle}>
+        <Tabs.List aria-label={t("selection")}>
+          <Tabs.Tab id="light" aria-label={t("light")} className={tabStyle}>
             <FaSun />
             <Tabs.Indicator />
           </Tabs.Tab>
 
-          <Tabs.Tab id="dark" aria-label="Use dark theme" className={tabStyle}>
+          <Tabs.Tab id="dark" aria-label={t("dark")} className={tabStyle}>
             <FaMoon />
             <Tabs.Indicator />
           </Tabs.Tab>
 
-          <Tabs.Tab id="system" aria-label="Use system theme" className={tabStyle}>
+          <Tabs.Tab id="system" aria-label={t("system")} className={tabStyle}>
             <FaDesktop />
             <Tabs.Indicator />
           </Tabs.Tab>

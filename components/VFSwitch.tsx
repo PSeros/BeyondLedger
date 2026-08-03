@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react';
+import {useTranslations} from "next-intl";
 import {Tabs} from "@heroui/react";
 import {usePathname, useRouter} from "next/navigation";
 
@@ -12,6 +13,7 @@ type VfSwitchProps = {
 export default function VfSwitch({basePath, className}: VfSwitchProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const t = useTranslations()
 
   const selectedKey = pathname.includes('/fixed') ? 'fixed' : 'variable';
 
@@ -22,13 +24,13 @@ export default function VfSwitch({basePath, className}: VfSwitchProps) {
       onSelectionChange={(key) => router.push(`${basePath}/${key}`)}
     >
       <Tabs.ListContainer>
-        <Tabs.List aria-label="Options">
+        <Tabs.List aria-label={t("common.options")}>
           <Tabs.Tab id="fixed">
-            Fixed
+            {t("vf.fixed")}
             <Tabs.Indicator/>
           </Tabs.Tab>
           <Tabs.Tab id="variable">
-            Variable
+            {t("vf.variable")}
             <Tabs.Indicator/>
           </Tabs.Tab>
         </Tabs.List>

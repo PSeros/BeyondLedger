@@ -1,6 +1,7 @@
 "use client";
 
 import {startTransition} from "react";
+import {useTranslations} from "next-intl";
 import {Button, RangeCalendar} from "@heroui/react";
 import {parseDate} from "@internationalized/date";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
@@ -11,6 +12,7 @@ export default function BillDateRangeFilter() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations("filters");
 
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
@@ -38,15 +40,15 @@ export default function BillDateRangeFilter() {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between">
-        <span className="text-foreground-500 text-sm">Date range</span>
+        <span className="text-foreground-500 text-sm">{t("dateRange")}</span>
         {value ? (
           <Button variant="tertiary" size="sm" onPress={() => setRange(null, null)}>
-            Clear
+            {t("clear")}
           </Button>
         ) : null}
       </div>
       <RangeCalendar
-        aria-label="Date range"
+        aria-label={t("dateRange")}
         value={value}
         onChange={(range) => setRange(range?.start?.toString() ?? null, range?.end?.toString() ?? null)}
       >

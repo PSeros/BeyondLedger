@@ -1,6 +1,7 @@
 "use client"
 
 import React, {startTransition, useEffect, useRef, useState} from 'react';
+import {useTranslations} from "next-intl";
 import {SearchField} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {useSearchShortcut} from "@/hooks/useSearchShortcut";
@@ -16,6 +17,7 @@ export default function IncomeSearchField({className}: IncomeSearchFieldProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
+  const t = useTranslations("search");
 
   const [draft, setDraft] = useState(urlQuery);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +55,7 @@ export default function IncomeSearchField({className}: IncomeSearchFieldProps) {
 
   return (
     <SearchField
-      aria-label="Search income"
+      aria-label={t("income")}
       variant="secondary"
       className={className}
       value={draft}
@@ -64,7 +66,7 @@ export default function IncomeSearchField({className}: IncomeSearchFieldProps) {
         <SearchField.Input
           ref={inputRef}
           className="w-lg"
-          placeholder="Search..."
+          placeholder={t("placeholder")}
           aria-keyshortcuts="Control+K Meta+K"
         />
         <SearchField.ClearButton/>

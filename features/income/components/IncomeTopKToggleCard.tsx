@@ -1,6 +1,7 @@
 "use client";
 
 import {startTransition, useState} from "react";
+import {useTranslations} from "next-intl";
 import {Button, ButtonGroup} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import TopKTableCard from "@/components/TopKTableCard";
@@ -13,14 +14,15 @@ type IncomeTopKToggleCardProps = {
   categoryRows: IncomeTopKRow[];
 };
 
-const MODE_CONFIG: Record<TopKMode, {label: string; title: string; paramName: string}> = {
-  source: {label: "Sources", title: "Top Sources", paramName: "sourceId"},
-  category: {label: "Categories", title: "Top Categories", paramName: "categoryId"},
+const MODE_CONFIG: Record<TopKMode, {labelKey: string; titleKey: string; paramName: string}> = {
+  source: {labelKey: "sources", titleKey: "topSources", paramName: "sourceId"},
+  category: {labelKey: "categories", titleKey: "topCategories", paramName: "categoryId"},
 };
 
 const MODE_ORDER: TopKMode[] = ["source", "category"];
 
 export default function IncomeTopKToggleCard({sourceRows, categoryRows}: IncomeTopKToggleCardProps) {
+  const t = useTranslations("topk");
   const [mode, setMode] = useState<TopKMode>("source");
   const router = useRouter();
   const pathname = usePathname();
@@ -50,7 +52,7 @@ export default function IncomeTopKToggleCard({sourceRows, categoryRows}: IncomeT
 
   return (
     <TopKTableCard
-      title={MODE_CONFIG[mode].title}
+      title={t(MODE_CONFIG[mode].titleKey)}
       rows={rows}
       onRowSelect={handleRowSelect}
       activeId={activeId ? Number(activeId) : null}
@@ -62,7 +64,7 @@ export default function IncomeTopKToggleCard({sourceRows, categoryRows}: IncomeT
               variant={mode === item ? "secondary" : "tertiary"}
               onPress={() => setMode(item)}
             >
-              {MODE_CONFIG[item].label}
+              {t(MODE_CONFIG[item].labelKey)}
             </Button>
           ))}
         </ButtonGroup>
