@@ -13,12 +13,19 @@ import {type OcrInput, runOcr} from "@/features/ocr/mistralOcr";
 
 const EXTRACTION_INSTRUCTION =
   "You are extracting structured data from a purchase receipt or invoice. Return the supplier " +
-  "name, document number (or null), the document date as YYYY-MM-DD, the grand total, and the line " +
-  `items. For each line item, choose its category ONLY from the allowed list; if none fit, use "${UNCATEGORIZED}".`;
+  "name, the supplier's business category, document number (or null), the document date as " +
+  "YYYY-MM-DD, the grand total, and the line items. For both the supplier category and each line " +
+  `item's category, choose ONLY from the allowed list; if none fit, use "${UNCATEGORIZED}".`;
 
 // Loads the existing item-category names the extraction should be constrained to.
 async function getItemCategoryNames(): Promise<string[]> {
   const rows = await client.itemCategory.findMany({select: {name: true}, orderBy: {name: "asc"}});
+  return rows.map((row) => row.name);
+}
+
+// Loads the existing supplier-category names the extraction should be constrained to.
+async function getSupplierCategoryNames(): Promise<string[]> {
+  const rows = await client.supplierCategory.findMany({select: {name: true}, orderBy: {name: "asc"}});
   return rows.map((row) => row.name);
 }
 
@@ -68,7 +75,11 @@ async function separatedExtract(
 }
 
 export async function extract(input: OcrInput, settings: AiSettings): Promise<BillDraft> {
-  const schema = buildBillDraftSchema(await getItemCategoryNames());
+  const [itemCategoryNames, supplierCategoryNames] = await Promise.all([
+    getItemCategoryNames(),
+    getSupplierCategoryNames(),
+  ]);
+  const schema = buildBillDraftSchema(itemCategoryNames, supplierCategoryNames);
   return settings.pipelineMode === "SEPARATED"
     ? separatedExtract(input, settings, schema)
     : documentAiExtract(input, settings, schema);

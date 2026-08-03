@@ -69,12 +69,17 @@ function parseDraftDate(raw: string): Date {
 }
 
 export async function resolveDraft(draft: BillDraft): Promise<ResolvedBillDraft> {
-  // --- supplier: match existing (ci), else create the entity under "Uncategorized" ---
+  // --- supplier: match existing (ci), else create the entity under the model's chosen category ---
   const supplierName = draft.supplierName.trim() || "Unknown supplier";
   const suppliers = await client.supplier.findMany({select: {id: true, name: true}});
   let supplierId = findIdByName(suppliers, supplierName);
   if (supplierId == null) {
-    const supplierCategoryId = await getOrCreateSupplierCategoryId(UNCATEGORIZED);
+    // Same rule as item categories: map the model's pick to an EXISTING SupplierCategory, else the
+    // "Uncategorized" sentinel. The extraction enum already limits it to existing names + Uncategorized.
+    const supplierCategories = await client.supplierCategory.findMany({select: {id: true, name: true}});
+    const supplierCategoryId =
+      findIdByName(supplierCategories, draft.supplierCategory) ??
+      (await getOrCreateSupplierCategoryId(UNCATEGORIZED));
     const created = await createSupplier(supplierName, supplierCategoryId);
     supplierId = created.id;
   }

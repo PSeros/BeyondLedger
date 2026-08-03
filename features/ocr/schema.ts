@@ -1,19 +1,21 @@
 import {z} from "zod";
 
 // The structured shape we ask Mistral to extract from an uploaded document (Phase 8c). The schema
-// is built PER REQUEST from the caller's existing item categories: each line item's `category` is a
-// Zod enum locked to those names (plus the "Uncategorized" escape hatch), so the model can only ever
-// map to categories that already exist — never invent new ones. This constraint reaches both
-// pipeline modes: generateObject enforces the Zod schema directly (Mode B), and z.toJSONSchema()
-// emits the same `enum` into the strict json_schema sent to /v1/ocr (Mode A).
+// is built PER REQUEST from the caller's existing categories: the supplier's `supplierCategory` and
+// each line item's `category` are Zod enums locked to the existing names (plus the "Uncategorized"
+// escape hatch), so the model can only ever map to categories that already exist — never invent new
+// ones. This constraint reaches both pipeline modes: generateObject enforces the Zod schema directly
+// (Mode B), and z.toJSONSchema() emits the same `enum` into the strict json_schema sent to /v1/ocr
+// (Mode A).
 
 export const UNCATEGORIZED = "Uncategorized";
 
-export function buildBillDraftSchema(itemCategoryNames: string[]) {
-  // De-duplicate (case-insensitively) and guarantee the escape hatch is present and last.
+// Builds a Zod enum from existing category names: de-duplicated (case-insensitively) with the
+// "Uncategorized" escape hatch guaranteed present and last.
+function buildCategoryEnum(names: string[]) {
   const seen = new Set<string>();
   const values: string[] = [];
-  for (const name of [...itemCategoryNames, UNCATEGORIZED]) {
+  for (const name of [...names, UNCATEGORIZED]) {
     const key = name.toLowerCase();
     if (name.trim() !== "" && !seen.has(key)) {
       seen.add(key);
@@ -21,10 +23,19 @@ export function buildBillDraftSchema(itemCategoryNames: string[]) {
     }
   }
   // z.enum needs a non-empty tuple type; the cast is safe because `values` always holds ≥1 entry.
-  const categoryEnum = z.enum(values as [string, ...string[]]);
+  return z.enum(values as [string, ...string[]]);
+}
+
+export function buildBillDraftSchema(itemCategoryNames: string[], supplierCategoryNames: string[]) {
+  const itemCategoryEnum = buildCategoryEnum(itemCategoryNames);
+  const supplierCategoryEnum = buildCategoryEnum(supplierCategoryNames);
 
   return z.object({
     supplierName: z.string().describe("The merchant / supplier / store name on the document."),
+    supplierCategory: supplierCategoryEnum.describe(
+      `The supplier's business category (e.g. groceries, utilities, electronics). Pick the closest ` +
+        `match from this fixed list; use "${UNCATEGORIZED}" if none fit.`,
+    ),
     documentNumber: z
       .string()
       .nullable()
@@ -35,7 +46,7 @@ export function buildBillDraftSchema(itemCategoryNames: string[]) {
       .array(
         z.object({
           name: z.string().describe("The purchased item's name."),
-          category: categoryEnum.describe(
+          category: itemCategoryEnum.describe(
             `Pick the closest matching category from this fixed list; use "${UNCATEGORIZED}" if none fit.`,
           ),
           quantity: z.number().describe("Quantity purchased (1 if not stated)."),

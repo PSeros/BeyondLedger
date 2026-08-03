@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {FileStatusChoice} from "@/prisma/generated/client";
 import {client} from "@/lib/prisma";
 import {
   optionalString,
@@ -9,6 +10,7 @@ import {
   requireId,
   requireString,
 } from "@/features/expense/shared/db/formData";
+import type {ResolvedBillDraft} from "@/features/ocr/resolve";
 
 // Sums the parsed item line totals into a Bill totalAmount (rounded to cents).
 function sumItemTotals(items: {totalPrice: number}[]): number {
@@ -110,6 +112,47 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
 
   revalidatePath("/expense/variable");
   revalidatePath(`/expense/variable/${id}`);
+}
+
+// Creates a Bill from an OCR-resolved draft (Phase 8d) and links the source document to it, in one
+// transaction. Mirrors createBill's nested-item insert, but the values come from resolveDraft (FK ids
+// already resolved) instead of FormData. The uploaded FileAsset is flipped to billId + COMPLETED so it
+// shows up as the new bill's attachment. Revalidates the list so table/chart/top-k pick up the row.
+export async function createBillFromResolvedDraft(
+  draft: ResolvedBillDraft,
+  fileId: number,
+): Promise<{billId: number}> {
+  const bill = await client.$transaction(async (tx) => {
+    const created = await tx.bill.create({
+      data: {
+        supplierId: draft.supplierId,
+        documentNumber: draft.documentNumber,
+        totalAmount: draft.totalAmount,
+        date: draft.date,
+        items: {
+          create: draft.items.map((item) => ({
+            name: item.name,
+            categoryId: item.categoryId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            totalPrice: item.totalPrice,
+            warranty: item.warranty,
+          })),
+        },
+      },
+      select: {id: true},
+    });
+
+    await tx.fileAsset.update({
+      where: {id: fileId},
+      data: {billId: created.id, status: FileStatusChoice.COMPLETED},
+    });
+
+    return created;
+  });
+
+  revalidatePath("/expense/variable");
+  return {billId: bill.id};
 }
 
 // Deletes a Bill (its Items + FileAssets cascade). The detail view navigates back to the list.
