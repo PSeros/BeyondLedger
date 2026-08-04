@@ -58,6 +58,7 @@ const yyyymm = (date: Date) =>
 
 async function resetDatabase() {
   await prisma.$transaction([
+    prisma.budget.deleteMany(), // cascades BudgetMember + BudgetOverride
     prisma.fileAsset.deleteMany(),
     prisma.item.deleteMany(),
     prisma.bill.deleteMany(),
@@ -404,6 +405,52 @@ async function main() {
 
   await prisma.fileAsset.createMany({data: [...fileAssets, ...contractFiles]});
 
+  // Sample budgets — user-defined groups mixing item categories (variable) and a contract
+  // category (fixed). Demonstrates cross-table membership so the page isn't empty after a seed.
+  const itemCatId = (name: string) => lookups.itemCategories.find((c) => c.name === name)!.id;
+  const contractCatId = (name: string) => lookups.contractCategories.find((c) => c.name === name)!.id;
+
+  const budgetYear = new Date().getUTCFullYear();
+  await prisma.budget.create({
+    data: {
+      name: "Lebensmittel & Haushalt",
+      amount: 600,
+      periodType: "MONTHLY",
+      members: {
+        create: ["Lebensmittel", "Getränke", "Haushalt", "Drogerie"].map((name) => ({itemCategoryId: itemCatId(name)})),
+      },
+    },
+  });
+  await prisma.budget.create({
+    data: {
+      name: "Auto & Mobilität",
+      amount: 3600,
+      periodType: "YEARLY",
+      members: {
+        create: [{itemCategoryId: itemCatId("Tanken")}, {contractCategoryId: contractCatId("Mobilität")}],
+      },
+    },
+  });
+  await prisma.budget.create({
+    data: {
+      name: "Sommerurlaub",
+      amount: 1500,
+      periodType: "RANGE",
+      startDate: new Date(Date.UTC(budgetYear, 7, 1)),
+      endDate: new Date(Date.UTC(budgetYear, 7, 14)),
+      members: {create: [{itemCategoryId: itemCatId("Tanken")}, {itemCategoryId: itemCatId("Lebensmittel")}]},
+    },
+  });
+  await prisma.budget.create({
+    data: {
+      name: "Weihnachten",
+      amount: 400,
+      periodType: "MONTH_OF_YEAR",
+      anchorMonth: 12,
+      members: {create: [{itemCategoryId: itemCatId("Sonstiges")}]},
+    },
+  });
+
   const counts = await Promise.all([
     prisma.frequency.count(),
     prisma.supplierCategory.count(),
@@ -417,6 +464,7 @@ async function main() {
     prisma.incomeCategory.count(),
     prisma.incomeSource.count(),
     prisma.income.count(),
+    prisma.budget.count(),
   ]);
 
   console.log(
@@ -433,6 +481,7 @@ async function main() {
       `${counts[9]} income categories`,
       `${counts[10]} income sources`,
       `${counts[11]} incomes`,
+      `${counts[12]} budgets`,
     ].join(", "),
   );
 }

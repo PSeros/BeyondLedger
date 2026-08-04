@@ -9,6 +9,18 @@
 * 🟢 You can import this file directly.
 */
 
+export const BudgetPeriodType = {
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  YEARLY: 'YEARLY',
+  MONTH_OF_YEAR: 'MONTH_OF_YEAR',
+  RANGE: 'RANGE',
+  OPEN: 'OPEN'
+} as const
+
+export type BudgetPeriodType = (typeof BudgetPeriodType)[keyof typeof BudgetPeriodType]
+
+
 export const FileStatusChoice = {
   UPLOADED: 'UPLOADED',
   PROCESSING: 'PROCESSING',

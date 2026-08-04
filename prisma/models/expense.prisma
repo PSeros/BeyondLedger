@@ -2,21 +2,24 @@ model SupplierCategory {
   id   Int    @id @default(autoincrement())
   name String
 
-  suppliers Supplier[]
+  suppliers     Supplier[]
+  budgetMembers BudgetMember[]
 }
 
 model ItemCategory {
   id   Int    @id @default(autoincrement())
   name String
 
-  items Item[]
+  items         Item[]
+  budgetMembers BudgetMember[]
 }
 
 model ContractCategory {
   id   Int    @id @default(autoincrement())
   name String
 
-  contracts Contract[]
+  contracts     Contract[]
+  budgetMembers BudgetMember[]
 }
 
 model Supplier {
@@ -25,8 +28,9 @@ model Supplier {
   category   SupplierCategory @relation(fields: [categoryId], references: [id])
   categoryId Int
 
-  contracts Contract[]
-  bills     Bill[]
+  contracts     Contract[]
+  bills         Bill[]
+  budgetMembers BudgetMember[]
 
   @@index([categoryId])
 }

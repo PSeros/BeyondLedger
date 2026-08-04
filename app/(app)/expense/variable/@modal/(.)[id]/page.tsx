@@ -6,7 +6,7 @@ import ModalCloseButton from "@/components/ModalCloseButton";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
-import EditLink from "@/features/expense/variable/components/EditLink";
+import EditLink from "@/components/EditLink";
 import {getBillById} from "@/features/expense/variable/db/billDetail";
 import {getBillFormOptions} from "@/features/expense/variable/db/billFormOptions";
 import {deleteBill} from "@/features/expense/variable/db/billMutations";
@@ -44,7 +44,7 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
             <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier}/>
             <div className="flex items-center gap-2">
               <ModalCloseButton/>
-              <EditLink id={bill.id}/>
+              <EditLink id={bill.id} basePath="/expense/variable"/>
             </div>
           </div>
         )

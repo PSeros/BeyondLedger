@@ -18,6 +18,21 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model Budget
+ * 
+ */
+export type Budget = Prisma.BudgetModel
+/**
+ * Model BudgetMember
+ * 
+ */
+export type BudgetMember = Prisma.BudgetMemberModel
+/**
+ * Model BudgetOverride
+ * 
+ */
+export type BudgetOverride = Prisma.BudgetOverrideModel
+/**
  * Model SupplierCategory
  * 
  */

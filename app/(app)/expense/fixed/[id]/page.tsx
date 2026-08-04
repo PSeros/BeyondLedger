@@ -7,7 +7,7 @@ import CategoryChip from "@/components/CategoryChip";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
-import EditLink from "@/features/expense/fixed/components/EditLink";
+import EditLink from "@/components/EditLink";
 import {getContractById} from "@/features/expense/fixed/db/contractDetail";
 import {getContractFormOptions} from "@/features/expense/fixed/db/contractFormOptions";
 import {deleteContract} from "@/features/expense/fixed/db/contractMutations";
@@ -60,7 +60,7 @@ export default async function ContractPage({params, searchParams}: ContractPageP
         {editing ? null : (
           <div className="flex items-center gap-2">
             <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name} redirectTo="/expense/fixed"/>
-            <EditLink id={contract.id}/>
+            <EditLink id={contract.id} basePath="/expense/fixed"/>
           </div>
         )}
       </div>

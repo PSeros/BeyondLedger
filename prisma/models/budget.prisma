@@ -1,0 +1,62 @@
+// A Budget is a user-defined group: a name + a target for a period, plus a set of category
+// selectors (across tables, fixed AND variable) whose spend counts toward it. The period type
+// decides which time window "actual spend" is summed over (see features/budget/period.ts +
+// budgetActuals.ts). Each budget shows its own current period on the page (no global navigator).
+
+enum BudgetPeriodType {
+  MONTHLY // resets each calendar month
+  QUARTERLY // resets each calendar quarter
+  YEARLY // resets each calendar year
+  MONTH_OF_YEAR // a specific month every year (anchorMonth), e.g. December
+  RANGE // a fixed one-off window (startDate..endDate), e.g. a vacation week
+  OPEN // no reset — cumulative all-time until the target is reached
+}
+
+model Budget {
+  id          Int              @id @default(autoincrement())
+  name        String
+  amount      Decimal // target for one period (or the total cap for RANGE / OPEN)
+  periodType  BudgetPeriodType @default(MONTHLY)
+  anchorMonth Int? // 1–12, required for MONTH_OF_YEAR
+  startDate   DateTime? // required for RANGE
+  endDate     DateTime? // required for RANGE (inclusive)
+  createdAt   DateTime         @default(now())
+
+  members   BudgetMember[]
+  overrides BudgetOverride[]
+}
+
+// Polymorphic membership via nullable FKs: exactly ONE of the four *Id columns is set per row.
+// Real FKs + onDelete: Cascade mean deleting a category simply drops it from any budget.
+model BudgetMember {
+  id       Int    @id @default(autoincrement())
+  budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  budgetId Int
+
+  itemCategory   ItemCategory? @relation(fields: [itemCategoryId], references: [id], onDelete: Cascade)
+  itemCategoryId Int?
+
+  supplierCategory   SupplierCategory? @relation(fields: [supplierCategoryId], references: [id], onDelete: Cascade)
+  supplierCategoryId Int?
+
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId Int?
+
+  contractCategory   ContractCategory? @relation(fields: [contractCategoryId], references: [id], onDelete: Cascade)
+  contractCategoryId Int?
+
+  @@index([budgetId])
+}
+
+// Overrides the target for one specific period instance of a budget, identified by a periodKey
+// (e.g. "2026-08", "2026-Q3", "2026", "2026-12", or "open"/"range"). Set from the card for the
+// budget's current period.
+model BudgetOverride {
+  id        Int     @id @default(autoincrement())
+  budget    Budget  @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  budgetId  Int
+  periodKey String
+  amount    Decimal
+
+  @@unique([budgetId, periodKey])
+}

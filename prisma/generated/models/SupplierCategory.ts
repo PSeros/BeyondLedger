@@ -193,12 +193,14 @@ export type SupplierCategoryWhereInput = {
   id?: Prisma.IntFilter<"SupplierCategory"> | number
   name?: Prisma.StringFilter<"SupplierCategory"> | string
   suppliers?: Prisma.SupplierListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }
 
 export type SupplierCategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   suppliers?: Prisma.SupplierOrderByRelationAggregateInput
+  budgetMembers?: Prisma.BudgetMemberOrderByRelationAggregateInput
 }
 
 export type SupplierCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -208,6 +210,7 @@ export type SupplierCategoryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SupplierCategoryWhereInput | Prisma.SupplierCategoryWhereInput[]
   name?: Prisma.StringFilter<"SupplierCategory"> | string
   suppliers?: Prisma.SupplierListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }, "id">
 
 export type SupplierCategoryOrderByWithAggregationInput = {
@@ -231,23 +234,27 @@ export type SupplierCategoryScalarWhereWithAggregatesInput = {
 export type SupplierCategoryCreateInput = {
   name: string
   suppliers?: Prisma.SupplierCreateNestedManyWithoutCategoryInput
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutSupplierCategoryInput
 }
 
 export type SupplierCategoryUncheckedCreateInput = {
   id?: number
   name: string
   suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCategoryInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutSupplierCategoryInput
 }
 
 export type SupplierCategoryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   suppliers?: Prisma.SupplierUpdateManyWithoutCategoryNestedInput
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutSupplierCategoryNestedInput
 }
 
 export type SupplierCategoryUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCategoryNestedInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryNestedInput
 }
 
 export type SupplierCategoryCreateManyInput = {
@@ -262,6 +269,11 @@ export type SupplierCategoryUpdateManyMutationInput = {
 export type SupplierCategoryUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type SupplierCategoryNullableScalarRelationFilter = {
+  is?: Prisma.SupplierCategoryWhereInput | null
+  isNot?: Prisma.SupplierCategoryWhereInput | null
 }
 
 export type SupplierCategoryCountOrderByAggregateInput = {
@@ -292,16 +304,20 @@ export type SupplierCategoryScalarRelationFilter = {
   isNot?: Prisma.SupplierCategoryWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type SupplierCategoryCreateNestedOneWithoutBudgetMembersInput = {
+  create?: Prisma.XOR<Prisma.SupplierCategoryCreateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.SupplierCategoryCreateOrConnectWithoutBudgetMembersInput
+  connect?: Prisma.SupplierCategoryWhereUniqueInput
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.SupplierCategoryCreateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.SupplierCategoryCreateOrConnectWithoutBudgetMembersInput
+  upsert?: Prisma.SupplierCategoryUpsertWithoutBudgetMembersInput
+  disconnect?: Prisma.SupplierCategoryWhereInput | boolean
+  delete?: Prisma.SupplierCategoryWhereInput | boolean
+  connect?: Prisma.SupplierCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SupplierCategoryUpdateToOneWithWhereWithoutBudgetMembersInput, Prisma.SupplierCategoryUpdateWithoutBudgetMembersInput>, Prisma.SupplierCategoryUncheckedUpdateWithoutBudgetMembersInput>
 }
 
 export type SupplierCategoryCreateNestedOneWithoutSuppliersInput = {
@@ -318,13 +334,53 @@ export type SupplierCategoryUpdateOneRequiredWithoutSuppliersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SupplierCategoryUpdateToOneWithWhereWithoutSuppliersInput, Prisma.SupplierCategoryUpdateWithoutSuppliersInput>, Prisma.SupplierCategoryUncheckedUpdateWithoutSuppliersInput>
 }
 
+export type SupplierCategoryCreateWithoutBudgetMembersInput = {
+  name: string
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCategoryInput
+}
+
+export type SupplierCategoryUncheckedCreateWithoutBudgetMembersInput = {
+  id?: number
+  name: string
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type SupplierCategoryCreateOrConnectWithoutBudgetMembersInput = {
+  where: Prisma.SupplierCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.SupplierCategoryCreateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedCreateWithoutBudgetMembersInput>
+}
+
+export type SupplierCategoryUpsertWithoutBudgetMembersInput = {
+  update: Prisma.XOR<Prisma.SupplierCategoryUpdateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedUpdateWithoutBudgetMembersInput>
+  create: Prisma.XOR<Prisma.SupplierCategoryCreateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedCreateWithoutBudgetMembersInput>
+  where?: Prisma.SupplierCategoryWhereInput
+}
+
+export type SupplierCategoryUpdateToOneWithWhereWithoutBudgetMembersInput = {
+  where?: Prisma.SupplierCategoryWhereInput
+  data: Prisma.XOR<Prisma.SupplierCategoryUpdateWithoutBudgetMembersInput, Prisma.SupplierCategoryUncheckedUpdateWithoutBudgetMembersInput>
+}
+
+export type SupplierCategoryUpdateWithoutBudgetMembersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  suppliers?: Prisma.SupplierUpdateManyWithoutCategoryNestedInput
+}
+
+export type SupplierCategoryUncheckedUpdateWithoutBudgetMembersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
 export type SupplierCategoryCreateWithoutSuppliersInput = {
   name: string
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutSupplierCategoryInput
 }
 
 export type SupplierCategoryUncheckedCreateWithoutSuppliersInput = {
   id?: number
   name: string
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutSupplierCategoryInput
 }
 
 export type SupplierCategoryCreateOrConnectWithoutSuppliersInput = {
@@ -345,11 +401,13 @@ export type SupplierCategoryUpdateToOneWithWhereWithoutSuppliersInput = {
 
 export type SupplierCategoryUpdateWithoutSuppliersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutSupplierCategoryNestedInput
 }
 
 export type SupplierCategoryUncheckedUpdateWithoutSuppliersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryNestedInput
 }
 
 
@@ -359,10 +417,12 @@ export type SupplierCategoryUncheckedUpdateWithoutSuppliersInput = {
 
 export type SupplierCategoryCountOutputType = {
   suppliers: number
+  budgetMembers: number
 }
 
 export type SupplierCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   suppliers?: boolean | SupplierCategoryCountOutputTypeCountSuppliersArgs
+  budgetMembers?: boolean | SupplierCategoryCountOutputTypeCountBudgetMembersArgs
 }
 
 /**
@@ -382,11 +442,19 @@ export type SupplierCategoryCountOutputTypeCountSuppliersArgs<ExtArgs extends ru
   where?: Prisma.SupplierWhereInput
 }
 
+/**
+ * SupplierCategoryCountOutputType without action
+ */
+export type SupplierCategoryCountOutputTypeCountBudgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BudgetMemberWhereInput
+}
+
 
 export type SupplierCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   suppliers?: boolean | Prisma.SupplierCategory$suppliersArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.SupplierCategory$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierCategory"]>
 
@@ -408,6 +476,7 @@ export type SupplierCategorySelectScalar = {
 export type SupplierCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["supplierCategory"]>
 export type SupplierCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   suppliers?: boolean | Prisma.SupplierCategory$suppliersArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.SupplierCategory$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SupplierCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -417,6 +486,7 @@ export type $SupplierCategoryPayload<ExtArgs extends runtime.Types.Extensions.In
   name: "SupplierCategory"
   objects: {
     suppliers: Prisma.$SupplierPayload<ExtArgs>[]
+    budgetMembers: Prisma.$BudgetMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -816,6 +886,7 @@ readonly fields: SupplierCategoryFieldRefs;
 export interface Prisma__SupplierCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   suppliers<T extends Prisma.SupplierCategory$suppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierCategory$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  budgetMembers<T extends Prisma.SupplierCategory$budgetMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierCategory$budgetMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1259,6 +1330,30 @@ export type SupplierCategory$suppliersArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.SupplierScalarFieldEnum | Prisma.SupplierScalarFieldEnum[]
+}
+
+/**
+ * SupplierCategory.budgetMembers
+ */
+export type SupplierCategory$budgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BudgetMember
+   */
+  select?: Prisma.BudgetMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BudgetMember
+   */
+  omit?: Prisma.BudgetMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BudgetMemberInclude<ExtArgs> | null
+  where?: Prisma.BudgetMemberWhereInput
+  orderBy?: Prisma.BudgetMemberOrderByWithRelationInput | Prisma.BudgetMemberOrderByWithRelationInput[]
+  cursor?: Prisma.BudgetMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BudgetMemberScalarFieldEnum | Prisma.BudgetMemberScalarFieldEnum[]
 }
 
 /**

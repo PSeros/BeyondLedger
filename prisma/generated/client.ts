@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more SupplierCategories
- * const supplierCategories = await prisma.supplierCategory.findMany()
+ * // Fetch zero or more Budgets
+ * const budgets = await prisma.budget.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,21 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model Budget
+ * 
+ */
+export type Budget = Prisma.BudgetModel
+/**
+ * Model BudgetMember
+ * 
+ */
+export type BudgetMember = Prisma.BudgetMemberModel
+/**
+ * Model BudgetOverride
+ * 
+ */
+export type BudgetOverride = Prisma.BudgetOverrideModel
 /**
  * Model SupplierCategory
  * 

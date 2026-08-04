@@ -7,7 +7,7 @@ import CategoryChip from "@/components/CategoryChip";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
-import EditLink from "@/features/expense/variable/components/EditLink";
+import EditLink from "@/components/EditLink";
 import {getBillById} from "@/features/expense/variable/db/billDetail";
 import {getBillFormOptions} from "@/features/expense/variable/db/billFormOptions";
 import {deleteBill} from "@/features/expense/variable/db/billMutations";
@@ -62,7 +62,7 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
         {editing ? null : (
           <div className="flex items-center gap-2">
             <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier} redirectTo="/expense/variable"/>
-            <EditLink id={bill.id}/>
+            <EditLink id={bill.id} basePath="/expense/variable"/>
           </div>
         )}
       </div>

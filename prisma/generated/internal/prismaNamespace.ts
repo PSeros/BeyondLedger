@@ -384,6 +384,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  Budget: 'Budget',
+  BudgetMember: 'BudgetMember',
+  BudgetOverride: 'BudgetOverride',
   SupplierCategory: 'SupplierCategory',
   ItemCategory: 'ItemCategory',
   ContractCategory: 'ContractCategory',
@@ -413,10 +416,232 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "incomeCategory" | "incomeSource" | "income"
+    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "incomeCategory" | "incomeSource" | "income"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    Budget: {
+      payload: Prisma.$BudgetPayload<ExtArgs>
+      fields: Prisma.BudgetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BudgetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BudgetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        findFirst: {
+          args: Prisma.BudgetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BudgetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        findMany: {
+          args: Prisma.BudgetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+        }
+        create: {
+          args: Prisma.BudgetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        createMany: {
+          args: Prisma.BudgetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BudgetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+        }
+        delete: {
+          args: Prisma.BudgetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        update: {
+          args: Prisma.BudgetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        deleteMany: {
+          args: Prisma.BudgetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BudgetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BudgetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>[]
+        }
+        upsert: {
+          args: Prisma.BudgetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetPayload>
+        }
+        aggregate: {
+          args: Prisma.BudgetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBudget>
+        }
+        groupBy: {
+          args: Prisma.BudgetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BudgetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetCountAggregateOutputType> | number
+        }
+      }
+    }
+    BudgetMember: {
+      payload: Prisma.$BudgetMemberPayload<ExtArgs>
+      fields: Prisma.BudgetMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BudgetMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BudgetMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.BudgetMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BudgetMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        findMany: {
+          args: Prisma.BudgetMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>[]
+        }
+        create: {
+          args: Prisma.BudgetMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        createMany: {
+          args: Prisma.BudgetMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BudgetMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.BudgetMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        update: {
+          args: Prisma.BudgetMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.BudgetMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BudgetMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BudgetMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.BudgetMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.BudgetMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBudgetMember>
+        }
+        groupBy: {
+          args: Prisma.BudgetMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BudgetMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetMemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    BudgetOverride: {
+      payload: Prisma.$BudgetOverridePayload<ExtArgs>
+      fields: Prisma.BudgetOverrideFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BudgetOverrideFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BudgetOverrideFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        findFirst: {
+          args: Prisma.BudgetOverrideFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BudgetOverrideFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        findMany: {
+          args: Prisma.BudgetOverrideFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>[]
+        }
+        create: {
+          args: Prisma.BudgetOverrideCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        createMany: {
+          args: Prisma.BudgetOverrideCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BudgetOverrideCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>[]
+        }
+        delete: {
+          args: Prisma.BudgetOverrideDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        update: {
+          args: Prisma.BudgetOverrideUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        deleteMany: {
+          args: Prisma.BudgetOverrideDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BudgetOverrideUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BudgetOverrideUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>[]
+        }
+        upsert: {
+          args: Prisma.BudgetOverrideUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BudgetOverridePayload>
+        }
+        aggregate: {
+          args: Prisma.BudgetOverrideAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBudgetOverride>
+        }
+        groupBy: {
+          args: Prisma.BudgetOverrideGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetOverrideGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BudgetOverrideCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BudgetOverrideCountAggregateOutputType> | number
+        }
+      }
+    }
     SupplierCategory: {
       payload: Prisma.$SupplierCategoryPayload<ExtArgs>
       fields: Prisma.SupplierCategoryFieldRefs
@@ -1489,6 +1714,42 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const BudgetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  periodType: 'periodType',
+  anchorMonth: 'anchorMonth',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt'
+} as const
+
+export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const BudgetMemberScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  itemCategoryId: 'itemCategoryId',
+  supplierCategoryId: 'supplierCategoryId',
+  supplierId: 'supplierId',
+  contractCategoryId: 'contractCategoryId'
+} as const
+
+export type BudgetMemberScalarFieldEnum = (typeof BudgetMemberScalarFieldEnum)[keyof typeof BudgetMemberScalarFieldEnum]
+
+
+export const BudgetOverrideScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  periodKey: 'periodKey',
+  amount: 'amount'
+} as const
+
+export type BudgetOverrideScalarFieldEnum = (typeof BudgetOverrideScalarFieldEnum)[keyof typeof BudgetOverrideScalarFieldEnum]
+
+
 export const SupplierCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -1695,6 +1956,13 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'BudgetPeriodType'
+ */
+export type EnumBudgetPeriodTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetPeriodType'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -1838,6 +2106,9 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  budget?: Prisma.BudgetOmit
+  budgetMember?: Prisma.BudgetMemberOmit
+  budgetOverride?: Prisma.BudgetOverrideOmit
   supplierCategory?: Prisma.SupplierCategoryOmit
   itemCategory?: Prisma.ItemCategoryOmit
   contractCategory?: Prisma.ContractCategoryOmit

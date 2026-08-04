@@ -51,6 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Budget: 'Budget',
+  BudgetMember: 'BudgetMember',
+  BudgetOverride: 'BudgetOverride',
   SupplierCategory: 'SupplierCategory',
   ItemCategory: 'ItemCategory',
   ContractCategory: 'ContractCategory',
@@ -78,6 +81,42 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const BudgetScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  amount: 'amount',
+  periodType: 'periodType',
+  anchorMonth: 'anchorMonth',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt'
+} as const
+
+export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const BudgetMemberScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  itemCategoryId: 'itemCategoryId',
+  supplierCategoryId: 'supplierCategoryId',
+  supplierId: 'supplierId',
+  contractCategoryId: 'contractCategoryId'
+} as const
+
+export type BudgetMemberScalarFieldEnum = (typeof BudgetMemberScalarFieldEnum)[keyof typeof BudgetMemberScalarFieldEnum]
+
+
+export const BudgetOverrideScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  periodKey: 'periodKey',
+  amount: 'amount'
+} as const
+
+export type BudgetOverrideScalarFieldEnum = (typeof BudgetOverrideScalarFieldEnum)[keyof typeof BudgetOverrideScalarFieldEnum]
 
 
 export const SupplierCategoryScalarFieldEnum = {

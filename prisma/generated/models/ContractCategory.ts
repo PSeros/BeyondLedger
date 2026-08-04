@@ -193,12 +193,14 @@ export type ContractCategoryWhereInput = {
   id?: Prisma.IntFilter<"ContractCategory"> | number
   name?: Prisma.StringFilter<"ContractCategory"> | string
   contracts?: Prisma.ContractListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }
 
 export type ContractCategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   contracts?: Prisma.ContractOrderByRelationAggregateInput
+  budgetMembers?: Prisma.BudgetMemberOrderByRelationAggregateInput
 }
 
 export type ContractCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -208,6 +210,7 @@ export type ContractCategoryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ContractCategoryWhereInput | Prisma.ContractCategoryWhereInput[]
   name?: Prisma.StringFilter<"ContractCategory"> | string
   contracts?: Prisma.ContractListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }, "id">
 
 export type ContractCategoryOrderByWithAggregationInput = {
@@ -231,23 +234,27 @@ export type ContractCategoryScalarWhereWithAggregatesInput = {
 export type ContractCategoryCreateInput = {
   name: string
   contracts?: Prisma.ContractCreateNestedManyWithoutCategoryInput
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutContractCategoryInput
 }
 
 export type ContractCategoryUncheckedCreateInput = {
   id?: number
   name: string
   contracts?: Prisma.ContractUncheckedCreateNestedManyWithoutCategoryInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutContractCategoryInput
 }
 
 export type ContractCategoryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contracts?: Prisma.ContractUpdateManyWithoutCategoryNestedInput
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutContractCategoryNestedInput
 }
 
 export type ContractCategoryUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   contracts?: Prisma.ContractUncheckedUpdateManyWithoutCategoryNestedInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutContractCategoryNestedInput
 }
 
 export type ContractCategoryCreateManyInput = {
@@ -262,6 +269,11 @@ export type ContractCategoryUpdateManyMutationInput = {
 export type ContractCategoryUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ContractCategoryNullableScalarRelationFilter = {
+  is?: Prisma.ContractCategoryWhereInput | null
+  isNot?: Prisma.ContractCategoryWhereInput | null
 }
 
 export type ContractCategoryCountOrderByAggregateInput = {
@@ -292,6 +304,22 @@ export type ContractCategoryScalarRelationFilter = {
   isNot?: Prisma.ContractCategoryWhereInput
 }
 
+export type ContractCategoryCreateNestedOneWithoutBudgetMembersInput = {
+  create?: Prisma.XOR<Prisma.ContractCategoryCreateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.ContractCategoryCreateOrConnectWithoutBudgetMembersInput
+  connect?: Prisma.ContractCategoryWhereUniqueInput
+}
+
+export type ContractCategoryUpdateOneWithoutBudgetMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCategoryCreateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.ContractCategoryCreateOrConnectWithoutBudgetMembersInput
+  upsert?: Prisma.ContractCategoryUpsertWithoutBudgetMembersInput
+  disconnect?: Prisma.ContractCategoryWhereInput | boolean
+  delete?: Prisma.ContractCategoryWhereInput | boolean
+  connect?: Prisma.ContractCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractCategoryUpdateToOneWithWhereWithoutBudgetMembersInput, Prisma.ContractCategoryUpdateWithoutBudgetMembersInput>, Prisma.ContractCategoryUncheckedUpdateWithoutBudgetMembersInput>
+}
+
 export type ContractCategoryCreateNestedOneWithoutContractsInput = {
   create?: Prisma.XOR<Prisma.ContractCategoryCreateWithoutContractsInput, Prisma.ContractCategoryUncheckedCreateWithoutContractsInput>
   connectOrCreate?: Prisma.ContractCategoryCreateOrConnectWithoutContractsInput
@@ -306,13 +334,53 @@ export type ContractCategoryUpdateOneRequiredWithoutContractsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ContractCategoryUpdateToOneWithWhereWithoutContractsInput, Prisma.ContractCategoryUpdateWithoutContractsInput>, Prisma.ContractCategoryUncheckedUpdateWithoutContractsInput>
 }
 
+export type ContractCategoryCreateWithoutBudgetMembersInput = {
+  name: string
+  contracts?: Prisma.ContractCreateNestedManyWithoutCategoryInput
+}
+
+export type ContractCategoryUncheckedCreateWithoutBudgetMembersInput = {
+  id?: number
+  name: string
+  contracts?: Prisma.ContractUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type ContractCategoryCreateOrConnectWithoutBudgetMembersInput = {
+  where: Prisma.ContractCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCategoryCreateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedCreateWithoutBudgetMembersInput>
+}
+
+export type ContractCategoryUpsertWithoutBudgetMembersInput = {
+  update: Prisma.XOR<Prisma.ContractCategoryUpdateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedUpdateWithoutBudgetMembersInput>
+  create: Prisma.XOR<Prisma.ContractCategoryCreateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedCreateWithoutBudgetMembersInput>
+  where?: Prisma.ContractCategoryWhereInput
+}
+
+export type ContractCategoryUpdateToOneWithWhereWithoutBudgetMembersInput = {
+  where?: Prisma.ContractCategoryWhereInput
+  data: Prisma.XOR<Prisma.ContractCategoryUpdateWithoutBudgetMembersInput, Prisma.ContractCategoryUncheckedUpdateWithoutBudgetMembersInput>
+}
+
+export type ContractCategoryUpdateWithoutBudgetMembersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  contracts?: Prisma.ContractUpdateManyWithoutCategoryNestedInput
+}
+
+export type ContractCategoryUncheckedUpdateWithoutBudgetMembersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  contracts?: Prisma.ContractUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
 export type ContractCategoryCreateWithoutContractsInput = {
   name: string
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutContractCategoryInput
 }
 
 export type ContractCategoryUncheckedCreateWithoutContractsInput = {
   id?: number
   name: string
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutContractCategoryInput
 }
 
 export type ContractCategoryCreateOrConnectWithoutContractsInput = {
@@ -333,11 +401,13 @@ export type ContractCategoryUpdateToOneWithWhereWithoutContractsInput = {
 
 export type ContractCategoryUpdateWithoutContractsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutContractCategoryNestedInput
 }
 
 export type ContractCategoryUncheckedUpdateWithoutContractsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutContractCategoryNestedInput
 }
 
 
@@ -347,10 +417,12 @@ export type ContractCategoryUncheckedUpdateWithoutContractsInput = {
 
 export type ContractCategoryCountOutputType = {
   contracts: number
+  budgetMembers: number
 }
 
 export type ContractCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   contracts?: boolean | ContractCategoryCountOutputTypeCountContractsArgs
+  budgetMembers?: boolean | ContractCategoryCountOutputTypeCountBudgetMembersArgs
 }
 
 /**
@@ -370,11 +442,19 @@ export type ContractCategoryCountOutputTypeCountContractsArgs<ExtArgs extends ru
   where?: Prisma.ContractWhereInput
 }
 
+/**
+ * ContractCategoryCountOutputType without action
+ */
+export type ContractCategoryCountOutputTypeCountBudgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BudgetMemberWhereInput
+}
+
 
 export type ContractCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   contracts?: boolean | Prisma.ContractCategory$contractsArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.ContractCategory$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contractCategory"]>
 
@@ -396,6 +476,7 @@ export type ContractCategorySelectScalar = {
 export type ContractCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name", ExtArgs["result"]["contractCategory"]>
 export type ContractCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   contracts?: boolean | Prisma.ContractCategory$contractsArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.ContractCategory$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ContractCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -405,6 +486,7 @@ export type $ContractCategoryPayload<ExtArgs extends runtime.Types.Extensions.In
   name: "ContractCategory"
   objects: {
     contracts: Prisma.$ContractPayload<ExtArgs>[]
+    budgetMembers: Prisma.$BudgetMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -804,6 +886,7 @@ readonly fields: ContractCategoryFieldRefs;
 export interface Prisma__ContractCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   contracts<T extends Prisma.ContractCategory$contractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContractCategory$contractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  budgetMembers<T extends Prisma.ContractCategory$budgetMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContractCategory$budgetMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1247,6 +1330,30 @@ export type ContractCategory$contractsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
+}
+
+/**
+ * ContractCategory.budgetMembers
+ */
+export type ContractCategory$budgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BudgetMember
+   */
+  select?: Prisma.BudgetMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BudgetMember
+   */
+  omit?: Prisma.BudgetMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BudgetMemberInclude<ExtArgs> | null
+  where?: Prisma.BudgetMemberWhereInput
+  orderBy?: Prisma.BudgetMemberOrderByWithRelationInput | Prisma.BudgetMemberOrderByWithRelationInput[]
+  cursor?: Prisma.BudgetMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BudgetMemberScalarFieldEnum | Prisma.BudgetMemberScalarFieldEnum[]
 }
 
 /**

@@ -7,7 +7,7 @@ import CategoryChip from "@/components/CategoryChip";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
 import IncomeEditForm from "@/features/income/components/IncomeEditForm";
-import EditLink from "@/features/income/components/EditLink";
+import EditLink from "@/components/EditLink";
 import {getIncomeById} from "@/features/income/db/incomeDetail";
 import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 import {deleteIncome} from "@/features/income/db/incomeMutations";
