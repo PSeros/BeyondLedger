@@ -1,6 +1,7 @@
 import {getFormatter, getTranslations} from "next-intl/server";
 import {LuShieldCheck} from "react-icons/lu";
 import EntityAttachments from "@/features/expense/shared/components/EntityAttachments";
+import TagChip from "@/components/TagChip";
 import {deleteFileAsset, uploadBillFile} from "@/features/expense/shared/db/fileMutations";
 import type {BillDetailData, BillItemDetail} from "@/features/expense/variable/db/billDetail";
 
@@ -46,6 +47,13 @@ export default async function BillDetail({bill}: {bill: BillDetailData}) {
         {/* The supplier-category chip now lives in each surface's header, next to the supplier. */}
         <p className="text-3xl font-semibold tracking-tight tabular-nums">{format.number(bill.amount, "currency")}</p>
         <p className="mt-1 text-sm text-muted">{format.dateTime(new Date(bill.date), "long")}</p>
+        {bill.tags.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {bill.tags.map((tag) => (
+              <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {bill.notes ? (

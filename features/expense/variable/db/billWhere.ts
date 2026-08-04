@@ -5,6 +5,8 @@ export type BillFilters = {
   supplierId?: number;
   supplierCategoryId?: number;
   itemCategoryId?: number;
+  // Match bills carrying ANY of these tag ids (OR within the filter). Empty/undefined = no filter.
+  tagIds?: number[];
   // ISO calendar dates (yyyy-mm-dd), inclusive on both ends. Deliberately NOT applied to
   // the chart — see billChartData: a date range would starve its rolling-window baseline.
   dateFrom?: string;
@@ -16,6 +18,7 @@ export function buildBillWhere({
   supplierId,
   supplierCategoryId,
   itemCategoryId,
+  tagIds,
   dateFrom,
   dateTo,
 }: BillFilters = {}): Prisma.BillWhereInput {
@@ -44,6 +47,10 @@ export function buildBillWhere({
 
   if (itemCategoryId != null) {
     clauses.push({items: {some: {categoryId: itemCategoryId}}});
+  }
+
+  if (tagIds != null && tagIds.length > 0) {
+    clauses.push({tags: {some: {tagId: {in: tagIds}}}});
   }
 
   const dateClause: Prisma.DateTimeFilter = {};

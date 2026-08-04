@@ -1,4 +1,5 @@
 import {client} from "@/lib/prisma";
+import type {TagOption} from "@/features/tags/types";
 
 export type FilterOption = {id: number; name: string};
 
@@ -8,6 +9,7 @@ export type ExpenseFormOptions = {
   itemCategories: FilterOption[];
   contractCategories: FilterOption[];
   frequencies: FilterOption[];
+  tags: TagOption[];
 };
 
 // Options for the unified Add form (both Variable/Bill and Fixed/Contract branches). Offers
@@ -17,13 +19,14 @@ export type ExpenseFormOptions = {
 // value-sorted (One-time, Yearly, Quarterly, Monthly by billing-per-year) to match the
 // edit-form ordering.
 export async function getExpenseFormOptions(): Promise<ExpenseFormOptions> {
-  const [suppliers, supplierCategories, itemCategories, contractCategories, frequencies] = await Promise.all([
+  const [suppliers, supplierCategories, itemCategories, contractCategories, frequencies, tags] = await Promise.all([
     client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplierCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.itemCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.frequency.findMany({select: {id: true, name: true}, orderBy: {value: "asc"}}),
+    client.tag.findMany({select: {id: true, name: true, color: true}, orderBy: {name: "asc"}}),
   ]);
 
-  return {suppliers, supplierCategories, itemCategories, contractCategories, frequencies};
+  return {suppliers, supplierCategories, itemCategories, contractCategories, frequencies, tags};
 }

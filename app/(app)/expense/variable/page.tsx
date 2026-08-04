@@ -16,6 +16,7 @@ type VariablePageProps = {
     supplierId?: string;
     supplierCategoryId?: string;
     itemCategoryId?: string;
+    tags?: string;
     dateFrom?: string;
     dateTo?: string;
   }>;
@@ -24,6 +25,15 @@ type VariablePageProps = {
 function parseId(value?: string): number | undefined {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+// Parses a `?tags=1,2,3` CSV param into positive ids (drops blanks/invalid). undefined → no filter.
+function parseIds(value?: string): number[] | undefined {
+  const ids = (value ?? "")
+    .split(",")
+    .map((part) => Number(part))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  return ids.length > 0 ? ids : undefined;
 }
 
 function parseIsoDate(value?: string): string | undefined {
@@ -39,6 +49,7 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
     supplierId: parseId(params.supplierId),
     supplierCategoryId: parseId(params.supplierCategoryId),
     itemCategoryId: parseId(params.itemCategoryId),
+    tagIds: parseIds(params.tags),
   };
   const topKFilters = {
     ...categoricalFilters,

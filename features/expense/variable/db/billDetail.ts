@@ -1,5 +1,6 @@
 import {client} from "@/lib/prisma";
 import type {FileAttachment} from "@/features/expense/shared/db/fileTypes";
+import type {TagOption} from "@/features/tags/types";
 
 export type BillItemDetail = {
   id: number;
@@ -23,6 +24,7 @@ export type BillDetailData = {
   notes: string | null;
   items: BillItemDetail[];
   files: FileAttachment[];
+  tags: TagOption[];
 };
 
 export async function getBillById(id: number): Promise<BillDetailData | null> {
@@ -32,6 +34,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
       supplier: {include: {category: true}},
       items: {include: {category: true}, orderBy: {createdAt: "asc"}},
       files: {orderBy: {createdAt: "desc"}},
+      tags: {include: {tag: true}},
     },
   });
 
@@ -66,5 +69,6 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
       status: file.status,
       createdAt: file.createdAt.toISOString(),
     })),
+    tags: bill.tags.map((entry) => ({id: entry.tag.id, name: entry.tag.name, color: entry.tag.color})),
   };
 }

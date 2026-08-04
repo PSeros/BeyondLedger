@@ -15,6 +15,14 @@ function parseIsoDate(value: string | null): string | undefined {
   return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
 }
 
+function parseIds(value: string | null): number[] | undefined {
+  const ids = (value ?? "")
+    .split(",")
+    .map((part) => Number(part))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  return ids.length > 0 ? ids : undefined;
+}
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -39,6 +47,7 @@ export async function GET(request: NextRequest) {
   const supplierId = parsePositiveId(params.get("supplierId"));
   const supplierCategoryId = parsePositiveId(params.get("supplierCategoryId"));
   const itemCategoryId = parsePositiveId(params.get("itemCategoryId"));
+  const tagIds = parseIds(params.get("tags"));
   const dateFrom = parseIsoDate(params.get("dateFrom"));
   const dateTo = parseIsoDate(params.get("dateTo"));
 
@@ -51,6 +60,7 @@ export async function GET(request: NextRequest) {
     supplierId,
     supplierCategoryId,
     itemCategoryId,
+    tagIds,
     dateFrom,
     dateTo,
   });

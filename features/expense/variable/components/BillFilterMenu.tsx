@@ -1,11 +1,13 @@
 "use client";
 
 import {startTransition} from "react";
+import type {Key} from "react-aria-components";
 import {useTranslations} from "next-intl";
-import {ListBox, Select} from "@heroui/react";
+import {Label, ListBox, Select} from "@heroui/react";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import BillDateRangeFilter from "@/features/expense/variable/components/BillDateRangeFilter";
 import type {BillFilterOptions, FilterOption} from "@/features/expense/variable/db/billFilterOptions";
+import type {TagOption} from "@/features/tags/types";
 
 const ALL_KEY = "all";
 
@@ -58,8 +60,52 @@ export default function BillFilterMenu({options}: BillFilterMenuProps) {
         selectedId={searchParams.get("itemCategoryId")}
         onSelect={setParam}
       />
+      {options.tags.length > 0 ? (
+        <TagFilterSelect
+          tags={options.tags}
+          selectedIds={(searchParams.get("tags") ?? "").split(",").filter(Boolean)}
+          onChange={(ids) => setParam("tags", ids.length > 0 ? ids.join(",") : null)}
+        />
+      ) : null}
       <BillDateRangeFilter/>
     </div>
+  );
+}
+
+// Multi-select tag filter, written to the ?tags=<csv> URL param (mirrors BudgetFilterButton's CSV
+// selection). Each option shows its color dot; selecting any set of tags matches bills carrying ANY
+// of them.
+function TagFilterSelect({tags, selectedIds, onChange}: {
+  tags: TagOption[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const tTags = useTranslations("tags");
+  return (
+    <Select
+      selectionMode="multiple"
+      value={selectedIds}
+      onChange={(keys) => onChange((keys as Key[]).map(String))}
+      placeholder={tTags("placeholder")}
+      className="flex flex-col gap-1"
+    >
+      <Label className="text-foreground-500 text-sm">{tTags("filterLabel")}</Label>
+      <Select.Trigger>
+        <Select.Value/>
+        <Select.Indicator/>
+      </Select.Trigger>
+      <Select.Popover>
+        <ListBox selectionMode="multiple">
+          {tags.map((tag) => (
+            <ListBox.Item key={tag.id} id={String(tag.id)} textValue={tag.name}>
+              <span className="size-2.5 shrink-0 rounded-full" style={{backgroundColor: tag.color}}/>
+              {tag.name}
+              <ListBox.ItemIndicator/>
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
+    </Select>
   );
 }
 

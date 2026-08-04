@@ -47,6 +47,7 @@ export default function BillDataTable() {
   const supplierId = searchParams.get("supplierId") ?? "";
   const supplierCategoryId = searchParams.get("supplierCategoryId") ?? "";
   const itemCategoryId = searchParams.get("itemCategoryId") ?? "";
+  const tags = searchParams.get("tags") ?? "";
   const dateFrom = searchParams.get("dateFrom") ?? "";
   const dateTo = searchParams.get("dateTo") ?? "";
 
@@ -87,6 +88,9 @@ export default function BillDataTable() {
       if (itemCategoryId) {
         params.set("itemCategoryId", itemCategoryId);
       }
+      if (tags) {
+        params.set("tags", tags);
+      }
       if (dateFrom) {
         params.set("dateFrom", dateFrom);
       }
@@ -109,13 +113,13 @@ export default function BillDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, supplierId, supplierCategoryId, itemCategoryId, dateFrom, dateTo, sortBy, sortDir],
+    [q, supplierId, supplierCategoryId, itemCategoryId, tags, dateFrom, dateTo, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, supplierId, supplierCategoryId, itemCategoryId, dateFrom, dateTo, sortBy, sortDir]);
+  }, [q, supplierId, supplierCategoryId, itemCategoryId, tags, dateFrom, dateTo, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

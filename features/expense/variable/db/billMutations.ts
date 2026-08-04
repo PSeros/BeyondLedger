@@ -10,6 +10,7 @@ import {
   requireId,
   requireString,
 } from "@/features/expense/shared/db/formData";
+import {parseTagIds} from "@/features/tags/tagFormData";
 import type {ResolvedBillDraft} from "@/features/ocr/resolve";
 
 // Sums the parsed item line totals into a Bill totalAmount (rounded to cents).
@@ -36,6 +37,7 @@ export async function createBill(formData: FormData): Promise<void> {
   const date = requireDate(formData, "date");
   const notes = optionalString(formData, "notes");
   const items = parseItems(formData);
+  const tagIds = parseTagIds(formData);
 
   const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
@@ -56,6 +58,7 @@ export async function createBill(formData: FormData): Promise<void> {
           warranty: item.warranty,
         })),
       },
+      tags: {create: tagIds.map((tagId) => ({tagId}))},
     },
   });
 
@@ -74,6 +77,7 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
   const date = requireDate(formData, "date");
   const notes = optionalString(formData, "notes");
   const items = parseItems(formData);
+  const tagIds = parseTagIds(formData);
 
   const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
@@ -82,6 +86,12 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
       where: {id},
       data: {supplierId, documentNumber, totalAmount, date, markdown: notes},
     });
+
+    // Tags: delete-recreate the join rows (same approach as updateBudget's members).
+    await tx.entryTag.deleteMany({where: {billId: id}});
+    if (tagIds.length > 0) {
+      await tx.entryTag.createMany({data: tagIds.map((tagId) => ({billId: id, tagId}))});
+    }
 
     const existing = await tx.item.findMany({where: {billId: id}, select: {id: true}});
     const existingIds = new Set(existing.map((item) => item.id));

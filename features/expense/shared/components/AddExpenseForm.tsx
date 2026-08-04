@@ -13,7 +13,8 @@ import BillItemsEditor, {
 import {labelClass, SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
-import {createContractCategory, createItemCategory} from "@/features/settings/db/referenceDataMutations";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createContractCategory, createItemCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormOptions";
 
 export type AddExpenseType = "variable" | "fixed";
@@ -42,6 +43,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
   const tCommon = useTranslations("common");
   const tExpense = useTranslations("expense");
   const tErrors = useTranslations("errors");
+  const tTags = useTranslations("tags");
   const tVf = useTranslations("vf");
   const format = useFormatter();
   const [type, setType] = useState<AddExpenseType>(defaultType);
@@ -111,6 +113,8 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             onChange={setRows}
             onCreateCategory={createItemCategory}
           />
+
+          <TagMultiSelect label={tTags("label")} options={options.tags} onCreate={createTag}/>
 
           <TextField name="notes" className="flex flex-col gap-1">
             <Label className={labelClass}>{t("notes")}</Label>

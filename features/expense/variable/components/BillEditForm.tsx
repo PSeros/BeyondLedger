@@ -12,7 +12,8 @@ import BillItemsEditor, {
 } from "@/features/expense/shared/components/BillItemsEditor";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
-import {createItemCategory} from "@/features/settings/db/referenceDataMutations";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createItemCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {BillDetailData} from "@/features/expense/variable/db/billDetail";
 import type {BillFormOptions} from "@/features/expense/variable/db/billFormOptions";
 
@@ -26,6 +27,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
   const t = useTranslations("fields");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
+  const tTags = useTranslations("tags");
   const format = useFormatter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +80,13 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
         categories={options.itemCategories}
         onChange={setRows}
         onCreateCategory={createItemCategory}
+      />
+
+      <TagMultiSelect
+        label={tTags("label")}
+        options={options.tags}
+        defaultValue={bill.tags.map((tag) => String(tag.id))}
+        onCreate={createTag}
       />
 
       <TextField name="notes" defaultValue={bill.notes ?? ""} className="flex flex-col gap-1">
