@@ -5,6 +5,11 @@ import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import {Prisma} from "@/prisma/generated/client";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
+import {normalizeTagColor} from "@/features/tags/colors";
+
+// A tag option carries its color alongside id/name, so inline "+ create tag" popovers can render
+// the freshly created tag's chip without a refetch.
+export type TagOption = {id: number; name: string; color: string};
 
 // Reference-data (lookup-table) mutations: Supplier, SupplierCategory, ItemCategory,
 // ContractCategory, Frequency. Used by BOTH the inline "+ Add new…" popovers in the Add form
@@ -28,7 +33,7 @@ function revalidateLookupSurfaces(): void {
 // Error messages are localized (the app's active locale comes from the AppSettings singleton, read
 // server-side by next-intl's request config) since they surface to the user in Settings + the
 // inline "+ Add new…" popovers.
-type EntityKey = "category" | "source" | "supplier" | "frequency";
+type EntityKey = "category" | "source" | "supplier" | "frequency" | "tag";
 
 async function cleanName(name: string): Promise<string> {
   const trimmed = name.trim();
@@ -296,6 +301,55 @@ export async function deleteFrequency(id: number): Promise<void> {
     await client.frequency.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
     throw await toDeleteError(error,"frequency");
+  }
+  revalidateLookupSurfaces();
+}
+
+// --- Tag --------------------------------------------------------------------
+// Cross-cutting labels on Bills/Contracts/Income. Like categories: name-only + unique (checked
+// case-insensitively). Also carry a color (validated against the palette, defaulted when absent).
+// create/rename return the {id, name, color} row so inline "+ create tag" can append + select it.
+
+export async function createTag(name: string, color?: string): Promise<TagOption> {
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.tag.findMany({select: {id: true, name: true}}), clean);
+  const created = await client.tag.create({
+    data: {name: clean, color: normalizeTagColor(color)},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return created;
+}
+
+export async function renameTag(id: number, name: string): Promise<TagOption> {
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.tag.findMany({select: {id: true, name: true}}), clean, rowId);
+  const updated = await client.tag.update({
+    where: {id: rowId},
+    data: {name: clean},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function setTagColor(id: number, color: string): Promise<TagOption> {
+  const rowId = await cleanPositiveId(id);
+  const updated = await client.tag.update({
+    where: {id: rowId},
+    data: {color: normalizeTagColor(color)},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function deleteTag(id: number): Promise<void> {
+  try {
+    await client.tag.delete({where: {id: await cleanPositiveId(id)}});
+  } catch (error) {
+    throw await toDeleteError(error, "tag");
   }
   revalidateLookupSurfaces();
 }

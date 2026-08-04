@@ -275,6 +275,7 @@ export type IncomeWhereInput = {
   source?: Prisma.XOR<Prisma.IncomeSourceScalarRelationFilter, Prisma.IncomeSourceWhereInput>
   category?: Prisma.XOR<Prisma.IncomeCategoryScalarRelationFilter, Prisma.IncomeCategoryWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
+  tags?: Prisma.EntryTagListRelationFilter
 }
 
 export type IncomeOrderByWithRelationInput = {
@@ -291,6 +292,7 @@ export type IncomeOrderByWithRelationInput = {
   source?: Prisma.IncomeSourceOrderByWithRelationInput
   category?: Prisma.IncomeCategoryOrderByWithRelationInput
   frequency?: Prisma.FrequencyOrderByWithRelationInput
+  tags?: Prisma.EntryTagOrderByRelationAggregateInput
 }
 
 export type IncomeWhereUniqueInput = Prisma.AtLeast<{
@@ -310,6 +312,7 @@ export type IncomeWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.XOR<Prisma.IncomeSourceScalarRelationFilter, Prisma.IncomeSourceWhereInput>
   category?: Prisma.XOR<Prisma.IncomeCategoryScalarRelationFilter, Prisma.IncomeCategoryWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
+  tags?: Prisma.EntryTagListRelationFilter
 }, "id" | "name">
 
 export type IncomeOrderByWithAggregationInput = {
@@ -356,6 +359,7 @@ export type IncomeCreateInput = {
   source: Prisma.IncomeSourceCreateNestedOneWithoutIncomesInput
   category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutIncomesInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeUncheckedCreateInput = {
@@ -369,6 +373,7 @@ export type IncomeUncheckedCreateInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeUpdateInput = {
@@ -381,6 +386,7 @@ export type IncomeUpdateInput = {
   source?: Prisma.IncomeSourceUpdateOneRequiredWithoutIncomesNestedInput
   category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutIncomesNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateInput = {
@@ -394,6 +400,7 @@ export type IncomeUncheckedUpdateInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeCreateManyInput = {
@@ -439,6 +446,11 @@ export type IncomeListRelationFilter = {
 
 export type IncomeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type IncomeNullableScalarRelationFilter = {
+  is?: Prisma.IncomeWhereInput | null
+  isNot?: Prisma.IncomeWhereInput | null
 }
 
 export type IncomeCountOrderByAggregateInput = {
@@ -538,6 +550,22 @@ export type IncomeUncheckedUpdateManyWithoutFrequencyNestedInput = {
   deleteMany?: Prisma.IncomeScalarWhereInput | Prisma.IncomeScalarWhereInput[]
 }
 
+export type IncomeCreateNestedOneWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.IncomeCreateWithoutTagsInput, Prisma.IncomeUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.IncomeCreateOrConnectWithoutTagsInput
+  connect?: Prisma.IncomeWhereUniqueInput
+}
+
+export type IncomeUpdateOneWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.IncomeCreateWithoutTagsInput, Prisma.IncomeUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.IncomeCreateOrConnectWithoutTagsInput
+  upsert?: Prisma.IncomeUpsertWithoutTagsInput
+  disconnect?: Prisma.IncomeWhereInput | boolean
+  delete?: Prisma.IncomeWhereInput | boolean
+  connect?: Prisma.IncomeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IncomeUpdateToOneWithWhereWithoutTagsInput, Prisma.IncomeUpdateWithoutTagsInput>, Prisma.IncomeUncheckedUpdateWithoutTagsInput>
+}
+
 export type IncomeCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.IncomeCreateWithoutCategoryInput, Prisma.IncomeUncheckedCreateWithoutCategoryInput> | Prisma.IncomeCreateWithoutCategoryInput[] | Prisma.IncomeUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.IncomeCreateOrConnectWithoutCategoryInput | Prisma.IncomeCreateOrConnectWithoutCategoryInput[]
@@ -631,6 +659,7 @@ export type IncomeCreateWithoutFrequencyInput = {
   updatedAt?: Date | string
   source: Prisma.IncomeSourceCreateNestedOneWithoutIncomesInput
   category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeUncheckedCreateWithoutFrequencyInput = {
@@ -643,6 +672,7 @@ export type IncomeUncheckedCreateWithoutFrequencyInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeCreateOrConnectWithoutFrequencyInput = {
@@ -686,6 +716,72 @@ export type IncomeScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Income"> | Date | string
 }
 
+export type IncomeCreateWithoutTagsInput = {
+  name: string
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate: Date | string
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  source: Prisma.IncomeSourceCreateNestedOneWithoutIncomesInput
+  category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
+  frequency: Prisma.FrequencyCreateNestedOneWithoutIncomesInput
+}
+
+export type IncomeUncheckedCreateWithoutTagsInput = {
+  id?: number
+  name: string
+  sourceId: number
+  categoryId: number
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type IncomeCreateOrConnectWithoutTagsInput = {
+  where: Prisma.IncomeWhereUniqueInput
+  create: Prisma.XOR<Prisma.IncomeCreateWithoutTagsInput, Prisma.IncomeUncheckedCreateWithoutTagsInput>
+}
+
+export type IncomeUpsertWithoutTagsInput = {
+  update: Prisma.XOR<Prisma.IncomeUpdateWithoutTagsInput, Prisma.IncomeUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.IncomeCreateWithoutTagsInput, Prisma.IncomeUncheckedCreateWithoutTagsInput>
+  where?: Prisma.IncomeWhereInput
+}
+
+export type IncomeUpdateToOneWithWhereWithoutTagsInput = {
+  where?: Prisma.IncomeWhereInput
+  data: Prisma.XOR<Prisma.IncomeUpdateWithoutTagsInput, Prisma.IncomeUncheckedUpdateWithoutTagsInput>
+}
+
+export type IncomeUpdateWithoutTagsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  source?: Prisma.IncomeSourceUpdateOneRequiredWithoutIncomesNestedInput
+  category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
+  frequency?: Prisma.FrequencyUpdateOneRequiredWithoutIncomesNestedInput
+}
+
+export type IncomeUncheckedUpdateWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceId?: Prisma.IntFieldUpdateOperationsInput | number
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type IncomeCreateWithoutCategoryInput = {
   name: string
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -695,6 +791,7 @@ export type IncomeCreateWithoutCategoryInput = {
   updatedAt?: Date | string
   source: Prisma.IncomeSourceCreateNestedOneWithoutIncomesInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutIncomesInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeUncheckedCreateWithoutCategoryInput = {
@@ -707,6 +804,7 @@ export type IncomeUncheckedCreateWithoutCategoryInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeCreateOrConnectWithoutCategoryInput = {
@@ -743,6 +841,7 @@ export type IncomeCreateWithoutSourceInput = {
   updatedAt?: Date | string
   category: Prisma.IncomeCategoryCreateNestedOneWithoutIncomesInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutIncomesInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeUncheckedCreateWithoutSourceInput = {
@@ -755,6 +854,7 @@ export type IncomeUncheckedCreateWithoutSourceInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutIncomeInput
 }
 
 export type IncomeCreateOrConnectWithoutSourceInput = {
@@ -803,6 +903,7 @@ export type IncomeUpdateWithoutFrequencyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   source?: Prisma.IncomeSourceUpdateOneRequiredWithoutIncomesNestedInput
   category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateWithoutFrequencyInput = {
@@ -815,6 +916,7 @@ export type IncomeUncheckedUpdateWithoutFrequencyInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateManyWithoutFrequencyInput = {
@@ -850,6 +952,7 @@ export type IncomeUpdateWithoutCategoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   source?: Prisma.IncomeSourceUpdateOneRequiredWithoutIncomesNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutIncomesNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateWithoutCategoryInput = {
@@ -862,6 +965,7 @@ export type IncomeUncheckedUpdateWithoutCategoryInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateManyWithoutCategoryInput = {
@@ -897,6 +1001,7 @@ export type IncomeUpdateWithoutSourceInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.IncomeCategoryUpdateOneRequiredWithoutIncomesNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutIncomesNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateWithoutSourceInput = {
@@ -909,6 +1014,7 @@ export type IncomeUncheckedUpdateWithoutSourceInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutIncomeNestedInput
 }
 
 export type IncomeUncheckedUpdateManyWithoutSourceInput = {
@@ -923,6 +1029,35 @@ export type IncomeUncheckedUpdateManyWithoutSourceInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type IncomeCountOutputType
+ */
+
+export type IncomeCountOutputType = {
+  tags: number
+}
+
+export type IncomeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tags?: boolean | IncomeCountOutputTypeCountTagsArgs
+}
+
+/**
+ * IncomeCountOutputType without action
+ */
+export type IncomeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the IncomeCountOutputType
+   */
+  select?: Prisma.IncomeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * IncomeCountOutputType without action
+ */
+export type IncomeCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EntryTagWhereInput
+}
 
 
 export type IncomeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -939,6 +1074,8 @@ export type IncomeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   source?: boolean | Prisma.IncomeSourceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  tags?: boolean | Prisma.Income$tagsArgs<ExtArgs>
+  _count?: boolean | Prisma.IncomeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["income"]>
 
 export type IncomeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -991,6 +1128,8 @@ export type IncomeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   source?: boolean | Prisma.IncomeSourceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.IncomeCategoryDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  tags?: boolean | Prisma.Income$tagsArgs<ExtArgs>
+  _count?: boolean | Prisma.IncomeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IncomeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   source?: boolean | Prisma.IncomeSourceDefaultArgs<ExtArgs>
@@ -1009,6 +1148,7 @@ export type $IncomePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     source: Prisma.$IncomeSourcePayload<ExtArgs>
     category: Prisma.$IncomeCategoryPayload<ExtArgs>
     frequency: Prisma.$FrequencyPayload<ExtArgs>
+    tags: Prisma.$EntryTagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1418,6 +1558,7 @@ export interface Prisma__IncomeClient<T, Null = never, ExtArgs extends runtime.T
   source<T extends Prisma.IncomeSourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeSourceDefaultArgs<ExtArgs>>): Prisma.Prisma__IncomeSourceClient<runtime.Types.Result.GetResult<Prisma.$IncomeSourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.IncomeCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncomeCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__IncomeCategoryClient<runtime.Types.Result.GetResult<Prisma.$IncomeCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   frequency<T extends Prisma.FrequencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FrequencyDefaultArgs<ExtArgs>>): Prisma.Prisma__FrequencyClient<runtime.Types.Result.GetResult<Prisma.$FrequencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tags<T extends Prisma.Income$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Income$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1853,6 +1994,30 @@ export type IncomeDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many Incomes to delete.
    */
   limit?: number
+}
+
+/**
+ * Income.tags
+ */
+export type Income$tagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EntryTag
+   */
+  select?: Prisma.EntryTagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EntryTag
+   */
+  omit?: Prisma.EntryTagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EntryTagInclude<ExtArgs> | null
+  where?: Prisma.EntryTagWhereInput
+  orderBy?: Prisma.EntryTagOrderByWithRelationInput | Prisma.EntryTagOrderByWithRelationInput[]
+  cursor?: Prisma.EntryTagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EntryTagScalarFieldEnum | Prisma.EntryTagScalarFieldEnum[]
 }
 
 /**

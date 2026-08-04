@@ -7,11 +7,13 @@ import {Button, Input, Label, ListBox, Popover, Select, TextField} from "@heroui
 import {LuCheck, LuPencil, LuPlus, LuTrash2, LuX} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
-import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow} from "@/features/settings/db/referenceData";
+import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow, TagRow} from "@/features/settings/db/referenceData";
 import type {AiSettingsForm} from "@/features/settings/db/aiSettings";
 import AiSettingsSection from "@/features/settings/components/AiSettingsSection";
 import LocaleSettingsSection from "@/features/settings/components/LocaleSettingsSection";
 import {SectionCard} from "@/features/settings/components/SectionCard";
+import TagChip from "@/components/TagChip";
+import {DEFAULT_TAG_COLOR, TAG_COLORS} from "@/features/tags/colors";
 import {
   createContractCategory,
   createFrequency,
@@ -20,6 +22,7 @@ import {
   createItemCategory,
   createSupplier,
   createSupplierCategory,
+  createTag,
   deleteContractCategory,
   deleteFrequency,
   deleteIncomeCategory,
@@ -27,11 +30,14 @@ import {
   deleteItemCategory,
   deleteSupplier,
   deleteSupplierCategory,
+  deleteTag,
   renameContractCategory,
   renameIncomeCategory,
   renameIncomeSource,
   renameItemCategory,
   renameSupplierCategory,
+  renameTag,
+  setTagColor,
   updateFrequency,
   updateSupplier,
 } from "@/features/settings/db/referenceDataMutations";
@@ -142,6 +148,9 @@ export default function ReferenceDataManager({data, aiSettings, locale}: {data: 
               rename={renameIncomeCategory}
               remove={deleteIncomeCategory}
             />
+            <div className="md:col-span-2 xl:col-span-3">
+              <TagSection tags={data.tags}/>
+            </div>
           </div>
         </section>
       </div>
@@ -529,6 +538,133 @@ function FrequencySection({frequencies}: {frequencies: FrequencyRow[]}) {
                     <LuPencil className="size-4"/>
                   </Button>
                   <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteFrequency(row.id))}/>
+                </>
+              )}
+            </RowShell>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
+
+// --- tags (name + color) ----------------------------------------------------
+
+// A swatch button that opens a small palette Popover; picking a color fires onChange and closes.
+// Used both to choose a new tag's color and to recolor an existing one.
+function ColorPicker({value, onChange, ariaLabel, disabled}: {
+  value: string;
+  onChange: (color: string) => void;
+  ariaLabel: string;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover isOpen={open} onOpenChange={setOpen}>
+      <Button type="button" size="sm" variant="tertiary" isIconOnly isDisabled={disabled} aria-label={ariaLabel}>
+        <span className="border-default size-4 rounded-full border" style={{backgroundColor: value}}/>
+      </Button>
+      <Popover.Content>
+        <Popover.Dialog className="grid grid-cols-5 gap-2">
+          {TAG_COLORS.map((color) => (
+            <button
+              key={color}
+              type="button"
+              aria-label={color}
+              onClick={() => {
+                onChange(color);
+                setOpen(false);
+              }}
+              className="border-default size-6 rounded-full border"
+              style={{backgroundColor: color, outline: color === value ? "2px solid var(--foreground)" : undefined, outlineOffset: "2px"}}
+            />
+          ))}
+        </Popover.Dialog>
+      </Popover.Content>
+    </Popover>
+  );
+}
+
+function TagSection({tags}: {tags: TagRow[]}) {
+  const t = useTranslations("settings");
+  const tTags = useTranslations("tags");
+  const tCommon = useTranslations("common");
+  const tFields = useTranslations("fields");
+  const {run, busy, error, setError} = useMutations();
+  const [newName, setNewName] = useState("");
+  const [newColor, setNewColor] = useState<string>(DEFAULT_TAG_COLOR);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+
+  function startEdit(row: TagRow) {
+    setError(null);
+    setEditingId(row.id);
+    setEditName(row.name);
+  }
+
+  return (
+    <SectionCard title={tTags("title")} count={tags.length} description={tTags("manageDescription")}>
+      <div className="flex items-end gap-2">
+        <ColorPicker value={newColor} onChange={setNewColor} ariaLabel={tTags("pickColor")}/>
+        <TextField value={newName} onChange={setNewName} aria-label={tTags("newAria")} className="flex flex-1 flex-col gap-1">
+          <Input placeholder={tTags("addNew")}/>
+        </TextField>
+        <Button
+          type="button"
+          size="sm"
+          variant="primary"
+          isDisabled={busy || newName.trim() === ""}
+          onPress={() => run(() => createTag(newName, newColor), () => setNewName(""))}
+        >
+          <LuPlus className="size-4"/>
+          {tCommon("add")}
+        </Button>
+      </div>
+
+      {error ? <p className="text-danger text-sm">{error}</p> : null}
+
+      {tags.length === 0 ? (
+        <p className="text-sm text-muted">{tTags("noneYet")}</p>
+      ) : (
+        <ul className="flex flex-col">
+          {tags.map((row) => (
+            <RowShell key={row.id}>
+              {editingId === row.id ? (
+                <>
+                  <TextField value={editName} onChange={setEditName} aria-label={tFields("name")} className="flex flex-1 flex-col gap-1">
+                    <Input autoFocus/>
+                  </TextField>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="tertiary"
+                    isIconOnly
+                    aria-label={tCommon("save")}
+                    isDisabled={busy || editName.trim() === ""}
+                    onPress={() => run(() => renameTag(row.id, editName), () => setEditingId(null))}
+                  >
+                    <LuCheck className="size-4"/>
+                  </Button>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={tCommon("cancel")} onPress={() => setEditingId(null)}>
+                    <LuX className="size-4"/>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1">
+                    <TagChip name={row.name} color={row.color}/>
+                  </span>
+                  <UsageNote count={row.usage}/>
+                  <ColorPicker
+                    value={row.color}
+                    onChange={(color) => run(() => setTagColor(row.id, color))}
+                    ariaLabel={tTags("recolorAria", {label: row.name})}
+                    disabled={busy}
+                  />
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
+                    <LuPencil className="size-4"/>
+                  </Button>
+                  <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteTag(row.id))}/>
                 </>
               )}
             </RowShell>

@@ -35,7 +35,8 @@
     "category": "Kategorie",
     "source": "Quelle",
     "supplier": "Lieferant",
-    "frequency": "Frequenz"
+    "frequency": "Frequenz",
+    "tag": "Tag"
   },
   "errors": {
     "couldNotDelete": "Löschen fehlgeschlagen.",
@@ -314,5 +315,20 @@
     "emptyText": "Erstelle ein Budget, um Ausgaben über eine beliebige Mischung von Kategorien gegen ein Ziel zu verfolgen.",
     "noResults": "Keine Budgets entsprechen deiner Suche oder deinen Filtern.",
     "entityLabel": "Budget"
+  },
+  "tags": {
+    "title": "Tags",
+    "manageDescription": "Farbige Labels, die du an Rechnungen, Verträge und Einnahmen hängen kannst, um sie kategorienübergreifend zu gruppieren.",
+    "addNew": "Tag hinzufügen…",
+    "newAria": "Name des neuen Tags",
+    "noneYet": "Noch keine Tags",
+    "pickColor": "Farbe wählen",
+    "recolorAria": "{label} umfärben",
+    "label": "Tags",
+    "placeholder": "Tags hinzufügen…",
+    "createNamed": "„{name}“ erstellen",
+    "filterLabel": "Tags",
+    "none": "Keine Tags",
+    "noResults": "Keine Tags gefunden."
   }
 }

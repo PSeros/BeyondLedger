@@ -64,3 +64,40 @@ model FileAsset {
 
   @@index([billId, contractId, createdAt(sort: Desc)])
 }
+
+// A free-form, colored label attached to entries (Bill/Contract/Income) for cross-cutting
+// classification independent of category (e.g. "gift", "Steuererklärung", "vacation"). name is
+// unique (enforced case-insensitively in code, like IncomeCategory); color is a user-picked hex
+// string with a default applied at create time.
+model Tag {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  color     String
+  createdAt DateTime   @default(now())
+
+  entries EntryTag[]
+}
+
+// Polymorphic tag assignment: exactly ONE of billId/contractId/incomeId is set per row (mirrors the
+// BudgetMember convention — the repo has no implicit Prisma m-n). The entry FKs cascade so deleting a
+// Bill/Contract/Income drops its assignments; the tag FK is left RESTRICT (Prisma's default) so a tag
+// that's still in use can't be deleted from Settings — matching every other lookup there.
+model EntryTag {
+  id    Int @id @default(autoincrement())
+  tag   Tag @relation(fields: [tagId], references: [id])
+  tagId Int
+
+  bill       Bill?     @relation(fields: [billId], references: [id], onDelete: Cascade)
+  billId     Int?
+  contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId Int?
+  income     Income?   @relation(fields: [incomeId], references: [id], onDelete: Cascade)
+  incomeId   Int?
+
+  @@unique([tagId, billId])
+  @@unique([tagId, contractId])
+  @@unique([tagId, incomeId])
+  @@index([billId])
+  @@index([contractId])
+  @@index([incomeId])
+}

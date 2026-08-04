@@ -65,6 +65,8 @@ export const ModelName = {
   AiSettings: 'AiSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
+  Tag: 'Tag',
+  EntryTag: 'EntryTag',
   IncomeCategory: 'IncomeCategory',
   IncomeSource: 'IncomeSource',
   Income: 'Income'
@@ -247,6 +249,27 @@ export const FileAssetScalarFieldEnum = {
 } as const
 
 export type FileAssetScalarFieldEnum = (typeof FileAssetScalarFieldEnum)[keyof typeof FileAssetScalarFieldEnum]
+
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const EntryTagScalarFieldEnum = {
+  id: 'id',
+  tagId: 'tagId',
+  billId: 'billId',
+  contractId: 'contractId',
+  incomeId: 'incomeId'
+} as const
+
+export type EntryTagScalarFieldEnum = (typeof EntryTagScalarFieldEnum)[keyof typeof EntryTagScalarFieldEnum]
 
 
 export const IncomeCategoryScalarFieldEnum = {

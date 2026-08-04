@@ -398,6 +398,8 @@ export const ModelName = {
   AiSettings: 'AiSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
+  Tag: 'Tag',
+  EntryTag: 'EntryTag',
   IncomeCategory: 'IncomeCategory',
   IncomeSource: 'IncomeSource',
   Income: 'Income'
@@ -416,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "incomeCategory" | "incomeSource" | "income"
+    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "tag" | "entryTag" | "incomeCategory" | "incomeSource" | "income"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1456,6 +1458,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Tag: {
+      payload: Prisma.$TagPayload<ExtArgs>
+      fields: Prisma.TagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findFirst: {
+          args: Prisma.TagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findMany: {
+          args: Prisma.TagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        create: {
+          args: Prisma.TagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        createMany: {
+          args: Prisma.TagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TagCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        delete: {
+          args: Prisma.TagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        update: {
+          args: Prisma.TagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        deleteMany: {
+          args: Prisma.TagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TagUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        upsert: {
+          args: Prisma.TagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        aggregate: {
+          args: Prisma.TagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>
+        }
+        groupBy: {
+          args: Prisma.TagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
+        }
+      }
+    }
+    EntryTag: {
+      payload: Prisma.$EntryTagPayload<ExtArgs>
+      fields: Prisma.EntryTagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EntryTagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EntryTagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        findFirst: {
+          args: Prisma.EntryTagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EntryTagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        findMany: {
+          args: Prisma.EntryTagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>[]
+        }
+        create: {
+          args: Prisma.EntryTagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        createMany: {
+          args: Prisma.EntryTagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EntryTagCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>[]
+        }
+        delete: {
+          args: Prisma.EntryTagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        update: {
+          args: Prisma.EntryTagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        deleteMany: {
+          args: Prisma.EntryTagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EntryTagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EntryTagUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>[]
+        }
+        upsert: {
+          args: Prisma.EntryTagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EntryTagPayload>
+        }
+        aggregate: {
+          args: Prisma.EntryTagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEntryTag>
+        }
+        groupBy: {
+          args: Prisma.EntryTagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntryTagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EntryTagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EntryTagCountAggregateOutputType> | number
+        }
+      }
+    }
     IncomeCategory: {
       payload: Prisma.$IncomeCategoryPayload<ExtArgs>
       fields: Prisma.IncomeCategoryFieldRefs
@@ -1880,6 +2030,27 @@ export const FileAssetScalarFieldEnum = {
 export type FileAssetScalarFieldEnum = (typeof FileAssetScalarFieldEnum)[keyof typeof FileAssetScalarFieldEnum]
 
 
+export const TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const EntryTagScalarFieldEnum = {
+  id: 'id',
+  tagId: 'tagId',
+  billId: 'billId',
+  contractId: 'contractId',
+  incomeId: 'incomeId'
+} as const
+
+export type EntryTagScalarFieldEnum = (typeof EntryTagScalarFieldEnum)[keyof typeof EntryTagScalarFieldEnum]
+
+
 export const IncomeCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name'
@@ -2120,6 +2291,8 @@ export type GlobalOmitConfig = {
   aiSettings?: Prisma.AiSettingsOmit
   appSettings?: Prisma.AppSettingsOmit
   fileAsset?: Prisma.FileAssetOmit
+  tag?: Prisma.TagOmit
+  entryTag?: Prisma.EntryTagOmit
   incomeCategory?: Prisma.IncomeCategoryOmit
   incomeSource?: Prisma.IncomeSourceOmit
   income?: Prisma.IncomeOmit

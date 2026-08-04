@@ -7,6 +7,7 @@ import {client} from "@/lib/prisma";
 export type SupplierRow = {id: number; name: string; categoryId: number; categoryName: string; usage: number};
 export type CategoryRow = {id: number; name: string; usage: number};
 export type FrequencyRow = {id: number; name: string; value: number; isRecurring: boolean; usage: number};
+export type TagRow = {id: number; name: string; color: string; usage: number};
 
 export type ReferenceData = {
   suppliers: SupplierRow[];
@@ -16,6 +17,7 @@ export type ReferenceData = {
   incomeSources: CategoryRow[];
   incomeCategories: CategoryRow[];
   frequencies: FrequencyRow[];
+  tags: TagRow[];
 };
 
 export async function getReferenceData(): Promise<ReferenceData> {
@@ -27,6 +29,7 @@ export async function getReferenceData(): Promise<ReferenceData> {
     incomeSources,
     incomeCategories,
     frequencies,
+    tags,
   ] = await Promise.all([
     client.supplier.findMany({
       select: {
@@ -62,6 +65,10 @@ export async function getReferenceData(): Promise<ReferenceData> {
       select: {id: true, name: true, value: true, isRecurring: true, _count: {select: {contracts: true, incomes: true}}},
       orderBy: {value: "asc"},
     }),
+    client.tag.findMany({
+      select: {id: true, name: true, color: true, _count: {select: {entries: true}}},
+      orderBy: {name: "asc"},
+    }),
   ]);
 
   return {
@@ -84,5 +91,6 @@ export async function getReferenceData(): Promise<ReferenceData> {
       isRecurring: f.isRecurring,
       usage: f._count.contracts + f._count.incomes,
     })),
+    tags: tags.map((tag) => ({id: tag.id, name: tag.name, color: tag.color, usage: tag._count.entries})),
   };
 }

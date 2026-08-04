@@ -35,7 +35,8 @@
     "category": "category",
     "source": "source",
     "supplier": "supplier",
-    "frequency": "frequency"
+    "frequency": "frequency",
+    "tag": "tag"
   },
   "errors": {
     "couldNotDelete": "Could not delete.",
@@ -314,5 +315,20 @@
     "emptyText": "Create a budget to track spending across any mix of categories against a target.",
     "noResults": "No budgets match your search or filters.",
     "entityLabel": "budget"
+  },
+  "tags": {
+    "title": "Tags",
+    "manageDescription": "Colored labels you can attach to bills, contracts and income to group them across categories.",
+    "addNew": "Add a tag…",
+    "newAria": "New tag name",
+    "noneYet": "No tags yet",
+    "pickColor": "Pick a color",
+    "recolorAria": "Recolor {label}",
+    "label": "Tags",
+    "placeholder": "Add tags…",
+    "createNamed": "Create \"{name}\"",
+    "filterLabel": "Tags",
+    "none": "No tags",
+    "noResults": "No tags match."
   }
 }

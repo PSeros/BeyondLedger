@@ -288,6 +288,7 @@ export type ContractWhereInput = {
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
   files?: Prisma.FileAssetListRelationFilter
+  tags?: Prisma.EntryTagListRelationFilter
 }
 
 export type ContractOrderByWithRelationInput = {
@@ -306,6 +307,7 @@ export type ContractOrderByWithRelationInput = {
   supplier?: Prisma.SupplierOrderByWithRelationInput
   frequency?: Prisma.FrequencyOrderByWithRelationInput
   files?: Prisma.FileAssetOrderByRelationAggregateInput
+  tags?: Prisma.EntryTagOrderByRelationAggregateInput
 }
 
 export type ContractWhereUniqueInput = Prisma.AtLeast<{
@@ -327,6 +329,7 @@ export type ContractWhereUniqueInput = Prisma.AtLeast<{
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
   files?: Prisma.FileAssetListRelationFilter
+  tags?: Prisma.EntryTagListRelationFilter
 }, "id">
 
 export type ContractOrderByWithAggregationInput = {
@@ -377,6 +380,7 @@ export type ContractCreateInput = {
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateInput = {
@@ -392,6 +396,7 @@ export type ContractUncheckedCreateInput = {
   noticePeriod?: number | null
   createdAt?: Date | string
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractUpdateInput = {
@@ -406,6 +411,7 @@ export type ContractUpdateInput = {
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateInput = {
@@ -421,6 +427,7 @@ export type ContractUncheckedUpdateInput = {
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractCreateManyInput = {
@@ -682,6 +689,22 @@ export type ContractUpdateOneWithoutFilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutFilesInput, Prisma.ContractUpdateWithoutFilesInput>, Prisma.ContractUncheckedUpdateWithoutFilesInput>
 }
 
+export type ContractCreateNestedOneWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutTagsInput, Prisma.ContractUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutTagsInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUpdateOneWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutTagsInput, Prisma.ContractUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutTagsInput
+  upsert?: Prisma.ContractUpsertWithoutTagsInput
+  disconnect?: Prisma.ContractWhereInput | boolean
+  delete?: Prisma.ContractWhereInput | boolean
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutTagsInput, Prisma.ContractUpdateWithoutTagsInput>, Prisma.ContractUncheckedUpdateWithoutTagsInput>
+}
+
 export type ContractCreateWithoutCategoryInput = {
   name: string
   documentNumber?: string | null
@@ -693,6 +716,7 @@ export type ContractCreateWithoutCategoryInput = {
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateWithoutCategoryInput = {
@@ -707,6 +731,7 @@ export type ContractUncheckedCreateWithoutCategoryInput = {
   noticePeriod?: number | null
   createdAt?: Date | string
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutCategoryInput = {
@@ -762,6 +787,7 @@ export type ContractCreateWithoutSupplierInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateWithoutSupplierInput = {
@@ -776,6 +802,7 @@ export type ContractUncheckedCreateWithoutSupplierInput = {
   noticePeriod?: number | null
   createdAt?: Date | string
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutSupplierInput = {
@@ -814,6 +841,7 @@ export type ContractCreateWithoutFrequencyInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateWithoutFrequencyInput = {
@@ -828,6 +856,7 @@ export type ContractUncheckedCreateWithoutFrequencyInput = {
   noticePeriod?: number | null
   createdAt?: Date | string
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutFrequencyInput = {
@@ -866,6 +895,7 @@ export type ContractCreateWithoutFilesInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateWithoutFilesInput = {
@@ -880,6 +910,7 @@ export type ContractUncheckedCreateWithoutFilesInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutFilesInput = {
@@ -909,6 +940,7 @@ export type ContractUpdateWithoutFilesInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutFilesInput = {
@@ -923,6 +955,81 @@ export type ContractUncheckedUpdateWithoutFilesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutTagsInput = {
+  name: string
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate: Date | string
+  endDate?: Date | string | null
+  noticePeriod?: number | null
+  createdAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
+  frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutTagsInput = {
+  id?: number
+  name: string
+  categoryId: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  noticePeriod?: number | null
+  createdAt?: Date | string
+  files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutTagsInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutTagsInput, Prisma.ContractUncheckedCreateWithoutTagsInput>
+}
+
+export type ContractUpsertWithoutTagsInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutTagsInput, Prisma.ContractUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutTagsInput, Prisma.ContractUncheckedCreateWithoutTagsInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutTagsInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutTagsInput, Prisma.ContractUncheckedUpdateWithoutTagsInput>
+}
+
+export type ContractUpdateWithoutTagsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
+  frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractCreateManyCategoryInput = {
@@ -949,6 +1056,7 @@ export type ContractUpdateWithoutCategoryInput = {
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutCategoryInput = {
@@ -963,6 +1071,7 @@ export type ContractUncheckedUpdateWithoutCategoryInput = {
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateManyWithoutCategoryInput = {
@@ -1002,6 +1111,7 @@ export type ContractUpdateWithoutSupplierInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutSupplierInput = {
@@ -1016,6 +1126,7 @@ export type ContractUncheckedUpdateWithoutSupplierInput = {
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateManyWithoutSupplierInput = {
@@ -1055,6 +1166,7 @@ export type ContractUpdateWithoutFrequencyInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutFrequencyInput = {
@@ -1069,6 +1181,7 @@ export type ContractUncheckedUpdateWithoutFrequencyInput = {
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateManyWithoutFrequencyInput = {
@@ -1091,10 +1204,12 @@ export type ContractUncheckedUpdateManyWithoutFrequencyInput = {
 
 export type ContractCountOutputType = {
   files: number
+  tags: number
 }
 
 export type ContractCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   files?: boolean | ContractCountOutputTypeCountFilesArgs
+  tags?: boolean | ContractCountOutputTypeCountTagsArgs
 }
 
 /**
@@ -1114,6 +1229,13 @@ export type ContractCountOutputTypeCountFilesArgs<ExtArgs extends runtime.Types.
   where?: Prisma.FileAssetWhereInput
 }
 
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EntryTagWhereInput
+}
+
 
 export type ContractSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1131,6 +1253,7 @@ export type ContractSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
   files?: boolean | Prisma.Contract$filesArgs<ExtArgs>
+  tags?: boolean | Prisma.Contract$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
@@ -1188,6 +1311,7 @@ export type ContractInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
   files?: boolean | Prisma.Contract$filesArgs<ExtArgs>
+  tags?: boolean | Prisma.Contract$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ContractIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1208,6 +1332,7 @@ export type $ContractPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     supplier: Prisma.$SupplierPayload<ExtArgs>
     frequency: Prisma.$FrequencyPayload<ExtArgs>
     files: Prisma.$FileAssetPayload<ExtArgs>[]
+    tags: Prisma.$EntryTagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1619,6 +1744,7 @@ export interface Prisma__ContractClient<T, Null = never, ExtArgs extends runtime
   supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   frequency<T extends Prisma.FrequencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FrequencyDefaultArgs<ExtArgs>>): Prisma.Prisma__FrequencyClient<runtime.Types.Result.GetResult<Prisma.$FrequencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   files<T extends Prisma.Contract$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FileAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tags<T extends Prisma.Contract$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2079,6 +2205,30 @@ export type Contract$filesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.FileAssetScalarFieldEnum | Prisma.FileAssetScalarFieldEnum[]
+}
+
+/**
+ * Contract.tags
+ */
+export type Contract$tagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EntryTag
+   */
+  select?: Prisma.EntryTagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EntryTag
+   */
+  omit?: Prisma.EntryTagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EntryTagInclude<ExtArgs> | null
+  where?: Prisma.EntryTagWhereInput
+  orderBy?: Prisma.EntryTagOrderByWithRelationInput | Prisma.EntryTagOrderByWithRelationInput[]
+  cursor?: Prisma.EntryTagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EntryTagScalarFieldEnum | Prisma.EntryTagScalarFieldEnum[]
 }
 
 /**

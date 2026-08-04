@@ -112,6 +112,16 @@ export type AppSettings = Prisma.AppSettingsModel
  */
 export type FileAsset = Prisma.FileAssetModel
 /**
+ * Model Tag
+ * 
+ */
+export type Tag = Prisma.TagModel
+/**
+ * Model EntryTag
+ * 
+ */
+export type EntryTag = Prisma.EntryTagModel
+/**
  * Model IncomeCategory
  * 
  */

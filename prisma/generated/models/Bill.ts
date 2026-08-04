@@ -251,6 +251,7 @@ export type BillWhereInput = {
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   items?: Prisma.ItemListRelationFilter
   files?: Prisma.FileAssetListRelationFilter
+  tags?: Prisma.EntryTagListRelationFilter
 }
 
 export type BillOrderByWithRelationInput = {
@@ -265,6 +266,7 @@ export type BillOrderByWithRelationInput = {
   supplier?: Prisma.SupplierOrderByWithRelationInput
   items?: Prisma.ItemOrderByRelationAggregateInput
   files?: Prisma.FileAssetOrderByRelationAggregateInput
+  tags?: Prisma.EntryTagOrderByRelationAggregateInput
 }
 
 export type BillWhereUniqueInput = Prisma.AtLeast<{
@@ -282,6 +284,7 @@ export type BillWhereUniqueInput = Prisma.AtLeast<{
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   items?: Prisma.ItemListRelationFilter
   files?: Prisma.FileAssetListRelationFilter
+  tags?: Prisma.EntryTagListRelationFilter
 }, "id">
 
 export type BillOrderByWithAggregationInput = {
@@ -324,6 +327,7 @@ export type BillCreateInput = {
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
 
 export type BillUncheckedCreateInput = {
@@ -337,6 +341,7 @@ export type BillUncheckedCreateInput = {
   updatedAt?: Date | string
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
 
 export type BillUpdateInput = {
@@ -349,6 +354,7 @@ export type BillUpdateInput = {
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
 
 export type BillUncheckedUpdateInput = {
@@ -362,6 +368,7 @@ export type BillUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
 }
 
 export type BillCreateManyInput = {
@@ -532,6 +539,22 @@ export type BillUpdateOneWithoutFilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BillUpdateToOneWithWhereWithoutFilesInput, Prisma.BillUpdateWithoutFilesInput>, Prisma.BillUncheckedUpdateWithoutFilesInput>
 }
 
+export type BillCreateNestedOneWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutTagsInput, Prisma.BillUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutTagsInput
+  connect?: Prisma.BillWhereUniqueInput
+}
+
+export type BillUpdateOneWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutTagsInput, Prisma.BillUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutTagsInput
+  upsert?: Prisma.BillUpsertWithoutTagsInput
+  disconnect?: Prisma.BillWhereInput | boolean
+  delete?: Prisma.BillWhereInput | boolean
+  connect?: Prisma.BillWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BillUpdateToOneWithWhereWithoutTagsInput, Prisma.BillUpdateWithoutTagsInput>, Prisma.BillUncheckedUpdateWithoutTagsInput>
+}
+
 export type BillCreateWithoutSupplierInput = {
   documentNumber?: string | null
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -541,6 +564,7 @@ export type BillCreateWithoutSupplierInput = {
   updatedAt?: Date | string
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
 
 export type BillUncheckedCreateWithoutSupplierInput = {
@@ -553,6 +577,7 @@ export type BillUncheckedCreateWithoutSupplierInput = {
   updatedAt?: Date | string
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
 
 export type BillCreateOrConnectWithoutSupplierInput = {
@@ -603,6 +628,7 @@ export type BillCreateWithoutItemsInput = {
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
 
 export type BillUncheckedCreateWithoutItemsInput = {
@@ -615,6 +641,7 @@ export type BillUncheckedCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
 
 export type BillCreateOrConnectWithoutItemsInput = {
@@ -642,6 +669,7 @@ export type BillUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
 
 export type BillUncheckedUpdateWithoutItemsInput = {
@@ -654,6 +682,7 @@ export type BillUncheckedUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
 }
 
 export type BillCreateWithoutFilesInput = {
@@ -665,6 +694,7 @@ export type BillCreateWithoutFilesInput = {
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
 
 export type BillUncheckedCreateWithoutFilesInput = {
@@ -677,6 +707,7 @@ export type BillUncheckedCreateWithoutFilesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
 
 export type BillCreateOrConnectWithoutFilesInput = {
@@ -704,6 +735,7 @@ export type BillUpdateWithoutFilesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
 
 export type BillUncheckedUpdateWithoutFilesInput = {
@@ -716,6 +748,73 @@ export type BillUncheckedUpdateWithoutFilesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
+}
+
+export type BillCreateWithoutTagsInput = {
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  date: Date | string
+  markdown?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  items?: Prisma.ItemCreateNestedManyWithoutBillInput
+  files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
+}
+
+export type BillUncheckedCreateWithoutTagsInput = {
+  id?: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  date: Date | string
+  markdown?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
+  files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
+}
+
+export type BillCreateOrConnectWithoutTagsInput = {
+  where: Prisma.BillWhereUniqueInput
+  create: Prisma.XOR<Prisma.BillCreateWithoutTagsInput, Prisma.BillUncheckedCreateWithoutTagsInput>
+}
+
+export type BillUpsertWithoutTagsInput = {
+  update: Prisma.XOR<Prisma.BillUpdateWithoutTagsInput, Prisma.BillUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.BillCreateWithoutTagsInput, Prisma.BillUncheckedCreateWithoutTagsInput>
+  where?: Prisma.BillWhereInput
+}
+
+export type BillUpdateToOneWithWhereWithoutTagsInput = {
+  where?: Prisma.BillWhereInput
+  data: Prisma.XOR<Prisma.BillUpdateWithoutTagsInput, Prisma.BillUncheckedUpdateWithoutTagsInput>
+}
+
+export type BillUpdateWithoutTagsInput = {
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  items?: Prisma.ItemUpdateManyWithoutBillNestedInput
+  files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
+}
+
+export type BillUncheckedUpdateWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
+  files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
 }
 
 export type BillCreateManySupplierInput = {
@@ -737,6 +836,7 @@ export type BillUpdateWithoutSupplierInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
 
 export type BillUncheckedUpdateWithoutSupplierInput = {
@@ -749,6 +849,7 @@ export type BillUncheckedUpdateWithoutSupplierInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
 }
 
 export type BillUncheckedUpdateManyWithoutSupplierInput = {
@@ -769,11 +870,13 @@ export type BillUncheckedUpdateManyWithoutSupplierInput = {
 export type BillCountOutputType = {
   items: number
   files: number
+  tags: number
 }
 
 export type BillCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | BillCountOutputTypeCountItemsArgs
   files?: boolean | BillCountOutputTypeCountFilesArgs
+  tags?: boolean | BillCountOutputTypeCountTagsArgs
 }
 
 /**
@@ -800,6 +903,13 @@ export type BillCountOutputTypeCountFilesArgs<ExtArgs extends runtime.Types.Exte
   where?: Prisma.FileAssetWhereInput
 }
 
+/**
+ * BillCountOutputType without action
+ */
+export type BillCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EntryTagWhereInput
+}
+
 
 export type BillSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -813,6 +923,7 @@ export type BillSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   items?: boolean | Prisma.Bill$itemsArgs<ExtArgs>
   files?: boolean | Prisma.Bill$filesArgs<ExtArgs>
+  tags?: boolean | Prisma.Bill$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.BillCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bill"]>
 
@@ -856,6 +967,7 @@ export type BillInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   items?: boolean | Prisma.Bill$itemsArgs<ExtArgs>
   files?: boolean | Prisma.Bill$filesArgs<ExtArgs>
+  tags?: boolean | Prisma.Bill$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.BillCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BillIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -871,6 +983,7 @@ export type $BillPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     supplier: Prisma.$SupplierPayload<ExtArgs>
     items: Prisma.$ItemPayload<ExtArgs>[]
     files: Prisma.$FileAssetPayload<ExtArgs>[]
+    tags: Prisma.$EntryTagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1278,6 +1391,7 @@ export interface Prisma__BillClient<T, Null = never, ExtArgs extends runtime.Typ
   supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Bill$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   files<T extends Prisma.Bill$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FileAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tags<T extends Prisma.Bill$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1759,6 +1873,30 @@ export type Bill$filesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.FileAssetScalarFieldEnum | Prisma.FileAssetScalarFieldEnum[]
+}
+
+/**
+ * Bill.tags
+ */
+export type Bill$tagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EntryTag
+   */
+  select?: Prisma.EntryTagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EntryTag
+   */
+  omit?: Prisma.EntryTagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EntryTagInclude<ExtArgs> | null
+  where?: Prisma.EntryTagWhereInput
+  orderBy?: Prisma.EntryTagOrderByWithRelationInput | Prisma.EntryTagOrderByWithRelationInput[]
+  cursor?: Prisma.EntryTagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EntryTagScalarFieldEnum | Prisma.EntryTagScalarFieldEnum[]
 }
 
 /**
