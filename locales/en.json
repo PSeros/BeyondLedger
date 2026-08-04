@@ -133,6 +133,7 @@
   "search": {
     "expense": "Search expense",
     "income": "Search income",
+    "budget": "Search budgets",
     "placeholder": "Search..."
   },
   "forms": {
@@ -311,6 +312,7 @@
     "loadingEntries": "Loading…",
     "emptyTitle": "No budgets yet",
     "emptyText": "Create a budget to track spending across any mix of categories against a target.",
+    "noResults": "No budgets match your search or filters.",
     "entityLabel": "budget"
   }
 }

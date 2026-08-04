@@ -133,6 +133,7 @@
   "search": {
     "expense": "Ausgaben suchen",
     "income": "Einnahmen suchen",
+    "budget": "Budgets suchen",
     "placeholder": "Suchen..."
   },
   "forms": {
@@ -311,6 +312,7 @@
     "loadingEntries": "Wird geladen…",
     "emptyTitle": "Noch keine Budgets",
     "emptyText": "Erstelle ein Budget, um Ausgaben über eine beliebige Mischung von Kategorien gegen ein Ziel zu verfolgen.",
+    "noResults": "Keine Budgets entsprechen deiner Suche oder deinen Filtern.",
     "entityLabel": "Budget"
   }
 }

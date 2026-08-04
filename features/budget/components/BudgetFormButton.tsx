@@ -4,7 +4,7 @@ import {useMemo, useState} from "react";
 import type {Key} from "react-aria-components";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button, Label, ListBox, Modal, Select} from "@heroui/react";
+import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react";
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import MultiSelectField from "@/features/budget/components/MultiSelectField";
@@ -122,11 +122,12 @@ export default function BudgetFormButton({
           ? {variant: "primary" as const}
           : isEdit
             ? {variant: "tertiary" as const, size: "sm" as const, isIconOnly: true, "aria-label": t("editBudget")}
-            : {variant: "primary" as const})}
+            : {isIconOnly: true, "aria-label": t("newBudget")})}
         onPress={openModal}
       >
         {isEdit ? <LuPencil className="size-4"/> : <LuPlus/>}
-        {isEdit ? (showLabel ? t("editBudget") : null) : t("newBudget")}
+        {showLabel ? t("newBudget") : null}
+        <ButtonGroup.Separator/>
       </Button>
 
       <Modal.Backdrop isOpen={open} variant="blur" onOpenChange={setOpen}>

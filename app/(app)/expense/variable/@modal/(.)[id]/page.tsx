@@ -2,7 +2,6 @@ import {notFound} from "next/navigation";
 import {LuReceipt} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
-import ModalCloseButton from "@/components/ModalCloseButton";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
 import BillEditForm from "@/features/expense/variable/components/BillEditForm";
@@ -12,8 +11,8 @@ import {getBillFormOptions} from "@/features/expense/variable/db/billFormOptions
 import {deleteBill} from "@/features/expense/variable/db/billMutations";
 
 type InterceptedBillPageProps = {
-  params: Promise<{id: string}>;
-  searchParams: Promise<{edit?: string}>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
 // Intercepted route: soft-navigating to /expense/variable/[id] from within the list renders
@@ -43,7 +42,6 @@ export default async function InterceptedBillPage({params, searchParams}: Interc
           <div className="flex items-center justify-between gap-2">
             <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier}/>
             <div className="flex items-center gap-2">
-              <ModalCloseButton/>
               <EditLink id={bill.id} basePath="/expense/variable"/>
             </div>
           </div>

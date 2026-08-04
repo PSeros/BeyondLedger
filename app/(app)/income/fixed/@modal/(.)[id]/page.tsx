@@ -2,7 +2,6 @@ import {notFound} from "next/navigation";
 import {LuRepeat} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
-import ModalCloseButton from "@/components/ModalCloseButton";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
 import IncomeEditForm from "@/features/income/components/IncomeEditForm";
@@ -12,8 +11,8 @@ import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 import {deleteIncome} from "@/features/income/db/incomeMutations";
 
 type InterceptedFixedIncomePageProps = {
-  params: Promise<{id: string}>;
-  searchParams: Promise<{edit?: string}>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
 // Intercepted route: soft-navigating to /income/fixed/[id] from within the list renders this as an
@@ -47,7 +46,6 @@ export default async function InterceptedFixedIncomePage({params, searchParams}:
           <div className="flex items-center justify-between gap-2">
             <DeleteEntityButton id={income.id} action={deleteIncome} label={income.name}/>
             <div className="flex items-center gap-2">
-              <ModalCloseButton/>
               <EditLink id={income.id} basePath="/income/fixed"/>
             </div>
           </div>

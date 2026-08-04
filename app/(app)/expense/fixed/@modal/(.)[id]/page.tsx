@@ -2,7 +2,6 @@ import {notFound} from "next/navigation";
 import {LuRepeat} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
-import ModalCloseButton from "@/components/ModalCloseButton";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
@@ -12,8 +11,8 @@ import {getContractFormOptions} from "@/features/expense/fixed/db/contractFormOp
 import {deleteContract} from "@/features/expense/fixed/db/contractMutations";
 
 type InterceptedContractPageProps = {
-  params: Promise<{id: string}>;
-  searchParams: Promise<{edit?: string}>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
 // Intercepted route: soft-navigating to /expense/fixed/[id] from within the list renders this
@@ -47,7 +46,6 @@ export default async function InterceptedContractPage({params, searchParams}: In
           <div className="flex items-center justify-between gap-2">
             <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name}/>
             <div className="flex items-center gap-2">
-              <ModalCloseButton/>
               <EditLink id={contract.id} basePath="/expense/fixed"/>
             </div>
           </div>

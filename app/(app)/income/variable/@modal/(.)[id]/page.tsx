@@ -2,7 +2,6 @@ import {notFound} from "next/navigation";
 import {LuBanknote} from "react-icons/lu";
 import DetailModal from "@/components/DetailModal";
 import CategoryChip from "@/components/CategoryChip";
-import ModalCloseButton from "@/components/ModalCloseButton";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import IncomeDetail from "@/features/income/components/IncomeDetail";
 import IncomeEditForm from "@/features/income/components/IncomeEditForm";
@@ -12,13 +11,16 @@ import {getIncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 import {deleteIncome} from "@/features/income/db/incomeMutations";
 
 type InterceptedVariableIncomePageProps = {
-  params: Promise<{id: string}>;
-  searchParams: Promise<{edit?: string}>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
 // Intercepted route: soft-navigating to /income/variable/[id] from within the list renders this as
 // an overlay. A hard load / direct link hits the standalone [id]/page.tsx instead.
-export default async function InterceptedVariableIncomePage({params, searchParams}: InterceptedVariableIncomePageProps) {
+export default async function InterceptedVariableIncomePage({
+  params,
+  searchParams
+}: InterceptedVariableIncomePageProps) {
   const {id} = await params;
   const {edit} = await searchParams;
   const editing = edit != null;
@@ -47,7 +49,6 @@ export default async function InterceptedVariableIncomePage({params, searchParam
           <div className="flex items-center justify-between gap-2">
             <DeleteEntityButton id={income.id} action={deleteIncome} label={income.name}/>
             <div className="flex items-center gap-2">
-              <ModalCloseButton/>
               <EditLink id={income.id} basePath="/income/variable"/>
             </div>
           </div>
