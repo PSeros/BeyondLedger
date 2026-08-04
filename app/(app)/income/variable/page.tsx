@@ -15,6 +15,7 @@ type VariableIncomePageProps = {
     q?: string;
     sourceId?: string;
     categoryId?: string;
+    tags?: string;
     dateFrom?: string;
     dateTo?: string;
   }>;
@@ -29,6 +30,15 @@ function parseIsoDate(value?: string): string | undefined {
   return value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : undefined;
 }
 
+// Parses a `?tags=1,2,3` CSV param into positive ids (drops blanks/invalid). undefined → no filter.
+function parseIds(value?: string): number[] | undefined {
+  const ids = (value ?? "")
+    .split(",")
+    .map((part) => Number(part))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  return ids.length > 0 ? ids : undefined;
+}
+
 export default async function VariableIncomePage({searchParams}: VariableIncomePageProps) {
   const params = await searchParams;
   // Categorical filters apply to every section. The date range applies to the table + top-k only —
@@ -37,6 +47,7 @@ export default async function VariableIncomePage({searchParams}: VariableIncomeP
     q: params.q,
     sourceId: parseId(params.sourceId),
     categoryId: parseId(params.categoryId),
+    tagIds: parseIds(params.tags),
   };
   const topKFilters = {
     ...categoricalFilters,

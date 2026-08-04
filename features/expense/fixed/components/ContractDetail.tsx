@@ -1,6 +1,7 @@
 import type {ReactNode} from "react";
 import {getFormatter, getTranslations} from "next-intl/server";
 import StatusChip from "@/components/StatusChip";
+import TagChip from "@/components/TagChip";
 import EntityAttachments from "@/features/expense/shared/components/EntityAttachments";
 import {deleteFileAsset, uploadContractFile} from "@/features/expense/shared/db/fileMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
@@ -41,6 +42,14 @@ export default async function ContractDetail({contract}: {contract: ContractDeta
         </Row>
         <Row label={t("documentNumber")}>{contract.documentNumber ?? "—"}</Row>
       </dl>
+
+      {contract.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {contract.tags.map((tag) => (
+            <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+          ))}
+        </div>
+      ) : null}
 
       <EntityAttachments
         files={contract.files}

@@ -72,6 +72,7 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
   const sourceId = searchParams.get("sourceId") ?? "";
   const categoryId = searchParams.get("categoryId") ?? "";
   const frequencyId = searchParams.get("frequencyId") ?? "";
+  const tags = searchParams.get("tags") ?? "";
   const status = searchParams.get("status") ?? "";
   const dateFrom = searchParams.get("dateFrom") ?? "";
   const dateTo = searchParams.get("dateTo") ?? "";
@@ -115,6 +116,9 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
       if (frequencyId) {
         params.set("frequencyId", frequencyId);
       }
+      if (tags) {
+        params.set("tags", tags);
+      }
       if (status) {
         params.set("status", status);
       }
@@ -140,13 +144,13 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
         setIsLoadingMore(false);
       }
     },
-    [q, sourceId, categoryId, frequencyId, status, dateFrom, dateTo, isRecurring, sortBy, sortDir],
+    [q, sourceId, categoryId, frequencyId, tags, status, dateFrom, dateTo, isRecurring, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sourceId, categoryId, frequencyId, status, dateFrom, dateTo, isRecurring, sortBy, sortDir]);
+  }, [q, sourceId, categoryId, frequencyId, tags, status, dateFrom, dateTo, isRecurring, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

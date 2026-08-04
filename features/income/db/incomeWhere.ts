@@ -11,6 +11,8 @@ export type IncomeFilters = {
   categoryId?: number;
   // Fixed tab only (the variable tab is always the One-time frequency).
   frequencyId?: number;
+  // Match income carrying ANY of these tag ids. Empty/undefined = no filter.
+  tagIds?: number[];
   // Fixed tab only. Lifecycle status is derived from startDate/endDate (see determineStatus),
   // not stored, so it's expressed here as date clauses.
   status?: LifecycleStatus;
@@ -49,6 +51,7 @@ export function buildIncomeWhere({
   sourceId,
   categoryId,
   frequencyId,
+  tagIds,
   status,
   dateFrom,
   dateTo,
@@ -80,6 +83,10 @@ export function buildIncomeWhere({
 
   if (frequencyId != null) {
     clauses.push({frequencyId});
+  }
+
+  if (tagIds != null && tagIds.length > 0) {
+    clauses.push({tags: {some: {tagId: {in: tagIds}}}});
   }
 
   if (status != null) {

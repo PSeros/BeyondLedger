@@ -17,6 +17,14 @@ function parseStatus(value: string | null): LifecycleStatus | undefined {
   return STATUS_VALUES.includes(value as LifecycleStatus) ? (value as LifecycleStatus) : undefined;
 }
 
+function parseIds(value: string | null): number[] | undefined {
+  const ids = (value ?? "")
+    .split(",")
+    .map((part) => Number(part))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  return ids.length > 0 ? ids : undefined;
+}
+
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
 
@@ -41,6 +49,7 @@ export async function GET(request: NextRequest) {
   const supplierId = parsePositiveId(params.get("supplierId"));
   const categoryId = parsePositiveId(params.get("categoryId"));
   const frequencyId = parsePositiveId(params.get("frequencyId"));
+  const tagIds = parseIds(params.get("tags"));
   const status = parseStatus(params.get("status"));
 
   const result = await getContractTableRows({
@@ -52,6 +61,7 @@ export async function GET(request: NextRequest) {
     supplierId,
     categoryId,
     frequencyId,
+    tagIds,
     status,
   });
 

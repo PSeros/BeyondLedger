@@ -7,7 +7,8 @@ import {useRouter} from "next/navigation";
 import {createIncome} from "@/features/income/db/incomeMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
-import {createIncomeCategory, createIncomeSource} from "@/features/settings/db/referenceDataMutations";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createIncomeCategory, createIncomeSource, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {IncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 
 // Today as yyyy-mm-dd, prefilled into the date field for the common "record what I just got" case.
@@ -30,6 +31,7 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
   const tCommon = useTranslations("common");
   const tIncome = useTranslations("income");
   const tErrors = useTranslations("errors");
+  const tTags = useTranslations("tags");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,6 +72,8 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date"/>
       </div>
+
+      <TagMultiSelect label={tTags("label")} options={options.tags} onCreate={createTag}/>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 

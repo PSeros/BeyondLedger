@@ -55,6 +55,7 @@ export default function ContractDataTable() {
   const supplierId = searchParams.get("supplierId") ?? "";
   const categoryId = searchParams.get("categoryId") ?? "";
   const frequencyId = searchParams.get("frequencyId") ?? "";
+  const tags = searchParams.get("tags") ?? "";
   const status = searchParams.get("status") ?? "";
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -94,6 +95,9 @@ export default function ContractDataTable() {
       if (frequencyId) {
         params.set("frequencyId", frequencyId);
       }
+      if (tags) {
+        params.set("tags", tags);
+      }
       if (status) {
         params.set("status", status);
       }
@@ -113,13 +117,13 @@ export default function ContractDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, supplierId, categoryId, frequencyId, status, sortBy, sortDir],
+    [q, supplierId, categoryId, frequencyId, tags, status, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, supplierId, categoryId, frequencyId, status, sortBy, sortDir]);
+  }, [q, supplierId, categoryId, frequencyId, tags, status, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

@@ -1,5 +1,6 @@
 import {client} from "@/lib/prisma";
 import {determineStatus, type LifecycleStatus} from "@/lib/status";
+import type {TagOption} from "@/features/tags/types";
 
 export type IncomeDetailData = {
   id: number;
@@ -15,12 +16,13 @@ export type IncomeDetailData = {
   startDate: string; // ISO
   endDate: string | null; // ISO
   status: LifecycleStatus;
+  tags: TagOption[];
 };
 
 export async function getIncomeById(id: number): Promise<IncomeDetailData | null> {
   const income = await client.income.findUnique({
     where: {id},
-    include: {source: true, category: true, frequency: true},
+    include: {source: true, category: true, frequency: true, tags: {include: {tag: true}}},
   });
 
   if (!income) {
@@ -41,5 +43,6 @@ export async function getIncomeById(id: number): Promise<IncomeDetailData | null
     startDate: income.startDate.toISOString(),
     endDate: income.endDate ? income.endDate.toISOString() : null,
     status: determineStatus(income),
+    tags: income.tags.map((entry) => ({id: entry.tag.id, name: entry.tag.name, color: entry.tag.color})),
   };
 }

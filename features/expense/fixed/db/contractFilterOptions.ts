@@ -1,4 +1,5 @@
 import {client} from "@/lib/prisma";
+import type {TagOption} from "@/features/tags/types";
 
 export type FilterOption = {id: number; name: string};
 
@@ -6,12 +7,13 @@ export type ContractFilterOptions = {
   suppliers: FilterOption[];
   categories: FilterOption[];
   frequencies: FilterOption[];
+  tags: TagOption[];
 };
 
-// Only offer values that actually occur on a Contract — a supplier/frequency used only by
+// Only offer values that actually occur on a Contract — a supplier/frequency/tag used only by
 // bills or income would be a dead filter option in the fixed-expense domain.
 export async function getContractFilterOptions(): Promise<ContractFilterOptions> {
-  const [suppliers, categories, frequencies] = await Promise.all([
+  const [suppliers, categories, frequencies, tags] = await Promise.all([
     client.supplier.findMany({
       where: {contracts: {some: {}}},
       select: {id: true, name: true},
@@ -27,7 +29,12 @@ export async function getContractFilterOptions(): Promise<ContractFilterOptions>
       select: {id: true, name: true},
       orderBy: {value: "asc"},
     }),
+    client.tag.findMany({
+      where: {entries: {some: {contractId: {not: null}}}},
+      select: {id: true, name: true, color: true},
+      orderBy: {name: "asc"},
+    }),
   ]);
 
-  return {suppliers, categories, frequencies};
+  return {suppliers, categories, frequencies, tags};
 }

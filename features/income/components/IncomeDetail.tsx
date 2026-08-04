@@ -1,6 +1,7 @@
 import type {ReactNode} from "react";
 import {getFormatter, getTranslations} from "next-intl/server";
 import StatusChip from "@/components/StatusChip";
+import TagChip from "@/components/TagChip";
 import type {IncomeDetailData} from "@/features/income/db/incomeDetail";
 
 // A single label/value line. Hairline rows (border-t between) read lighter than a boxed grid.
@@ -37,6 +38,14 @@ export default async function IncomeDetail({income}: {income: IncomeDetailData})
           <Row label={t("endDate")}>{income.endDate ? format.dateTime(new Date(income.endDate), "long") : "—"}</Row>
         ) : null}
       </dl>
+
+      {income.tags.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {income.tags.map((tag) => (
+            <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

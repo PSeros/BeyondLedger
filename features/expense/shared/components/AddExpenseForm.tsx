@@ -152,6 +152,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             <TextInputField label={t("noticePeriod")} name="noticePeriod" type="number"/>
             <TextInputField label={t("documentNumber")} name="documentNumber"/>
           </div>
+          <TagMultiSelect label={tTags("label")} options={options.tags} onCreate={createTag}/>
         </>
       )}
 

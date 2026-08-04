@@ -8,7 +8,8 @@ import {updateContract} from "@/features/expense/fixed/db/contractMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
-import {createContractCategory} from "@/features/settings/db/referenceDataMutations";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createContractCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
 import type {ContractFormOptions} from "@/features/expense/fixed/db/contractFormOptions";
 
@@ -23,6 +24,7 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
   const tForms = useTranslations("forms");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
+  const tTags = useTranslations("tags");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,6 +80,13 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
         />
         <TextInputField label={t("documentNumber")} name="documentNumber" defaultValue={contract.documentNumber ?? ""}/>
       </div>
+
+      <TagMultiSelect
+        label={tTags("label")}
+        options={options.tags}
+        defaultValue={contract.tags.map((tag) => String(tag.id))}
+        onCreate={createTag}
+      />
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 

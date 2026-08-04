@@ -6,6 +6,8 @@ export type ContractFilters = {
   supplierId?: number;
   categoryId?: number;
   frequencyId?: number;
+  // Match contracts carrying ANY of these tag ids. Empty/undefined = no filter.
+  tagIds?: number[];
   // Lifecycle status is derived from startDate/endDate (see determineStatus), not stored,
   // so it's expressed here as date clauses. Deliberately NOT applied to the chart/upcoming
   // queries, which already restrict to Active contracts by nature.
@@ -39,6 +41,7 @@ export function buildContractWhere({
   supplierId,
   categoryId,
   frequencyId,
+  tagIds,
   status,
 }: ContractFilters = {}): Prisma.ContractWhereInput {
   const clauses: Prisma.ContractWhereInput[] = [];
@@ -65,6 +68,10 @@ export function buildContractWhere({
 
   if (frequencyId != null) {
     clauses.push({frequencyId});
+  }
+
+  if (tagIds != null && tagIds.length > 0) {
+    clauses.push({tags: {some: {tagId: {in: tagIds}}}});
   }
 
   if (status != null) {

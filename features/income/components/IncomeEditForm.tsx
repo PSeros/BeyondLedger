@@ -7,7 +7,8 @@ import {useRouter} from "next/navigation";
 import {updateIncome} from "@/features/income/db/incomeMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
-import {createIncomeCategory, createIncomeSource} from "@/features/settings/db/referenceDataMutations";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createIncomeCategory, createIncomeSource, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {IncomeDetailData} from "@/features/income/db/incomeDetail";
 import type {IncomeFormOptions} from "@/features/income/db/incomeFormOptions";
 
@@ -22,6 +23,7 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
   const tForms = useTranslations("forms");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
+  const tTags = useTranslations("tags");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,6 +73,13 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={income.startDate.slice(0, 10)} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date" defaultValue={income.endDate?.slice(0, 10) ?? ""}/>
       </div>
+
+      <TagMultiSelect
+        label={tTags("label")}
+        options={options.tags}
+        defaultValue={income.tags.map((tag) => String(tag.id))}
+        onCreate={createTag}
+      />
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 

@@ -16,12 +16,22 @@ type FixedIncomePageProps = {
     sourceId?: string;
     categoryId?: string;
     frequencyId?: string;
+    tags?: string;
   }>;
 };
 
 function parseId(value?: string): number | undefined {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+// Parses a `?tags=1,2,3` CSV param into positive ids (drops blanks/invalid). undefined → no filter.
+function parseIds(value?: string): number[] | undefined {
+  const ids = (value ?? "")
+    .split(",")
+    .map((part) => Number(part))
+    .filter((n) => Number.isInteger(n) && n > 0);
+  return ids.length > 0 ? ids : undefined;
 }
 
 export default async function FixedIncomePage({searchParams}: FixedIncomePageProps) {
@@ -33,6 +43,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
     sourceId: parseId(params.sourceId),
     categoryId: parseId(params.categoryId),
     frequencyId: parseId(params.frequencyId),
+    tagIds: parseIds(params.tags),
   };
 
   const isEmpty = (await getIncomeCount(true)) === 0;

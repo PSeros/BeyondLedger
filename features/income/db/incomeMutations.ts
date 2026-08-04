@@ -3,6 +3,7 @@
 import {revalidatePath} from "next/cache";
 import {client} from "@/lib/prisma";
 import {optionalDate, requireDate, requireId, requireString} from "@/features/expense/shared/db/formData";
+import {parseTagIds} from "@/features/tags/tagFormData";
 
 // Reads and validates an Income's fields from the form. Shared by create + update.
 function parseIncomeData(formData: FormData) {
@@ -34,7 +35,10 @@ function revalidateIncome(id: number) {
 // Creates a new Income. The chosen frequency's isRecurring decides which tab it appears on, so
 // revalidate both lists; the client closes the modal and refreshes.
 export async function createIncome(formData: FormData): Promise<void> {
-  await client.income.create({data: parseIncomeData(formData)});
+  const tagIds = parseTagIds(formData);
+  await client.income.create({
+    data: {...parseIncomeData(formData), tags: {create: tagIds.map((tagId) => ({tagId}))}},
+  });
   revalidatePath("/income/fixed");
   revalidatePath("/income/variable");
 }
@@ -42,7 +46,17 @@ export async function createIncome(formData: FormData): Promise<void> {
 // Reads the edit form's FormData and updates the Income's fields; the client form soft-navigates
 // out of edit mode.
 export async function updateIncome(id: number, formData: FormData): Promise<void> {
-  await client.income.update({where: {id}, data: parseIncomeData(formData)});
+  const data = parseIncomeData(formData);
+  const tagIds = parseTagIds(formData);
+
+  await client.$transaction(async (tx) => {
+    await tx.income.update({where: {id}, data});
+    await tx.entryTag.deleteMany({where: {incomeId: id}});
+    if (tagIds.length > 0) {
+      await tx.entryTag.createMany({data: tagIds.map((tagId) => ({incomeId: id, tagId}))});
+    }
+  });
+
   revalidateIncome(id);
 }
 

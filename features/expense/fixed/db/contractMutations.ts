@@ -10,6 +10,7 @@ import {
   requireId,
   requireString,
 } from "@/features/expense/shared/db/formData";
+import {parseTagIds} from "@/features/tags/tagFormData";
 
 // Reads and validates the Contract's own fields from the form. Shared by create + update.
 function parseContractData(formData: FormData) {
@@ -34,7 +35,10 @@ function parseContractData(formData: FormData) {
 // Creates a new Contract. Revalidates the list so the table, chart, and upcoming card pick up
 // the new row; the client closes the modal and refreshes.
 export async function createContract(formData: FormData): Promise<void> {
-  await client.contract.create({data: parseContractData(formData)});
+  const tagIds = parseTagIds(formData);
+  await client.contract.create({
+    data: {...parseContractData(formData), tags: {create: tagIds.map((tagId) => ({tagId}))}},
+  });
   revalidatePath("/expense/fixed");
 }
 
@@ -42,7 +46,16 @@ export async function createContract(formData: FormData): Promise<void> {
 // this contract's detail so the table, chart, upcoming card, and detail view all pick up the
 // change; the client form soft-navigates out of edit mode.
 export async function updateContract(id: number, formData: FormData): Promise<void> {
-  await client.contract.update({where: {id}, data: parseContractData(formData)});
+  const data = parseContractData(formData);
+  const tagIds = parseTagIds(formData);
+
+  await client.$transaction(async (tx) => {
+    await tx.contract.update({where: {id}, data});
+    await tx.entryTag.deleteMany({where: {contractId: id}});
+    if (tagIds.length > 0) {
+      await tx.entryTag.createMany({data: tagIds.map((tagId) => ({contractId: id, tagId}))});
+    }
+  });
 
   revalidatePath("/expense/fixed");
   revalidatePath(`/expense/fixed/${id}`);
