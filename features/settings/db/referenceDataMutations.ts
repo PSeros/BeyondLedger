@@ -6,12 +6,10 @@ import {client} from "@/lib/prisma";
 import {Prisma} from "@/prisma/generated/client";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 import {normalizeTagColor} from "@/features/tags/colors";
+// NOTE: this is a "use server" module — every *export* must be an async function, so TagOption is
+// only imported here (for the create/rename return types), never re-exported. Consumers import it
+// from "@/features/tags/types" directly.
 import type {TagOption} from "@/features/tags/types";
-
-// Re-exported so callers that already import tag actions from here get the option shape too. A tag
-// option carries its color alongside id/name, so inline "+ create tag" popovers can render the
-// freshly created tag's chip without a refetch.
-export type {TagOption};
 
 // Reference-data (lookup-table) mutations: Supplier, SupplierCategory, ItemCategory,
 // ContractCategory, Frequency. Used by BOTH the inline "+ Add new…" popovers in the Add form
