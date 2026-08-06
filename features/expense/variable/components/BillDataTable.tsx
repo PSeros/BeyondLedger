@@ -144,6 +144,7 @@ export default function BillDataTable({activeWorkspaceId}: {activeWorkspaceId: n
       ariaLabel={t("tables.variableExpenses")}
       columns={columns}
       rows={tableRows}
+      scroll="page"
       manualSorting
       sortDescriptor={sortDescriptor}
       onSortChange={setSortDescriptor}

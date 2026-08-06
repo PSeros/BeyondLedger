@@ -40,13 +40,18 @@ model AiSettings {
 // (client-side via next-themes), locale drives server-rendered output (<html lang>, currency/date
 // formatting, translated strings) so it is persisted in the DB and read server-side.
 model AppSettings {
-  id                Int      @id @default(autoincrement())
-  locale            String   @default("en")
+  id                 Int      @id @default(autoincrement())
+  locale             String   @default("en")
   // The account (Workspace) the app is currently filtered to (Phase 14). null = "All accounts" (no
   // filter). Plain nullable Int rather than a relation so deleting the active workspace can't be
   // blocked by an FK on the settings singleton — a stale id simply reads back as "All".
-  activeWorkspaceId Int?
-  updatedAt         DateTime @updatedAt
+  activeWorkspaceId  Int?
+  // Dashboard reminder windows (Phase 12). warrantyWarnDays drives the "warranties about to expire"
+  // alert (item purchase date + warranty months, within N days). upcomingWindowDays drives the
+  // dashboard's upcoming fixed-expense/income lists. Kept separate so each can be tuned on its own.
+  warrantyWarnDays   Int      @default(60)
+  upcomingWindowDays Int      @default(30)
+  updatedAt          DateTime @updatedAt
 }
 
 model FileAsset {

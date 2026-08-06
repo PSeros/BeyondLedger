@@ -37,3 +37,39 @@ export async function setActiveWorkspace(id: number | null): Promise<void> {
 
   revalidatePath("/", "layout");
 }
+
+// Dashboard reminder windows (Phase 12). Unlike the locale/account, these affect only the dashboard,
+// so revalidate /settings (so the input reflects the saved value) and /dashboard — not the whole
+// layout. Guarded to a non-negative integer; anything else throws so the client surfaces it.
+function normalizeDays(days: number): number {
+  if (!Number.isInteger(days) || days < 0) {
+    throw new Error("Reminder window must be a non-negative whole number of days.");
+  }
+  return days;
+}
+
+export async function updateWarrantyWarnDays(days: number): Promise<void> {
+  const next = normalizeDays(days);
+
+  await client.appSettings.upsert({
+    where: {id: APP_SETTINGS_ID},
+    create: {id: APP_SETTINGS_ID, warrantyWarnDays: next},
+    update: {warrantyWarnDays: next},
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+}
+
+export async function updateUpcomingWindowDays(days: number): Promise<void> {
+  const next = normalizeDays(days);
+
+  await client.appSettings.upsert({
+    where: {id: APP_SETTINGS_ID},
+    create: {id: APP_SETTINGS_ID, upcomingWindowDays: next},
+    update: {upcomingWindowDays: next},
+  });
+
+  revalidatePath("/settings");
+  revalidatePath("/dashboard");
+}

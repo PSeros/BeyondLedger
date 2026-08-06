@@ -3,17 +3,17 @@ import UpcomingDueCard from "@/components/UpcomingDueCard";
 import {getUpcomingFixedExpenses} from "@/features/expense/fixed/db/contractUpcomingData";
 import type {ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 
-type ContractUpcomingCardProps = Omit<ContractFilters, "status">;
+type ContractUpcomingCardProps = Omit<ContractFilters, "status"> & {withinDays?: number};
 
-export default async function ContractUpcomingCard(filters: ContractUpcomingCardProps) {
+export default async function ContractUpcomingCard({withinDays = 30, ...filters}: ContractUpcomingCardProps) {
   const t = await getTranslations("upcoming");
-  const rows = await getUpcomingFixedExpenses({...filters, withinDays: 30});
+  const rows = await getUpcomingFixedExpenses({...filters, withinDays});
 
   return (
     <UpcomingDueCard
-      title={t("titleDays", {days: 30})}
+      title={t("titleDays", {days: withinDays})}
       rows={rows}
-      windowDays={30}
+      windowDays={withinDays}
       basePath="/expense/fixed"
     />
   );

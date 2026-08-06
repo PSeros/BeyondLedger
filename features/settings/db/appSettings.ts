@@ -20,7 +20,13 @@ export type AppSettings = {
   locale: Locale;
   // The account (Workspace) the app is filtered to (Phase 14). null = "All accounts".
   activeWorkspaceId: number | null;
+  // Dashboard reminder windows (Phase 12), in days. See the AppSettings model comment.
+  warrantyWarnDays: number;
+  upcomingWindowDays: number;
 };
+
+export const DEFAULT_WARRANTY_WARN_DAYS = 60;
+export const DEFAULT_UPCOMING_WINDOW_DAYS = 30;
 
 // Self-creating singleton read.
 export async function getAppSettings(): Promise<AppSettings> {
@@ -28,9 +34,14 @@ export async function getAppSettings(): Promise<AppSettings> {
     where: {id: APP_SETTINGS_ID},
     create: {id: APP_SETTINGS_ID},
     update: {},
-    select: {locale: true, activeWorkspaceId: true},
+    select: {locale: true, activeWorkspaceId: true, warrantyWarnDays: true, upcomingWindowDays: true},
   });
-  return {locale: normalizeLocale(row.locale), activeWorkspaceId: row.activeWorkspaceId};
+  return {
+    locale: normalizeLocale(row.locale),
+    activeWorkspaceId: row.activeWorkspaceId,
+    warrantyWarnDays: row.warrantyWarnDays,
+    upcomingWindowDays: row.upcomingWindowDays,
+  };
 }
 
 // Convenience: just the active locale.
@@ -43,4 +54,16 @@ export async function getLocale(): Promise<Locale> {
 export async function getActiveWorkspaceId(): Promise<number | null> {
   const {activeWorkspaceId} = await getAppSettings();
   return activeWorkspaceId;
+}
+
+// Convenience: the warranty-expiry alert window (days).
+export async function getWarrantyWarnDays(): Promise<number> {
+  const {warrantyWarnDays} = await getAppSettings();
+  return warrantyWarnDays;
+}
+
+// Convenience: the dashboard upcoming fixed-expense/income window (days).
+export async function getUpcomingWindowDays(): Promise<number> {
+  const {upcomingWindowDays} = await getAppSettings();
+  return upcomingWindowDays;
 }

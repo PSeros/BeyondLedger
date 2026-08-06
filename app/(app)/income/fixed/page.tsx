@@ -52,37 +52,38 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
   const isEmpty = (await getIncomeCount(true)) === 0;
 
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       <PageToolbar
         left={<VfSwitch basePath={"/income"}/>}
         center={<Suspense><IncomeSearchField/></Suspense>}
         right={<IncomeActions isRecurring={true}/>}
       />
-      <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        {isEmpty ? (
+      {isEmpty ? (
+        <div className="mt-4 flex min-h-0 flex-1 flex-col">
           <IncomeEmptyState isRecurring={true}/>
-        ) : (
-          <div className="flex h-full min-h-0 flex-col gap-8">
-            <div className="flex shrink-0 flex-row gap-4">
-              <div className="w-3/5">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <IncomeChartCard isRecurring={true} {...filters}/>
-                </Suspense>
-              </div>
-              <div className="w-2/5 min-h-0">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <IncomeUpcomingCard {...filters}/>
-                </Suspense>
-              </div>
+        </div>
+      ) : (
+        // The toolbar above stays pinned; everything below (charts + table) scrolls as one region.
+        <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
+          <div className="flex shrink-0 flex-row gap-4">
+            <div className="w-3/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <IncomeChartCard isRecurring={true} {...filters}/>
+              </Suspense>
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <Suspense>
-                <IncomeDataTable isRecurring={true} activeWorkspaceId={activeWorkspaceId}/>
+            <div className="w-2/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <IncomeUpcomingCard {...filters}/>
               </Suspense>
             </div>
           </div>
-        )}
-      </div>
-    </>
+          <div className="shrink-0">
+            <Suspense>
+              <IncomeDataTable isRecurring={true} activeWorkspaceId={activeWorkspaceId}/>
+            </Suspense>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

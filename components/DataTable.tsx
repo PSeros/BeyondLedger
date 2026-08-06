@@ -26,6 +26,14 @@ type DataTableProps<T extends DataTableRow> = {
   columns: readonly DataTableColumn<T>[];
   rows: T[];
   className?: string;
+  /**
+   * "self" (default): the table is its own bounded, internally-scrolling box (max-h-full + overflow).
+   * "page": the table flows to its natural height and lets an ancestor scroll it — headers stay
+   * sticky against that ancestor and infinite-scroll still fires because React Aria's LoadMore
+   * sentinel observes the nearest scroll parent (getScrollParent), which becomes the page container.
+   * Use "page" when the whole route content (charts + table) should scroll as one region.
+   */
+  scroll?: "self" | "page";
   manualSorting?: boolean;
   sortDescriptor?: SortDescriptor;
   onSortChange?: (sortDescriptor: SortDescriptor) => void;
@@ -63,6 +71,7 @@ export default function DataTable<T extends DataTableRow>({
   columns,
   rows,
   className,
+  scroll = "self",
   manualSorting = false,
   sortDescriptor: sortDescriptorProp,
   onSortChange,
@@ -111,15 +120,26 @@ export default function DataTable<T extends DataTableRow>({
     });
   }, [columns, manualSorting, rows, sortDescriptor, locale]);
 
+  const isPageScroll = scroll === "page";
+
   return (
     <Table
       className={cn(
-        "flex max-h-full w-full flex-col overflow-hidden",
+        "flex w-full flex-col",
+        // Self-scroll: cap to the parent's height and clip so the ScrollContainer scrolls internally.
+        // Page-scroll: no cap — flow to natural height and let the page container do the scrolling.
+        isPageScroll ? "" : "max-h-full overflow-hidden",
         sortedRows.length === 0 ? "min-h-[200px]" : "",
         className,
       )}
     >
-      <Table.ScrollContainer className="min-h-0 overflow-auto [scrollbar-gutter:stable]">
+      <Table.ScrollContainer
+        className={
+          // overflow-visible keeps this element OUT of getScrollParent's chain so the LoadMore
+          // sentinel observes the page scroll container instead, and the sticky header sticks there.
+          isPageScroll ? "overflow-visible" : "min-h-0 overflow-auto [scrollbar-gutter:stable]"
+        }
+      >
         <Table.Content
           aria-label={ariaLabel}
           className={cn("min-w-full", sortedRows.length === 0 ? "h-full" : "")}

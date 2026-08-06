@@ -50,37 +50,38 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
   const isEmpty = (await getContractCount()) === 0;
 
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       <PageToolbar
         left={<VfSwitch basePath={"/expense"}/>}
         center={<Suspense><ContractSearchField/></Suspense>}
         right={<ContractActions/>}
       />
-      <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        {isEmpty ? (
+      {isEmpty ? (
+        <div className="mt-4 flex min-h-0 flex-1 flex-col">
           <ExpenseEmptyState variant="fixed"/>
-        ) : (
-          <div className="flex h-full min-h-0 flex-col gap-8">
-            <div className="flex shrink-0 flex-row gap-4">
-              <div className="w-3/5">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <ContractChartCard {...filters}/>
-                </Suspense>
-              </div>
-              <div className="w-2/5 min-h-0">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <ContractUpcomingCard {...filters}/>
-                </Suspense>
-              </div>
+        </div>
+      ) : (
+        // The toolbar above stays pinned; everything below (charts + table) scrolls as one region.
+        <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
+          <div className="flex shrink-0 flex-row gap-4">
+            <div className="w-3/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <ContractChartCard {...filters}/>
+              </Suspense>
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <Suspense>
-                <ContractTable activeWorkspaceId={activeWorkspaceId}/>
+            <div className="w-2/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <ContractUpcomingCard {...filters}/>
               </Suspense>
             </div>
           </div>
-        )}
-      </div>
-    </>
+          <div className="shrink-0">
+            <Suspense>
+              <ContractTable activeWorkspaceId={activeWorkspaceId}/>
+            </Suspense>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

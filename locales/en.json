@@ -7,6 +7,19 @@
     "settings": "Settings",
     "unknownRoute": "{pathname} not in NavigationProvider"
   },
+  "dashboard": {
+    "warrantyTitle": "Warranties expiring ({days} days)",
+    "kpiIncome": "Income",
+    "kpiExpenses": "Expenses",
+    "kpiNet": "Net",
+    "budgetStatusTitle": "Budget status",
+    "cashFlowTitle": "Cash flow",
+    "overBy": "{amount} over",
+    "remaining": "{amount} left",
+    "emptyTitle": "Nothing to show yet",
+    "emptyText": "Add your first income, expense or budget and your dashboard will come to life.",
+    "emptyCta": "Add an expense"
+  },
   "common": {
     "noData": "No data",
     "noResults": "No results found",
@@ -172,8 +185,6 @@
     "emptyVariableText": "Add a one-off payment like a refund, side gig, or sale."
   },
   "settings": {
-    "title": "Settings",
-    "subtitle": "Configure how BeyondLedger works.",
     "aiHeading": "AI / Document processing",
     "aiHeadingDescription": "Configure the provider that reads uploaded documents and auto-creates expenses from them.",
     "refDataHeading": "Reference data",
@@ -231,6 +242,16 @@
       "couldNotTest": "Could not run the connection test.",
       "testConnection": "Test connection",
       "testing": "Testing…"
+    },
+    "windows": {
+      "heading": "Reminder windows",
+      "headingDescription": "Control how far ahead the dashboard looks when flagging warranties and upcoming payments.",
+      "warrantyLabel": "Warranty expiry window (days)",
+      "warrantyHint": "Alert me about warranties expiring within this many days.",
+      "upcomingLabel": "Upcoming payments window (days)",
+      "upcomingHint": "Show fixed expenses and income due within this many days.",
+      "saved": "Saved",
+      "couldNotSave": "Could not save"
     }
   },
   "detail": {

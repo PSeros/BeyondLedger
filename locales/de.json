@@ -7,6 +7,19 @@
     "settings": "Einstellungen",
     "unknownRoute": "{pathname} nicht im NavigationProvider"
   },
+  "dashboard": {
+    "warrantyTitle": "Garantien laufen ab ({days} Tage)",
+    "kpiIncome": "Einnahmen",
+    "kpiExpenses": "Ausgaben",
+    "kpiNet": "Saldo",
+    "budgetStatusTitle": "Budgetstatus",
+    "cashFlowTitle": "Cashflow",
+    "overBy": "{amount} über",
+    "remaining": "{amount} übrig",
+    "emptyTitle": "Noch nichts zu zeigen",
+    "emptyText": "Füge deine erste Einnahme, Ausgabe oder dein erstes Budget hinzu, und dein Dashboard erwacht zum Leben.",
+    "emptyCta": "Ausgabe hinzufügen"
+  },
   "common": {
     "noData": "Keine Daten",
     "noResults": "Keine Ergebnisse gefunden",
@@ -172,8 +185,6 @@
     "emptyVariableText": "Füge eine einmalige Zahlung hinzu, z. B. eine Erstattung, einen Nebenjob oder einen Verkauf."
   },
   "settings": {
-    "title": "Einstellungen",
-    "subtitle": "Konfiguriere, wie BeyondLedger funktioniert.",
     "aiHeading": "KI / Dokumentenverarbeitung",
     "aiHeadingDescription": "Konfiguriere den Anbieter, der hochgeladene Dokumente liest und daraus automatisch Ausgaben erstellt.",
     "refDataHeading": "Stammdaten",
@@ -231,6 +242,16 @@
       "couldNotTest": "Verbindungstest konnte nicht ausgeführt werden.",
       "testConnection": "Verbindung testen",
       "testing": "Teste…"
+    },
+    "windows": {
+      "heading": "Erinnerungszeiträume",
+      "headingDescription": "Lege fest, wie weit das Dashboard vorausschaut, um Garantien und anstehende Zahlungen zu melden.",
+      "warrantyLabel": "Garantieablauf-Zeitraum (Tage)",
+      "warrantyHint": "Warne mich vor Garantien, die innerhalb dieser Tage ablaufen.",
+      "upcomingLabel": "Zeitraum anstehender Zahlungen (Tage)",
+      "upcomingHint": "Zeige fixe Ausgaben und Einnahmen, die innerhalb dieser Tage fällig sind.",
+      "saved": "Gespeichert",
+      "couldNotSave": "Speichern fehlgeschlagen"
     }
   },
   "detail": {

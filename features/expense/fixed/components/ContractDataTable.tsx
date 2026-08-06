@@ -147,6 +147,7 @@ export default function ContractDataTable({activeWorkspaceId}: {activeWorkspaceI
       ariaLabel={t("tables.fixedExpenses")}
       columns={columns}
       rows={tableRows}
+      scroll="page"
       manualSorting
       sortDescriptor={sortDescriptor}
       onSortChange={setSortDescriptor}

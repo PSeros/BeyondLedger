@@ -21,6 +21,19 @@ export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * MS_PER_DAY);
 }
 
+/**
+ * Add `months` calendar months to `date` in UTC, normalized to midnight. Month overflow rolls the
+ * year (Nov + 3 → Feb next year); a day past the target month's length clamps to its last day
+ * (Jan 31 + 1 → Feb 28/29) via JS Date's own month-overflow, guarded here.
+ */
+export function addMonths(date: Date, months: number): Date {
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
+  const day = date.getUTCDate();
+  const lastDayOfTarget = daysInMonth(year, month + months);
+  return utcDate(year, month + months, Math.min(day, lastDayOfTarget));
+}
+
 export function daysBetween(start: Date, endExclusive: Date): number {
   return Math.round((endExclusive.getTime() - start.getTime()) / MS_PER_DAY);
 }

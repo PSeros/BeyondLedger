@@ -65,37 +65,38 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
   const isEmpty = (await getBillCount()) === 0;
 
   return (
-    <>
+    <div className="flex h-full min-h-0 flex-col">
       <PageToolbar
         left={<VfSwitch basePath={"/expense"}/>}
         center={<Suspense><BillSearchField/></Suspense>}
         right={<BillActions/>}
       />
-      <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8">
-        {isEmpty ? (
+      {isEmpty ? (
+        <div className="mt-4 flex min-h-0 flex-1 flex-col">
           <ExpenseEmptyState variant="variable"/>
-        ) : (
-          <div className="flex h-full min-h-0 flex-col gap-8">
-            <div className="flex shrink-0 flex-row gap-4">
-              <div className="w-3/5">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <BillChartCard {...categoricalFilters}/>
-                </Suspense>
-              </div>
-              <div className="w-2/5">
-                <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                  <BillTopKCard {...topKFilters}/>
-                </Suspense>
-              </div>
+        </div>
+      ) : (
+        // The toolbar above stays pinned; everything below (charts + table) scrolls as one region.
+        <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
+          <div className="flex shrink-0 flex-row gap-4">
+            <div className="w-3/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <BillChartCard {...categoricalFilters}/>
+              </Suspense>
             </div>
-            <div className="min-h-0 flex-1 overflow-hidden">
-              <Suspense>
-                <BillTable activeWorkspaceId={activeWorkspaceId}/>
+            <div className="w-2/5">
+              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
+                <BillTopKCard {...topKFilters}/>
               </Suspense>
             </div>
           </div>
-        )}
-      </div>
-    </>
+          <div className="shrink-0">
+            <Suspense>
+              <BillTable activeWorkspaceId={activeWorkspaceId}/>
+            </Suspense>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

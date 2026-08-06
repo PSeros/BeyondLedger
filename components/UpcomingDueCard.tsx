@@ -8,6 +8,12 @@ type UpcomingDueRow = {
   amount: number;
   dueDate: string; // ISO
   frequency?: string;
+  /**
+   * Link target when it differs from `id`. `id` is always the (unique) React key; by default the
+   * row links to `${basePath}/${id}`. Set `linkId` when several rows share one link target but need
+   * distinct keys — e.g. multiple warranty items on the same bill link to that one bill.
+   */
+  linkId?: number | string;
 };
 
 type UpcomingDueCardProps = {
@@ -101,7 +107,7 @@ export default async function UpcomingDueCard({title, rows = [], windowDays = 30
               return (
                 <Link
                   key={row.id}
-                  href={`${basePath}/${row.id}`}
+                  href={`${basePath}/${row.linkId ?? row.id}`}
                   className="hover:bg-default flex items-center gap-3 rounded-[var(--radius)] px-2 py-1 transition-colors"
                 >
                   {body}

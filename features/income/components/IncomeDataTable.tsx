@@ -175,6 +175,7 @@ export default function IncomeDataTable({isRecurring, activeWorkspaceId}: Income
       ariaLabel={isRecurring ? t("tables.fixedIncome") : t("tables.variableIncome")}
       columns={isRecurring ? fixedColumns : variableColumns}
       rows={tableRows}
+      scroll="page"
       manualSorting
       sortDescriptor={sortDescriptor}
       onSortChange={setSortDescriptor}
