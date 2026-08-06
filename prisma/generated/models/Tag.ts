@@ -209,6 +209,7 @@ export type TagWhereInput = {
   color?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   entries?: Prisma.EntryTagListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }
 
 export type TagOrderByWithRelationInput = {
@@ -217,6 +218,7 @@ export type TagOrderByWithRelationInput = {
   color?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   entries?: Prisma.EntryTagOrderByRelationAggregateInput
+  budgetMembers?: Prisma.BudgetMemberOrderByRelationAggregateInput
 }
 
 export type TagWhereUniqueInput = Prisma.AtLeast<{
@@ -228,6 +230,7 @@ export type TagWhereUniqueInput = Prisma.AtLeast<{
   color?: Prisma.StringFilter<"Tag"> | string
   createdAt?: Prisma.DateTimeFilter<"Tag"> | Date | string
   entries?: Prisma.EntryTagListRelationFilter
+  budgetMembers?: Prisma.BudgetMemberListRelationFilter
 }, "id" | "name">
 
 export type TagOrderByWithAggregationInput = {
@@ -257,6 +260,7 @@ export type TagCreateInput = {
   color: string
   createdAt?: Date | string
   entries?: Prisma.EntryTagCreateNestedManyWithoutTagInput
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateInput = {
@@ -265,6 +269,7 @@ export type TagUncheckedCreateInput = {
   color: string
   createdAt?: Date | string
   entries?: Prisma.EntryTagUncheckedCreateNestedManyWithoutTagInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagUpdateInput = {
@@ -272,6 +277,7 @@ export type TagUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entries?: Prisma.EntryTagUpdateManyWithoutTagNestedInput
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateInput = {
@@ -280,6 +286,7 @@ export type TagUncheckedUpdateInput = {
   color?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entries?: Prisma.EntryTagUncheckedUpdateManyWithoutTagNestedInput
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type TagCreateManyInput = {
@@ -300,6 +307,11 @@ export type TagUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TagNullableScalarRelationFilter = {
+  is?: Prisma.TagWhereInput | null
+  isNot?: Prisma.TagWhereInput | null
 }
 
 export type TagCountOrderByAggregateInput = {
@@ -336,6 +348,22 @@ export type TagScalarRelationFilter = {
   isNot?: Prisma.TagWhereInput
 }
 
+export type TagCreateNestedOneWithoutBudgetMembersInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutBudgetMembersInput, Prisma.TagUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutBudgetMembersInput
+  connect?: Prisma.TagWhereUniqueInput
+}
+
+export type TagUpdateOneWithoutBudgetMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.TagCreateWithoutBudgetMembersInput, Prisma.TagUncheckedCreateWithoutBudgetMembersInput>
+  connectOrCreate?: Prisma.TagCreateOrConnectWithoutBudgetMembersInput
+  upsert?: Prisma.TagUpsertWithoutBudgetMembersInput
+  disconnect?: Prisma.TagWhereInput | boolean
+  delete?: Prisma.TagWhereInput | boolean
+  connect?: Prisma.TagWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutBudgetMembersInput, Prisma.TagUpdateWithoutBudgetMembersInput>, Prisma.TagUncheckedUpdateWithoutBudgetMembersInput>
+}
+
 export type TagCreateNestedOneWithoutEntriesInput = {
   create?: Prisma.XOR<Prisma.TagCreateWithoutEntriesInput, Prisma.TagUncheckedCreateWithoutEntriesInput>
   connectOrCreate?: Prisma.TagCreateOrConnectWithoutEntriesInput
@@ -350,10 +378,57 @@ export type TagUpdateOneRequiredWithoutEntriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TagUpdateToOneWithWhereWithoutEntriesInput, Prisma.TagUpdateWithoutEntriesInput>, Prisma.TagUncheckedUpdateWithoutEntriesInput>
 }
 
+export type TagCreateWithoutBudgetMembersInput = {
+  name: string
+  color: string
+  createdAt?: Date | string
+  entries?: Prisma.EntryTagCreateNestedManyWithoutTagInput
+}
+
+export type TagUncheckedCreateWithoutBudgetMembersInput = {
+  id?: number
+  name: string
+  color: string
+  createdAt?: Date | string
+  entries?: Prisma.EntryTagUncheckedCreateNestedManyWithoutTagInput
+}
+
+export type TagCreateOrConnectWithoutBudgetMembersInput = {
+  where: Prisma.TagWhereUniqueInput
+  create: Prisma.XOR<Prisma.TagCreateWithoutBudgetMembersInput, Prisma.TagUncheckedCreateWithoutBudgetMembersInput>
+}
+
+export type TagUpsertWithoutBudgetMembersInput = {
+  update: Prisma.XOR<Prisma.TagUpdateWithoutBudgetMembersInput, Prisma.TagUncheckedUpdateWithoutBudgetMembersInput>
+  create: Prisma.XOR<Prisma.TagCreateWithoutBudgetMembersInput, Prisma.TagUncheckedCreateWithoutBudgetMembersInput>
+  where?: Prisma.TagWhereInput
+}
+
+export type TagUpdateToOneWithWhereWithoutBudgetMembersInput = {
+  where?: Prisma.TagWhereInput
+  data: Prisma.XOR<Prisma.TagUpdateWithoutBudgetMembersInput, Prisma.TagUncheckedUpdateWithoutBudgetMembersInput>
+}
+
+export type TagUpdateWithoutBudgetMembersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entries?: Prisma.EntryTagUpdateManyWithoutTagNestedInput
+}
+
+export type TagUncheckedUpdateWithoutBudgetMembersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  color?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entries?: Prisma.EntryTagUncheckedUpdateManyWithoutTagNestedInput
+}
+
 export type TagCreateWithoutEntriesInput = {
   name: string
   color: string
   createdAt?: Date | string
+  budgetMembers?: Prisma.BudgetMemberCreateNestedManyWithoutTagInput
 }
 
 export type TagUncheckedCreateWithoutEntriesInput = {
@@ -361,6 +436,7 @@ export type TagUncheckedCreateWithoutEntriesInput = {
   name: string
   color: string
   createdAt?: Date | string
+  budgetMembers?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type TagCreateOrConnectWithoutEntriesInput = {
@@ -383,6 +459,7 @@ export type TagUpdateWithoutEntriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  budgetMembers?: Prisma.BudgetMemberUpdateManyWithoutTagNestedInput
 }
 
 export type TagUncheckedUpdateWithoutEntriesInput = {
@@ -390,6 +467,7 @@ export type TagUncheckedUpdateWithoutEntriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  budgetMembers?: Prisma.BudgetMemberUncheckedUpdateManyWithoutTagNestedInput
 }
 
 
@@ -399,10 +477,12 @@ export type TagUncheckedUpdateWithoutEntriesInput = {
 
 export type TagCountOutputType = {
   entries: number
+  budgetMembers: number
 }
 
 export type TagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entries?: boolean | TagCountOutputTypeCountEntriesArgs
+  budgetMembers?: boolean | TagCountOutputTypeCountBudgetMembersArgs
 }
 
 /**
@@ -422,6 +502,13 @@ export type TagCountOutputTypeCountEntriesArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.EntryTagWhereInput
 }
 
+/**
+ * TagCountOutputType without action
+ */
+export type TagCountOutputTypeCountBudgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BudgetMemberWhereInput
+}
+
 
 export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -429,6 +516,7 @@ export type TagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   color?: boolean
   createdAt?: boolean
   entries?: boolean | Prisma.Tag$entriesArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.Tag$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tag"]>
 
@@ -456,6 +544,7 @@ export type TagSelectScalar = {
 export type TagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "color" | "createdAt", ExtArgs["result"]["tag"]>
 export type TagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entries?: boolean | Prisma.Tag$entriesArgs<ExtArgs>
+  budgetMembers?: boolean | Prisma.Tag$budgetMembersArgs<ExtArgs>
   _count?: boolean | Prisma.TagCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TagIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -465,6 +554,7 @@ export type $TagPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name: "Tag"
   objects: {
     entries: Prisma.$EntryTagPayload<ExtArgs>[]
+    budgetMembers: Prisma.$BudgetMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -866,6 +956,7 @@ readonly fields: TagFieldRefs;
 export interface Prisma__TagClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   entries<T extends Prisma.Tag$entriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$entriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  budgetMembers<T extends Prisma.Tag$budgetMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tag$budgetMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1311,6 +1402,30 @@ export type Tag$entriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.EntryTagScalarFieldEnum | Prisma.EntryTagScalarFieldEnum[]
+}
+
+/**
+ * Tag.budgetMembers
+ */
+export type Tag$budgetMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BudgetMember
+   */
+  select?: Prisma.BudgetMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BudgetMember
+   */
+  omit?: Prisma.BudgetMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BudgetMemberInclude<ExtArgs> | null
+  where?: Prisma.BudgetMemberWhereInput
+  orderBy?: Prisma.BudgetMemberOrderByWithRelationInput | Prisma.BudgetMemberOrderByWithRelationInput[]
+  cursor?: Prisma.BudgetMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BudgetMemberScalarFieldEnum | Prisma.BudgetMemberScalarFieldEnum[]
 }
 
 /**

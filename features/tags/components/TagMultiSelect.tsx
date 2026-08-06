@@ -23,6 +23,7 @@ export default function TagMultiSelect({
   onCreate,
   onChange,
   placeholder,
+  emitHiddenInputs = true,
 }: {
   label: string;
   name?: string;
@@ -30,9 +31,13 @@ export default function TagMultiSelect({
   defaultValue?: string[];
   onCreate?: (name: string) => Promise<TagOption>;
   // Reports the selected ids on change — used where the picker is read from state (e.g. the OCR
-  // upload dialog) rather than posted as hidden inputs by a <form>.
+  // upload dialog, or per-item tags posted via a caller-owned hidden input) rather than posted as
+  // hidden inputs by a <form>.
   onChange?: (ids: string[]) => void;
   placeholder?: string;
+  // When false, the picker skips its own hidden <input name={name}> mirror. Use with `onChange`
+  // where the caller serializes the selection itself (e.g. one comma-joined input per item row).
+  emitHiddenInputs?: boolean;
 }) {
   const t = useTranslations();
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultValue);
@@ -173,9 +178,9 @@ export default function TagMultiSelect({
         </Popover.Content>
       </Popover>
 
-      {selectedIds.map((id) => (
-        <input key={id} type="hidden" name={name} value={id}/>
-      ))}
+      {emitHiddenInputs
+        ? selectedIds.map((id) => <input key={id} type="hidden" name={name} value={id}/>)
+        : null}
     </div>
   );
 }

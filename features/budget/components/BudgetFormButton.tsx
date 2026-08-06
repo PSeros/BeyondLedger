@@ -25,6 +25,7 @@ type Selection = {
   supplierCategory: string[];
   supplier: string[];
   contractCategory: string[];
+  tag: string[];
 };
 
 function initialSelection(budget?: BudgetView): Selection {
@@ -33,6 +34,7 @@ function initialSelection(budget?: BudgetView): Selection {
     supplierCategory: (budget?.memberIds.supplierCategoryIds ?? []).map(String),
     supplier: (budget?.memberIds.supplierIds ?? []).map(String),
     contractCategory: (budget?.memberIds.contractCategoryIds ?? []).map(String),
+    tag: (budget?.memberIds.tagIds ?? []).map(String),
   };
 }
 
@@ -87,7 +89,8 @@ export default function BudgetFormButton({
     selection.itemCategory.length +
     selection.supplierCategory.length +
     selection.supplier.length +
-    selection.contractCategory.length;
+    selection.contractCategory.length +
+    selection.tag.length;
 
   function openModal() {
     setSelection(initialSelection(budget));
@@ -262,6 +265,13 @@ export default function BudgetFormButton({
                     onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
                     placeholder={t("selectPlaceholder")}
                   />
+                  <MultiSelectField
+                    label={t("groupTags")}
+                    options={options.tags}
+                    value={selection.tag}
+                    onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
                 </div>
 
                 {hasOverlap ? <p className="text-xs text-warning">{t("overlapHint")}</p> : null}
@@ -279,6 +289,9 @@ export default function BudgetFormButton({
                 ))}
                 {selection.contractCategory.map((id) => (
                   <input key={`cc-${id}`} type="hidden" name="memberContractCategoryId" value={id}/>
+                ))}
+                {selection.tag.map((id) => (
+                  <input key={`tag-${id}`} type="hidden" name="memberTagId" value={id}/>
                 ))}
 
                 {error ? <p className="text-danger text-sm">{error}</p> : null}

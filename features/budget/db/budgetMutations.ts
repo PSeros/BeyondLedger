@@ -87,7 +87,8 @@ type MemberCreate =
   | {itemCategoryId: number}
   | {supplierCategoryId: number}
   | {supplierId: number}
-  | {contractCategoryId: number};
+  | {contractCategoryId: number}
+  | {tagId: number};
 
 function parseMembers(formData: FormData): MemberCreate[] {
   const collect = (key: string): number[] =>
@@ -101,6 +102,7 @@ function parseMembers(formData: FormData): MemberCreate[] {
     ...collect("memberSupplierCategoryId").map((id): MemberCreate => ({supplierCategoryId: id})),
     ...collect("memberSupplierId").map((id): MemberCreate => ({supplierId: id})),
     ...collect("memberContractCategoryId").map((id): MemberCreate => ({contractCategoryId: id})),
+    ...collect("memberTagId").map((id): MemberCreate => ({tagId: id})),
   ];
 }
 

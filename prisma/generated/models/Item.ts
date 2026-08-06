@@ -282,6 +282,7 @@ export type ItemWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Item"> | Date | string
   bill?: Prisma.XOR<Prisma.BillScalarRelationFilter, Prisma.BillWhereInput>
   category?: Prisma.XOR<Prisma.ItemCategoryScalarRelationFilter, Prisma.ItemCategoryWhereInput>
+  tags?: Prisma.EntryTagListRelationFilter
 }
 
 export type ItemOrderByWithRelationInput = {
@@ -297,6 +298,7 @@ export type ItemOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   bill?: Prisma.BillOrderByWithRelationInput
   category?: Prisma.ItemCategoryOrderByWithRelationInput
+  tags?: Prisma.EntryTagOrderByRelationAggregateInput
 }
 
 export type ItemWhereUniqueInput = Prisma.AtLeast<{
@@ -315,6 +317,7 @@ export type ItemWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Item"> | Date | string
   bill?: Prisma.XOR<Prisma.BillScalarRelationFilter, Prisma.BillWhereInput>
   category?: Prisma.XOR<Prisma.ItemCategoryScalarRelationFilter, Prisma.ItemCategoryWhereInput>
+  tags?: Prisma.EntryTagListRelationFilter
 }, "id">
 
 export type ItemOrderByWithAggregationInput = {
@@ -361,6 +364,7 @@ export type ItemCreateInput = {
   updatedAt?: Date | string
   bill: Prisma.BillCreateNestedOneWithoutItemsInput
   category: Prisma.ItemCategoryCreateNestedOneWithoutItemsInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutItemInput
 }
 
 export type ItemUncheckedCreateInput = {
@@ -374,6 +378,7 @@ export type ItemUncheckedCreateInput = {
   warranty?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type ItemUpdateInput = {
@@ -386,6 +391,7 @@ export type ItemUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bill?: Prisma.BillUpdateOneRequiredWithoutItemsNestedInput
   category?: Prisma.ItemCategoryUpdateOneRequiredWithoutItemsNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutItemNestedInput
 }
 
 export type ItemUncheckedUpdateInput = {
@@ -399,6 +405,7 @@ export type ItemUncheckedUpdateInput = {
   warranty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type ItemCreateManyInput = {
@@ -506,6 +513,11 @@ export type ItemSumOrderByAggregateInput = {
   warranty?: Prisma.SortOrder
 }
 
+export type ItemNullableScalarRelationFilter = {
+  is?: Prisma.ItemWhereInput | null
+  isNot?: Prisma.ItemWhereInput | null
+}
+
 export type ItemCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.ItemCreateWithoutCategoryInput, Prisma.ItemUncheckedCreateWithoutCategoryInput> | Prisma.ItemCreateWithoutCategoryInput[] | Prisma.ItemUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.ItemCreateOrConnectWithoutCategoryInput | Prisma.ItemCreateOrConnectWithoutCategoryInput[]
@@ -598,6 +610,22 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ItemCreateNestedOneWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutTagsInput, Prisma.ItemUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutTagsInput
+  connect?: Prisma.ItemWhereUniqueInput
+}
+
+export type ItemUpdateOneWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutTagsInput, Prisma.ItemUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutTagsInput
+  upsert?: Prisma.ItemUpsertWithoutTagsInput
+  disconnect?: Prisma.ItemWhereInput | boolean
+  delete?: Prisma.ItemWhereInput | boolean
+  connect?: Prisma.ItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutTagsInput, Prisma.ItemUpdateWithoutTagsInput>, Prisma.ItemUncheckedUpdateWithoutTagsInput>
+}
+
 export type ItemCreateWithoutCategoryInput = {
   name: string
   quantity: number
@@ -607,6 +635,7 @@ export type ItemCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   bill: Prisma.BillCreateNestedOneWithoutItemsInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutItemInput
 }
 
 export type ItemUncheckedCreateWithoutCategoryInput = {
@@ -619,6 +648,7 @@ export type ItemUncheckedCreateWithoutCategoryInput = {
   warranty?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type ItemCreateOrConnectWithoutCategoryInput = {
@@ -671,6 +701,7 @@ export type ItemCreateWithoutBillInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.ItemCategoryCreateNestedOneWithoutItemsInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutItemInput
 }
 
 export type ItemUncheckedCreateWithoutBillInput = {
@@ -683,6 +714,7 @@ export type ItemUncheckedCreateWithoutBillInput = {
   warranty?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutItemInput
 }
 
 export type ItemCreateOrConnectWithoutBillInput = {
@@ -710,6 +742,72 @@ export type ItemUpdateManyWithWhereWithoutBillInput = {
   data: Prisma.XOR<Prisma.ItemUpdateManyMutationInput, Prisma.ItemUncheckedUpdateManyWithoutBillInput>
 }
 
+export type ItemCreateWithoutTagsInput = {
+  name: string
+  quantity: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  warranty?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bill: Prisma.BillCreateNestedOneWithoutItemsInput
+  category: Prisma.ItemCategoryCreateNestedOneWithoutItemsInput
+}
+
+export type ItemUncheckedCreateWithoutTagsInput = {
+  id?: number
+  billId: number
+  name: string
+  categoryId: number
+  quantity: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  warranty?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ItemCreateOrConnectWithoutTagsInput = {
+  where: Prisma.ItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ItemCreateWithoutTagsInput, Prisma.ItemUncheckedCreateWithoutTagsInput>
+}
+
+export type ItemUpsertWithoutTagsInput = {
+  update: Prisma.XOR<Prisma.ItemUpdateWithoutTagsInput, Prisma.ItemUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.ItemCreateWithoutTagsInput, Prisma.ItemUncheckedCreateWithoutTagsInput>
+  where?: Prisma.ItemWhereInput
+}
+
+export type ItemUpdateToOneWithWhereWithoutTagsInput = {
+  where?: Prisma.ItemWhereInput
+  data: Prisma.XOR<Prisma.ItemUpdateWithoutTagsInput, Prisma.ItemUncheckedUpdateWithoutTagsInput>
+}
+
+export type ItemUpdateWithoutTagsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.FloatFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  warranty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bill?: Prisma.BillUpdateOneRequiredWithoutItemsNestedInput
+  category?: Prisma.ItemCategoryUpdateOneRequiredWithoutItemsNestedInput
+}
+
+export type ItemUncheckedUpdateWithoutTagsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  billId?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.FloatFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  totalPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  warranty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type ItemCreateManyCategoryInput = {
   id?: number
   billId: number
@@ -731,6 +829,7 @@ export type ItemUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bill?: Prisma.BillUpdateOneRequiredWithoutItemsNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutItemNestedInput
 }
 
 export type ItemUncheckedUpdateWithoutCategoryInput = {
@@ -743,6 +842,7 @@ export type ItemUncheckedUpdateWithoutCategoryInput = {
   warranty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type ItemUncheckedUpdateManyWithoutCategoryInput = {
@@ -778,6 +878,7 @@ export type ItemUpdateWithoutBillInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ItemCategoryUpdateOneRequiredWithoutItemsNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutItemNestedInput
 }
 
 export type ItemUncheckedUpdateWithoutBillInput = {
@@ -790,6 +891,7 @@ export type ItemUncheckedUpdateWithoutBillInput = {
   warranty?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutItemNestedInput
 }
 
 export type ItemUncheckedUpdateManyWithoutBillInput = {
@@ -805,6 +907,35 @@ export type ItemUncheckedUpdateManyWithoutBillInput = {
 }
 
 
+/**
+ * Count Type ItemCountOutputType
+ */
+
+export type ItemCountOutputType = {
+  tags: number
+}
+
+export type ItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tags?: boolean | ItemCountOutputTypeCountTagsArgs
+}
+
+/**
+ * ItemCountOutputType without action
+ */
+export type ItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ItemCountOutputType
+   */
+  select?: Prisma.ItemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ItemCountOutputType without action
+ */
+export type ItemCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EntryTagWhereInput
+}
+
 
 export type ItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -819,6 +950,8 @@ export type ItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   bill?: boolean | Prisma.BillDefaultArgs<ExtArgs>
   category?: boolean | Prisma.ItemCategoryDefaultArgs<ExtArgs>
+  tags?: boolean | Prisma.Item$tagsArgs<ExtArgs>
+  _count?: boolean | Prisma.ItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["item"]>
 
 export type ItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -868,6 +1001,8 @@ export type ItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type ItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bill?: boolean | Prisma.BillDefaultArgs<ExtArgs>
   category?: boolean | Prisma.ItemCategoryDefaultArgs<ExtArgs>
+  tags?: boolean | Prisma.Item$tagsArgs<ExtArgs>
+  _count?: boolean | Prisma.ItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bill?: boolean | Prisma.BillDefaultArgs<ExtArgs>
@@ -883,6 +1018,7 @@ export type $ItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     bill: Prisma.$BillPayload<ExtArgs>
     category: Prisma.$ItemCategoryPayload<ExtArgs>
+    tags: Prisma.$EntryTagPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1291,6 +1427,7 @@ export interface Prisma__ItemClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   bill<T extends Prisma.BillDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BillDefaultArgs<ExtArgs>>): Prisma.Prisma__BillClient<runtime.Types.Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   category<T extends Prisma.ItemCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ItemCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ItemCategoryClient<runtime.Types.Result.GetResult<Prisma.$ItemCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tags<T extends Prisma.Item$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Item$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1726,6 +1863,30 @@ export type ItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Items to delete.
    */
   limit?: number
+}
+
+/**
+ * Item.tags
+ */
+export type Item$tagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EntryTag
+   */
+  select?: Prisma.EntryTagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EntryTag
+   */
+  omit?: Prisma.EntryTagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EntryTagInclude<ExtArgs> | null
+  where?: Prisma.EntryTagWhereInput
+  orderBy?: Prisma.EntryTagOrderByWithRelationInput | Prisma.EntryTagOrderByWithRelationInput[]
+  cursor?: Prisma.EntryTagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EntryTagScalarFieldEnum | Prisma.EntryTagScalarFieldEnum[]
 }
 
 /**

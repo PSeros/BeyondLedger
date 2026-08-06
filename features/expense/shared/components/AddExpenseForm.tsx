@@ -112,8 +112,10 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
           <BillItemsEditor
             rows={rows}
             categories={options.itemCategories}
+            tags={options.tags}
             onChange={setRows}
             onCreateCategory={createItemCategory}
+            onCreateTag={createTag}
           />
 
           <TagMultiSelect label={tTags("label")} options={options.tags} onCreate={createTag}/>

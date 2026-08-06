@@ -60,6 +60,7 @@ export async function createBill(formData: FormData): Promise<void> {
           unitPrice: item.unitPrice,
           totalPrice: item.totalPrice,
           warranty: item.warranty,
+          tags: {create: item.tagIds.map((tagId) => ({tagId}))},
         })),
       },
       tags: {create: tagIds.map((tagId) => ({tagId}))},
@@ -114,8 +115,15 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
       if (item.id != null && existingIds.has(item.id)) {
         keptIds.add(item.id);
         await tx.item.update({where: {id: item.id}, data});
+        // Item tags: delete-recreate the join rows (same approach as the bill-level tags above).
+        await tx.entryTag.deleteMany({where: {itemId: item.id}});
+        if (item.tagIds.length > 0) {
+          await tx.entryTag.createMany({data: item.tagIds.map((tagId) => ({itemId: item.id as number, tagId}))});
+        }
       } else {
-        await tx.item.create({data: {...data, billId: id}});
+        await tx.item.create({
+          data: {...data, billId: id, tags: {create: item.tagIds.map((tagId) => ({tagId}))}},
+        });
       }
     }
 

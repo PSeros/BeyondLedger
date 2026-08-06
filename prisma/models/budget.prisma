@@ -52,6 +52,11 @@ model BudgetMember {
   contractCategory   ContractCategory? @relation(fields: [contractCategoryId], references: [id], onDelete: Cascade)
   contractCategoryId Int?
 
+  // A cross-cutting Tag selector: any entry (bill/item/contract) carrying this tag counts toward the
+  // budget, regardless of its category — e.g. a "gift" budget catching a food-category item tagged gift.
+  tag   Tag? @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId Int?
+
   @@index([budgetId])
 }
 

@@ -97,13 +97,16 @@ model Tag {
   color     String
   createdAt DateTime   @default(now())
 
-  entries EntryTag[]
+  entries       EntryTag[]
+  budgetMembers BudgetMember[]
 }
 
-// Polymorphic tag assignment: exactly ONE of billId/contractId/incomeId is set per row (mirrors the
-// BudgetMember convention — the repo has no implicit Prisma m-n). The entry FKs cascade so deleting a
-// Bill/Contract/Income drops its assignments; the tag FK is left RESTRICT (Prisma's default) so a tag
-// that's still in use can't be deleted from Settings — matching every other lookup there.
+// Polymorphic tag assignment: exactly ONE of billId/itemId/contractId/incomeId is set per row (mirrors
+// the BudgetMember convention — the repo has no implicit Prisma m-n). Items are tagged in addition to
+// their parent Bill so a cross-cutting tag (e.g. "gift") can land on a single line item regardless of
+// the bill's other contents. The entry FKs cascade so deleting a Bill/Item/Contract/Income drops its
+// assignments; the tag FK is left RESTRICT (Prisma's default) so a tag that's still in use can't be
+// deleted from Settings — matching every other lookup there.
 model EntryTag {
   id    Int @id @default(autoincrement())
   tag   Tag @relation(fields: [tagId], references: [id])
@@ -111,15 +114,19 @@ model EntryTag {
 
   bill       Bill?     @relation(fields: [billId], references: [id], onDelete: Cascade)
   billId     Int?
+  item       Item?     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId     Int?
   contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
   contractId Int?
   income     Income?   @relation(fields: [incomeId], references: [id], onDelete: Cascade)
   incomeId   Int?
 
   @@unique([tagId, billId])
+  @@unique([tagId, itemId])
   @@unique([tagId, contractId])
   @@unique([tagId, incomeId])
   @@index([billId])
+  @@index([itemId])
   @@index([contractId])
   @@index([incomeId])
 }

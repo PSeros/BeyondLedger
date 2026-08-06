@@ -20,6 +20,13 @@ function ItemCard({item, format, t}: {item: BillItemDetail; format: Formatter; t
             {t("fields.monthsWarranty", {count: item.warranty})}
           </span>
         ) : null}
+        {item.tags.length > 0 ? (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {item.tags.map((tag) => (
+              <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+            ))}
+          </div>
+        ) : null}
       </div>
       <div className="shrink-0 text-right">
         <p className="text-xs text-muted tabular-nums">

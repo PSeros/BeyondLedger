@@ -107,7 +107,8 @@ export const BudgetMemberScalarFieldEnum = {
   itemCategoryId: 'itemCategoryId',
   supplierCategoryId: 'supplierCategoryId',
   supplierId: 'supplierId',
-  contractCategoryId: 'contractCategoryId'
+  contractCategoryId: 'contractCategoryId',
+  tagId: 'tagId'
 } as const
 
 export type BudgetMemberScalarFieldEnum = (typeof BudgetMemberScalarFieldEnum)[keyof typeof BudgetMemberScalarFieldEnum]
@@ -280,6 +281,7 @@ export const EntryTagScalarFieldEnum = {
   id: 'id',
   tagId: 'tagId',
   billId: 'billId',
+  itemId: 'itemId',
   contractId: 'contractId',
   incomeId: 'incomeId'
 } as const

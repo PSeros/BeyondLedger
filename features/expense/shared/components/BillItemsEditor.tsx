@@ -6,11 +6,13 @@ import {Button, Input, Label, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
+import type {TagOption} from "@/features/tags/types";
 
 // One editable line-item row. `uid` is a stable client-only React key (rows are added/removed,
 // so a DB id isn't available for new rows); `id` is the DB id (empty for a not-yet-saved row,
-// which is every row on the create form).
+// which is every row on the create form). `tagIds` are the row's selected tag ids (strings).
 export type ItemRow = {
   uid: string;
   id: string;
@@ -19,6 +21,7 @@ export type ItemRow = {
   quantity: string;
   unitPrice: string;
   warranty: string;
+  tagIds: string[];
 };
 
 let uidCounter = 0;
@@ -36,6 +39,7 @@ export function itemRowFromDetail(item: {
   quantity: number;
   unitPrice: number;
   warranty: number | null;
+  tags: {id: number}[];
 }): ItemRow {
   return {
     uid: nextUid(),
@@ -45,11 +49,12 @@ export function itemRowFromDetail(item: {
     quantity: String(item.quantity),
     unitPrice: String(item.unitPrice),
     warranty: item.warranty != null ? String(item.warranty) : "",
+    tagIds: item.tags.map((tag) => String(tag.id)),
   };
 }
 
 export function emptyRow(defaultCategoryId: string): ItemRow {
-  return {uid: nextUid(), id: "", name: "", categoryId: defaultCategoryId, quantity: "1", unitPrice: "", warranty: ""};
+  return {uid: nextUid(), id: "", name: "", categoryId: defaultCategoryId, quantity: "1", unitPrice: "", warranty: "", tagIds: []};
 }
 
 export function lineTotal(row: ItemRow): number {
@@ -64,14 +69,17 @@ export function grandTotalOf(rows: ItemRow[]): number {
 type BillItemsEditorProps = {
   rows: ItemRow[];
   categories: FilterOption[];
+  tags: TagOption[];
   onChange: (rows: ItemRow[]) => void;
   onCreateCategory?: (name: string) => Promise<FilterOption>;
+  onCreateTag?: (name: string) => Promise<TagOption>;
 };
 
 // Presentational item-rows editor shared by the Bill create + edit forms. The parent owns the
 // `rows` state (so it can decide layout and whether to show a manual Amount fallback when there
 // are no items); this renders the section header, the add button, the rows, and the empty hint.
-export default function BillItemsEditor({rows, categories, onChange, onCreateCategory}: BillItemsEditorProps) {
+// Each row carries its own tag picker so a cross-cutting tag can land on a single line item.
+export default function BillItemsEditor({rows, categories, tags, onChange, onCreateCategory, onCreateTag}: BillItemsEditorProps) {
   const t = useTranslations("forms");
   // Local copy of the category list so an inline-created category appears in every row's select
   // without a page refresh.
@@ -115,7 +123,9 @@ export default function BillItemsEditor({rows, categories, onChange, onCreateCat
               key={row.uid}
               row={row}
               categories={cats}
+              tags={tags}
               onCreateCategory={createCategory}
+              onCreateTag={onCreateTag}
               onChange={(patch) => updateRow(row.uid, patch)}
               onRemove={() => removeRow(row.uid)}
             />
@@ -131,25 +141,33 @@ export default function BillItemsEditor({rows, categories, onChange, onCreateCat
 function ItemRowFields({
   row,
   categories,
+  tags,
   onCreateCategory,
+  onCreateTag,
   onChange,
   onRemove,
 }: {
   row: ItemRow;
   categories: FilterOption[];
+  tags: TagOption[];
   onCreateCategory?: (name: string) => Promise<FilterOption>;
+  onCreateTag?: (name: string) => Promise<TagOption>;
   onChange: (patch: Partial<ItemRow>) => void;
   onRemove: () => void;
 }) {
   const t = useTranslations("forms");
   const tFields = useTranslations("fields");
+  const tTags = useTranslations("tags");
   const format = useFormatter();
 
   return (
     <li className="border-default bg-surface-secondary flex flex-col gap-3 rounded-(--radius) border px-3.5 py-3">
-      {/* Row-scoped hidden id + the getAll()-aligned repeated field names the action parses. */}
+      {/* Row-scoped hidden id + the getAll()-aligned repeated field names the action parses. Tags
+          are serialized as one comma-joined input per row (always present, even when empty) so the
+          parser's parallel arrays stay index-aligned. */}
       <input type="hidden" name="itemId" value={row.id}/>
       <input type="hidden" name="itemCategoryId" value={row.categoryId}/>
+      <input type="hidden" name="itemTagIds" value={row.tagIds.join(",")}/>
 
       <div className="flex items-center gap-2">
         <TextField
@@ -196,6 +214,15 @@ function ItemRowFields({
           optional
         />
       </div>
+
+      <TagMultiSelect
+        label={tTags("label")}
+        options={tags}
+        defaultValue={row.tagIds}
+        onChange={(tagIds) => onChange({tagIds})}
+        onCreate={onCreateTag}
+        emitHiddenInputs={false}
+      />
 
       <div className="flex justify-end">
         <span className="text-sm font-medium tabular-nums">{format.number(lineTotal(row), "currency")}</span>

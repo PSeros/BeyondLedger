@@ -33,6 +33,7 @@ export type BudgetMemberAvgAggregateOutputType = {
   supplierCategoryId: number | null
   supplierId: number | null
   contractCategoryId: number | null
+  tagId: number | null
 }
 
 export type BudgetMemberSumAggregateOutputType = {
@@ -42,6 +43,7 @@ export type BudgetMemberSumAggregateOutputType = {
   supplierCategoryId: number | null
   supplierId: number | null
   contractCategoryId: number | null
+  tagId: number | null
 }
 
 export type BudgetMemberMinAggregateOutputType = {
@@ -51,6 +53,7 @@ export type BudgetMemberMinAggregateOutputType = {
   supplierCategoryId: number | null
   supplierId: number | null
   contractCategoryId: number | null
+  tagId: number | null
 }
 
 export type BudgetMemberMaxAggregateOutputType = {
@@ -60,6 +63,7 @@ export type BudgetMemberMaxAggregateOutputType = {
   supplierCategoryId: number | null
   supplierId: number | null
   contractCategoryId: number | null
+  tagId: number | null
 }
 
 export type BudgetMemberCountAggregateOutputType = {
@@ -69,6 +73,7 @@ export type BudgetMemberCountAggregateOutputType = {
   supplierCategoryId: number
   supplierId: number
   contractCategoryId: number
+  tagId: number
   _all: number
 }
 
@@ -80,6 +85,7 @@ export type BudgetMemberAvgAggregateInputType = {
   supplierCategoryId?: true
   supplierId?: true
   contractCategoryId?: true
+  tagId?: true
 }
 
 export type BudgetMemberSumAggregateInputType = {
@@ -89,6 +95,7 @@ export type BudgetMemberSumAggregateInputType = {
   supplierCategoryId?: true
   supplierId?: true
   contractCategoryId?: true
+  tagId?: true
 }
 
 export type BudgetMemberMinAggregateInputType = {
@@ -98,6 +105,7 @@ export type BudgetMemberMinAggregateInputType = {
   supplierCategoryId?: true
   supplierId?: true
   contractCategoryId?: true
+  tagId?: true
 }
 
 export type BudgetMemberMaxAggregateInputType = {
@@ -107,6 +115,7 @@ export type BudgetMemberMaxAggregateInputType = {
   supplierCategoryId?: true
   supplierId?: true
   contractCategoryId?: true
+  tagId?: true
 }
 
 export type BudgetMemberCountAggregateInputType = {
@@ -116,6 +125,7 @@ export type BudgetMemberCountAggregateInputType = {
   supplierCategoryId?: true
   supplierId?: true
   contractCategoryId?: true
+  tagId?: true
   _all?: true
 }
 
@@ -212,6 +222,7 @@ export type BudgetMemberGroupByOutputType = {
   supplierCategoryId: number | null
   supplierId: number | null
   contractCategoryId: number | null
+  tagId: number | null
   _count: BudgetMemberCountAggregateOutputType | null
   _avg: BudgetMemberAvgAggregateOutputType | null
   _sum: BudgetMemberSumAggregateOutputType | null
@@ -244,11 +255,13 @@ export type BudgetMemberWhereInput = {
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   contractCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
+  tagId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   budget?: Prisma.XOR<Prisma.BudgetScalarRelationFilter, Prisma.BudgetWhereInput>
   itemCategory?: Prisma.XOR<Prisma.ItemCategoryNullableScalarRelationFilter, Prisma.ItemCategoryWhereInput> | null
   supplierCategory?: Prisma.XOR<Prisma.SupplierCategoryNullableScalarRelationFilter, Prisma.SupplierCategoryWhereInput> | null
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   contractCategory?: Prisma.XOR<Prisma.ContractCategoryNullableScalarRelationFilter, Prisma.ContractCategoryWhereInput> | null
+  tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
 }
 
 export type BudgetMemberOrderByWithRelationInput = {
@@ -258,11 +271,13 @@ export type BudgetMemberOrderByWithRelationInput = {
   supplierCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tagId?: Prisma.SortOrderInput | Prisma.SortOrder
   budget?: Prisma.BudgetOrderByWithRelationInput
   itemCategory?: Prisma.ItemCategoryOrderByWithRelationInput
   supplierCategory?: Prisma.SupplierCategoryOrderByWithRelationInput
   supplier?: Prisma.SupplierOrderByWithRelationInput
   contractCategory?: Prisma.ContractCategoryOrderByWithRelationInput
+  tag?: Prisma.TagOrderByWithRelationInput
 }
 
 export type BudgetMemberWhereUniqueInput = Prisma.AtLeast<{
@@ -275,11 +290,13 @@ export type BudgetMemberWhereUniqueInput = Prisma.AtLeast<{
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   contractCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
+  tagId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   budget?: Prisma.XOR<Prisma.BudgetScalarRelationFilter, Prisma.BudgetWhereInput>
   itemCategory?: Prisma.XOR<Prisma.ItemCategoryNullableScalarRelationFilter, Prisma.ItemCategoryWhereInput> | null
   supplierCategory?: Prisma.XOR<Prisma.SupplierCategoryNullableScalarRelationFilter, Prisma.SupplierCategoryWhereInput> | null
   supplier?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   contractCategory?: Prisma.XOR<Prisma.ContractCategoryNullableScalarRelationFilter, Prisma.ContractCategoryWhereInput> | null
+  tag?: Prisma.XOR<Prisma.TagNullableScalarRelationFilter, Prisma.TagWhereInput> | null
 }, "id">
 
 export type BudgetMemberOrderByWithAggregationInput = {
@@ -289,6 +306,7 @@ export type BudgetMemberOrderByWithAggregationInput = {
   supplierCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  tagId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BudgetMemberCountOrderByAggregateInput
   _avg?: Prisma.BudgetMemberAvgOrderByAggregateInput
   _max?: Prisma.BudgetMemberMaxOrderByAggregateInput
@@ -306,6 +324,7 @@ export type BudgetMemberScalarWhereWithAggregatesInput = {
   supplierCategoryId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
   contractCategoryId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
+  tagId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
 }
 
 export type BudgetMemberCreateInput = {
@@ -314,6 +333,7 @@ export type BudgetMemberCreateInput = {
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
   contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateInput = {
@@ -323,6 +343,7 @@ export type BudgetMemberUncheckedCreateInput = {
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateInput = {
@@ -331,6 +352,7 @@ export type BudgetMemberUpdateInput = {
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
   contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateInput = {
@@ -340,6 +362,7 @@ export type BudgetMemberUncheckedUpdateInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberCreateManyInput = {
@@ -349,6 +372,7 @@ export type BudgetMemberCreateManyInput = {
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateManyMutationInput = {
@@ -362,6 +386,7 @@ export type BudgetMemberUncheckedUpdateManyInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberListRelationFilter = {
@@ -381,6 +406,7 @@ export type BudgetMemberCountOrderByAggregateInput = {
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrder
+  tagId?: Prisma.SortOrder
 }
 
 export type BudgetMemberAvgOrderByAggregateInput = {
@@ -390,6 +416,7 @@ export type BudgetMemberAvgOrderByAggregateInput = {
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrder
+  tagId?: Prisma.SortOrder
 }
 
 export type BudgetMemberMaxOrderByAggregateInput = {
@@ -399,6 +426,7 @@ export type BudgetMemberMaxOrderByAggregateInput = {
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrder
+  tagId?: Prisma.SortOrder
 }
 
 export type BudgetMemberMinOrderByAggregateInput = {
@@ -408,6 +436,7 @@ export type BudgetMemberMinOrderByAggregateInput = {
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrder
+  tagId?: Prisma.SortOrder
 }
 
 export type BudgetMemberSumOrderByAggregateInput = {
@@ -417,6 +446,7 @@ export type BudgetMemberSumOrderByAggregateInput = {
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   contractCategoryId?: Prisma.SortOrder
+  tagId?: Prisma.SortOrder
 }
 
 export type BudgetMemberCreateNestedManyWithoutBudgetInput = {
@@ -629,11 +659,54 @@ export type BudgetMemberUncheckedUpdateManyWithoutSupplierNestedInput = {
   deleteMany?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
 }
 
+export type BudgetMemberCreateNestedManyWithoutTagInput = {
+  create?: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput> | Prisma.BudgetMemberCreateWithoutTagInput[] | Prisma.BudgetMemberUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.BudgetMemberCreateOrConnectWithoutTagInput | Prisma.BudgetMemberCreateOrConnectWithoutTagInput[]
+  createMany?: Prisma.BudgetMemberCreateManyTagInputEnvelope
+  connect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+}
+
+export type BudgetMemberUncheckedCreateNestedManyWithoutTagInput = {
+  create?: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput> | Prisma.BudgetMemberCreateWithoutTagInput[] | Prisma.BudgetMemberUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.BudgetMemberCreateOrConnectWithoutTagInput | Prisma.BudgetMemberCreateOrConnectWithoutTagInput[]
+  createMany?: Prisma.BudgetMemberCreateManyTagInputEnvelope
+  connect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+}
+
+export type BudgetMemberUpdateManyWithoutTagNestedInput = {
+  create?: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput> | Prisma.BudgetMemberCreateWithoutTagInput[] | Prisma.BudgetMemberUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.BudgetMemberCreateOrConnectWithoutTagInput | Prisma.BudgetMemberCreateOrConnectWithoutTagInput[]
+  upsert?: Prisma.BudgetMemberUpsertWithWhereUniqueWithoutTagInput | Prisma.BudgetMemberUpsertWithWhereUniqueWithoutTagInput[]
+  createMany?: Prisma.BudgetMemberCreateManyTagInputEnvelope
+  set?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  disconnect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  delete?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  connect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  update?: Prisma.BudgetMemberUpdateWithWhereUniqueWithoutTagInput | Prisma.BudgetMemberUpdateWithWhereUniqueWithoutTagInput[]
+  updateMany?: Prisma.BudgetMemberUpdateManyWithWhereWithoutTagInput | Prisma.BudgetMemberUpdateManyWithWhereWithoutTagInput[]
+  deleteMany?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
+}
+
+export type BudgetMemberUncheckedUpdateManyWithoutTagNestedInput = {
+  create?: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput> | Prisma.BudgetMemberCreateWithoutTagInput[] | Prisma.BudgetMemberUncheckedCreateWithoutTagInput[]
+  connectOrCreate?: Prisma.BudgetMemberCreateOrConnectWithoutTagInput | Prisma.BudgetMemberCreateOrConnectWithoutTagInput[]
+  upsert?: Prisma.BudgetMemberUpsertWithWhereUniqueWithoutTagInput | Prisma.BudgetMemberUpsertWithWhereUniqueWithoutTagInput[]
+  createMany?: Prisma.BudgetMemberCreateManyTagInputEnvelope
+  set?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  disconnect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  delete?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  connect?: Prisma.BudgetMemberWhereUniqueInput | Prisma.BudgetMemberWhereUniqueInput[]
+  update?: Prisma.BudgetMemberUpdateWithWhereUniqueWithoutTagInput | Prisma.BudgetMemberUpdateWithWhereUniqueWithoutTagInput[]
+  updateMany?: Prisma.BudgetMemberUpdateManyWithWhereWithoutTagInput | Prisma.BudgetMemberUpdateManyWithWhereWithoutTagInput[]
+  deleteMany?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
+}
+
 export type BudgetMemberCreateWithoutBudgetInput = {
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
   contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateWithoutBudgetInput = {
@@ -642,6 +715,7 @@ export type BudgetMemberUncheckedCreateWithoutBudgetInput = {
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberCreateOrConnectWithoutBudgetInput = {
@@ -679,6 +753,7 @@ export type BudgetMemberScalarWhereInput = {
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   contractCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
+  tagId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
 }
 
 export type BudgetMemberCreateWithoutSupplierCategoryInput = {
@@ -686,6 +761,7 @@ export type BudgetMemberCreateWithoutSupplierCategoryInput = {
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
   contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateWithoutSupplierCategoryInput = {
@@ -694,6 +770,7 @@ export type BudgetMemberUncheckedCreateWithoutSupplierCategoryInput = {
   itemCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberCreateOrConnectWithoutSupplierCategoryInput = {
@@ -726,6 +803,7 @@ export type BudgetMemberCreateWithoutItemCategoryInput = {
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
   contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateWithoutItemCategoryInput = {
@@ -734,6 +812,7 @@ export type BudgetMemberUncheckedCreateWithoutItemCategoryInput = {
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberCreateOrConnectWithoutItemCategoryInput = {
@@ -766,6 +845,7 @@ export type BudgetMemberCreateWithoutContractCategoryInput = {
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateWithoutContractCategoryInput = {
@@ -774,6 +854,7 @@ export type BudgetMemberUncheckedCreateWithoutContractCategoryInput = {
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberCreateOrConnectWithoutContractCategoryInput = {
@@ -806,6 +887,7 @@ export type BudgetMemberCreateWithoutSupplierInput = {
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+  tag?: Prisma.TagCreateNestedOneWithoutBudgetMembersInput
 }
 
 export type BudgetMemberUncheckedCreateWithoutSupplierInput = {
@@ -814,6 +896,7 @@ export type BudgetMemberUncheckedCreateWithoutSupplierInput = {
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberCreateOrConnectWithoutSupplierInput = {
@@ -841,12 +924,55 @@ export type BudgetMemberUpdateManyWithWhereWithoutSupplierInput = {
   data: Prisma.XOR<Prisma.BudgetMemberUpdateManyMutationInput, Prisma.BudgetMemberUncheckedUpdateManyWithoutSupplierInput>
 }
 
+export type BudgetMemberCreateWithoutTagInput = {
+  budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
+  itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
+  supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
+  supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
+  contractCategory?: Prisma.ContractCategoryCreateNestedOneWithoutBudgetMembersInput
+}
+
+export type BudgetMemberUncheckedCreateWithoutTagInput = {
+  id?: number
+  budgetId: number
+  itemCategoryId?: number | null
+  supplierCategoryId?: number | null
+  supplierId?: number | null
+  contractCategoryId?: number | null
+}
+
+export type BudgetMemberCreateOrConnectWithoutTagInput = {
+  where: Prisma.BudgetMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput>
+}
+
+export type BudgetMemberCreateManyTagInputEnvelope = {
+  data: Prisma.BudgetMemberCreateManyTagInput | Prisma.BudgetMemberCreateManyTagInput[]
+}
+
+export type BudgetMemberUpsertWithWhereUniqueWithoutTagInput = {
+  where: Prisma.BudgetMemberWhereUniqueInput
+  update: Prisma.XOR<Prisma.BudgetMemberUpdateWithoutTagInput, Prisma.BudgetMemberUncheckedUpdateWithoutTagInput>
+  create: Prisma.XOR<Prisma.BudgetMemberCreateWithoutTagInput, Prisma.BudgetMemberUncheckedCreateWithoutTagInput>
+}
+
+export type BudgetMemberUpdateWithWhereUniqueWithoutTagInput = {
+  where: Prisma.BudgetMemberWhereUniqueInput
+  data: Prisma.XOR<Prisma.BudgetMemberUpdateWithoutTagInput, Prisma.BudgetMemberUncheckedUpdateWithoutTagInput>
+}
+
+export type BudgetMemberUpdateManyWithWhereWithoutTagInput = {
+  where: Prisma.BudgetMemberScalarWhereInput
+  data: Prisma.XOR<Prisma.BudgetMemberUpdateManyMutationInput, Prisma.BudgetMemberUncheckedUpdateManyWithoutTagInput>
+}
+
 export type BudgetMemberCreateManyBudgetInput = {
   id?: number
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateWithoutBudgetInput = {
@@ -854,6 +980,7 @@ export type BudgetMemberUpdateWithoutBudgetInput = {
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
   contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateWithoutBudgetInput = {
@@ -862,6 +989,7 @@ export type BudgetMemberUncheckedUpdateWithoutBudgetInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberUncheckedUpdateManyWithoutBudgetInput = {
@@ -870,6 +998,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutBudgetInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberCreateManySupplierCategoryInput = {
@@ -878,6 +1007,7 @@ export type BudgetMemberCreateManySupplierCategoryInput = {
   itemCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateWithoutSupplierCategoryInput = {
@@ -885,6 +1015,7 @@ export type BudgetMemberUpdateWithoutSupplierCategoryInput = {
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
   contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateWithoutSupplierCategoryInput = {
@@ -893,6 +1024,7 @@ export type BudgetMemberUncheckedUpdateWithoutSupplierCategoryInput = {
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryInput = {
@@ -901,6 +1033,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryInput = {
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberCreateManyItemCategoryInput = {
@@ -909,6 +1042,7 @@ export type BudgetMemberCreateManyItemCategoryInput = {
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateWithoutItemCategoryInput = {
@@ -916,6 +1050,7 @@ export type BudgetMemberUpdateWithoutItemCategoryInput = {
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
   contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateWithoutItemCategoryInput = {
@@ -924,6 +1059,7 @@ export type BudgetMemberUncheckedUpdateWithoutItemCategoryInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberUncheckedUpdateManyWithoutItemCategoryInput = {
@@ -932,6 +1068,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutItemCategoryInput = {
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberCreateManyContractCategoryInput = {
@@ -940,6 +1077,7 @@ export type BudgetMemberCreateManyContractCategoryInput = {
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateWithoutContractCategoryInput = {
@@ -947,6 +1085,7 @@ export type BudgetMemberUpdateWithoutContractCategoryInput = {
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateWithoutContractCategoryInput = {
@@ -955,6 +1094,7 @@ export type BudgetMemberUncheckedUpdateWithoutContractCategoryInput = {
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberUncheckedUpdateManyWithoutContractCategoryInput = {
@@ -963,6 +1103,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutContractCategoryInput = {
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberCreateManySupplierInput = {
@@ -971,6 +1112,7 @@ export type BudgetMemberCreateManySupplierInput = {
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   contractCategoryId?: number | null
+  tagId?: number | null
 }
 
 export type BudgetMemberUpdateWithoutSupplierInput = {
@@ -978,6 +1120,7 @@ export type BudgetMemberUpdateWithoutSupplierInput = {
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+  tag?: Prisma.TagUpdateOneWithoutBudgetMembersNestedInput
 }
 
 export type BudgetMemberUncheckedUpdateWithoutSupplierInput = {
@@ -986,6 +1129,7 @@ export type BudgetMemberUncheckedUpdateWithoutSupplierInput = {
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type BudgetMemberUncheckedUpdateManyWithoutSupplierInput = {
@@ -993,6 +1137,42 @@ export type BudgetMemberUncheckedUpdateManyWithoutSupplierInput = {
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tagId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type BudgetMemberCreateManyTagInput = {
+  id?: number
+  budgetId: number
+  itemCategoryId?: number | null
+  supplierCategoryId?: number | null
+  supplierId?: number | null
+  contractCategoryId?: number | null
+}
+
+export type BudgetMemberUpdateWithoutTagInput = {
+  budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
+  itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
+  supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
+  supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
+  contractCategory?: Prisma.ContractCategoryUpdateOneWithoutBudgetMembersNestedInput
+}
+
+export type BudgetMemberUncheckedUpdateWithoutTagInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type BudgetMemberUncheckedUpdateManyWithoutTagInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -1005,11 +1185,13 @@ export type BudgetMemberSelect<ExtArgs extends runtime.Types.Extensions.Internal
   supplierCategoryId?: boolean
   supplierId?: boolean
   contractCategoryId?: boolean
+  tagId?: boolean
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
   itemCategory?: boolean | Prisma.BudgetMember$itemCategoryArgs<ExtArgs>
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }, ExtArgs["result"]["budgetMember"]>
 
 export type BudgetMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1019,11 +1201,13 @@ export type BudgetMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   supplierCategoryId?: boolean
   supplierId?: boolean
   contractCategoryId?: boolean
+  tagId?: boolean
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
   itemCategory?: boolean | Prisma.BudgetMember$itemCategoryArgs<ExtArgs>
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }, ExtArgs["result"]["budgetMember"]>
 
 export type BudgetMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1033,11 +1217,13 @@ export type BudgetMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   supplierCategoryId?: boolean
   supplierId?: boolean
   contractCategoryId?: boolean
+  tagId?: boolean
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
   itemCategory?: boolean | Prisma.BudgetMember$itemCategoryArgs<ExtArgs>
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }, ExtArgs["result"]["budgetMember"]>
 
 export type BudgetMemberSelectScalar = {
@@ -1047,15 +1233,17 @@ export type BudgetMemberSelectScalar = {
   supplierCategoryId?: boolean
   supplierId?: boolean
   contractCategoryId?: boolean
+  tagId?: boolean
 }
 
-export type BudgetMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "budgetId" | "itemCategoryId" | "supplierCategoryId" | "supplierId" | "contractCategoryId", ExtArgs["result"]["budgetMember"]>
+export type BudgetMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "budgetId" | "itemCategoryId" | "supplierCategoryId" | "supplierId" | "contractCategoryId" | "tagId", ExtArgs["result"]["budgetMember"]>
 export type BudgetMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
   itemCategory?: boolean | Prisma.BudgetMember$itemCategoryArgs<ExtArgs>
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }
 export type BudgetMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
@@ -1063,6 +1251,7 @@ export type BudgetMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }
 export type BudgetMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
@@ -1070,6 +1259,7 @@ export type BudgetMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types
   supplierCategory?: boolean | Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>
   supplier?: boolean | Prisma.BudgetMember$supplierArgs<ExtArgs>
   contractCategory?: boolean | Prisma.BudgetMember$contractCategoryArgs<ExtArgs>
+  tag?: boolean | Prisma.BudgetMember$tagArgs<ExtArgs>
 }
 
 export type $BudgetMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1080,6 +1270,7 @@ export type $BudgetMemberPayload<ExtArgs extends runtime.Types.Extensions.Intern
     supplierCategory: Prisma.$SupplierCategoryPayload<ExtArgs> | null
     supplier: Prisma.$SupplierPayload<ExtArgs> | null
     contractCategory: Prisma.$ContractCategoryPayload<ExtArgs> | null
+    tag: Prisma.$TagPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1088,6 +1279,7 @@ export type $BudgetMemberPayload<ExtArgs extends runtime.Types.Extensions.Intern
     supplierCategoryId: number | null
     supplierId: number | null
     contractCategoryId: number | null
+    tagId: number | null
   }, ExtArgs["result"]["budgetMember"]>
   composites: {}
 }
@@ -1487,6 +1679,7 @@ export interface Prisma__BudgetMemberClient<T, Null = never, ExtArgs extends run
   supplierCategory<T extends Prisma.BudgetMember$supplierCategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetMember$supplierCategoryArgs<ExtArgs>>): Prisma.Prisma__SupplierCategoryClient<runtime.Types.Result.GetResult<Prisma.$SupplierCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supplier<T extends Prisma.BudgetMember$supplierArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetMember$supplierArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   contractCategory<T extends Prisma.BudgetMember$contractCategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetMember$contractCategoryArgs<ExtArgs>>): Prisma.Prisma__ContractCategoryClient<runtime.Types.Result.GetResult<Prisma.$ContractCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  tag<T extends Prisma.BudgetMember$tagArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetMember$tagArgs<ExtArgs>>): Prisma.Prisma__TagClient<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1522,6 +1715,7 @@ export interface BudgetMemberFieldRefs {
   readonly supplierCategoryId: Prisma.FieldRef<"BudgetMember", 'Int'>
   readonly supplierId: Prisma.FieldRef<"BudgetMember", 'Int'>
   readonly contractCategoryId: Prisma.FieldRef<"BudgetMember", 'Int'>
+  readonly tagId: Prisma.FieldRef<"BudgetMember", 'Int'>
 }
     
 
@@ -1994,6 +2188,25 @@ export type BudgetMember$contractCategoryArgs<ExtArgs extends runtime.Types.Exte
    */
   include?: Prisma.ContractCategoryInclude<ExtArgs> | null
   where?: Prisma.ContractCategoryWhereInput
+}
+
+/**
+ * BudgetMember.tag
+ */
+export type BudgetMember$tagArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tag
+   */
+  select?: Prisma.TagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tag
+   */
+  omit?: Prisma.TagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TagInclude<ExtArgs> | null
+  where?: Prisma.TagWhereInput
 }
 
 /**

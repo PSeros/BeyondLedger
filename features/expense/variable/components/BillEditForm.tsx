@@ -80,8 +80,10 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
       <BillItemsEditor
         rows={rows}
         categories={options.itemCategories}
+        tags={options.tags}
         onChange={setRows}
         onCreateCategory={createItemCategory}
+        onCreateTag={createTag}
       />
 
       <TagMultiSelect

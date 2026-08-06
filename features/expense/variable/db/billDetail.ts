@@ -12,6 +12,7 @@ export type BillItemDetail = {
   unitPrice: number;
   totalPrice: number;
   warranty: number | null;
+  tags: TagOption[];
 };
 
 export type BillDetailData = {
@@ -36,7 +37,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
     include: {
       supplier: {include: {category: true}},
       workspace: true,
-      items: {include: {category: true}, orderBy: {createdAt: "asc"}},
+      items: {include: {category: true, tags: {include: {tag: true}}}, orderBy: {createdAt: "asc"}},
       files: {orderBy: {createdAt: "desc"}},
       tags: {include: {tag: true}},
     },
@@ -66,6 +67,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
       unitPrice: Number(item.unitPrice),
       totalPrice: Number(item.totalPrice),
       warranty: item.warranty,
+      tags: item.tags.map((entry) => ({id: entry.tag.id, name: entry.tag.name, color: entry.tag.color})),
     })),
     files: bill.files.map((file) => ({
       id: file.id,

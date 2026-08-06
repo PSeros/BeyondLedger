@@ -143,12 +143,16 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
         </div>
 
         {budget.members.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {budget.members.map((member) => (
-              <Chip key={`${member.type}-${member.id}`} variant="soft" size="sm">
-                <Chip.Label>{member.name}</Chip.Label>
-              </Chip>
-            ))}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {budget.members.map((member) =>
+              member.type === "tag" && member.color ? (
+                <TagChip key={`${member.type}-${member.id}`} name={member.name} color={member.color}/>
+              ) : (
+                <Chip key={`${member.type}-${member.id}`} variant="soft" size="sm">
+                  <Chip.Label>{member.name}</Chip.Label>
+                </Chip>
+              ),
+            )}
           </div>
         ) : (
           <p className="text-xs text-muted">{t("noMembers")}</p>

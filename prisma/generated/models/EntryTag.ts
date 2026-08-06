@@ -30,6 +30,7 @@ export type EntryTagAvgAggregateOutputType = {
   id: number | null
   tagId: number | null
   billId: number | null
+  itemId: number | null
   contractId: number | null
   incomeId: number | null
 }
@@ -38,6 +39,7 @@ export type EntryTagSumAggregateOutputType = {
   id: number | null
   tagId: number | null
   billId: number | null
+  itemId: number | null
   contractId: number | null
   incomeId: number | null
 }
@@ -46,6 +48,7 @@ export type EntryTagMinAggregateOutputType = {
   id: number | null
   tagId: number | null
   billId: number | null
+  itemId: number | null
   contractId: number | null
   incomeId: number | null
 }
@@ -54,6 +57,7 @@ export type EntryTagMaxAggregateOutputType = {
   id: number | null
   tagId: number | null
   billId: number | null
+  itemId: number | null
   contractId: number | null
   incomeId: number | null
 }
@@ -62,6 +66,7 @@ export type EntryTagCountAggregateOutputType = {
   id: number
   tagId: number
   billId: number
+  itemId: number
   contractId: number
   incomeId: number
   _all: number
@@ -72,6 +77,7 @@ export type EntryTagAvgAggregateInputType = {
   id?: true
   tagId?: true
   billId?: true
+  itemId?: true
   contractId?: true
   incomeId?: true
 }
@@ -80,6 +86,7 @@ export type EntryTagSumAggregateInputType = {
   id?: true
   tagId?: true
   billId?: true
+  itemId?: true
   contractId?: true
   incomeId?: true
 }
@@ -88,6 +95,7 @@ export type EntryTagMinAggregateInputType = {
   id?: true
   tagId?: true
   billId?: true
+  itemId?: true
   contractId?: true
   incomeId?: true
 }
@@ -96,6 +104,7 @@ export type EntryTagMaxAggregateInputType = {
   id?: true
   tagId?: true
   billId?: true
+  itemId?: true
   contractId?: true
   incomeId?: true
 }
@@ -104,6 +113,7 @@ export type EntryTagCountAggregateInputType = {
   id?: true
   tagId?: true
   billId?: true
+  itemId?: true
   contractId?: true
   incomeId?: true
   _all?: true
@@ -199,6 +209,7 @@ export type EntryTagGroupByOutputType = {
   id: number
   tagId: number
   billId: number | null
+  itemId: number | null
   contractId: number | null
   incomeId: number | null
   _count: EntryTagCountAggregateOutputType | null
@@ -230,10 +241,12 @@ export type EntryTagWhereInput = {
   id?: Prisma.IntFilter<"EntryTag"> | number
   tagId?: Prisma.IntFilter<"EntryTag"> | number
   billId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
+  itemId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   contractId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   incomeId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   tag?: Prisma.XOR<Prisma.TagScalarRelationFilter, Prisma.TagWhereInput>
   bill?: Prisma.XOR<Prisma.BillNullableScalarRelationFilter, Prisma.BillWhereInput> | null
+  item?: Prisma.XOR<Prisma.ItemNullableScalarRelationFilter, Prisma.ItemWhereInput> | null
   contract?: Prisma.XOR<Prisma.ContractNullableScalarRelationFilter, Prisma.ContractWhereInput> | null
   income?: Prisma.XOR<Prisma.IncomeNullableScalarRelationFilter, Prisma.IncomeWhereInput> | null
 }
@@ -242,10 +255,12 @@ export type EntryTagOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrderInput | Prisma.SortOrder
+  itemId?: Prisma.SortOrderInput | Prisma.SortOrder
   contractId?: Prisma.SortOrderInput | Prisma.SortOrder
   incomeId?: Prisma.SortOrderInput | Prisma.SortOrder
   tag?: Prisma.TagOrderByWithRelationInput
   bill?: Prisma.BillOrderByWithRelationInput
+  item?: Prisma.ItemOrderByWithRelationInput
   contract?: Prisma.ContractOrderByWithRelationInput
   income?: Prisma.IncomeOrderByWithRelationInput
 }
@@ -253,6 +268,7 @@ export type EntryTagOrderByWithRelationInput = {
 export type EntryTagWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   tagId_billId?: Prisma.EntryTagTagIdBillIdCompoundUniqueInput
+  tagId_itemId?: Prisma.EntryTagTagIdItemIdCompoundUniqueInput
   tagId_contractId?: Prisma.EntryTagTagIdContractIdCompoundUniqueInput
   tagId_incomeId?: Prisma.EntryTagTagIdIncomeIdCompoundUniqueInput
   AND?: Prisma.EntryTagWhereInput | Prisma.EntryTagWhereInput[]
@@ -260,18 +276,21 @@ export type EntryTagWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EntryTagWhereInput | Prisma.EntryTagWhereInput[]
   tagId?: Prisma.IntFilter<"EntryTag"> | number
   billId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
+  itemId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   contractId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   incomeId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   tag?: Prisma.XOR<Prisma.TagScalarRelationFilter, Prisma.TagWhereInput>
   bill?: Prisma.XOR<Prisma.BillNullableScalarRelationFilter, Prisma.BillWhereInput> | null
+  item?: Prisma.XOR<Prisma.ItemNullableScalarRelationFilter, Prisma.ItemWhereInput> | null
   contract?: Prisma.XOR<Prisma.ContractNullableScalarRelationFilter, Prisma.ContractWhereInput> | null
   income?: Prisma.XOR<Prisma.IncomeNullableScalarRelationFilter, Prisma.IncomeWhereInput> | null
-}, "id" | "tagId_billId" | "tagId_contractId" | "tagId_incomeId">
+}, "id" | "tagId_billId" | "tagId_itemId" | "tagId_contractId" | "tagId_incomeId">
 
 export type EntryTagOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrderInput | Prisma.SortOrder
+  itemId?: Prisma.SortOrderInput | Prisma.SortOrder
   contractId?: Prisma.SortOrderInput | Prisma.SortOrder
   incomeId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.EntryTagCountOrderByAggregateInput
@@ -288,6 +307,7 @@ export type EntryTagScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"EntryTag"> | number
   tagId?: Prisma.IntWithAggregatesFilter<"EntryTag"> | number
   billId?: Prisma.IntNullableWithAggregatesFilter<"EntryTag"> | number | null
+  itemId?: Prisma.IntNullableWithAggregatesFilter<"EntryTag"> | number | null
   contractId?: Prisma.IntNullableWithAggregatesFilter<"EntryTag"> | number | null
   incomeId?: Prisma.IntNullableWithAggregatesFilter<"EntryTag"> | number | null
 }
@@ -295,6 +315,7 @@ export type EntryTagScalarWhereWithAggregatesInput = {
 export type EntryTagCreateInput = {
   tag: Prisma.TagCreateNestedOneWithoutEntriesInput
   bill?: Prisma.BillCreateNestedOneWithoutTagsInput
+  item?: Prisma.ItemCreateNestedOneWithoutTagsInput
   contract?: Prisma.ContractCreateNestedOneWithoutTagsInput
   income?: Prisma.IncomeCreateNestedOneWithoutTagsInput
 }
@@ -303,6 +324,7 @@ export type EntryTagUncheckedCreateInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
@@ -310,6 +332,7 @@ export type EntryTagUncheckedCreateInput = {
 export type EntryTagUpdateInput = {
   tag?: Prisma.TagUpdateOneRequiredWithoutEntriesNestedInput
   bill?: Prisma.BillUpdateOneWithoutTagsNestedInput
+  item?: Prisma.ItemUpdateOneWithoutTagsNestedInput
   contract?: Prisma.ContractUpdateOneWithoutTagsNestedInput
   income?: Prisma.IncomeUpdateOneWithoutTagsNestedInput
 }
@@ -318,6 +341,7 @@ export type EntryTagUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -326,6 +350,7 @@ export type EntryTagCreateManyInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
@@ -338,6 +363,7 @@ export type EntryTagUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -357,6 +383,11 @@ export type EntryTagTagIdBillIdCompoundUniqueInput = {
   billId: number
 }
 
+export type EntryTagTagIdItemIdCompoundUniqueInput = {
+  tagId: number
+  itemId: number
+}
+
 export type EntryTagTagIdContractIdCompoundUniqueInput = {
   tagId: number
   contractId: number
@@ -371,6 +402,7 @@ export type EntryTagCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrder
+  itemId?: Prisma.SortOrder
   contractId?: Prisma.SortOrder
   incomeId?: Prisma.SortOrder
 }
@@ -379,6 +411,7 @@ export type EntryTagAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrder
+  itemId?: Prisma.SortOrder
   contractId?: Prisma.SortOrder
   incomeId?: Prisma.SortOrder
 }
@@ -387,6 +420,7 @@ export type EntryTagMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrder
+  itemId?: Prisma.SortOrder
   contractId?: Prisma.SortOrder
   incomeId?: Prisma.SortOrder
 }
@@ -395,6 +429,7 @@ export type EntryTagMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrder
+  itemId?: Prisma.SortOrder
   contractId?: Prisma.SortOrder
   incomeId?: Prisma.SortOrder
 }
@@ -403,6 +438,7 @@ export type EntryTagSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tagId?: Prisma.SortOrder
   billId?: Prisma.SortOrder
+  itemId?: Prisma.SortOrder
   contractId?: Prisma.SortOrder
   incomeId?: Prisma.SortOrder
 }
@@ -488,6 +524,48 @@ export type EntryTagUncheckedUpdateManyWithoutBillNestedInput = {
   connect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
   update?: Prisma.EntryTagUpdateWithWhereUniqueWithoutBillInput | Prisma.EntryTagUpdateWithWhereUniqueWithoutBillInput[]
   updateMany?: Prisma.EntryTagUpdateManyWithWhereWithoutBillInput | Prisma.EntryTagUpdateManyWithWhereWithoutBillInput[]
+  deleteMany?: Prisma.EntryTagScalarWhereInput | Prisma.EntryTagScalarWhereInput[]
+}
+
+export type EntryTagCreateNestedManyWithoutItemInput = {
+  create?: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput> | Prisma.EntryTagCreateWithoutItemInput[] | Prisma.EntryTagUncheckedCreateWithoutItemInput[]
+  connectOrCreate?: Prisma.EntryTagCreateOrConnectWithoutItemInput | Prisma.EntryTagCreateOrConnectWithoutItemInput[]
+  createMany?: Prisma.EntryTagCreateManyItemInputEnvelope
+  connect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+}
+
+export type EntryTagUncheckedCreateNestedManyWithoutItemInput = {
+  create?: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput> | Prisma.EntryTagCreateWithoutItemInput[] | Prisma.EntryTagUncheckedCreateWithoutItemInput[]
+  connectOrCreate?: Prisma.EntryTagCreateOrConnectWithoutItemInput | Prisma.EntryTagCreateOrConnectWithoutItemInput[]
+  createMany?: Prisma.EntryTagCreateManyItemInputEnvelope
+  connect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+}
+
+export type EntryTagUpdateManyWithoutItemNestedInput = {
+  create?: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput> | Prisma.EntryTagCreateWithoutItemInput[] | Prisma.EntryTagUncheckedCreateWithoutItemInput[]
+  connectOrCreate?: Prisma.EntryTagCreateOrConnectWithoutItemInput | Prisma.EntryTagCreateOrConnectWithoutItemInput[]
+  upsert?: Prisma.EntryTagUpsertWithWhereUniqueWithoutItemInput | Prisma.EntryTagUpsertWithWhereUniqueWithoutItemInput[]
+  createMany?: Prisma.EntryTagCreateManyItemInputEnvelope
+  set?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  disconnect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  delete?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  connect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  update?: Prisma.EntryTagUpdateWithWhereUniqueWithoutItemInput | Prisma.EntryTagUpdateWithWhereUniqueWithoutItemInput[]
+  updateMany?: Prisma.EntryTagUpdateManyWithWhereWithoutItemInput | Prisma.EntryTagUpdateManyWithWhereWithoutItemInput[]
+  deleteMany?: Prisma.EntryTagScalarWhereInput | Prisma.EntryTagScalarWhereInput[]
+}
+
+export type EntryTagUncheckedUpdateManyWithoutItemNestedInput = {
+  create?: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput> | Prisma.EntryTagCreateWithoutItemInput[] | Prisma.EntryTagUncheckedCreateWithoutItemInput[]
+  connectOrCreate?: Prisma.EntryTagCreateOrConnectWithoutItemInput | Prisma.EntryTagCreateOrConnectWithoutItemInput[]
+  upsert?: Prisma.EntryTagUpsertWithWhereUniqueWithoutItemInput | Prisma.EntryTagUpsertWithWhereUniqueWithoutItemInput[]
+  createMany?: Prisma.EntryTagCreateManyItemInputEnvelope
+  set?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  disconnect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  delete?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  connect?: Prisma.EntryTagWhereUniqueInput | Prisma.EntryTagWhereUniqueInput[]
+  update?: Prisma.EntryTagUpdateWithWhereUniqueWithoutItemInput | Prisma.EntryTagUpdateWithWhereUniqueWithoutItemInput[]
+  updateMany?: Prisma.EntryTagUpdateManyWithWhereWithoutItemInput | Prisma.EntryTagUpdateManyWithWhereWithoutItemInput[]
   deleteMany?: Prisma.EntryTagScalarWhereInput | Prisma.EntryTagScalarWhereInput[]
 }
 
@@ -578,6 +656,7 @@ export type EntryTagUncheckedUpdateManyWithoutIncomeNestedInput = {
 export type EntryTagCreateWithoutContractInput = {
   tag: Prisma.TagCreateNestedOneWithoutEntriesInput
   bill?: Prisma.BillCreateNestedOneWithoutTagsInput
+  item?: Prisma.ItemCreateNestedOneWithoutTagsInput
   income?: Prisma.IncomeCreateNestedOneWithoutTagsInput
 }
 
@@ -585,6 +664,7 @@ export type EntryTagUncheckedCreateWithoutContractInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   incomeId?: number | null
 }
 
@@ -620,12 +700,14 @@ export type EntryTagScalarWhereInput = {
   id?: Prisma.IntFilter<"EntryTag"> | number
   tagId?: Prisma.IntFilter<"EntryTag"> | number
   billId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
+  itemId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   contractId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
   incomeId?: Prisma.IntNullableFilter<"EntryTag"> | number | null
 }
 
 export type EntryTagCreateWithoutBillInput = {
   tag: Prisma.TagCreateNestedOneWithoutEntriesInput
+  item?: Prisma.ItemCreateNestedOneWithoutTagsInput
   contract?: Prisma.ContractCreateNestedOneWithoutTagsInput
   income?: Prisma.IncomeCreateNestedOneWithoutTagsInput
 }
@@ -633,6 +715,7 @@ export type EntryTagCreateWithoutBillInput = {
 export type EntryTagUncheckedCreateWithoutBillInput = {
   id?: number
   tagId: number
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
@@ -662,8 +745,49 @@ export type EntryTagUpdateManyWithWhereWithoutBillInput = {
   data: Prisma.XOR<Prisma.EntryTagUpdateManyMutationInput, Prisma.EntryTagUncheckedUpdateManyWithoutBillInput>
 }
 
+export type EntryTagCreateWithoutItemInput = {
+  tag: Prisma.TagCreateNestedOneWithoutEntriesInput
+  bill?: Prisma.BillCreateNestedOneWithoutTagsInput
+  contract?: Prisma.ContractCreateNestedOneWithoutTagsInput
+  income?: Prisma.IncomeCreateNestedOneWithoutTagsInput
+}
+
+export type EntryTagUncheckedCreateWithoutItemInput = {
+  id?: number
+  tagId: number
+  billId?: number | null
+  contractId?: number | null
+  incomeId?: number | null
+}
+
+export type EntryTagCreateOrConnectWithoutItemInput = {
+  where: Prisma.EntryTagWhereUniqueInput
+  create: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput>
+}
+
+export type EntryTagCreateManyItemInputEnvelope = {
+  data: Prisma.EntryTagCreateManyItemInput | Prisma.EntryTagCreateManyItemInput[]
+}
+
+export type EntryTagUpsertWithWhereUniqueWithoutItemInput = {
+  where: Prisma.EntryTagWhereUniqueInput
+  update: Prisma.XOR<Prisma.EntryTagUpdateWithoutItemInput, Prisma.EntryTagUncheckedUpdateWithoutItemInput>
+  create: Prisma.XOR<Prisma.EntryTagCreateWithoutItemInput, Prisma.EntryTagUncheckedCreateWithoutItemInput>
+}
+
+export type EntryTagUpdateWithWhereUniqueWithoutItemInput = {
+  where: Prisma.EntryTagWhereUniqueInput
+  data: Prisma.XOR<Prisma.EntryTagUpdateWithoutItemInput, Prisma.EntryTagUncheckedUpdateWithoutItemInput>
+}
+
+export type EntryTagUpdateManyWithWhereWithoutItemInput = {
+  where: Prisma.EntryTagScalarWhereInput
+  data: Prisma.XOR<Prisma.EntryTagUpdateManyMutationInput, Prisma.EntryTagUncheckedUpdateManyWithoutItemInput>
+}
+
 export type EntryTagCreateWithoutTagInput = {
   bill?: Prisma.BillCreateNestedOneWithoutTagsInput
+  item?: Prisma.ItemCreateNestedOneWithoutTagsInput
   contract?: Prisma.ContractCreateNestedOneWithoutTagsInput
   income?: Prisma.IncomeCreateNestedOneWithoutTagsInput
 }
@@ -671,6 +795,7 @@ export type EntryTagCreateWithoutTagInput = {
 export type EntryTagUncheckedCreateWithoutTagInput = {
   id?: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
@@ -703,6 +828,7 @@ export type EntryTagUpdateManyWithWhereWithoutTagInput = {
 export type EntryTagCreateWithoutIncomeInput = {
   tag: Prisma.TagCreateNestedOneWithoutEntriesInput
   bill?: Prisma.BillCreateNestedOneWithoutTagsInput
+  item?: Prisma.ItemCreateNestedOneWithoutTagsInput
   contract?: Prisma.ContractCreateNestedOneWithoutTagsInput
 }
 
@@ -710,6 +836,7 @@ export type EntryTagUncheckedCreateWithoutIncomeInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
 }
 
@@ -742,12 +869,14 @@ export type EntryTagCreateManyContractInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   incomeId?: number | null
 }
 
 export type EntryTagUpdateWithoutContractInput = {
   tag?: Prisma.TagUpdateOneRequiredWithoutEntriesNestedInput
   bill?: Prisma.BillUpdateOneWithoutTagsNestedInput
+  item?: Prisma.ItemUpdateOneWithoutTagsNestedInput
   income?: Prisma.IncomeUpdateOneWithoutTagsNestedInput
 }
 
@@ -755,6 +884,7 @@ export type EntryTagUncheckedUpdateWithoutContractInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -762,18 +892,21 @@ export type EntryTagUncheckedUpdateManyWithoutContractInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type EntryTagCreateManyBillInput = {
   id?: number
   tagId: number
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
 
 export type EntryTagUpdateWithoutBillInput = {
   tag?: Prisma.TagUpdateOneRequiredWithoutEntriesNestedInput
+  item?: Prisma.ItemUpdateOneWithoutTagsNestedInput
   contract?: Prisma.ContractUpdateOneWithoutTagsNestedInput
   income?: Prisma.IncomeUpdateOneWithoutTagsNestedInput
 }
@@ -781,6 +914,7 @@ export type EntryTagUpdateWithoutBillInput = {
 export type EntryTagUncheckedUpdateWithoutBillInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -788,6 +922,38 @@ export type EntryTagUncheckedUpdateWithoutBillInput = {
 export type EntryTagUncheckedUpdateManyWithoutBillInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type EntryTagCreateManyItemInput = {
+  id?: number
+  tagId: number
+  billId?: number | null
+  contractId?: number | null
+  incomeId?: number | null
+}
+
+export type EntryTagUpdateWithoutItemInput = {
+  tag?: Prisma.TagUpdateOneRequiredWithoutEntriesNestedInput
+  bill?: Prisma.BillUpdateOneWithoutTagsNestedInput
+  contract?: Prisma.ContractUpdateOneWithoutTagsNestedInput
+  income?: Prisma.IncomeUpdateOneWithoutTagsNestedInput
+}
+
+export type EntryTagUncheckedUpdateWithoutItemInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  tagId?: Prisma.IntFieldUpdateOperationsInput | number
+  billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type EntryTagUncheckedUpdateManyWithoutItemInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  tagId?: Prisma.IntFieldUpdateOperationsInput | number
+  billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -795,12 +961,14 @@ export type EntryTagUncheckedUpdateManyWithoutBillInput = {
 export type EntryTagCreateManyTagInput = {
   id?: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
   incomeId?: number | null
 }
 
 export type EntryTagUpdateWithoutTagInput = {
   bill?: Prisma.BillUpdateOneWithoutTagsNestedInput
+  item?: Prisma.ItemUpdateOneWithoutTagsNestedInput
   contract?: Prisma.ContractUpdateOneWithoutTagsNestedInput
   income?: Prisma.IncomeUpdateOneWithoutTagsNestedInput
 }
@@ -808,6 +976,7 @@ export type EntryTagUpdateWithoutTagInput = {
 export type EntryTagUncheckedUpdateWithoutTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -815,6 +984,7 @@ export type EntryTagUncheckedUpdateWithoutTagInput = {
 export type EntryTagUncheckedUpdateManyWithoutTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   incomeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -823,12 +993,14 @@ export type EntryTagCreateManyIncomeInput = {
   id?: number
   tagId: number
   billId?: number | null
+  itemId?: number | null
   contractId?: number | null
 }
 
 export type EntryTagUpdateWithoutIncomeInput = {
   tag?: Prisma.TagUpdateOneRequiredWithoutEntriesNestedInput
   bill?: Prisma.BillUpdateOneWithoutTagsNestedInput
+  item?: Prisma.ItemUpdateOneWithoutTagsNestedInput
   contract?: Prisma.ContractUpdateOneWithoutTagsNestedInput
 }
 
@@ -836,6 +1008,7 @@ export type EntryTagUncheckedUpdateWithoutIncomeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -843,6 +1016,7 @@ export type EntryTagUncheckedUpdateManyWithoutIncomeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   tagId?: Prisma.IntFieldUpdateOperationsInput | number
   billId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  itemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -852,10 +1026,12 @@ export type EntryTagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   tagId?: boolean
   billId?: boolean
+  itemId?: boolean
   contractId?: boolean
   incomeId?: boolean
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }, ExtArgs["result"]["entryTag"]>
@@ -864,10 +1040,12 @@ export type EntryTagSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   tagId?: boolean
   billId?: boolean
+  itemId?: boolean
   contractId?: boolean
   incomeId?: boolean
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }, ExtArgs["result"]["entryTag"]>
@@ -876,10 +1054,12 @@ export type EntryTagSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   tagId?: boolean
   billId?: boolean
+  itemId?: boolean
   contractId?: boolean
   incomeId?: boolean
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }, ExtArgs["result"]["entryTag"]>
@@ -888,26 +1068,30 @@ export type EntryTagSelectScalar = {
   id?: boolean
   tagId?: boolean
   billId?: boolean
+  itemId?: boolean
   contractId?: boolean
   incomeId?: boolean
 }
 
-export type EntryTagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tagId" | "billId" | "contractId" | "incomeId", ExtArgs["result"]["entryTag"]>
+export type EntryTagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tagId" | "billId" | "itemId" | "contractId" | "incomeId", ExtArgs["result"]["entryTag"]>
 export type EntryTagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }
 export type EntryTagIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }
 export type EntryTagIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tag?: boolean | Prisma.TagDefaultArgs<ExtArgs>
   bill?: boolean | Prisma.EntryTag$billArgs<ExtArgs>
+  item?: boolean | Prisma.EntryTag$itemArgs<ExtArgs>
   contract?: boolean | Prisma.EntryTag$contractArgs<ExtArgs>
   income?: boolean | Prisma.EntryTag$incomeArgs<ExtArgs>
 }
@@ -917,6 +1101,7 @@ export type $EntryTagPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     tag: Prisma.$TagPayload<ExtArgs>
     bill: Prisma.$BillPayload<ExtArgs> | null
+    item: Prisma.$ItemPayload<ExtArgs> | null
     contract: Prisma.$ContractPayload<ExtArgs> | null
     income: Prisma.$IncomePayload<ExtArgs> | null
   }
@@ -924,6 +1109,7 @@ export type $EntryTagPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     tagId: number
     billId: number | null
+    itemId: number | null
     contractId: number | null
     incomeId: number | null
   }, ExtArgs["result"]["entryTag"]>
@@ -1322,6 +1508,7 @@ export interface Prisma__EntryTagClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tag<T extends Prisma.TagDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TagDefaultArgs<ExtArgs>>): Prisma.Prisma__TagClient<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   bill<T extends Prisma.EntryTag$billArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryTag$billArgs<ExtArgs>>): Prisma.Prisma__BillClient<runtime.Types.Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  item<T extends Prisma.EntryTag$itemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryTag$itemArgs<ExtArgs>>): Prisma.Prisma__ItemClient<runtime.Types.Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   contract<T extends Prisma.EntryTag$contractArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryTag$contractArgs<ExtArgs>>): Prisma.Prisma__ContractClient<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   income<T extends Prisma.EntryTag$incomeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EntryTag$incomeArgs<ExtArgs>>): Prisma.Prisma__IncomeClient<runtime.Types.Result.GetResult<Prisma.$IncomePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1356,6 +1543,7 @@ export interface EntryTagFieldRefs {
   readonly id: Prisma.FieldRef<"EntryTag", 'Int'>
   readonly tagId: Prisma.FieldRef<"EntryTag", 'Int'>
   readonly billId: Prisma.FieldRef<"EntryTag", 'Int'>
+  readonly itemId: Prisma.FieldRef<"EntryTag", 'Int'>
   readonly contractId: Prisma.FieldRef<"EntryTag", 'Int'>
   readonly incomeId: Prisma.FieldRef<"EntryTag", 'Int'>
 }
@@ -1773,6 +1961,25 @@ export type EntryTag$billArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    */
   include?: Prisma.BillInclude<ExtArgs> | null
   where?: Prisma.BillWhereInput
+}
+
+/**
+ * EntryTag.item
+ */
+export type EntryTag$itemArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Item
+   */
+  select?: Prisma.ItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Item
+   */
+  omit?: Prisma.ItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ItemInclude<ExtArgs> | null
+  where?: Prisma.ItemWhereInput
 }
 
 /**

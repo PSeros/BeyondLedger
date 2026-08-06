@@ -60,6 +60,7 @@ export type ParsedItem = {
   unitPrice: number;
   totalPrice: number;
   warranty: number | null;
+  tagIds: number[];
 };
 
 // The item rows are posted as repeated same-named fields (itemName, itemCategoryId, …), one entry
@@ -72,6 +73,9 @@ export function parseItems(formData: FormData): ParsedItem[] {
   const quantities = formData.getAll("itemQuantity");
   const unitPrices = formData.getAll("itemUnitPrice");
   const warranties = formData.getAll("itemWarranty");
+  // Per-row tag ids: one entry per row (comma-joined, possibly empty) so it stays index-aligned
+  // with the arrays above even when a row has no tags.
+  const tagIdLists = formData.getAll("itemTagIds");
 
   const items: ParsedItem[] = [];
   for (let i = 0; i < names.length; i++) {
@@ -104,6 +108,11 @@ export function parseItems(formData: FormData): ParsedItem[] {
       throw new Error(`Invalid warranty for item: ${name}`);
     }
 
+    const tagIds = String(tagIdLists[i] ?? "")
+      .split(",")
+      .map((value) => Number(value.trim()))
+      .filter((n) => Number.isInteger(n) && n > 0);
+
     items.push({
       id,
       name,
@@ -112,6 +121,7 @@ export function parseItems(formData: FormData): ParsedItem[] {
       unitPrice,
       totalPrice: Number((quantity * unitPrice).toFixed(2)),
       warranty,
+      tagIds,
     });
   }
   return items;

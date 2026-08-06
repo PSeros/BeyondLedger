@@ -1,19 +1,21 @@
 import {client} from "@/lib/prisma";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
+import type {TagOption} from "@/features/tags/types";
 import type {WorkspaceOption} from "@/features/workspaces/types";
 import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
-import {resolveActivePeriod, type BudgetPeriodType} from "@/features/budget/period";
+import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
 // Read side for the Budget page. Each budget carries its members, period config, and per-instance
 // overrides; actuals + the effective target are resolved for the budget's CURRENT period (each
 // card shows its own window — there is no global navigator).
 
-export type BudgetMemberType = "itemCategory" | "supplierCategory" | "supplier" | "contractCategory";
+export type BudgetMemberType = "itemCategory" | "supplierCategory" | "supplier" | "contractCategory" | "tag";
 
-export type BudgetMemberView = {type: BudgetMemberType; id: number; name: string};
+// `color` is set only for tag members, so the card can render them as colored TagChips.
+export type BudgetMemberView = {type: BudgetMemberType; id: number; name: string; color?: string};
 
 export type BudgetOverrideView = {periodKey: string; amount: number};
 
@@ -47,6 +49,7 @@ export type BudgetMemberOptions = {
   supplierCategories: FilterOption[];
   suppliers: FilterOption[];
   contractCategories: FilterOption[];
+  tags: TagOption[];
   workspaces: WorkspaceOption[];
   // The account a NEW budget defaults to (the edit form overrides with the budget's own account).
   defaultWorkspaceId: string;
@@ -61,6 +64,8 @@ function toMemberView(member: {
   supplier: {name: string} | null;
   contractCategoryId: number | null;
   contractCategory: {name: string} | null;
+  tagId: number | null;
+  tag: {name: string; color: string} | null;
 }): BudgetMemberView | null {
   if (member.itemCategoryId != null && member.itemCategory) {
     return {type: "itemCategory", id: member.itemCategoryId, name: member.itemCategory.name};
@@ -74,6 +79,9 @@ function toMemberView(member: {
   if (member.contractCategoryId != null && member.contractCategory) {
     return {type: "contractCategory", id: member.contractCategoryId, name: member.contractCategory.name};
   }
+  if (member.tagId != null && member.tag) {
+    return {type: "tag", id: member.tagId, name: member.tag.name, color: member.tag.color};
+  }
   return null;
 }
 
@@ -83,6 +91,7 @@ function toMemberIds(members: BudgetMemberView[]): BudgetMemberIds {
     supplierCategoryIds: members.filter((m) => m.type === "supplierCategory").map((m) => m.id),
     supplierIds: members.filter((m) => m.type === "supplier").map((m) => m.id),
     contractCategoryIds: members.filter((m) => m.type === "contractCategory").map((m) => m.id),
+    tagIds: members.filter((m) => m.type === "tag").map((m) => m.id),
   };
 }
 
@@ -99,6 +108,7 @@ export async function getBudgets(workspaceId?: number | null): Promise<BudgetVie
           supplierCategory: {select: {name: true}},
           supplier: {select: {name: true}},
           contractCategory: {select: {name: true}},
+          tag: {select: {name: true, color: true}},
         },
       },
       overrides: {select: {periodKey: true, amount: true}},
@@ -133,7 +143,14 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
   const actuals = await Promise.all(
     budgets.map((budget, index) =>
-      computeActuals(budget.memberIds, periods[index].start, periods[index].end, budget.workspaceId),
+      computeActuals(
+        budget.memberIds,
+        periods[index].start,
+        periods[index].end,
+        budget.workspaceId,
+        windowMonthsFor(budget.periodType, periods[index].start, periods[index].end),
+        now,
+      ),
     ),
   );
 
@@ -152,11 +169,12 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
 }
 
 export async function getBudgetMemberOptions(): Promise<BudgetMemberOptions> {
-  const [itemCategories, supplierCategories, suppliers, contractCategories, workspaces, activeWorkspaceId] = await Promise.all([
+  const [itemCategories, supplierCategories, suppliers, contractCategories, tags, workspaces, activeWorkspaceId] = await Promise.all([
     client.itemCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplierCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
+    client.tag.findMany({select: {id: true, name: true, color: true}, orderBy: {name: "asc"}}),
     getWorkspaces(),
     getActiveWorkspaceId(),
   ]);
@@ -165,6 +183,7 @@ export async function getBudgetMemberOptions(): Promise<BudgetMemberOptions> {
     supplierCategories,
     suppliers,
     contractCategories,
+    tags,
     workspaces,
     defaultWorkspaceId: String(activeWorkspaceId ?? DEFAULT_WORKSPACE_ID),
   };
