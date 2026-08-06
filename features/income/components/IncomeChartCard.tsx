@@ -8,13 +8,14 @@ import {
 
 type IncomeChartCardProps = IncomeChartFilters & {
   isRecurring: boolean;
+  offset?: number;
 };
 
-export default async function IncomeChartCard({isRecurring, ...filters}: IncomeChartCardProps) {
+export default async function IncomeChartCard({isRecurring, offset = 0, ...filters}: IncomeChartCardProps) {
   const t = await getTranslations("charts");
   const data = isRecurring
-    ? await getFixedIncomeChartData(filters)
-    : await getVariableIncomeChartData(filters);
+    ? await getFixedIncomeChartData(filters, offset)
+    : await getVariableIncomeChartData(filters, offset);
 
   return <ChartCard title={t("income")} data={data} polarity="higherIsBetter"/>;
 }

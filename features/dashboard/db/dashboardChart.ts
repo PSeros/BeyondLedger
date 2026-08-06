@@ -5,12 +5,12 @@ import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
 import {
   addDays,
-  average,
+  addMonths,
   buildMonthView,
+  buildWeekView,
   buildYearView,
   type ChartPoint,
   dateKey,
-  sumRange,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 
@@ -20,28 +20,11 @@ import {
 // the per-domain charts, but summed across both sub-streams so the dashboard shows one line per
 // direction. Honors the active account (workspaceId). Ignores date range by nature (see billChartData).
 
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 const WEEK_LOOKBACK = 8;
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
 export type DashboardChartData = Partial<Record<"1W" | "1M" | "1Y", ChartPoint[]>>;
-
-function buildWeekView(totalsByDay: Map<string, number>, today: Date): ChartPoint[] {
-  const todayIndex = (today.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
-  const weekStart = addDays(today, -todayIndex);
-
-  return WEEKDAY_LABELS.map((label, index) => {
-    const current = index <= todayIndex ? sumRange(totalsByDay, weekStart, index + 1) : null;
-
-    const historical: number[] = [];
-    for (let w = 1; w <= WEEK_LOOKBACK; w++) {
-      historical.push(sumRange(totalsByDay, addDays(weekStart, -7 * w), index + 1));
-    }
-
-    return {label, current, previous: average(historical)};
-  });
-}
 
 // Projects a recurring record's occurrences into the past (totalsByDay) / future (upcomingTotalsByDay)
 // maps, mirroring contractChartData/incomeChartData. Splits on `today`.
@@ -76,19 +59,25 @@ function projectRecurring(
   }
 }
 
+// `offset` (period navigator's ?co) shifts the anchor back/forward by N of each granularity's own
+// unit; `today` stays the realized/forecast boundary so past periods fill and future ones forecast.
 function buildViews(
   totalsByDay: Map<string, number>,
   upcomingTotalsByDay: Map<string, number>,
   today: Date,
+  offset: number,
 ): DashboardChartData {
   return {
-    "1W": buildWeekView(totalsByDay, today),
-    "1M": buildMonthView(totalsByDay, today, MONTH_LOOKBACK, upcomingTotalsByDay),
-    "1Y": buildYearView(totalsByDay, today, YEAR_LOOKBACK, upcomingTotalsByDay),
+    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), WEEK_LOOKBACK, today),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, upcomingTotalsByDay, today),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, upcomingTotalsByDay, today),
   };
 }
 
-export async function getDashboardExpenseChartData(workspaceId?: number | null): Promise<DashboardChartData> {
+export async function getDashboardExpenseChartData(
+  workspaceId?: number | null,
+  offset = 0,
+): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const [bills, contracts] = await Promise.all([
     client.bill.findMany({where: buildBillWhere(wsFilter), select: {date: true, totalAmount: true}}),
@@ -122,10 +111,13 @@ export async function getDashboardExpenseChartData(workspaceId?: number | null):
     );
   }
 
-  return buildViews(totalsByDay, upcomingTotalsByDay, today);
+  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset);
 }
 
-export async function getDashboardIncomeChartData(workspaceId?: number | null): Promise<DashboardChartData> {
+export async function getDashboardIncomeChartData(
+  workspaceId?: number | null,
+  offset = 0,
+): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const [variableIncome, fixedIncome] = await Promise.all([
     client.income.findMany({
@@ -165,5 +157,5 @@ export async function getDashboardIncomeChartData(workspaceId?: number | null): 
     );
   }
 
-  return buildViews(totalsByDay, upcomingTotalsByDay, today);
+  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset);
 }

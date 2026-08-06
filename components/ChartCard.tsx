@@ -15,6 +15,8 @@ import {
   YAxis,
   Tooltip,
 } from "recharts";
+import PeriodNavigator from "@/components/PeriodNavigator";
+import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
 
 type Granularity = "1W" | "1M" | "1Y";
 
@@ -67,6 +69,7 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
   const granularities = GRANULARITY_ORDER.filter((item) => source[item]);
 
   const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1W");
+  const period = useChartPeriodOffset(granularity);
 
   const points = useMemo(() => source[granularity] ?? [], [source, granularity]);
 
@@ -109,19 +112,29 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
           </div>
         </div>
 
-        {granularities.length > 1 && (
-          <ButtonGroup size="sm">
-            {granularities.map((item) => (
-              <Button
-                key={item}
-                variant={granularity === item ? "secondary" : "tertiary"}
-                onPress={() => setGranularity(item)}
-              >
-                {item}
-              </Button>
-            ))}
-          </ButtonGroup>
-        )}
+        <div className="flex items-center gap-2">
+          {data ? (
+            <PeriodNavigator
+              label={period.label}
+              isCurrent={period.isCurrent}
+              onStep={period.step}
+              onReset={period.reset}
+            />
+          ) : null}
+          {granularities.length > 1 && (
+            <ButtonGroup size="sm">
+              {granularities.map((item) => (
+                <Button
+                  key={item}
+                  variant={granularity === item ? "secondary" : "tertiary"}
+                  onPress={() => setGranularity(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </ButtonGroup>
+          )}
+        </div>
       </Card.Header>
 
       <Card.Content className="pt-2">

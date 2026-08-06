@@ -1,9 +1,15 @@
 import {client} from "@/lib/prisma";
 import {buildBillWhere, type BillFilters} from "@/features/expense/variable/db/billWhere";
-import {addDays, average, buildMonthView, buildYearView, dateKey, sumRange, utcDate} from "@/features/expense/shared/db/cumulativeChart";
-import type {BillChartData, BillChartPoint} from "@/features/expense/variable/types";
-
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+import {
+  addDays,
+  addMonths,
+  buildMonthView,
+  buildWeekView,
+  buildYearView,
+  dateKey,
+  utcDate,
+} from "@/features/expense/shared/db/cumulativeChart";
+import type {BillChartData} from "@/features/expense/variable/types";
 
 // How many past complete periods feed the "previous" (average) line — a rolling window
 // rather than the whole dataset, so the reference pace reacts to recent behavior.
@@ -12,11 +18,16 @@ const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
 // Chart intentionally ignores the date range (dateFrom/dateTo): its 1W/1M/1Y views are a
-// cumulative "this period vs. rolling average of prior periods" comparison anchored on today,
-// so an arbitrary window would starve the baseline. Only the categorical filters apply here.
+// cumulative "this period vs. rolling average of prior periods" comparison. `offset` (from the
+// period navigator's ?co param) shifts the anchor back/forward by N of each granularity's own unit
+// while `today` stays the realized/forecast boundary, so a past period fills fully and a future one
+// forecasts. Only the categorical filters apply here.
 type GetVariableExpenseChartDataInput = Omit<BillFilters, "dateFrom" | "dateTo">;
 
-export async function getVariableExpenseChartData(filters: GetVariableExpenseChartDataInput = {}): Promise<BillChartData> {
+export async function getVariableExpenseChartData(
+  filters: GetVariableExpenseChartDataInput = {},
+  offset = 0,
+): Promise<BillChartData> {
   const bills = await client.bill.findMany({
     where: buildBillWhere(filters),
     select: {date: true, totalAmount: true},
@@ -32,24 +43,8 @@ export async function getVariableExpenseChartData(filters: GetVariableExpenseCha
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
   return {
-    "1W": buildWeekView(totalsByDay, today),
-    "1M": buildMonthView(totalsByDay, today, MONTH_LOOKBACK),
-    "1Y": buildYearView(totalsByDay, today, YEAR_LOOKBACK),
+    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), WEEK_LOOKBACK, today),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, undefined, today),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, undefined, today),
   };
-}
-
-function buildWeekView(totalsByDay: Map<string, number>, today: Date): BillChartPoint[] {
-  const todayIndex = (today.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
-  const weekStart = addDays(today, -todayIndex);
-
-  return WEEKDAY_LABELS.map((label, index) => {
-    const current = index <= todayIndex ? sumRange(totalsByDay, weekStart, index + 1) : null;
-
-    const historical: number[] = [];
-    for (let w = 1; w <= WEEK_LOOKBACK; w++) {
-      historical.push(sumRange(totalsByDay, addDays(weekStart, -7 * w), index + 1));
-    }
-
-    return {label, current, previous: average(historical)};
-  });
 }

@@ -39,6 +39,25 @@ function toDate(value: string | Date | null): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+// A month anchor key `YYYY-MM` (UTC). The budget period navigator carries it in the URL (?at=) and
+// each card resolves the period *containing* this month against its own periodType.
+export function monthKey(date: Date): string {
+  return `${date.getUTCFullYear()}-${pad2(date.getUTCMonth() + 1)}`;
+}
+
+// Parse a `YYYY-MM` anchor into the UTC first-of-month it names; fall back to `fallback`'s month when
+// the value is absent or malformed. Kept pure/client-safe so the server page and the client navigator
+// derive the same anchor.
+export function parseMonthAnchor(value: string | null | undefined, fallback: Date = new Date()): Date {
+  if (value && /^\d{4}-\d{2}$/.test(value)) {
+    const [year, month] = value.split("-").map(Number);
+    if (month >= 1 && month <= 12) {
+      return new Date(Date.UTC(year, month - 1, 1));
+    }
+  }
+  return new Date(Date.UTC(fallback.getUTCFullYear(), fallback.getUTCMonth(), 1));
+}
+
 export function resolveActivePeriod(input: PeriodInput, now: Date = new Date()): ActivePeriod {
   const year = now.getUTCFullYear();
   const month = now.getUTCMonth(); // 0–11

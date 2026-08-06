@@ -367,5 +367,11 @@
     "switcherLabel": "Aktives Konto",
     "allAccounts": "Alle Konten",
     "filterLabel": "Konto"
+  },
+  "periodNavigator": {
+    "prev": "Vorheriger Zeitraum",
+    "next": "Nächster Zeitraum",
+    "current": "Zurück zum aktuellen Zeitraum",
+    "weekOf": "Woche vom {date}"
   }
 }

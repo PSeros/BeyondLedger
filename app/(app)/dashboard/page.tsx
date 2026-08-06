@@ -12,6 +12,7 @@ import BudgetStatusCard from "@/features/dashboard/components/BudgetStatusCard";
 import DashboardEmptyState from "@/features/dashboard/components/DashboardEmptyState";
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
 import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard";
+import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
 
 // The dashboard is a live view of DB state (active account, counts, budgets, projected occurrences)
 // with no searchParams to make it dynamic on its own — without this it would be prerendered once at
@@ -22,11 +23,13 @@ export const dynamic = "force-dynamic";
 // widget fetches its own data inside its own Suspense boundary so a slow section never blocks the
 // rest. The active-account + reminder-window settings come from the AppSettings singleton, not the
 // URL. Topbar auto-titles the route, so this page renders only content.
-export default async function DashboardPage() {
-  const [activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
+export default async function DashboardPage({searchParams}: {searchParams: Promise<{co?: string}>}) {
+  const [{co}, activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
+    searchParams,
     getActiveWorkspaceId(),
     getAppSettings(),
   ]);
+  const chartOffset = parseChartOffset(co);
 
   const [billCount, contractCount, fixedIncomeCount, variableIncomeCount, budgetCount] = await Promise.all([
     getBillCount(),
@@ -63,7 +66,7 @@ export default async function DashboardPage() {
 
       {/* Cash-flow: income & expense trend. */}
       <Suspense fallback={cardFallback}>
-        <CashFlowCards workspaceId={activeWorkspaceId}/>
+        <CashFlowCards workspaceId={activeWorkspaceId} offset={chartOffset}/>
       </Suspense>
 
       {/* Upcoming due + budget status. */}

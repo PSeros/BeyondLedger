@@ -3,30 +3,33 @@ import {determineStatus} from "@/lib/status";
 import {buildIncomeWhere, type IncomeFilters} from "@/features/income/db/incomeWhere";
 import {
   addDays,
-  average,
+  addMonths,
   buildMonthView,
+  buildWeekView,
   buildYearView,
   dateKey,
-  sumRange,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import type {IncomeChartPoint, IncomeFixedChartData, IncomeVariableChartData} from "@/features/income/types";
-
-const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+import type {IncomeFixedChartData, IncomeVariableChartData} from "@/features/income/types";
 
 // Rolling windows for the "previous" (average) baseline line — recent periods, not the whole history.
 const WEEK_LOOKBACK = 8;
 const MONTH_LOOKBACK = 6;
 const YEAR_LOOKBACK = 3;
 
-// The chart is a cumulative "this period vs. rolling average of prior periods" comparison anchored on
-// today, so it deliberately ignores the date range (which would starve the baseline) and status
-// (fixed income is Active-by-nature here). Only the categorical filters + the tab discriminator apply.
+// The chart is a cumulative "this period vs. rolling average of prior periods" comparison. `offset`
+// (the period navigator's ?co param) shifts the anchor back/forward by N of each granularity's unit;
+// `today` stays the realized/forecast boundary. It deliberately ignores the date range (which would
+// starve the baseline) and status (fixed income is Active-by-nature here). Only the categorical
+// filters + the tab discriminator apply.
 export type IncomeChartFilters = Omit<IncomeFilters, "status" | "dateFrom" | "dateTo" | "isRecurring">;
 
 // Variable (one-time) income has real per-occurrence dates (startDate) — same real-date machinery as
 // the Bill chart, with a weekday view.
-export async function getVariableIncomeChartData(filters: IncomeChartFilters = {}): Promise<IncomeVariableChartData> {
+export async function getVariableIncomeChartData(
+  filters: IncomeChartFilters = {},
+  offset = 0,
+): Promise<IncomeVariableChartData> {
   const incomes = await client.income.findMany({
     where: buildIncomeWhere({...filters, isRecurring: false}),
     select: {startDate: true, totalAmount: true},
@@ -42,16 +45,19 @@ export async function getVariableIncomeChartData(filters: IncomeChartFilters = {
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
   return {
-    "1W": buildWeekView(totalsByDay, today),
-    "1M": buildMonthView(totalsByDay, today, MONTH_LOOKBACK),
-    "1Y": buildYearView(totalsByDay, today, YEAR_LOOKBACK),
+    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), WEEK_LOOKBACK, today),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, undefined, today),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, undefined, today),
   };
 }
 
 // Fixed (recurring) income has no per-occurrence record — only a recurring amount + frequency, like
 // Contract. Project the payout dates from startDate/frequency/endDate so they feed the same
 // cumulative-sum machinery; occurrences past today drive the "upcoming" forecast line.
-export async function getFixedIncomeChartData(filters: IncomeChartFilters = {}): Promise<IncomeFixedChartData> {
+export async function getFixedIncomeChartData(
+  filters: IncomeChartFilters = {},
+  offset = 0,
+): Promise<IncomeFixedChartData> {
   const incomes = await client.income.findMany({
     where: buildIncomeWhere({...filters, isRecurring: true}),
     include: {frequency: true},
@@ -95,23 +101,7 @@ export async function getFixedIncomeChartData(filters: IncomeChartFilters = {}):
   }
 
   return {
-    "1M": buildMonthView(totalsByDay, today, MONTH_LOOKBACK, upcomingTotalsByDay),
-    "1Y": buildYearView(totalsByDay, today, YEAR_LOOKBACK, upcomingTotalsByDay),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, upcomingTotalsByDay, today),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, upcomingTotalsByDay, today),
   };
-}
-
-function buildWeekView(totalsByDay: Map<string, number>, today: Date): IncomeChartPoint[] {
-  const todayIndex = (today.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
-  const weekStart = addDays(today, -todayIndex);
-
-  return WEEKDAY_LABELS.map((label, index) => {
-    const current = index <= todayIndex ? sumRange(totalsByDay, weekStart, index + 1) : null;
-
-    const historical: number[] = [];
-    for (let w = 1; w <= WEEK_LOOKBACK; w++) {
-      historical.push(sumRange(totalsByDay, addDays(weekStart, -7 * w), index + 1));
-    }
-
-    return {label, current, previous: average(historical)};
-  });
 }

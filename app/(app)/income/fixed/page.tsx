@@ -9,6 +9,7 @@ import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard"
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
+import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type FixedIncomePageProps = {
@@ -18,6 +19,7 @@ type FixedIncomePageProps = {
     categoryId?: string;
     frequencyId?: string;
     tags?: string;
+    co?: string;
   }>;
 };
 
@@ -68,7 +70,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
           <div className="flex shrink-0 flex-row gap-4">
             <div className="w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeChartCard isRecurring={true} {...filters}/>
+                <IncomeChartCard isRecurring={true} {...filters} offset={parseChartOffset(params.co)}/>
               </Suspense>
             </div>
             <div className="w-2/5">

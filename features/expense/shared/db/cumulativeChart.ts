@@ -1,4 +1,5 @@
 const MONTH_LABELS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -11,6 +12,13 @@ export type ChartPoint = {
 
 export function dateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+// Parse the chart period-navigator's ?co param into a signed period offset (negative = past). Absent
+// or non-integer → 0 (current period).
+export function parseChartOffset(value: string | null | undefined): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : 0;
 }
 
 export function utcDate(year: number, month: number, day: number): Date {
@@ -56,32 +64,68 @@ export function sumRange(totalsByDay: Map<string, number>, start: Date, days: nu
 }
 
 /**
- * Cumulative spend by day-of-month (1-31) for the current month vs. the average
- * cumulative pace of the last `lookbackMonths` complete months. Shorter historical
- * months hold their final total for day positions past their actual length (e.g.
- * day 31 against a 30-day month), so the average line never has gaps.
+ * Cumulative spend across the Mon–Sun week containing `anchor`, vs. the average cumulative pace of
+ * the prior `lookbackWeeks` weeks. `today` is the realized/forecast boundary: a day is "current"
+ * (has a value) only up to and including `today`, so the current week cuts off at today while a past
+ * week (anchor before today) fills entirely and a future week shows nothing. Defaults `today` to
+ * `anchor` for the no-navigation case (current period).
+ */
+export function buildWeekView(
+  totalsByDay: Map<string, number>,
+  anchor: Date,
+  lookbackWeeks: number,
+  today: Date = anchor,
+): ChartPoint[] {
+  const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
+  const weekStart = addDays(anchor, -anchorIndex);
+
+  return WEEKDAY_LABELS.map((label, index) => {
+    const dayDate = addDays(weekStart, index);
+    const current = dayDate <= today ? sumRange(totalsByDay, weekStart, index + 1) : null;
+
+    const historical: number[] = [];
+    for (let w = 1; w <= lookbackWeeks; w++) {
+      historical.push(sumRange(totalsByDay, addDays(weekStart, -7 * w), index + 1));
+    }
+
+    return {label, current, previous: average(historical)};
+  });
+}
+
+/**
+ * Cumulative spend by day-of-month (1-31) for the month containing `anchor` vs. the average
+ * cumulative pace of the last `lookbackMonths` complete months. Shorter historical months hold
+ * their final total for day positions past their actual length (e.g. day 31 against a 30-day month),
+ * so the average line never has gaps.
  *
- * When `futureTotalsByDay` is given (known future occurrences, e.g. projected contract
- * billing dates), an `upcoming` series is added: null before today, anchored to `current`'s
- * value exactly at today (so the two segments visually connect), then continuing the
- * cumulative sum through the rest of the month using the future data.
+ * `today` is the realized/forecast boundary (defaults to `anchor`): within the anchor's month, days
+ * are "current" only up to `today`. A month entirely before `today` fills completely; a month
+ * entirely after shows no `current` (all forecast). When `futureTotalsByDay` is given (known future
+ * occurrences, e.g. projected contract billing dates), an `upcoming` series is added: null before
+ * the boundary, anchored to `current`'s value exactly at the boundary (so the two segments connect),
+ * then continuing the cumulative sum through the rest of the month using the future data.
  */
 export function buildMonthView(
   totalsByDay: Map<string, number>,
-  today: Date,
+  anchor: Date,
   lookbackMonths: number,
   futureTotalsByDay?: Map<string, number>,
+  today: Date = anchor,
 ): ChartPoint[] {
-  const year = today.getUTCFullYear();
-  const month = today.getUTCMonth();
+  const year = anchor.getUTCFullYear();
+  const month = anchor.getUTCMonth();
   const monthStart = utcDate(year, month, 1);
+  const nextMonthStart = utcDate(year, month + 1, 1);
   const monthLength = daysInMonth(year, month);
-  const todayDay = today.getUTCDate();
-  const cumulativeAtToday = sumRange(totalsByDay, monthStart, todayDay);
+
+  // How many days of the anchor's month are realized as of `today`: the whole month once today is
+  // past it, none while today is before it, else today's day-of-month.
+  const realizedDay = today >= nextMonthStart ? monthLength : today < monthStart ? 0 : today.getUTCDate();
+  const cumulativeAtBoundary = sumRange(totalsByDay, monthStart, realizedDay);
 
   return Array.from({length: 31}, (_, i) => {
     const day = i + 1;
-    const current = day <= monthLength && day <= todayDay ? sumRange(totalsByDay, monthStart, day) : null;
+    const current = day <= realizedDay ? sumRange(totalsByDay, monthStart, day) : null;
 
     const historical: number[] = [];
     for (let m = 1; m <= lookbackMonths; m++) {
@@ -92,12 +136,12 @@ export function buildMonthView(
 
     let upcoming: number | null | undefined;
     if (futureTotalsByDay) {
-      if (day > monthLength || day < todayDay) {
+      if (day > monthLength || day < realizedDay) {
         upcoming = null;
-      } else if (day === todayDay) {
-        upcoming = cumulativeAtToday;
+      } else if (day === realizedDay) {
+        upcoming = cumulativeAtBoundary;
       } else {
-        upcoming = cumulativeAtToday + sumRange(futureTotalsByDay, addDays(today, 1), day - todayDay);
+        upcoming = cumulativeAtBoundary + sumRange(futureTotalsByDay, addDays(monthStart, realizedDay), day - realizedDay);
       }
     }
 
@@ -106,29 +150,35 @@ export function buildMonthView(
 }
 
 /**
- * Cumulative spend by month-of-year (Jan-Dec) for the current year vs. the average
- * cumulative pace of the last `lookbackYears` years. See {@link buildMonthView} for the
- * `futureTotalsByDay` / `upcoming` behavior.
+ * Cumulative spend by month-of-year (Jan-Dec) for the year containing `anchor` vs. the average
+ * cumulative pace of the last `lookbackYears` years. `today` is the realized/forecast boundary
+ * (defaults to `anchor`). See {@link buildMonthView} for the `futureTotalsByDay` / `upcoming`
+ * behavior.
  */
 export function buildYearView(
   totalsByDay: Map<string, number>,
-  today: Date,
+  anchor: Date,
   lookbackYears: number,
   futureTotalsByDay?: Map<string, number>,
+  today: Date = anchor,
 ): ChartPoint[] {
-  const year = today.getUTCFullYear();
-  const todayMonth = today.getUTCMonth();
+  const year = anchor.getUTCFullYear();
   const yearStart = utcDate(year, 0, 1);
-  const tomorrow = addDays(today, 1);
-  const cumulativeAtToday = sumRange(totalsByDay, yearStart, daysBetween(yearStart, tomorrow));
+  const nextYearStart = utcDate(year + 1, 0, 1);
+
+  // The realized region within the anchor's year: whole year once today is past it (boundary = next
+  // year's start), nothing while today is before it, else through the end of today.
+  const realizedMonth = today >= nextYearStart ? 11 : today < yearStart ? -1 : today.getUTCMonth();
+  const boundary = today >= nextYearStart ? nextYearStart : today < yearStart ? yearStart : addDays(today, 1);
+  const cumulativeAtBoundary = sumRange(totalsByDay, yearStart, daysBetween(yearStart, boundary));
 
   return MONTH_LABELS.map((label, month) => {
     const current =
-      month <= todayMonth
+      month <= realizedMonth
         ? sumRange(
             totalsByDay,
             yearStart,
-            daysBetween(yearStart, month === todayMonth ? tomorrow : utcDate(year, month + 1, 1)),
+            daysBetween(yearStart, month === realizedMonth ? boundary : utcDate(year, month + 1, 1)),
           )
         : null;
 
@@ -141,13 +191,13 @@ export function buildYearView(
 
     let upcoming: number | null | undefined;
     if (futureTotalsByDay) {
-      if (month < todayMonth) {
+      if (month < realizedMonth) {
         upcoming = null;
-      } else if (month === todayMonth) {
-        upcoming = cumulativeAtToday;
+      } else if (month === realizedMonth) {
+        upcoming = cumulativeAtBoundary;
       } else {
         const monthEnd = utcDate(year, month + 1, 1);
-        upcoming = cumulativeAtToday + sumRange(futureTotalsByDay, tomorrow, daysBetween(tomorrow, monthEnd));
+        upcoming = cumulativeAtBoundary + sumRange(futureTotalsByDay, boundary, daysBetween(boundary, monthEnd));
       }
     }
 

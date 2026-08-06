@@ -1,7 +1,7 @@
 import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
 import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
-import {buildMonthView, buildYearView, dateKey, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {addMonths, buildMonthView, buildYearView, dateKey, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {ContractChartData} from "@/features/expense/fixed/types";
 
 const MONTH_LOOKBACK = 6;
@@ -10,7 +10,10 @@ const YEAR_LOOKBACK = 3;
 // Chart restricts to Active contracts by nature, so the status filter is not applicable here.
 type GetFixedExpenseChartDataInput = Omit<ContractFilters, "status">;
 
-export async function getFixedExpenseChartData(filters: GetFixedExpenseChartDataInput = {}): Promise<ContractChartData> {
+export async function getFixedExpenseChartData(
+  filters: GetFixedExpenseChartDataInput = {},
+  offset = 0,
+): Promise<ContractChartData> {
   const contracts = await client.contract.findMany({
     where: buildContractWhere(filters),
     include: {frequency: true},
@@ -61,7 +64,7 @@ export async function getFixedExpenseChartData(filters: GetFixedExpenseChartData
   }
 
   return {
-    "1M": buildMonthView(totalsByDay, today, MONTH_LOOKBACK, upcomingTotalsByDay),
-    "1Y": buildYearView(totalsByDay, today, YEAR_LOOKBACK, upcomingTotalsByDay),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, upcomingTotalsByDay, today),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, upcomingTotalsByDay, today),
   };
 }

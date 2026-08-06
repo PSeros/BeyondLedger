@@ -4,6 +4,8 @@ import {useMemo, useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {Button, ButtonGroup, Card} from "@heroui/react";
 import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
+import PeriodNavigator from "@/components/PeriodNavigator";
+import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
 import type {ChartPoint} from "@/features/expense/shared/db/cumulativeChart";
 
 type Granularity = "1W" | "1M" | "1Y";
@@ -33,6 +35,7 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
 
   const granularities = GRANULARITY_ORDER.filter((g) => income[g] || expense[g]);
   const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1M");
+  const period = useChartPeriodOffset(granularity);
 
   const points = useMemo<MergedPoint[]>(() => {
     const inc = income[granularity] ?? [];
@@ -80,19 +83,27 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
           </div>
         </div>
 
-        {granularities.length > 1 && (
-          <ButtonGroup size="sm">
-            {granularities.map((g) => (
-              <Button
-                key={g}
-                variant={granularity === g ? "secondary" : "tertiary"}
-                onPress={() => setGranularity(g)}
-              >
-                {g}
-              </Button>
-            ))}
-          </ButtonGroup>
-        )}
+        <div className="flex items-center gap-2">
+          <PeriodNavigator
+            label={period.label}
+            isCurrent={period.isCurrent}
+            onStep={period.step}
+            onReset={period.reset}
+          />
+          {granularities.length > 1 && (
+            <ButtonGroup size="sm">
+              {granularities.map((g) => (
+                <Button
+                  key={g}
+                  variant={granularity === g ? "secondary" : "tertiary"}
+                  onPress={() => setGranularity(g)}
+                >
+                  {g}
+                </Button>
+              ))}
+            </ButtonGroup>
+          )}
+        </div>
       </Card.Header>
 
       <Card.Content className="pt-2">

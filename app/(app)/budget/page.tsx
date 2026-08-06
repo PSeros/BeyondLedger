@@ -4,22 +4,26 @@ import PageToolbar from "@/components/PageToolbar";
 import BudgetActions from "@/features/budget/components/BudgetActions";
 import BudgetCard from "@/features/budget/components/BudgetCard";
 import BudgetEmptyState from "@/features/budget/components/BudgetEmptyState";
+import BudgetPeriodNavigator from "@/features/budget/components/BudgetPeriodNavigator";
 import BudgetSearchField from "@/features/budget/components/BudgetSearchField";
 import {getBudgetCount, getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
-import {BUDGET_PERIOD_TYPES} from "@/features/budget/period";
+import {BUDGET_PERIOD_TYPES, parseMonthAnchor} from "@/features/budget/period";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 // The Budget page: user-defined budgets (name + period + target + members), each showing target
 // vs. actual vs. remaining for its own current period. Follows the expense/income layout — the
 // Topbar auto-titles it; a PageToolbar holds a name/category search (?q) and a filter+add group
 // (no fixed/variable tabs). No global period navigator — each card resolves its own window.
-export default async function BudgetPage({searchParams}: {searchParams: Promise<{q?: string; period?: string}>}) {
-  const {q, period} = await searchParams;
+export default async function BudgetPage({searchParams}: {searchParams: Promise<{q?: string; period?: string; at?: string}>}) {
+  const {q, period, at} = await searchParams;
   // Budgets belong to an account (Phase 14): the list is scoped to the active account (null = all).
   // The onboarding empty state uses the global count so a fresh account isn't mistaken for a fresh app.
   const activeWorkspaceId = await getActiveWorkspaceId();
+  // The period navigator (?at=YYYY-MM) picks the anchor month; each card resolves its own period
+  // containing it. Absent/invalid → the current month.
+  const anchor = parseMonthAnchor(at);
   const [budgets, options, totalCount] = await Promise.all([
-    getBudgetsResolved(new Date(), activeWorkspaceId),
+    getBudgetsResolved(anchor, activeWorkspaceId),
     getBudgetMemberOptions(),
     getBudgetCount(),
   ]);
@@ -45,7 +49,11 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
   return (
     <div className="flex h-full flex-col">
       <PageToolbar
-        left={null}
+        left={
+          <Suspense>
+            <BudgetPeriodNavigator/>
+          </Suspense>
+        }
         center={
           <Suspense>
             <BudgetSearchField/>
