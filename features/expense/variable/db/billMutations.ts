@@ -131,14 +131,17 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
 
 // Creates a Bill from an OCR-resolved draft (Phase 8d) and links the source document to it, in one
 // transaction. Mirrors createBill's nested-item insert, but the values come from resolveDraft (FK ids
-// already resolved) instead of FormData. The uploaded FileAsset is flipped to billId + COMPLETED so it
-// shows up as the new bill's attachment. Revalidates the list so table/chart/top-k pick up the row.
+// already resolved) instead of FormData. The account + tags can't be inferred by the AI, so they're
+// chosen by the user in the upload dialog and passed in here (account falls back to the active one).
+// The uploaded FileAsset is flipped to billId + COMPLETED so it shows up as the new bill's attachment.
+// Revalidates the list so table/chart/top-k pick up the row.
 export async function createBillFromResolvedDraft(
   draft: ResolvedBillDraft,
   fileId: number,
+  options?: {workspaceId?: number; tagIds?: number[]},
 ): Promise<{billId: number}> {
-  // OCR auto-create has no form — file the bill under the active account (Shared when "All").
-  const workspaceId = (await getActiveWorkspaceId()) ?? DEFAULT_WORKSPACE_ID;
+  const workspaceId = options?.workspaceId ?? (await getActiveWorkspaceId()) ?? DEFAULT_WORKSPACE_ID;
+  const tagIds = options?.tagIds ?? [];
 
   const bill = await client.$transaction(async (tx) => {
     const created = await tx.bill.create({
@@ -158,6 +161,7 @@ export async function createBillFromResolvedDraft(
             warranty: item.warranty,
           })),
         },
+        tags: {create: tagIds.map((tagId) => ({tagId}))},
       },
       select: {id: true},
     });

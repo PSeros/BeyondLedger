@@ -21,7 +21,12 @@ export default async function ContractActions({className}: ContractActionsProps)
   return (
     <ButtonGroup size="md" variant="tertiary" className={className}>
       <ContractFilterButton options={filterOptions}/>
-      <ScanDocumentButton aiEnabled={aiSettings.enabled && aiSettings.hasApiKey}/>
+      <ScanDocumentButton
+        aiEnabled={aiSettings.enabled && aiSettings.hasApiKey}
+        workspaces={formOptions.workspaces}
+        tags={formOptions.tags}
+        defaultWorkspaceId={formOptions.defaultWorkspaceId}
+      />
       <AddExpenseButton options={formOptions} defaultType="fixed"/>
     </ButtonGroup>
   );

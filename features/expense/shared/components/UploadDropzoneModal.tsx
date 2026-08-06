@@ -4,6 +4,11 @@ import {useRef, useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button, Modal} from "@heroui/react";
 import {LuFileText, LuImage, LuUpload, LuX} from "react-icons/lu";
+import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
+import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
+import {createTag} from "@/features/settings/db/referenceDataMutations";
+import type {TagOption} from "@/features/tags/types";
+import type {WorkspaceOption} from "@/features/workspaces/types";
 
 // Formats accepted by Mistral OCR — mirrors ACCEPTED_MIME_TYPES in features/ocr/db/ocrActions.ts.
 const ACCEPTED_MIME = new Set(["application/pdf", "image/png", "image/jpeg", "image/webp"]);
@@ -18,25 +23,45 @@ function formatSize(bytes: number): string {
 type UploadDropzoneModalProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  // Called with the chosen files when the user confirms; the parent runs the OCR pipeline per file.
-  onSubmit: (files: File[]) => void;
+  // The account + tags apply to every bill created from this batch — the AI can't infer them, so the
+  // user picks them here. Account defaults to the active one.
+  workspaces: WorkspaceOption[];
+  tags: TagOption[];
+  defaultWorkspaceId: string;
+  // Called with the chosen files + the batch's account/tags when the user confirms; the parent runs
+  // the OCR pipeline per file.
+  onSubmit: (files: File[], workspaceId: number, tagIds: number[]) => void;
 };
 
 // Drag-and-drop + browse picker for the OCR "Upload" flow (Phase 8d). HeroUI's DropZone is Pro-only,
 // so this is a lightweight equivalent styled with the app's tokens: a dashed drop target that also
 // opens the native file dialog, an accumulating file list with per-row remove, and Upload/Cancel.
-export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: UploadDropzoneModalProps) {
+// Also carries an account picker + tag picker (Phase 14) applied to every bill in the batch.
+export default function UploadDropzoneModal({
+  isOpen,
+  onOpenChange,
+  workspaces,
+  tags,
+  defaultWorkspaceId,
+  onSubmit,
+}: UploadDropzoneModalProps) {
   const t = useTranslations("scan");
   const tCommon = useTranslations("common");
+  const tWs = useTranslations("workspaces");
+  const tTags = useTranslations("tags");
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [skipped, setSkipped] = useState(false);
+  const [workspaceId, setWorkspaceId] = useState<string>(defaultWorkspaceId);
+  const [tagIds, setTagIds] = useState<string[]>([]);
 
   function reset() {
     setFiles([]);
     setDragging(false);
     setSkipped(false);
+    setWorkspaceId(defaultWorkspaceId);
+    setTagIds([]);
   }
 
   // Filters to supported types and de-dupes (by name+size) against the already-selected files.
@@ -77,7 +102,7 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
 
   function submit() {
     if (files.length === 0) return;
-    onSubmit(files);
+    onSubmit(files, Number(workspaceId), tagIds.map(Number).filter((n) => Number.isInteger(n) && n > 0));
     reset();
     onOpenChange(false);
   }
@@ -175,6 +200,23 @@ export default function UploadDropzoneModal({isOpen, onOpenChange, onSubmit}: Up
                   ))}
                 </ul>
               ) : null}
+
+              {/* Account + tags for the batch — the AI can't infer these, so the user sets them here. */}
+              <div className="mt-1 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <CreatableSelect
+                  label={tWs("label")}
+                  options={workspaces}
+                  value={workspaceId}
+                  onSelect={setWorkspaceId}
+                  placeholder={tWs("placeholder")}
+                />
+                <TagMultiSelect
+                  label={tTags("label")}
+                  options={tags}
+                  onChange={setTagIds}
+                  onCreate={createTag}
+                />
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>

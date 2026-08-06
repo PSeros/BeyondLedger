@@ -7,15 +7,22 @@ import {useRouter} from "next/navigation";
 import {LuUpload} from "react-icons/lu";
 import UploadDropzoneModal from "@/features/expense/shared/components/UploadDropzoneModal";
 import {deleteFileAsset} from "@/features/expense/shared/db/fileMutations";
-import {processOcrUpload, retryOcrUpload, uploadForOcr} from "@/features/ocr/db/ocrActions";
+import {type OcrUploadOptions, processOcrUpload, retryOcrUpload, uploadForOcr} from "@/features/ocr/db/ocrActions";
 import {closeToast, pushToast} from "@/lib/scanToasts";
+import type {TagOption} from "@/features/tags/types";
+import type {WorkspaceOption} from "@/features/workspaces/types";
 
 type ScanDocumentButtonProps = {
   // Whether the AI provider is configured (enabled + has an API key). The button is hidden otherwise.
   aiEnabled: boolean;
+  // Account + tag options for the upload dialog (the AI can't infer these — the user picks them).
+  workspaces: WorkspaceOption[];
+  tags: TagOption[];
+  defaultWorkspaceId: string;
 };
 
-type ErrorInfo = {fileId: number; fileName: string; message: string};
+// Carries the batch's chosen account + tags alongside the failed file so Retry re-applies them.
+type ErrorInfo = {fileId: number; fileName: string; message: string; options: OcrUploadOptions};
 
 // The expense-toolbar "Upload" button (Phase 8d): opens a drag-and-drop picker, then scans each chosen
 // document through the OCR pipeline into a Bill. Lives on BOTH /expense/variable and /expense/fixed —
@@ -23,7 +30,13 @@ type ErrorInfo = {fileId: number; fileName: string; message: string};
 // Progress is tracked entirely in HeroUI toasts: a spinner while processing, a checkmark + "Open bill"
 // on success, an alert + "View details" on failure. Sits in a ButtonGroup, so it forwards the
 // __button_group_child marker onto the real Button. Renders nothing when AI is not configured.
-export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocumentButtonProps) {
+export default function ScanDocumentButton({
+  aiEnabled,
+  workspaces,
+  tags,
+  defaultWorkspaceId,
+  ...buttonProps
+}: ScanDocumentButtonProps) {
   const router = useRouter();
   const t = useTranslations("scan");
   const tCommon = useTranslations("common");
@@ -38,10 +51,11 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
     key: string,
     fileId: number,
     fileName: string,
-    process: (id: number) => Promise<Awaited<ReturnType<typeof processOcrUpload>>>,
+    options: OcrUploadOptions,
+    process: (id: number, options: OcrUploadOptions) => Promise<Awaited<ReturnType<typeof processOcrUpload>>>,
   ) {
     try {
-      const result = await process(fileId);
+      const result = await process(fileId, options);
       closeToast(key);
       pushToast(t("billAdded"), {
         variant: "success",
@@ -62,14 +76,15 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
         description: message,
         actionProps: {
           children: t("viewDetails"),
-          onPress: () => setErrorInfo({fileId, fileName, message}),
+          onPress: () => setErrorInfo({fileId, fileName, message, options}),
         },
       });
     }
   }
 
-  // Uploads one file, then runs the pipeline — each file gets its own independent toast.
-  async function startScan(file: File) {
+  // Uploads one file, then runs the pipeline — each file gets its own independent toast. The batch's
+  // chosen account + tags travel with it (and into the failure toast, so Retry re-applies them).
+  async function startScan(file: File, options: OcrUploadOptions) {
     const fileName = file.name;
     const key = pushToast(t("scanning", {name: fileName}), {isLoading: true, timeout: 0});
     let fileId: number;
@@ -86,19 +101,20 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
       });
       return;
     }
-    await finishPipeline(key, fileId, fileName, processOcrUpload);
+    await finishPipeline(key, fileId, fileName, options, processOcrUpload);
   }
 
-  function onSubmit(files: File[]) {
-    for (const file of files) void startScan(file);
+  function onSubmit(files: File[], workspaceId: number, tagIds: number[]) {
+    const options: OcrUploadOptions = {workspaceId, tagIds};
+    for (const file of files) void startScan(file, options);
   }
 
   function onRetry() {
     if (!errorInfo) return;
-    const {fileId, fileName} = errorInfo;
+    const {fileId, fileName, options} = errorInfo;
     setErrorInfo(null);
     const key = pushToast(t("scanning", {name: fileName}), {isLoading: true, timeout: 0});
-    void finishPipeline(key, fileId, fileName, retryOcrUpload);
+    void finishPipeline(key, fileId, fileName, options, retryOcrUpload);
   }
 
   function onDiscard() {
@@ -118,7 +134,14 @@ export default function ScanDocumentButton({aiEnabled, ...buttonProps}: ScanDocu
         <LuUpload/>
       </Button>
 
-      <UploadDropzoneModal isOpen={pickerOpen} onOpenChange={setPickerOpen} onSubmit={onSubmit}/>
+      <UploadDropzoneModal
+        isOpen={pickerOpen}
+        onOpenChange={setPickerOpen}
+        workspaces={workspaces}
+        tags={tags}
+        defaultWorkspaceId={defaultWorkspaceId}
+        onSubmit={onSubmit}
+      />
 
       <Modal.Backdrop
         isOpen={errorInfo !== null}

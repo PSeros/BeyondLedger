@@ -1,6 +1,6 @@
 "use client";
 
-import {type Key, useState} from "react";
+import {type Key, useEffect, useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button as AriaButton} from "react-aria-components";
 import {Button, Input, Label, ListBox, Popover, TextField} from "@heroui/react";
@@ -21,6 +21,7 @@ export default function TagMultiSelect({
   options,
   defaultValue = [],
   onCreate,
+  onChange,
   placeholder,
 }: {
   label: string;
@@ -28,11 +29,19 @@ export default function TagMultiSelect({
   options: TagOption[];
   defaultValue?: string[];
   onCreate?: (name: string) => Promise<TagOption>;
+  // Reports the selected ids on change — used where the picker is read from state (e.g. the OCR
+  // upload dialog) rather than posted as hidden inputs by a <form>.
+  onChange?: (ids: string[]) => void;
   placeholder?: string;
 }) {
   const t = useTranslations();
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultValue);
   const [opts, setOpts] = useState<TagOption[]>(options);
+
+  useEffect(() => {
+    onChange?.(selectedIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIds]);
 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"list" | "create">("list");

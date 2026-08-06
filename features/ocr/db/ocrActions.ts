@@ -65,10 +65,14 @@ export type ProcessedUpload = {
   totalAmount: number;
 };
 
+// The account + tags the user chose in the upload dialog (the AI can't infer them). Applied to the
+// auto-created Bill; a missing account falls back to the active one in createBillFromResolvedDraft.
+export type OcrUploadOptions = {workspaceId?: number; tagIds?: number[]};
+
 // Runs the extraction pipeline for an already-uploaded FileAsset and auto-creates the Bill. Flips the
 // file to PROCESSING, then COMPLETED (linked to the new Bill) on success or FAILED on any error. The
 // thrown message is surfaced to the user in the failure toast / error modal, so keep it concise.
-export async function processOcrUpload(fileId: number): Promise<ProcessedUpload> {
+export async function processOcrUpload(fileId: number, options?: OcrUploadOptions): Promise<ProcessedUpload> {
   const file = await client.fileAsset.findUnique({
     where: {id: fileId},
     select: {relativePath: true, mimeType: true},
@@ -93,7 +97,7 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
     const bytes = new Uint8Array(await readFile(resolveFilePath(file.relativePath)));
     const draft = await extract({bytes, mimeType: file.mimeType}, settings);
     const resolved = await resolveDraft(draft);
-    const {billId} = await createBillFromResolvedDraft(resolved, fileId);
+    const {billId} = await createBillFromResolvedDraft(resolved, fileId, options);
 
     return {
       billId,
@@ -110,7 +114,7 @@ export async function processOcrUpload(fileId: number): Promise<ProcessedUpload>
 }
 
 // Re-runs the pipeline for a file that previously failed (its FileAsset already exists). Used by the
-// error modal's Retry action.
-export async function retryOcrUpload(fileId: number): Promise<ProcessedUpload> {
-  return processOcrUpload(fileId);
+// error modal's Retry action, which carries the account + tags chosen at upload.
+export async function retryOcrUpload(fileId: number, options?: OcrUploadOptions): Promise<ProcessedUpload> {
+  return processOcrUpload(fileId, options);
 }

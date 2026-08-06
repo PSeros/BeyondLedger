@@ -21,7 +21,12 @@ export default async function BillActions({className}: BillActionsProps) {
   return (
     <ButtonGroup size="md" variant="tertiary" className={className}>
       <BillFilterButton options={filterOptions}/>
-      <ScanDocumentButton aiEnabled={aiSettings.enabled && aiSettings.hasApiKey}/>
+      <ScanDocumentButton
+        aiEnabled={aiSettings.enabled && aiSettings.hasApiKey}
+        workspaces={formOptions.workspaces}
+        tags={formOptions.tags}
+        defaultWorkspaceId={formOptions.defaultWorkspaceId}
+      />
       <AddExpenseButton options={formOptions} defaultType="variable"/>
     </ButtonGroup>
   );
