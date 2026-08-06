@@ -1,6 +1,32 @@
 # Mini-phase: period navigator (charts + budgets)
 
-Status: **planned, not started.** Captured from dashboard feedback (Phase 12).
+Status: **DONE** (commit `9204c69`, branch `feat/period-navigator`). tsc / lint / `next build`
+green; generalized chart builders unit-checked (offset 0 regression + past-full + future-forecast).
+NOT yet browser-tested (Chrome extension offline). Captured from dashboard feedback (Phase 12).
+
+## What shipped
+
+- Shared `components/PeriodNavigator.tsx` — presentation-only ‹ prev / label / next › + reset; consumers
+  own anchor storage. Reused by both budgets and charts.
+- **Budgets:** shared month anchor in `?at=YYYY-MM` (`features/budget/components/BudgetPeriodNavigator.tsx`
+  in the toolbar `left` slot; `parseMonthAnchor`/`monthKey` in `features/budget/period.ts`). Each card
+  resolves its own period type containing the anchor month via the existing `getBudgetsResolved(anchor)`.
+- **Charts (4 list pages + dashboard cash-flow):** signed `?co` offset. Granularity stays instant client
+  state; the server emits every 1W/1M/1Y series shifted by N of its own unit. `buildMonthView` /
+  `buildYearView` now split `anchor` (which period) from `today` (realized/forecast boundary), so past
+  periods fill fully and future ones forecast; `buildWeekView` lifted into shared `cumulativeChart.ts`
+  (three private copies removed). `hooks/useChartPeriodOffset.ts` drives the `?co` read/write + label.
+- Decisions locked: **separate params** (`?at` / `?co`), **out-of-bounds allowed** (empty/forecast, not
+  disabled), **week label "Woche vom <date>"**. i18n `periodNavigator` namespace (en/de).
+
+## TODO
+- Browser-test: budget prev/next (monthly card moves, yearly card holds until year crosses, reset clears
+  `?at`, override still keys the viewed month); chart step + instant granularity toggle + label per unit;
+  dashboard cash-flow (watch for Suspense-flash of the other widgets when `?co` changes — page re-runs).
+
+## Original plan (for reference)
+
+Status was: **planned, not started.** Captured from dashboard feedback (Phase 12).
 
 ## Problem
 
