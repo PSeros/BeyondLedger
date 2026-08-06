@@ -30,12 +30,14 @@ export type BillAvgAggregateOutputType = {
   id: number | null
   supplierId: number | null
   totalAmount: runtime.Decimal | null
+  workspaceId: number | null
 }
 
 export type BillSumAggregateOutputType = {
   id: number | null
   supplierId: number | null
   totalAmount: runtime.Decimal | null
+  workspaceId: number | null
 }
 
 export type BillMinAggregateOutputType = {
@@ -47,6 +49,7 @@ export type BillMinAggregateOutputType = {
   markdown: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  workspaceId: number | null
 }
 
 export type BillMaxAggregateOutputType = {
@@ -58,6 +61,7 @@ export type BillMaxAggregateOutputType = {
   markdown: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  workspaceId: number | null
 }
 
 export type BillCountAggregateOutputType = {
@@ -69,6 +73,7 @@ export type BillCountAggregateOutputType = {
   markdown: number
   createdAt: number
   updatedAt: number
+  workspaceId: number
   _all: number
 }
 
@@ -77,12 +82,14 @@ export type BillAvgAggregateInputType = {
   id?: true
   supplierId?: true
   totalAmount?: true
+  workspaceId?: true
 }
 
 export type BillSumAggregateInputType = {
   id?: true
   supplierId?: true
   totalAmount?: true
+  workspaceId?: true
 }
 
 export type BillMinAggregateInputType = {
@@ -94,6 +101,7 @@ export type BillMinAggregateInputType = {
   markdown?: true
   createdAt?: true
   updatedAt?: true
+  workspaceId?: true
 }
 
 export type BillMaxAggregateInputType = {
@@ -105,6 +113,7 @@ export type BillMaxAggregateInputType = {
   markdown?: true
   createdAt?: true
   updatedAt?: true
+  workspaceId?: true
 }
 
 export type BillCountAggregateInputType = {
@@ -116,6 +125,7 @@ export type BillCountAggregateInputType = {
   markdown?: true
   createdAt?: true
   updatedAt?: true
+  workspaceId?: true
   _all?: true
 }
 
@@ -214,6 +224,7 @@ export type BillGroupByOutputType = {
   markdown: string | null
   createdAt: Date
   updatedAt: Date
+  workspaceId: number
   _count: BillCountAggregateOutputType | null
   _avg: BillAvgAggregateOutputType | null
   _sum: BillSumAggregateOutputType | null
@@ -248,7 +259,9 @@ export type BillWhereInput = {
   markdown?: Prisma.StringNullableFilter<"Bill"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Bill"> | number
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   items?: Prisma.ItemListRelationFilter
   files?: Prisma.FileAssetListRelationFilter
   tags?: Prisma.EntryTagListRelationFilter
@@ -263,7 +276,9 @@ export type BillOrderByWithRelationInput = {
   markdown?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   supplier?: Prisma.SupplierOrderByWithRelationInput
+  workspace?: Prisma.WorkspaceOrderByWithRelationInput
   items?: Prisma.ItemOrderByRelationAggregateInput
   files?: Prisma.FileAssetOrderByRelationAggregateInput
   tags?: Prisma.EntryTagOrderByRelationAggregateInput
@@ -281,7 +296,9 @@ export type BillWhereUniqueInput = Prisma.AtLeast<{
   markdown?: Prisma.StringNullableFilter<"Bill"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Bill"> | number
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   items?: Prisma.ItemListRelationFilter
   files?: Prisma.FileAssetListRelationFilter
   tags?: Prisma.EntryTagListRelationFilter
@@ -296,6 +313,7 @@ export type BillOrderByWithAggregationInput = {
   markdown?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   _count?: Prisma.BillCountOrderByAggregateInput
   _avg?: Prisma.BillAvgOrderByAggregateInput
   _max?: Prisma.BillMaxOrderByAggregateInput
@@ -315,6 +333,7 @@ export type BillScalarWhereWithAggregatesInput = {
   markdown?: Prisma.StringNullableWithAggregatesFilter<"Bill"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Bill"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Bill"> | Date | string
+  workspaceId?: Prisma.IntWithAggregatesFilter<"Bill"> | number
 }
 
 export type BillCreateInput = {
@@ -325,6 +344,7 @@ export type BillCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
@@ -339,6 +359,7 @@ export type BillUncheckedCreateInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
@@ -352,6 +373,7 @@ export type BillUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
@@ -366,6 +388,7 @@ export type BillUncheckedUpdateInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
@@ -380,6 +403,7 @@ export type BillCreateManyInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
 }
 
 export type BillUpdateManyMutationInput = {
@@ -400,6 +424,7 @@ export type BillUncheckedUpdateManyInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type BillListRelationFilter = {
@@ -421,12 +446,14 @@ export type BillCountOrderByAggregateInput = {
   markdown?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type BillAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type BillMaxOrderByAggregateInput = {
@@ -438,6 +465,7 @@ export type BillMaxOrderByAggregateInput = {
   markdown?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type BillMinOrderByAggregateInput = {
@@ -449,12 +477,14 @@ export type BillMinOrderByAggregateInput = {
   markdown?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type BillSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type BillScalarRelationFilter = {
@@ -539,6 +569,48 @@ export type BillUpdateOneWithoutFilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BillUpdateToOneWithWhereWithoutFilesInput, Prisma.BillUpdateWithoutFilesInput>, Prisma.BillUncheckedUpdateWithoutFilesInput>
 }
 
+export type BillCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput> | Prisma.BillCreateWithoutWorkspaceInput[] | Prisma.BillUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutWorkspaceInput | Prisma.BillCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.BillCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+}
+
+export type BillUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput> | Prisma.BillCreateWithoutWorkspaceInput[] | Prisma.BillUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutWorkspaceInput | Prisma.BillCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.BillCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+}
+
+export type BillUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput> | Prisma.BillCreateWithoutWorkspaceInput[] | Prisma.BillUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutWorkspaceInput | Prisma.BillCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.BillUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.BillUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.BillCreateManyWorkspaceInputEnvelope
+  set?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  disconnect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  delete?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  connect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  update?: Prisma.BillUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.BillUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.BillUpdateManyWithWhereWithoutWorkspaceInput | Prisma.BillUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.BillScalarWhereInput | Prisma.BillScalarWhereInput[]
+}
+
+export type BillUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput> | Prisma.BillCreateWithoutWorkspaceInput[] | Prisma.BillUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.BillCreateOrConnectWithoutWorkspaceInput | Prisma.BillCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.BillUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.BillUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.BillCreateManyWorkspaceInputEnvelope
+  set?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  disconnect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  delete?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  connect?: Prisma.BillWhereUniqueInput | Prisma.BillWhereUniqueInput[]
+  update?: Prisma.BillUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.BillUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.BillUpdateManyWithWhereWithoutWorkspaceInput | Prisma.BillUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.BillScalarWhereInput | Prisma.BillScalarWhereInput[]
+}
+
 export type BillCreateNestedOneWithoutTagsInput = {
   create?: Prisma.XOR<Prisma.BillCreateWithoutTagsInput, Prisma.BillUncheckedCreateWithoutTagsInput>
   connectOrCreate?: Prisma.BillCreateOrConnectWithoutTagsInput
@@ -562,6 +634,7 @@ export type BillCreateWithoutSupplierInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
@@ -575,6 +648,7 @@ export type BillUncheckedCreateWithoutSupplierInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
@@ -617,6 +691,7 @@ export type BillScalarWhereInput = {
   markdown?: Prisma.StringNullableFilter<"Bill"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bill"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Bill"> | number
 }
 
 export type BillCreateWithoutItemsInput = {
@@ -627,6 +702,7 @@ export type BillCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBillsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
@@ -640,6 +716,7 @@ export type BillUncheckedCreateWithoutItemsInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
@@ -668,6 +745,7 @@ export type BillUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBillsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
@@ -681,6 +759,7 @@ export type BillUncheckedUpdateWithoutItemsInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
 }
@@ -693,6 +772,7 @@ export type BillCreateWithoutFilesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
 }
@@ -706,6 +786,7 @@ export type BillUncheckedCreateWithoutFilesInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
 }
@@ -734,6 +815,7 @@ export type BillUpdateWithoutFilesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
 }
@@ -747,8 +829,61 @@ export type BillUncheckedUpdateWithoutFilesInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
+}
+
+export type BillCreateWithoutWorkspaceInput = {
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  date: Date | string
+  markdown?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  items?: Prisma.ItemCreateNestedManyWithoutBillInput
+  files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutBillInput
+}
+
+export type BillUncheckedCreateWithoutWorkspaceInput = {
+  id?: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  date: Date | string
+  markdown?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
+  files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutBillInput
+}
+
+export type BillCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.BillWhereUniqueInput
+  create: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type BillCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.BillCreateManyWorkspaceInput | Prisma.BillCreateManyWorkspaceInput[]
+}
+
+export type BillUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.BillWhereUniqueInput
+  update: Prisma.XOR<Prisma.BillUpdateWithoutWorkspaceInput, Prisma.BillUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.BillCreateWithoutWorkspaceInput, Prisma.BillUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type BillUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.BillWhereUniqueInput
+  data: Prisma.XOR<Prisma.BillUpdateWithoutWorkspaceInput, Prisma.BillUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type BillUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.BillScalarWhereInput
+  data: Prisma.XOR<Prisma.BillUpdateManyMutationInput, Prisma.BillUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
 export type BillCreateWithoutTagsInput = {
@@ -759,6 +894,7 @@ export type BillCreateWithoutTagsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutBillsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutBillsInput
   items?: Prisma.ItemCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetCreateNestedManyWithoutBillInput
 }
@@ -772,6 +908,7 @@ export type BillUncheckedCreateWithoutTagsInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
   items?: Prisma.ItemUncheckedCreateNestedManyWithoutBillInput
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutBillInput
 }
@@ -800,6 +937,7 @@ export type BillUpdateWithoutTagsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
 }
@@ -813,6 +951,7 @@ export type BillUncheckedUpdateWithoutTagsInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
 }
@@ -825,6 +964,7 @@ export type BillCreateManySupplierInput = {
   markdown?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  workspaceId: number
 }
 
 export type BillUpdateWithoutSupplierInput = {
@@ -834,6 +974,7 @@ export type BillUpdateWithoutSupplierInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBillsNestedInput
   items?: Prisma.ItemUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
@@ -847,6 +988,7 @@ export type BillUncheckedUpdateWithoutSupplierInput = {
   markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
@@ -854,6 +996,56 @@ export type BillUncheckedUpdateWithoutSupplierInput = {
 
 export type BillUncheckedUpdateManyWithoutSupplierInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type BillCreateManyWorkspaceInput = {
+  id?: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  date: Date | string
+  markdown?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BillUpdateWithoutWorkspaceInput = {
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutBillsNestedInput
+  items?: Prisma.ItemUpdateManyWithoutBillNestedInput
+  files?: Prisma.FileAssetUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutBillNestedInput
+}
+
+export type BillUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  markdown?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.ItemUncheckedUpdateManyWithoutBillNestedInput
+  files?: Prisma.FileAssetUncheckedUpdateManyWithoutBillNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutBillNestedInput
+}
+
+export type BillUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
   documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -920,7 +1112,9 @@ export type BillSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   markdown?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  workspaceId?: boolean
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   items?: boolean | Prisma.Bill$itemsArgs<ExtArgs>
   files?: boolean | Prisma.Bill$filesArgs<ExtArgs>
   tags?: boolean | Prisma.Bill$tagsArgs<ExtArgs>
@@ -936,7 +1130,9 @@ export type BillSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   markdown?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  workspaceId?: boolean
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bill"]>
 
 export type BillSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -948,7 +1144,9 @@ export type BillSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   markdown?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  workspaceId?: boolean
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bill"]>
 
 export type BillSelectScalar = {
@@ -960,11 +1158,13 @@ export type BillSelectScalar = {
   markdown?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  workspaceId?: boolean
 }
 
-export type BillOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supplierId" | "documentNumber" | "totalAmount" | "date" | "markdown" | "createdAt" | "updatedAt", ExtArgs["result"]["bill"]>
+export type BillOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "supplierId" | "documentNumber" | "totalAmount" | "date" | "markdown" | "createdAt" | "updatedAt" | "workspaceId", ExtArgs["result"]["bill"]>
 export type BillInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   items?: boolean | Prisma.Bill$itemsArgs<ExtArgs>
   files?: boolean | Prisma.Bill$filesArgs<ExtArgs>
   tags?: boolean | Prisma.Bill$tagsArgs<ExtArgs>
@@ -972,15 +1172,18 @@ export type BillInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 }
 export type BillIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type BillIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $BillPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Bill"
   objects: {
     supplier: Prisma.$SupplierPayload<ExtArgs>
+    workspace: Prisma.$WorkspacePayload<ExtArgs>
     items: Prisma.$ItemPayload<ExtArgs>[]
     files: Prisma.$FileAssetPayload<ExtArgs>[]
     tags: Prisma.$EntryTagPayload<ExtArgs>[]
@@ -994,6 +1197,7 @@ export type $BillPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     markdown: string | null
     createdAt: Date
     updatedAt: Date
+    workspaceId: number
   }, ExtArgs["result"]["bill"]>
   composites: {}
 }
@@ -1389,6 +1593,7 @@ readonly fields: BillFieldRefs;
 export interface Prisma__BillClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.Bill$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   files<T extends Prisma.Bill$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FileAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tags<T extends Prisma.Bill$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bill$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1429,6 +1634,7 @@ export interface BillFieldRefs {
   readonly markdown: Prisma.FieldRef<"Bill", 'String'>
   readonly createdAt: Prisma.FieldRef<"Bill", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Bill", 'DateTime'>
+  readonly workspaceId: Prisma.FieldRef<"Bill", 'Int'>
 }
     
 

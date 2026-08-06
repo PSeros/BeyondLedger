@@ -112,6 +112,11 @@ export type AppSettings = Prisma.AppSettingsModel
  */
 export type FileAsset = Prisma.FileAssetModel
 /**
+ * Model Workspace
+ * 
+ */
+export type Workspace = Prisma.WorkspaceModel
+/**
  * Model Tag
  * 
  */

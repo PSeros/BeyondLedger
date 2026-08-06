@@ -43,13 +43,12 @@ export default async function ContractDetail({contract}: {contract: ContractDeta
         <Row label={t("documentNumber")}>{contract.documentNumber ?? "—"}</Row>
       </dl>
 
-      {contract.tags.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {contract.tags.map((tag) => (
-            <TagChip key={tag.id} name={tag.name} color={tag.color}/>
-          ))}
-        </div>
-      ) : null}
+      <div className="flex flex-wrap gap-1.5">
+        <TagChip name={contract.workspace.name} color={contract.workspace.color}/>
+        {contract.tags.map((tag) => (
+          <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+        ))}
+      </div>
 
       <EntityAttachments
         files={contract.files}

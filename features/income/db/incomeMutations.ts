@@ -4,6 +4,7 @@ import {revalidatePath} from "next/cache";
 import {client} from "@/lib/prisma";
 import {optionalDate, requireDate, requireId, requireString} from "@/features/expense/shared/db/formData";
 import {parseTagIds} from "@/features/tags/tagFormData";
+import {parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
 
 // Reads and validates an Income's fields from the form. Shared by create + update.
 function parseIncomeData(formData: FormData) {
@@ -17,6 +18,7 @@ function parseIncomeData(formData: FormData) {
     sourceId: requireId(formData, "sourceId"),
     categoryId: requireId(formData, "categoryId"),
     frequencyId: requireId(formData, "frequencyId"),
+    workspaceId: parseWorkspaceId(formData),
     totalAmount: amount,
     startDate: requireDate(formData, "startDate"),
     endDate: optionalDate(formData, "endDate"),

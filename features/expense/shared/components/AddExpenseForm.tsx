@@ -13,6 +13,7 @@ import BillItemsEditor, {
 import {labelClass, SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createContractCategory, createItemCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormOptions";
@@ -100,6 +101,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               suppliers={options.suppliers}
               supplierCategories={options.supplierCategories}
             />
+            <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("date")} name="date" type="date" defaultValue={today()} isRequired/>
             <TextInputField label={t("documentNumber")} name="documentNumber"/>
             {/* Amount is auto-summed from the items below when there are any; only a bill with no
@@ -146,6 +148,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               onCreate={createContractCategory}
             />
             <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+            <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
             <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
             <TextInputField label={t("endDate")} name="endDate" type="date"/>

@@ -18,6 +18,8 @@ function normalizeLocale(value: string): Locale {
 
 export type AppSettings = {
   locale: Locale;
+  // The account (Workspace) the app is filtered to (Phase 14). null = "All accounts".
+  activeWorkspaceId: number | null;
 };
 
 // Self-creating singleton read.
@@ -26,13 +28,19 @@ export async function getAppSettings(): Promise<AppSettings> {
     where: {id: APP_SETTINGS_ID},
     create: {id: APP_SETTINGS_ID},
     update: {},
-    select: {locale: true},
+    select: {locale: true, activeWorkspaceId: true},
   });
-  return {locale: normalizeLocale(row.locale)};
+  return {locale: normalizeLocale(row.locale), activeWorkspaceId: row.activeWorkspaceId};
 }
 
 // Convenience: just the active locale.
 export async function getLocale(): Promise<Locale> {
   const {locale} = await getAppSettings();
   return locale;
+}
+
+// Convenience: the active account id (null = "All accounts").
+export async function getActiveWorkspaceId(): Promise<number | null> {
+  const {activeWorkspaceId} = await getAppSettings();
+  return activeWorkspaceId;
 }

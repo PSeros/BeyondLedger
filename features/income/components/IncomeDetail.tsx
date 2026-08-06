@@ -39,13 +39,12 @@ export default async function IncomeDetail({income}: {income: IncomeDetailData})
         ) : null}
       </dl>
 
-      {income.tags.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {income.tags.map((tag) => (
-            <TagChip key={tag.id} name={tag.name} color={tag.color}/>
-          ))}
-        </div>
-      ) : null}
+      <div className="flex flex-wrap gap-1.5">
+        <TagChip name={income.workspace.name} color={income.workspace.color}/>
+        {income.tags.map((tag) => (
+          <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+        ))}
+      </div>
     </div>
   );
 }

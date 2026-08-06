@@ -22,8 +22,15 @@ model Budget {
   endDate     DateTime? // required for RANGE (inclusive)
   createdAt   DateTime         @default(now())
 
+  // The account (Workspace) this budget belongs to (Phase 14). The budget list is filtered to the
+  // active account, and its actuals sum only this account's spend.
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+
   members   BudgetMember[]
   overrides BudgetOverride[]
+
+  @@index([workspaceId])
 }
 
 // Polymorphic membership via nullable FKs: exactly ONE of the four *Id columns is set per row.

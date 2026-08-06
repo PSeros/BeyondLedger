@@ -36,7 +36,8 @@
     "source": "Quelle",
     "supplier": "Lieferant",
     "frequency": "Frequenz",
-    "tag": "Tag"
+    "tag": "Tag",
+    "workspace": "Konto"
   },
   "errors": {
     "couldNotDelete": "Löschen fehlgeschlagen.",
@@ -330,5 +331,19 @@
     "filterLabel": "Tags",
     "none": "Keine Tags",
     "noResults": "Keine Tags gefunden."
+  },
+  "workspaces": {
+    "title": "Konten",
+    "manageDescription": "Bankkonten, denen du jede Rechnung, jeden Vertrag, jede Einnahme und jedes Budget zuordnest. Wechsle das aktive Konto in der oberen Leiste, um die ganze App zu filtern.",
+    "addNew": "Konto hinzufügen…",
+    "newAria": "Name des neuen Kontos",
+    "noneYet": "Noch keine Konten",
+    "pickColor": "Farbe wählen",
+    "recolorAria": "{label} umfärben",
+    "label": "Konto",
+    "placeholder": "Konto auswählen…",
+    "switcherLabel": "Aktives Konto",
+    "allAccounts": "Alle Konten",
+    "filterLabel": "Konto"
   }
 }

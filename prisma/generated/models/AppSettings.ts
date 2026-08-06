@@ -28,27 +28,32 @@ export type AggregateAppSettings = {
 
 export type AppSettingsAvgAggregateOutputType = {
   id: number | null
+  activeWorkspaceId: number | null
 }
 
 export type AppSettingsSumAggregateOutputType = {
   id: number | null
+  activeWorkspaceId: number | null
 }
 
 export type AppSettingsMinAggregateOutputType = {
   id: number | null
   locale: string | null
+  activeWorkspaceId: number | null
   updatedAt: Date | null
 }
 
 export type AppSettingsMaxAggregateOutputType = {
   id: number | null
   locale: string | null
+  activeWorkspaceId: number | null
   updatedAt: Date | null
 }
 
 export type AppSettingsCountAggregateOutputType = {
   id: number
   locale: number
+  activeWorkspaceId: number
   updatedAt: number
   _all: number
 }
@@ -56,27 +61,32 @@ export type AppSettingsCountAggregateOutputType = {
 
 export type AppSettingsAvgAggregateInputType = {
   id?: true
+  activeWorkspaceId?: true
 }
 
 export type AppSettingsSumAggregateInputType = {
   id?: true
+  activeWorkspaceId?: true
 }
 
 export type AppSettingsMinAggregateInputType = {
   id?: true
   locale?: true
+  activeWorkspaceId?: true
   updatedAt?: true
 }
 
 export type AppSettingsMaxAggregateInputType = {
   id?: true
   locale?: true
+  activeWorkspaceId?: true
   updatedAt?: true
 }
 
 export type AppSettingsCountAggregateInputType = {
   id?: true
   locale?: true
+  activeWorkspaceId?: true
   updatedAt?: true
   _all?: true
 }
@@ -170,6 +180,7 @@ export type AppSettingsGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 export type AppSettingsGroupByOutputType = {
   id: number
   locale: string
+  activeWorkspaceId: number | null
   updatedAt: Date
   _count: AppSettingsCountAggregateOutputType | null
   _avg: AppSettingsAvgAggregateOutputType | null
@@ -199,12 +210,14 @@ export type AppSettingsWhereInput = {
   NOT?: Prisma.AppSettingsWhereInput | Prisma.AppSettingsWhereInput[]
   id?: Prisma.IntFilter<"AppSettings"> | number
   locale?: Prisma.StringFilter<"AppSettings"> | string
+  activeWorkspaceId?: Prisma.IntNullableFilter<"AppSettings"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }
 
 export type AppSettingsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   locale?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -214,12 +227,14 @@ export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AppSettingsWhereInput[]
   NOT?: Prisma.AppSettingsWhereInput | Prisma.AppSettingsWhereInput[]
   locale?: Prisma.StringFilter<"AppSettings"> | string
+  activeWorkspaceId?: Prisma.IntNullableFilter<"AppSettings"> | number | null
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }, "id">
 
 export type AppSettingsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   locale?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppSettingsCountOrderByAggregateInput
   _avg?: Prisma.AppSettingsAvgOrderByAggregateInput
@@ -234,72 +249,85 @@ export type AppSettingsScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AppSettingsScalarWhereWithAggregatesInput | Prisma.AppSettingsScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
   locale?: Prisma.StringWithAggregatesFilter<"AppSettings"> | string
+  activeWorkspaceId?: Prisma.IntNullableWithAggregatesFilter<"AppSettings"> | number | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppSettings"> | Date | string
 }
 
 export type AppSettingsCreateInput = {
   locale?: string
+  activeWorkspaceId?: number | null
   updatedAt?: Date | string
 }
 
 export type AppSettingsUncheckedCreateInput = {
   id?: number
   locale?: string
+  activeWorkspaceId?: number | null
   updatedAt?: Date | string
 }
 
 export type AppSettingsUpdateInput = {
   locale?: Prisma.StringFieldUpdateOperationsInput | string
+  activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AppSettingsUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   locale?: Prisma.StringFieldUpdateOperationsInput | string
+  activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AppSettingsCreateManyInput = {
   id?: number
   locale?: string
+  activeWorkspaceId?: number | null
   updatedAt?: Date | string
 }
 
 export type AppSettingsUpdateManyMutationInput = {
   locale?: Prisma.StringFieldUpdateOperationsInput | string
+  activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AppSettingsUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   locale?: Prisma.StringFieldUpdateOperationsInput | string
+  activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AppSettingsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locale?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AppSettingsAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrder
 }
 
 export type AppSettingsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locale?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AppSettingsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   locale?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type AppSettingsSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  activeWorkspaceId?: Prisma.SortOrder
 }
 
 
@@ -307,28 +335,32 @@ export type AppSettingsSumOrderByAggregateInput = {
 export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   locale?: boolean
+  activeWorkspaceId?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
 export type AppSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   locale?: boolean
+  activeWorkspaceId?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
 export type AppSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   locale?: boolean
+  activeWorkspaceId?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
 export type AppSettingsSelectScalar = {
   id?: boolean
   locale?: boolean
+  activeWorkspaceId?: boolean
   updatedAt?: boolean
 }
 
-export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "updatedAt", ExtArgs["result"]["appSettings"]>
+export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "activeWorkspaceId" | "updatedAt", ExtArgs["result"]["appSettings"]>
 
 export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AppSettings"
@@ -336,6 +368,7 @@ export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.Interna
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     locale: string
+    activeWorkspaceId: number | null
     updatedAt: Date
   }, ExtArgs["result"]["appSettings"]>
   composites: {}
@@ -762,6 +795,7 @@ export interface Prisma__AppSettingsClient<T, Null = never, ExtArgs extends runt
 export interface AppSettingsFieldRefs {
   readonly id: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly locale: Prisma.FieldRef<"AppSettings", 'String'>
+  readonly activeWorkspaceId: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"AppSettings", 'DateTime'>
 }
     

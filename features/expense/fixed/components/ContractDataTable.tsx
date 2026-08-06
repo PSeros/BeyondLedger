@@ -24,11 +24,13 @@ function sortColumnToSortBy(column: string): ContractTableSortBy {
   }
 }
 
-export default function ContractDataTable() {
+export default function ContractDataTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
   const router = useRouter();
   const t = useTranslations();
   const format = useFormatter();
   const searchParams = useSearchParams();
+  // Global (persisted) account filter — passed as a prop so a switch re-runs the fetch effect below.
+  const workspace = activeWorkspaceId != null ? String(activeWorkspaceId) : "";
 
   const columns = [
     {id: "name", name: t("fields.name"), isRowHeader: true, allowsSorting: true},
@@ -98,6 +100,9 @@ export default function ContractDataTable() {
       if (tags) {
         params.set("tags", tags);
       }
+      if (workspace) {
+        params.set("workspace", workspace);
+      }
       if (status) {
         params.set("status", status);
       }
@@ -117,13 +122,13 @@ export default function ContractDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, supplierId, categoryId, frequencyId, tags, status, sortBy, sortDir],
+    [q, supplierId, categoryId, frequencyId, tags, workspace, status, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, supplierId, categoryId, frequencyId, tags, status, sortBy, sortDir]);
+  }, [q, supplierId, categoryId, frequencyId, tags, workspace, status, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

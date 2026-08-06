@@ -8,6 +8,7 @@ export type SupplierRow = {id: number; name: string; categoryId: number; categor
 export type CategoryRow = {id: number; name: string; usage: number};
 export type FrequencyRow = {id: number; name: string; value: number; isRecurring: boolean; usage: number};
 export type TagRow = {id: number; name: string; color: string; usage: number};
+export type WorkspaceRow = {id: number; name: string; color: string; usage: number};
 
 export type ReferenceData = {
   suppliers: SupplierRow[];
@@ -18,6 +19,7 @@ export type ReferenceData = {
   incomeCategories: CategoryRow[];
   frequencies: FrequencyRow[];
   tags: TagRow[];
+  workspaces: WorkspaceRow[];
 };
 
 export async function getReferenceData(): Promise<ReferenceData> {
@@ -30,6 +32,7 @@ export async function getReferenceData(): Promise<ReferenceData> {
     incomeCategories,
     frequencies,
     tags,
+    workspaces,
   ] = await Promise.all([
     client.supplier.findMany({
       select: {
@@ -69,6 +72,15 @@ export async function getReferenceData(): Promise<ReferenceData> {
       select: {id: true, name: true, color: true, _count: {select: {entries: true}}},
       orderBy: {name: "asc"},
     }),
+    client.workspace.findMany({
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        _count: {select: {bills: true, contracts: true, incomes: true, budgets: true}},
+      },
+      orderBy: {name: "asc"},
+    }),
   ]);
 
   return {
@@ -92,5 +104,11 @@ export async function getReferenceData(): Promise<ReferenceData> {
       usage: f._count.contracts + f._count.incomes,
     })),
     tags: tags.map((tag) => ({id: tag.id, name: tag.name, color: tag.color, usage: tag._count.entries})),
+    workspaces: workspaces.map((w) => ({
+      id: w.id,
+      name: w.name,
+      color: w.color,
+      usage: w._count.bills + w._count.contracts + w._count.incomes + w._count.budgets,
+    })),
   };
 }

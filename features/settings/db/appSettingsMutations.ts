@@ -21,3 +21,19 @@ export async function updateLocale(locale: string): Promise<void> {
 
   revalidatePath("/", "layout");
 }
+
+// Sets the active account (Phase 14 workspace switcher). null = "All accounts". Like the locale, the
+// active account changes server-rendered output across the whole app (every list/chart/budget is
+// filtered by it), so revalidate the root layout — this also re-runs the client tables' server
+// pages so they refetch with the new account.
+export async function setActiveWorkspace(id: number | null): Promise<void> {
+  const next = id != null && Number.isInteger(id) && id > 0 ? id : null;
+
+  await client.appSettings.upsert({
+    where: {id: APP_SETTINGS_ID},
+    create: {id: APP_SETTINGS_ID, activeWorkspaceId: next},
+    update: {activeWorkspaceId: next},
+  });
+
+  revalidatePath("/", "layout");
+}

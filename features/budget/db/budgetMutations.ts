@@ -4,6 +4,7 @@ import {revalidatePath} from "next/cache";
 import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import {BUDGET_PERIOD_TYPES, type BudgetPeriodType} from "@/features/budget/period";
+import {parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
 
 // Server actions for the Budget page: create/update/delete a budget (name + period + target +
 // members), and set/clear a per-period override. Mirrors referenceDataMutations.ts (localized
@@ -109,9 +110,10 @@ export async function createBudget(formData: FormData): Promise<void> {
   const periodType = parsePeriodType(formData.get("periodType"));
   const period = await parsePeriodFields(formData, periodType);
   const members = parseMembers(formData);
+  const workspaceId = parseWorkspaceId(formData);
 
   await client.budget.create({
-    data: {name, amount, periodType, ...period, members: {create: members}},
+    data: {name, amount, periodType, ...period, workspaceId, members: {create: members}},
   });
   revalidateBudget();
 }
@@ -123,12 +125,13 @@ export async function updateBudget(id: number, formData: FormData): Promise<void
   const periodType = parsePeriodType(formData.get("periodType"));
   const period = await parsePeriodFields(formData, periodType);
   const members = parseMembers(formData);
+  const workspaceId = parseWorkspaceId(formData);
 
   await client.$transaction([
     client.budgetMember.deleteMany({where: {budgetId}}),
     client.budget.update({
       where: {id: budgetId},
-      data: {name, amount, periodType, ...period, members: {create: members}},
+      data: {name, amount, periodType, ...period, workspaceId, members: {create: members}},
     }),
   ]);
   revalidateBudget();

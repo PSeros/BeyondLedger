@@ -21,11 +21,14 @@ function sortColumnToSortBy(column: string): BillTableSortBy {
   }
 }
 
-export default function BillDataTable() {
+export default function BillDataTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
   const router = useRouter();
   const t = useTranslations();
   const format = useFormatter();
   const searchParams = useSearchParams();
+  // The active account is a global (persisted) filter, not a URL param — passed as a prop so a switch
+  // (which revalidates the server page) re-runs the fetch effect below via its dep.
+  const workspace = activeWorkspaceId != null ? String(activeWorkspaceId) : "";
 
   const columns = [
     {id: "supplier", name: t("fields.supplier"), isRowHeader: true, allowsSorting: true},
@@ -91,6 +94,9 @@ export default function BillDataTable() {
       if (tags) {
         params.set("tags", tags);
       }
+      if (workspace) {
+        params.set("workspace", workspace);
+      }
       if (dateFrom) {
         params.set("dateFrom", dateFrom);
       }
@@ -113,13 +119,13 @@ export default function BillDataTable() {
         setIsLoadingMore(false);
       }
     },
-    [q, supplierId, supplierCategoryId, itemCategoryId, tags, dateFrom, dateTo, sortBy, sortDir],
+    [q, supplierId, supplierCategoryId, itemCategoryId, tags, workspace, dateFrom, dateTo, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, supplierId, supplierCategoryId, itemCategoryId, tags, dateFrom, dateTo, sortBy, sortDir]);
+  }, [q, supplierId, supplierCategoryId, itemCategoryId, tags, workspace, dateFrom, dateTo, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

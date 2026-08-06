@@ -5,6 +5,8 @@ export type BillFilters = {
   supplierId?: number;
   supplierCategoryId?: number;
   itemCategoryId?: number;
+  // The active account (Workspace). Single value → equality. Undefined = "All accounts" (no filter).
+  workspaceId?: number;
   // Match bills carrying ANY of these tag ids (OR within the filter). Empty/undefined = no filter.
   tagIds?: number[];
   // ISO calendar dates (yyyy-mm-dd), inclusive on both ends. Deliberately NOT applied to
@@ -18,6 +20,7 @@ export function buildBillWhere({
   supplierId,
   supplierCategoryId,
   itemCategoryId,
+  workspaceId,
   tagIds,
   dateFrom,
   dateTo,
@@ -47,6 +50,10 @@ export function buildBillWhere({
 
   if (itemCategoryId != null) {
     clauses.push({items: {some: {categoryId: itemCategoryId}}});
+  }
+
+  if (workspaceId != null) {
+    clauses.push({workspaceId});
   }
 
   if (tagIds != null && tagIds.length > 0) {

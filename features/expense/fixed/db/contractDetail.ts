@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {determineStatus, type LifecycleStatus} from "@/lib/status";
 import type {FileAttachment} from "@/features/expense/shared/db/fileTypes";
 import type {TagOption} from "@/features/tags/types";
+import type {WorkspaceOption} from "@/features/workspaces/types";
 
 export type ContractDetailData = {
   id: number;
@@ -18,6 +19,8 @@ export type ContractDetailData = {
   endDate: string | null; // ISO
   noticePeriod: number | null;
   status: LifecycleStatus;
+  workspaceId: number;
+  workspace: WorkspaceOption;
   files: FileAttachment[];
   tags: TagOption[];
 };
@@ -29,6 +32,7 @@ export async function getContractById(id: number): Promise<ContractDetailData | 
       supplier: true,
       category: true,
       frequency: true,
+      workspace: true,
       files: {orderBy: {createdAt: "desc"}},
       tags: {include: {tag: true}},
     },
@@ -53,6 +57,8 @@ export async function getContractById(id: number): Promise<ContractDetailData | 
     endDate: contract.endDate ? contract.endDate.toISOString() : null,
     noticePeriod: contract.noticePeriod,
     status: determineStatus(contract),
+    workspaceId: contract.workspaceId,
+    workspace: {id: contract.workspace.id, name: contract.workspace.name, color: contract.workspace.color},
     files: contract.files.map((file) => ({
       id: file.id,
       originalName: file.originalName,

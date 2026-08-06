@@ -36,7 +36,8 @@
     "source": "source",
     "supplier": "supplier",
     "frequency": "frequency",
-    "tag": "tag"
+    "tag": "tag",
+    "workspace": "account"
   },
   "errors": {
     "couldNotDelete": "Could not delete.",
@@ -330,5 +331,19 @@
     "filterLabel": "Tags",
     "none": "No tags",
     "noResults": "No tags match."
+  },
+  "workspaces": {
+    "title": "Accounts",
+    "manageDescription": "Bank accounts you assign each bill, contract, income and budget to. Switch the active account in the top bar to filter the whole app.",
+    "addNew": "Add an account…",
+    "newAria": "New account name",
+    "noneYet": "No accounts yet",
+    "pickColor": "Pick a color",
+    "recolorAria": "Recolor {label}",
+    "label": "Account",
+    "placeholder": "Select account…",
+    "switcherLabel": "Active account",
+    "allAccounts": "All accounts",
+    "filterLabel": "Account"
   }
 }

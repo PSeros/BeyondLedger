@@ -1,6 +1,7 @@
 import {client} from "@/lib/prisma";
 import type {FileAttachment} from "@/features/expense/shared/db/fileTypes";
 import type {TagOption} from "@/features/tags/types";
+import type {WorkspaceOption} from "@/features/workspaces/types";
 
 export type BillItemDetail = {
   id: number;
@@ -22,6 +23,8 @@ export type BillDetailData = {
   amount: number;
   date: string; // ISO
   notes: string | null;
+  workspaceId: number;
+  workspace: WorkspaceOption;
   items: BillItemDetail[];
   files: FileAttachment[];
   tags: TagOption[];
@@ -32,6 +35,7 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
     where: {id},
     include: {
       supplier: {include: {category: true}},
+      workspace: true,
       items: {include: {category: true}, orderBy: {createdAt: "asc"}},
       files: {orderBy: {createdAt: "desc"}},
       tags: {include: {tag: true}},
@@ -51,6 +55,8 @@ export async function getBillById(id: number): Promise<BillDetailData | null> {
     amount: Number(bill.totalAmount),
     date: bill.date.toISOString(),
     notes: bill.markdown,
+    workspaceId: bill.workspaceId,
+    workspace: {id: bill.workspace.id, name: bill.workspace.name, color: bill.workspace.color},
     items: bill.items.map((item) => ({
       id: item.id,
       name: item.name,

@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
   const supplierId = parsePositiveId(params.get("supplierId"));
   const supplierCategoryId = parsePositiveId(params.get("supplierCategoryId"));
   const itemCategoryId = parsePositiveId(params.get("itemCategoryId"));
+  const workspaceId = parsePositiveId(params.get("workspace"));
   const tagIds = parseIds(params.get("tags"));
   const dateFrom = parseIsoDate(params.get("dateFrom"));
   const dateTo = parseIsoDate(params.get("dateTo"));
@@ -60,6 +61,7 @@ export async function GET(request: NextRequest) {
     supplierId,
     supplierCategoryId,
     itemCategoryId,
+    workspaceId,
     tagIds,
     dateFrom,
     dateTo,

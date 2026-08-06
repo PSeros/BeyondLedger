@@ -7,13 +7,14 @@ import {Button, Input, Label, ListBox, Popover, Select, TextField} from "@heroui
 import {LuCheck, LuPencil, LuPlus, LuTrash2, LuX} from "react-icons/lu";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
-import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow, TagRow} from "@/features/settings/db/referenceData";
+import type {CategoryRow, FrequencyRow, ReferenceData, SupplierRow, TagRow, WorkspaceRow} from "@/features/settings/db/referenceData";
 import type {AiSettingsForm} from "@/features/settings/db/aiSettings";
 import AiSettingsSection from "@/features/settings/components/AiSettingsSection";
 import LocaleSettingsSection from "@/features/settings/components/LocaleSettingsSection";
 import {SectionCard} from "@/features/settings/components/SectionCard";
 import TagChip from "@/components/TagChip";
 import {DEFAULT_TAG_COLOR, TAG_COLORS} from "@/features/tags/colors";
+import {DEFAULT_WORKSPACE_COLOR} from "@/features/workspaces/colors";
 import {
   createContractCategory,
   createFrequency,
@@ -23,6 +24,7 @@ import {
   createSupplier,
   createSupplierCategory,
   createTag,
+  createWorkspace,
   deleteContractCategory,
   deleteFrequency,
   deleteIncomeCategory,
@@ -31,13 +33,16 @@ import {
   deleteSupplier,
   deleteSupplierCategory,
   deleteTag,
+  deleteWorkspace,
   renameContractCategory,
   renameIncomeCategory,
   renameIncomeSource,
   renameItemCategory,
   renameSupplierCategory,
   renameTag,
+  renameWorkspace,
   setTagColor,
+  setWorkspaceColor,
   updateFrequency,
   updateSupplier,
 } from "@/features/settings/db/referenceDataMutations";
@@ -148,6 +153,9 @@ export default function ReferenceDataManager({data, aiSettings, locale}: {data: 
               rename={renameIncomeCategory}
               remove={deleteIncomeCategory}
             />
+            <div className="md:col-span-2 xl:col-span-3">
+              <WorkspaceSection workspaces={data.workspaces}/>
+            </div>
             <div className="md:col-span-2 xl:col-span-3">
               <TagSection tags={data.tags}/>
             </div>
@@ -665,6 +673,99 @@ function TagSection({tags}: {tags: TagRow[]}) {
                     <LuPencil className="size-4"/>
                   </Button>
                   <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteTag(row.id))}/>
+                </>
+              )}
+            </RowShell>
+          ))}
+        </ul>
+      )}
+    </SectionCard>
+  );
+}
+
+// --- workspaces / bank accounts (name + color) ------------------------------
+// Same shape as TagSection. Delete is blocked while the account still holds records (usage > 0).
+
+function WorkspaceSection({workspaces}: {workspaces: WorkspaceRow[]}) {
+  const t = useTranslations("settings");
+  const tWs = useTranslations("workspaces");
+  const tCommon = useTranslations("common");
+  const tFields = useTranslations("fields");
+  const {run, busy, error, setError} = useMutations();
+  const [newName, setNewName] = useState("");
+  const [newColor, setNewColor] = useState<string>(DEFAULT_WORKSPACE_COLOR);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+
+  function startEdit(row: WorkspaceRow) {
+    setError(null);
+    setEditingId(row.id);
+    setEditName(row.name);
+  }
+
+  return (
+    <SectionCard title={tWs("title")} count={workspaces.length} description={tWs("manageDescription")}>
+      <div className="flex items-end gap-2">
+        <ColorPicker value={newColor} onChange={setNewColor} ariaLabel={tWs("pickColor")}/>
+        <TextField value={newName} onChange={setNewName} aria-label={tWs("newAria")} className="flex flex-1 flex-col gap-1">
+          <Input placeholder={tWs("addNew")}/>
+        </TextField>
+        <Button
+          type="button"
+          size="sm"
+          variant="primary"
+          isDisabled={busy || newName.trim() === ""}
+          onPress={() => run(() => createWorkspace(newName, newColor), () => setNewName(""))}
+        >
+          <LuPlus className="size-4"/>
+          {tCommon("add")}
+        </Button>
+      </div>
+
+      {error ? <p className="text-danger text-sm">{error}</p> : null}
+
+      {workspaces.length === 0 ? (
+        <p className="text-sm text-muted">{tWs("noneYet")}</p>
+      ) : (
+        <ul className="flex flex-col">
+          {workspaces.map((row) => (
+            <RowShell key={row.id}>
+              {editingId === row.id ? (
+                <>
+                  <TextField value={editName} onChange={setEditName} aria-label={tFields("name")} className="flex flex-1 flex-col gap-1">
+                    <Input autoFocus/>
+                  </TextField>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="tertiary"
+                    isIconOnly
+                    aria-label={tCommon("save")}
+                    isDisabled={busy || editName.trim() === ""}
+                    onPress={() => run(() => renameWorkspace(row.id, editName), () => setEditingId(null))}
+                  >
+                    <LuCheck className="size-4"/>
+                  </Button>
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={tCommon("cancel")} onPress={() => setEditingId(null)}>
+                    <LuX className="size-4"/>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <span className="flex-1">
+                    <TagChip name={row.name} color={row.color}/>
+                  </span>
+                  <UsageNote count={row.usage}/>
+                  <ColorPicker
+                    value={row.color}
+                    onChange={(color) => run(() => setWorkspaceColor(row.id, color))}
+                    ariaLabel={tWs("recolorAria", {label: row.name})}
+                    disabled={busy}
+                  />
+                  <Button type="button" size="sm" variant="tertiary" isIconOnly aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
+                    <LuPencil className="size-4"/>
+                  </Button>
+                  <DeleteButton label={row.name} usage={row.usage} disabled={busy} onConfirm={() => run(() => deleteWorkspace(row.id))}/>
                 </>
               )}
             </RowShell>

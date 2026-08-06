@@ -8,6 +8,7 @@ import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react"
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import MultiSelectField from "@/features/budget/components/MultiSelectField";
+import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import type {BudgetMemberOptions, BudgetView} from "@/features/budget/db/budgets";
 import type {BudgetPeriodType} from "@/features/budget/period";
 import {createBudget, updateBudget} from "@/features/budget/db/budgetMutations";
@@ -155,6 +156,11 @@ export default function BudgetFormButton({
                     type="number"
                     defaultValue={budget ? String(budget.amount) : ""}
                     isRequired
+                  />
+
+                  <WorkspaceSelectField
+                    workspaces={options.workspaces}
+                    defaultValue={budget ? String(budget.workspaceId) : options.defaultWorkspaceId}
                   />
 
                   {/* Period type (controlled — drives the conditional fields below). */}

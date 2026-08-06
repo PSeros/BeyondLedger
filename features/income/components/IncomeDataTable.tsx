@@ -28,13 +28,16 @@ function sortColumnToSortBy(column: string): IncomeTableSortBy {
 
 type IncomeDataTableProps = {
   isRecurring: boolean;
+  activeWorkspaceId: number | null;
 };
 
-export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
+export default function IncomeDataTable({isRecurring, activeWorkspaceId}: IncomeDataTableProps) {
   const router = useRouter();
   const t = useTranslations();
   const format = useFormatter();
   const searchParams = useSearchParams();
+  // Global (persisted) account filter — passed as a prop so a switch re-runs the fetch effect below.
+  const workspace = activeWorkspaceId != null ? String(activeWorkspaceId) : "";
 
   // Fixed (recurring) income shows Frequency + lifecycle Status; variable (one-time) income shows
   // the occurrence Date instead — same one row type, different visible columns.
@@ -119,6 +122,9 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
       if (tags) {
         params.set("tags", tags);
       }
+      if (workspace) {
+        params.set("workspace", workspace);
+      }
       if (status) {
         params.set("status", status);
       }
@@ -144,13 +150,13 @@ export default function IncomeDataTable({isRecurring}: IncomeDataTableProps) {
         setIsLoadingMore(false);
       }
     },
-    [q, sourceId, categoryId, frequencyId, tags, status, dateFrom, dateTo, isRecurring, sortBy, sortDir],
+    [q, sourceId, categoryId, frequencyId, tags, workspace, status, dateFrom, dateTo, isRecurring, sortBy, sortDir],
   );
 
   useEffect(() => {
     fetchRows(0, "replace");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sourceId, categoryId, frequencyId, tags, status, dateFrom, dateTo, isRecurring, sortBy, sortDir]);
+  }, [q, sourceId, categoryId, frequencyId, tags, workspace, status, dateFrom, dateTo, isRecurring, sortBy, sortDir]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) {

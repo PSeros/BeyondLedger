@@ -6,6 +6,7 @@ import {useRouter} from "next/navigation";
 import {Button, Card, Chip, Input, Label, TextField} from "@heroui/react";
 import {LuCalendarRange, LuArrowDownUp, LuTriangleAlert} from "react-icons/lu";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
+import TagChip from "@/components/TagChip";
 import BudgetDetailModal from "@/features/budget/components/BudgetDetailModal";
 import BudgetFormButton from "@/features/budget/components/BudgetFormButton";
 import type {BudgetMemberOptions, BudgetResolved} from "@/features/budget/db/budgets";
@@ -81,7 +82,10 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
     <Card>
       <Card.Header className="flex-row items-start justify-between gap-3">
         <div className="min-w-0">
-          <Card.Title className="truncate">{budget.name}</Card.Title>
+          <div className="flex items-center gap-2">
+            <Card.Title className="truncate">{budget.name}</Card.Title>
+            <TagChip name={budget.workspace.name} color={budget.workspace.color}/>
+          </div>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
             <LuCalendarRange className="size-3.5 shrink-0"/>
             <span className="truncate">{periodLabel()}</span>

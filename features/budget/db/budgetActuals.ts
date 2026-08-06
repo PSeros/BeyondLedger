@@ -33,32 +33,40 @@ function monthsInWindow(start: Date | null, end: Date | null): number {
   return Math.max(1, months);
 }
 
-export async function computeActuals(members: BudgetMemberIds, start: Date | null, end: Date | null): Promise<number> {
+// A budget belongs to one account (Phase 14), so its actuals count only that account's spend —
+// bills/items and contracts are constrained to the budget's workspaceId.
+export async function computeActuals(
+  members: BudgetMemberIds,
+  start: Date | null,
+  end: Date | null,
+  workspaceId: number,
+): Promise<number> {
   const dateInWindow = dateFilter(start, end);
 
   const [itemAgg, supplierAgg, supplierCatAgg, contracts] = await Promise.all([
     members.itemCategoryIds.length
       ? client.item.aggregate({
           _sum: {totalPrice: true},
-          where: {categoryId: {in: members.itemCategoryIds}, bill: {date: dateInWindow}},
+          where: {categoryId: {in: members.itemCategoryIds}, bill: {date: dateInWindow, workspaceId}},
         })
       : null,
     members.supplierIds.length
       ? client.bill.aggregate({
           _sum: {totalAmount: true},
-          where: {supplierId: {in: members.supplierIds}, date: dateInWindow},
+          where: {supplierId: {in: members.supplierIds}, date: dateInWindow, workspaceId},
         })
       : null,
     members.supplierCategoryIds.length
       ? client.bill.aggregate({
           _sum: {totalAmount: true},
-          where: {supplier: {categoryId: {in: members.supplierCategoryIds}}, date: dateInWindow},
+          where: {supplier: {categoryId: {in: members.supplierCategoryIds}}, date: dateInWindow, workspaceId},
         })
       : null,
     members.contractCategoryIds.length
       ? client.contract.findMany({
           where: {
             categoryId: {in: members.contractCategoryIds},
+            workspaceId,
             ...(end != null ? {startDate: {lt: end}} : {}),
             ...(start != null ? {OR: [{endDate: null}, {endDate: {gte: start}}]} : {}),
           },

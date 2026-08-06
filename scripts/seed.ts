@@ -64,6 +64,7 @@ async function resetDatabase() {
     prisma.bill.deleteMany(),
     prisma.contract.deleteMany(),
     prisma.income.deleteMany(),
+    prisma.workspace.deleteMany(), // safe now that all records referencing it are gone
     prisma.supplier.deleteMany(),
     prisma.contractCategory.deleteMany(),
     prisma.itemCategory.deleteMany(),
@@ -77,6 +78,16 @@ async function resetDatabase() {
 }
 
 async function createLookupRows() {
+  // Bank accounts (Phase 14): a shared/joint account plus one per partner. Most household spending
+  // runs through "Gemeinsam"; the two personal accounts carry individual bills/income.
+  const workspaces = await prisma.workspace.createManyAndReturn({
+    data: [
+      {name: "Gemeinsam", color: "#14b8a6"},
+      {name: "Phillip", color: "#3b82f6"},
+      {name: "Anabel", color: "#ec4899"},
+    ],
+  });
+
   const frequencies = await prisma.frequency.createManyAndReturn({
     data: [
       {id: 1, name: "One-time", value: 1, isRecurring: false},
@@ -116,6 +127,7 @@ async function createLookupRows() {
   });
 
   return {
+    workspaces,
     frequencies,
     supplierCategories,
     itemCategories,
@@ -141,6 +153,16 @@ async function main() {
   const contractCategoryIdByName = Object.fromEntries(
     lookups.contractCategories.map((category) => [category.name, category.id]),
   );
+
+  // Account (Workspace) ids for assignment. Most records land on the shared account; the two
+  // personal accounts get a lighter share via a weighted pool (~60% shared / 20% each).
+  const workspaceIdByName = Object.fromEntries(lookups.workspaces.map((w) => [w.name, w.id]));
+  const sharedWorkspaceId = workspaceIdByName["Gemeinsam"];
+  const workspacePool = [
+    ...Array(3).fill(sharedWorkspaceId),
+    ...Array(1).fill(workspaceIdByName["Phillip"]),
+    ...Array(1).fill(workspaceIdByName["Anabel"]),
+  ] as number[];
 
   // First 11 suppliers carry a recurring Contract (rent, utilities, insurance, subscriptions,
   // memberships). The last 5 are one-off retailers that only ever show up on itemized Bills —
@@ -201,6 +223,7 @@ async function main() {
         documentNumber: `CTR-${supplier.id}-${startDate.getUTCFullYear()}`,
         totalAmount: toMoney(randomAmount(blueprint.amount[0], blueprint.amount[1])),
         frequencyId: frequencyByName[blueprint.frequency].id,
+        workspaceId: pick(workspacePool),
         startDate,
         // A handful of contracts have already ended (switched provider, cancelled membership).
         endDate: index % 5 === 0 ? addMonths(startDate, randomInt(18, 42)) : null,
@@ -229,6 +252,7 @@ async function main() {
         categoryId: salary.id,
         totalAmount: "3400.00",
         frequencyId: frequencyByName.Monthly.id,
+        workspaceId: workspaceIdByName["Phillip"],
         startDate: START_DATE,
       },
       {
@@ -237,6 +261,7 @@ async function main() {
         categoryId: childBenefit.id,
         totalAmount: "250.00",
         frequencyId: frequencyByName.Monthly.id,
+        workspaceId: sharedWorkspaceId,
         startDate: START_DATE,
       },
       // Occasional extra income: side gigs, tax refunds, selling used items.
@@ -251,6 +276,7 @@ async function main() {
           categoryId: category.id,
           totalAmount: toMoney(randomAmount(20, 700)),
           frequencyId: frequencyByName["One-time"].id,
+          workspaceId: pick(workspacePool),
           startDate: date,
           endDate: null,
         };
@@ -274,6 +300,7 @@ async function main() {
 
       return {
         supplierId: supplier.id,
+        workspaceId: pick(workspacePool),
         documentNumber: `INV-${supplier.id}-${yyyymm(date)}-${index + 1}`,
         totalAmount: "0.00",
         date,
@@ -416,6 +443,7 @@ async function main() {
       name: "Lebensmittel & Haushalt",
       amount: 600,
       periodType: "MONTHLY",
+      workspaceId: sharedWorkspaceId,
       members: {
         create: ["Lebensmittel", "Getränke", "Haushalt", "Drogerie"].map((name) => ({itemCategoryId: itemCatId(name)})),
       },
@@ -426,6 +454,7 @@ async function main() {
       name: "Auto & Mobilität",
       amount: 3600,
       periodType: "YEARLY",
+      workspaceId: sharedWorkspaceId,
       members: {
         create: [{itemCategoryId: itemCatId("Tanken")}, {contractCategoryId: contractCatId("Mobilität")}],
       },
@@ -436,6 +465,7 @@ async function main() {
       name: "Sommerurlaub",
       amount: 1500,
       periodType: "RANGE",
+      workspaceId: sharedWorkspaceId,
       startDate: new Date(Date.UTC(budgetYear, 7, 1)),
       endDate: new Date(Date.UTC(budgetYear, 7, 14)),
       members: {create: [{itemCategoryId: itemCatId("Tanken")}, {itemCategoryId: itemCatId("Lebensmittel")}]},
@@ -447,6 +477,7 @@ async function main() {
       amount: 400,
       periodType: "MONTH_OF_YEAR",
       anchorMonth: 12,
+      workspaceId: sharedWorkspaceId,
       members: {create: [{itemCategoryId: itemCatId("Sonstiges")}]},
     },
   });

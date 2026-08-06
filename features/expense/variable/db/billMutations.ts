@@ -11,6 +11,8 @@ import {
   requireString,
 } from "@/features/expense/shared/db/formData";
 import {parseTagIds} from "@/features/tags/tagFormData";
+import {DEFAULT_WORKSPACE_ID, parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import type {ResolvedBillDraft} from "@/features/ocr/resolve";
 
 // Sums the parsed item line totals into a Bill totalAmount (rounded to cents).
@@ -38,12 +40,14 @@ export async function createBill(formData: FormData): Promise<void> {
   const notes = optionalString(formData, "notes");
   const items = parseItems(formData);
   const tagIds = parseTagIds(formData);
+  const workspaceId = parseWorkspaceId(formData);
 
   const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
   await client.bill.create({
     data: {
       supplierId,
+      workspaceId,
       documentNumber,
       totalAmount,
       date,
@@ -78,13 +82,14 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
   const notes = optionalString(formData, "notes");
   const items = parseItems(formData);
   const tagIds = parseTagIds(formData);
+  const workspaceId = parseWorkspaceId(formData);
 
   const totalAmount = items.length > 0 ? sumItemTotals(items) : readManualAmount(formData);
 
   await client.$transaction(async (tx) => {
     await tx.bill.update({
       where: {id},
-      data: {supplierId, documentNumber, totalAmount, date, markdown: notes},
+      data: {supplierId, workspaceId, documentNumber, totalAmount, date, markdown: notes},
     });
 
     // Tags: delete-recreate the join rows (same approach as updateBudget's members).
@@ -132,10 +137,14 @@ export async function createBillFromResolvedDraft(
   draft: ResolvedBillDraft,
   fileId: number,
 ): Promise<{billId: number}> {
+  // OCR auto-create has no form — file the bill under the active account (Shared when "All").
+  const workspaceId = (await getActiveWorkspaceId()) ?? DEFAULT_WORKSPACE_ID;
+
   const bill = await client.$transaction(async (tx) => {
     const created = await tx.bill.create({
       data: {
         supplierId: draft.supplierId,
+        workspaceId,
         documentNumber: draft.documentNumber,
         totalAmount: draft.totalAmount,
         date: draft.date,

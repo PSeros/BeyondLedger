@@ -65,6 +65,7 @@ export const ModelName = {
   AiSettings: 'AiSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
+  Workspace: 'Workspace',
   Tag: 'Tag',
   EntryTag: 'EntryTag',
   IncomeCategory: 'IncomeCategory',
@@ -93,7 +94,8 @@ export const BudgetScalarFieldEnum = {
   anchorMonth: 'anchorMonth',
   startDate: 'startDate',
   endDate: 'endDate',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
@@ -165,7 +167,8 @@ export const ContractScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   noticePeriod: 'noticePeriod',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
@@ -179,7 +182,8 @@ export const BillScalarFieldEnum = {
   date: 'date',
   markdown: 'markdown',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type BillScalarFieldEnum = (typeof BillScalarFieldEnum)[keyof typeof BillScalarFieldEnum]
@@ -228,6 +232,7 @@ export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof
 export const AppSettingsScalarFieldEnum = {
   id: 'id',
   locale: 'locale',
+  activeWorkspaceId: 'activeWorkspaceId',
   updatedAt: 'updatedAt'
 } as const
 
@@ -249,6 +254,16 @@ export const FileAssetScalarFieldEnum = {
 } as const
 
 export type FileAssetScalarFieldEnum = (typeof FileAssetScalarFieldEnum)[keyof typeof FileAssetScalarFieldEnum]
+
+
+export const WorkspaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
 
 
 export const TagScalarFieldEnum = {
@@ -298,7 +313,8 @@ export const IncomeScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type IncomeScalarFieldEnum = (typeof IncomeScalarFieldEnum)[keyof typeof IncomeScalarFieldEnum]

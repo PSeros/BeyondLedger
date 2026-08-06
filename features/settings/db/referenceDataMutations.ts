@@ -6,10 +6,12 @@ import {client} from "@/lib/prisma";
 import {Prisma} from "@/prisma/generated/client";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 import {normalizeTagColor} from "@/features/tags/colors";
+import {normalizeWorkspaceColor} from "@/features/workspaces/colors";
 // NOTE: this is a "use server" module — every *export* must be an async function, so TagOption is
 // only imported here (for the create/rename return types), never re-exported. Consumers import it
 // from "@/features/tags/types" directly.
 import type {TagOption} from "@/features/tags/types";
+import type {WorkspaceOption} from "@/features/workspaces/types";
 
 // Reference-data (lookup-table) mutations: Supplier, SupplierCategory, ItemCategory,
 // ContractCategory, Frequency. Used by BOTH the inline "+ Add new…" popovers in the Add form
@@ -33,7 +35,7 @@ function revalidateLookupSurfaces(): void {
 // Error messages are localized (the app's active locale comes from the AppSettings singleton, read
 // server-side by next-intl's request config) since they surface to the user in Settings + the
 // inline "+ Add new…" popovers.
-type EntityKey = "category" | "source" | "supplier" | "frequency" | "tag";
+type EntityKey = "category" | "source" | "supplier" | "frequency" | "tag" | "workspace";
 
 async function cleanName(name: string): Promise<string> {
   const trimmed = name.trim();
@@ -350,6 +352,54 @@ export async function deleteTag(id: number): Promise<void> {
     await client.tag.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
     throw await toDeleteError(error, "tag");
+  }
+  revalidateLookupSurfaces();
+}
+
+// --- Workspace (bank account) -----------------------------------------------
+// Like Tag: name-only + unique (case-insensitive) + a palette color. The record FKs are RESTRICT so
+// deleting an account still holding bills/contracts/income/budgets fails (P2003 → friendly error).
+
+export async function createWorkspace(name: string, color?: string): Promise<WorkspaceOption> {
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.workspace.findMany({select: {id: true, name: true}}), clean);
+  const created = await client.workspace.create({
+    data: {name: clean, color: normalizeWorkspaceColor(color)},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return created;
+}
+
+export async function renameWorkspace(id: number, name: string): Promise<WorkspaceOption> {
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.workspace.findMany({select: {id: true, name: true}}), clean, rowId);
+  const updated = await client.workspace.update({
+    where: {id: rowId},
+    data: {name: clean},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function setWorkspaceColor(id: number, color: string): Promise<WorkspaceOption> {
+  const rowId = await cleanPositiveId(id);
+  const updated = await client.workspace.update({
+    where: {id: rowId},
+    data: {color: normalizeWorkspaceColor(color)},
+    select: {id: true, name: true, color: true},
+  });
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function deleteWorkspace(id: number): Promise<void> {
+  try {
+    await client.workspace.delete({where: {id: await cleanPositiveId(id)}});
+  } catch (error) {
+    throw await toDeleteError(error, "workspace");
   }
   revalidateLookupSurfaces();
 }

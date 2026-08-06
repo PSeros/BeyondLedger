@@ -9,6 +9,7 @@ import IncomeTopKCard from "@/features/income/components/IncomeTopKCard";
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type VariableIncomePageProps = {
   searchParams: Promise<{
@@ -41,12 +42,14 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function VariableIncomePage({searchParams}: VariableIncomePageProps) {
   const params = await searchParams;
+  const activeWorkspaceId = await getActiveWorkspaceId();
   // Categorical filters apply to every section. The date range applies to the table + top-k only —
   // never the chart (see incomeChartData: it would starve the rolling-average baseline).
   const categoricalFilters = {
     q: params.q,
     sourceId: parseId(params.sourceId),
     categoryId: parseId(params.categoryId),
+    workspaceId: activeWorkspaceId ?? undefined,
     tagIds: parseIds(params.tags),
   };
   const topKFilters = {
@@ -83,7 +86,7 @@ export default async function VariableIncomePage({searchParams}: VariableIncomeP
             </div>
             <div className="min-h-0 flex-1 overflow-hidden">
               <Suspense>
-                <IncomeDataTable isRecurring={false}/>
+                <IncomeDataTable isRecurring={false} activeWorkspaceId={activeWorkspaceId}/>
               </Suspense>
             </div>
           </div>

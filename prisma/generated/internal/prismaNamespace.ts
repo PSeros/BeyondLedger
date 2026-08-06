@@ -398,6 +398,7 @@ export const ModelName = {
   AiSettings: 'AiSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
+  Workspace: 'Workspace',
   Tag: 'Tag',
   EntryTag: 'EntryTag',
   IncomeCategory: 'IncomeCategory',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "tag" | "entryTag" | "incomeCategory" | "incomeSource" | "income"
+    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "workspace" | "tag" | "entryTag" | "incomeCategory" | "incomeSource" | "income"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1458,6 +1459,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Workspace: {
+      payload: Prisma.$WorkspacePayload<ExtArgs>
+      fields: Prisma.WorkspaceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkspaceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkspaceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        findFirst: {
+          args: Prisma.WorkspaceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkspaceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        findMany: {
+          args: Prisma.WorkspaceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
+        }
+        create: {
+          args: Prisma.WorkspaceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        createMany: {
+          args: Prisma.WorkspaceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkspaceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
+        }
+        delete: {
+          args: Prisma.WorkspaceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        update: {
+          args: Prisma.WorkspaceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkspaceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkspaceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkspaceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkspaceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspacePayload>
+        }
+        aggregate: {
+          args: Prisma.WorkspaceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkspace>
+        }
+        groupBy: {
+          args: Prisma.WorkspaceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkspaceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkspaceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkspaceCountAggregateOutputType> | number
+        }
+      }
+    }
     Tag: {
       payload: Prisma.$TagPayload<ExtArgs>
       fields: Prisma.TagFieldRefs
@@ -1872,7 +1947,8 @@ export const BudgetScalarFieldEnum = {
   anchorMonth: 'anchorMonth',
   startDate: 'startDate',
   endDate: 'endDate',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
@@ -1944,7 +2020,8 @@ export const ContractScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   noticePeriod: 'noticePeriod',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
@@ -1958,7 +2035,8 @@ export const BillScalarFieldEnum = {
   date: 'date',
   markdown: 'markdown',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type BillScalarFieldEnum = (typeof BillScalarFieldEnum)[keyof typeof BillScalarFieldEnum]
@@ -2007,6 +2085,7 @@ export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof
 export const AppSettingsScalarFieldEnum = {
   id: 'id',
   locale: 'locale',
+  activeWorkspaceId: 'activeWorkspaceId',
   updatedAt: 'updatedAt'
 } as const
 
@@ -2028,6 +2107,16 @@ export const FileAssetScalarFieldEnum = {
 } as const
 
 export type FileAssetScalarFieldEnum = (typeof FileAssetScalarFieldEnum)[keyof typeof FileAssetScalarFieldEnum]
+
+
+export const WorkspaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  color: 'color',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
 
 
 export const TagScalarFieldEnum = {
@@ -2077,7 +2166,8 @@ export const IncomeScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  workspaceId: 'workspaceId'
 } as const
 
 export type IncomeScalarFieldEnum = (typeof IncomeScalarFieldEnum)[keyof typeof IncomeScalarFieldEnum]
@@ -2291,6 +2381,7 @@ export type GlobalOmitConfig = {
   aiSettings?: Prisma.AiSettingsOmit
   appSettings?: Prisma.AppSettingsOmit
   fileAsset?: Prisma.FileAssetOmit
+  workspace?: Prisma.WorkspaceOmit
   tag?: Prisma.TagOmit
   entryTag?: Prisma.EntryTagOmit
   incomeCategory?: Prisma.IncomeCategoryOmit

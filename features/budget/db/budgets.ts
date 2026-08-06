@@ -1,5 +1,9 @@
 import {client} from "@/lib/prisma";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
+import type {WorkspaceOption} from "@/features/workspaces/types";
+import {getWorkspaces} from "@/features/workspaces/db/workspaces";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
+import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
 import {resolveActivePeriod, type BudgetPeriodType} from "@/features/budget/period";
 
@@ -21,6 +25,8 @@ export type BudgetView = {
   anchorMonth: number | null;
   startDate: string | null; // ISO
   endDate: string | null; // ISO
+  workspaceId: number;
+  workspace: WorkspaceOption;
   members: BudgetMemberView[];
   memberIds: BudgetMemberIds;
   overrides: BudgetOverrideView[];
@@ -41,6 +47,9 @@ export type BudgetMemberOptions = {
   supplierCategories: FilterOption[];
   suppliers: FilterOption[];
   contractCategories: FilterOption[];
+  workspaces: WorkspaceOption[];
+  // The account a NEW budget defaults to (the edit form overrides with the budget's own account).
+  defaultWorkspaceId: string;
 };
 
 function toMemberView(member: {
@@ -77,10 +86,13 @@ function toMemberIds(members: BudgetMemberView[]): BudgetMemberIds {
   };
 }
 
-export async function getBudgets(): Promise<BudgetView[]> {
+// `workspaceId` (the active account) filters the list to that account; null/undefined = all accounts.
+export async function getBudgets(workspaceId?: number | null): Promise<BudgetView[]> {
   const budgets = await client.budget.findMany({
+    where: workspaceId != null ? {workspaceId} : undefined,
     orderBy: {createdAt: "asc"},
     include: {
+      workspace: true,
       members: {
         include: {
           itemCategory: {select: {name: true}},
@@ -105,6 +117,8 @@ export async function getBudgets(): Promise<BudgetView[]> {
       anchorMonth: budget.anchorMonth,
       startDate: budget.startDate ? budget.startDate.toISOString() : null,
       endDate: budget.endDate ? budget.endDate.toISOString() : null,
+      workspaceId: budget.workspaceId,
+      workspace: {id: budget.workspace.id, name: budget.workspace.name, color: budget.workspace.color},
       members,
       memberIds: toMemberIds(members),
       overrides: budget.overrides.map((o) => ({periodKey: o.periodKey, amount: Number(o.amount)})),
@@ -114,11 +128,13 @@ export async function getBudgets(): Promise<BudgetView[]> {
 
 // Resolve every budget for its current period: window, effective target (override on the current
 // periodKey else the default), and actual spend.
-export async function getBudgetsResolved(now: Date = new Date()): Promise<BudgetResolved[]> {
-  const budgets = await getBudgets();
+export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: number | null): Promise<BudgetResolved[]> {
+  const budgets = await getBudgets(workspaceId);
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
   const actuals = await Promise.all(
-    budgets.map((budget, index) => computeActuals(budget.memberIds, periods[index].start, periods[index].end)),
+    budgets.map((budget, index) =>
+      computeActuals(budget.memberIds, periods[index].start, periods[index].end, budget.workspaceId),
+    ),
   );
 
   return budgets.map((budget, index) => {
@@ -136,13 +152,22 @@ export async function getBudgetsResolved(now: Date = new Date()): Promise<Budget
 }
 
 export async function getBudgetMemberOptions(): Promise<BudgetMemberOptions> {
-  const [itemCategories, supplierCategories, suppliers, contractCategories] = await Promise.all([
+  const [itemCategories, supplierCategories, suppliers, contractCategories, workspaces, activeWorkspaceId] = await Promise.all([
     client.itemCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplierCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
+    getWorkspaces(),
+    getActiveWorkspaceId(),
   ]);
-  return {itemCategories, supplierCategories, suppliers, contractCategories};
+  return {
+    itemCategories,
+    supplierCategories,
+    suppliers,
+    contractCategories,
+    workspaces,
+    defaultWorkspaceId: String(activeWorkspaceId ?? DEFAULT_WORKSPACE_ID),
+  };
 }
 
 export async function getBudgetCount(): Promise<number> {

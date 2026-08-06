@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import {createIncome} from "@/features/income/db/incomeMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
+import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createIncomeCategory, createIncomeSource, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {IncomeFormOptions} from "@/features/income/db/incomeFormOptions";
@@ -68,6 +69,7 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
           onCreate={createIncomeCategory}
         />
         <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+        <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
         <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date"/>

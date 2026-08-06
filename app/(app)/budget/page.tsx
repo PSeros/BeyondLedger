@@ -5,8 +5,9 @@ import BudgetActions from "@/features/budget/components/BudgetActions";
 import BudgetCard from "@/features/budget/components/BudgetCard";
 import BudgetEmptyState from "@/features/budget/components/BudgetEmptyState";
 import BudgetSearchField from "@/features/budget/components/BudgetSearchField";
-import {getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
+import {getBudgetCount, getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
 import {BUDGET_PERIOD_TYPES} from "@/features/budget/period";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 // The Budget page: user-defined budgets (name + period + target + members), each showing target
 // vs. actual vs. remaining for its own current period. Follows the expense/income layout — the
@@ -14,7 +15,14 @@ import {BUDGET_PERIOD_TYPES} from "@/features/budget/period";
 // (no fixed/variable tabs). No global period navigator — each card resolves its own window.
 export default async function BudgetPage({searchParams}: {searchParams: Promise<{q?: string; period?: string}>}) {
   const {q, period} = await searchParams;
-  const [budgets, options] = await Promise.all([getBudgetsResolved(), getBudgetMemberOptions()]);
+  // Budgets belong to an account (Phase 14): the list is scoped to the active account (null = all).
+  // The onboarding empty state uses the global count so a fresh account isn't mistaken for a fresh app.
+  const activeWorkspaceId = await getActiveWorkspaceId();
+  const [budgets, options, totalCount] = await Promise.all([
+    getBudgetsResolved(new Date(), activeWorkspaceId),
+    getBudgetMemberOptions(),
+    getBudgetCount(),
+  ]);
 
   const query = (q ?? "").trim().toLowerCase();
   const periodFilter = (period ?? "").split(",").filter((p) => (BUDGET_PERIOD_TYPES as string[]).includes(p));
@@ -47,7 +55,7 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
       />
 
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-        {budgets.length === 0 ? (
+        {totalCount === 0 ? (
           <BudgetEmptyState options={options}/>
         ) : filtered.length === 0 ? (
           <p className="text-muted py-16 text-center text-sm">{t("noResults")}</p>

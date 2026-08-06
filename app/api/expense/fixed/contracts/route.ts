@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
   const supplierId = parsePositiveId(params.get("supplierId"));
   const categoryId = parsePositiveId(params.get("categoryId"));
   const frequencyId = parsePositiveId(params.get("frequencyId"));
+  const workspaceId = parsePositiveId(params.get("workspace"));
   const tagIds = parseIds(params.get("tags"));
   const status = parseStatus(params.get("status"));
 
@@ -61,6 +62,7 @@ export async function GET(request: NextRequest) {
     supplierId,
     categoryId,
     frequencyId,
+    workspaceId,
     tagIds,
     status,
   });

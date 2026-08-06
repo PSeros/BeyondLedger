@@ -51,10 +51,14 @@ model Contract {
   noticePeriod   Int?
   createdAt      DateTime         @default(now())
 
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+
   files FileAsset[]
   tags  EntryTag[]
 
   @@index([categoryId, supplierId, frequencyId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
 }
 
 model Bill {
@@ -68,11 +72,15 @@ model Bill {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+
   items Item[]
   files FileAsset[]
   tags  EntryTag[]
 
   @@index([supplierId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
 }
 
 model Item {

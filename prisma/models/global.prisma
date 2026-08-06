@@ -40,9 +40,13 @@ model AiSettings {
 // (client-side via next-themes), locale drives server-rendered output (<html lang>, currency/date
 // formatting, translated strings) so it is persisted in the DB and read server-side.
 model AppSettings {
-  id        Int      @id @default(autoincrement())
-  locale    String   @default("en")
-  updatedAt DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  locale            String   @default("en")
+  // The account (Workspace) the app is currently filtered to (Phase 14). null = "All accounts" (no
+  // filter). Plain nullable Int rather than a relation so deleting the active workspace can't be
+  // blocked by an FK on the settings singleton — a stale id simply reads back as "All".
+  activeWorkspaceId Int?
+  updatedAt         DateTime @updatedAt
 }
 
 model FileAsset {
@@ -63,6 +67,24 @@ model FileAsset {
   contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   @@index([billId, contractId, createdAt(sort: Desc)])
+}
+
+// A Workspace is a bank account (Phase 14): the user's personal account, their partner's, and a
+// shared/joint account. Every top-level financial record (Bill/Contract/Income/Budget) is paid from
+// exactly one account (required workspaceId FK). Modeled as user-managed reference data like Tag —
+// name is unique (enforced case-insensitively in code), color is a palette hex with a default. The
+// FKs on the records are RESTRICT (Prisma default) so an account still holding records can't be
+// deleted from Settings.
+model Workspace {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  color     String
+  createdAt DateTime @default(now())
+
+  bills     Bill[]
+  contracts Contract[]
+  incomes   Income[]
+  budgets   Budget[]
 }
 
 // A free-form, colored label attached to entries (Bill/Contract/Income) for cross-cutting

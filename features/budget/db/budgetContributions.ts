@@ -37,9 +37,10 @@ export async function getBudgetContributions(budgetId: number): Promise<BudgetCo
   if (supplierCategoryIds.length) billOr.push({supplier: {categoryId: {in: supplierCategoryIds}}});
   if (itemCategoryIds.length) billOr.push({items: {some: {categoryId: {in: itemCategoryIds}}}});
 
+  // A budget belongs to one account (Phase 14), so only that account's bills/contracts contribute.
   const bills = billOr.length
     ? await client.bill.findMany({
-        where: {...(dateInWindow ? {date: dateInWindow} : {}), OR: billOr},
+        where: {workspaceId: budget.workspaceId, ...(dateInWindow ? {date: dateInWindow} : {}), OR: billOr},
         select: {id: true, date: true, totalAmount: true, supplier: {select: {name: true}}},
         orderBy: {date: "desc"},
         take: 100,
@@ -50,6 +51,7 @@ export async function getBudgetContributions(budgetId: number): Promise<BudgetCo
     ? await client.contract.findMany({
         where: {
           categoryId: {in: contractCategoryIds},
+          workspaceId: budget.workspaceId,
           ...(end ? {startDate: {lt: end}} : {}),
           ...(start ? {OR: [{endDate: null}, {endDate: {gte: start}}]} : {}),
         },

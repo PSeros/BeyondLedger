@@ -47,13 +47,12 @@ export default async function BillDetail({bill}: {bill: BillDetailData}) {
         {/* The supplier-category chip now lives in each surface's header, next to the supplier. */}
         <p className="text-3xl font-semibold tracking-tight tabular-nums">{format.number(bill.amount, "currency")}</p>
         <p className="mt-1 text-sm text-muted">{format.dateTime(new Date(bill.date), "long")}</p>
-        {bill.tags.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {bill.tags.map((tag) => (
-              <TagChip key={tag.id} name={tag.name} color={tag.color}/>
-            ))}
-          </div>
-        ) : null}
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <TagChip name={bill.workspace.name} color={bill.workspace.color}/>
+          {bill.tags.map((tag) => (
+            <TagChip key={tag.id} name={tag.name} color={tag.color}/>
+          ))}
+        </div>
       </div>
 
       {bill.notes ? (

@@ -6,6 +6,8 @@ export type ContractFilters = {
   supplierId?: number;
   categoryId?: number;
   frequencyId?: number;
+  // The active account (Workspace). Single value → equality. Undefined = "All accounts".
+  workspaceId?: number;
   // Match contracts carrying ANY of these tag ids. Empty/undefined = no filter.
   tagIds?: number[];
   // Lifecycle status is derived from startDate/endDate (see determineStatus), not stored,
@@ -41,6 +43,7 @@ export function buildContractWhere({
   supplierId,
   categoryId,
   frequencyId,
+  workspaceId,
   tagIds,
   status,
 }: ContractFilters = {}): Prisma.ContractWhereInput {
@@ -68,6 +71,10 @@ export function buildContractWhere({
 
   if (frequencyId != null) {
     clauses.push({frequencyId});
+  }
+
+  if (workspaceId != null) {
+    clauses.push({workspaceId});
   }
 
   if (tagIds != null && tagIds.length > 0) {

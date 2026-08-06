@@ -9,6 +9,7 @@ import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard"
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type FixedIncomePageProps = {
   searchParams: Promise<{
@@ -36,6 +37,7 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function FixedIncomePage({searchParams}: FixedIncomePageProps) {
   const params = await searchParams;
+  const activeWorkspaceId = await getActiveWorkspaceId();
   // Categorical filters feed every section (chart, upcoming, table). Status is table-only (chart +
   // upcoming are Active-by-nature).
   const filters = {
@@ -43,6 +45,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
     sourceId: parseId(params.sourceId),
     categoryId: parseId(params.categoryId),
     frequencyId: parseId(params.frequencyId),
+    workspaceId: activeWorkspaceId ?? undefined,
     tagIds: parseIds(params.tags),
   };
 
@@ -74,7 +77,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
             </div>
             <div className="min-h-0 flex-1 overflow-hidden">
               <Suspense>
-                <IncomeDataTable isRecurring={true}/>
+                <IncomeDataTable isRecurring={true} activeWorkspaceId={activeWorkspaceId}/>
               </Suspense>
             </div>
           </div>

@@ -33,6 +33,7 @@ export type ContractAvgAggregateOutputType = {
   totalAmount: runtime.Decimal | null
   frequencyId: number | null
   noticePeriod: number | null
+  workspaceId: number | null
 }
 
 export type ContractSumAggregateOutputType = {
@@ -42,6 +43,7 @@ export type ContractSumAggregateOutputType = {
   totalAmount: runtime.Decimal | null
   frequencyId: number | null
   noticePeriod: number | null
+  workspaceId: number | null
 }
 
 export type ContractMinAggregateOutputType = {
@@ -56,6 +58,7 @@ export type ContractMinAggregateOutputType = {
   endDate: Date | null
   noticePeriod: number | null
   createdAt: Date | null
+  workspaceId: number | null
 }
 
 export type ContractMaxAggregateOutputType = {
@@ -70,6 +73,7 @@ export type ContractMaxAggregateOutputType = {
   endDate: Date | null
   noticePeriod: number | null
   createdAt: Date | null
+  workspaceId: number | null
 }
 
 export type ContractCountAggregateOutputType = {
@@ -84,6 +88,7 @@ export type ContractCountAggregateOutputType = {
   endDate: number
   noticePeriod: number
   createdAt: number
+  workspaceId: number
   _all: number
 }
 
@@ -95,6 +100,7 @@ export type ContractAvgAggregateInputType = {
   totalAmount?: true
   frequencyId?: true
   noticePeriod?: true
+  workspaceId?: true
 }
 
 export type ContractSumAggregateInputType = {
@@ -104,6 +110,7 @@ export type ContractSumAggregateInputType = {
   totalAmount?: true
   frequencyId?: true
   noticePeriod?: true
+  workspaceId?: true
 }
 
 export type ContractMinAggregateInputType = {
@@ -118,6 +125,7 @@ export type ContractMinAggregateInputType = {
   endDate?: true
   noticePeriod?: true
   createdAt?: true
+  workspaceId?: true
 }
 
 export type ContractMaxAggregateInputType = {
@@ -132,6 +140,7 @@ export type ContractMaxAggregateInputType = {
   endDate?: true
   noticePeriod?: true
   createdAt?: true
+  workspaceId?: true
 }
 
 export type ContractCountAggregateInputType = {
@@ -146,6 +155,7 @@ export type ContractCountAggregateInputType = {
   endDate?: true
   noticePeriod?: true
   createdAt?: true
+  workspaceId?: true
   _all?: true
 }
 
@@ -247,6 +257,7 @@ export type ContractGroupByOutputType = {
   endDate: Date | null
   noticePeriod: number | null
   createdAt: Date
+  workspaceId: number
   _count: ContractCountAggregateOutputType | null
   _avg: ContractAvgAggregateOutputType | null
   _sum: ContractSumAggregateOutputType | null
@@ -284,9 +295,11 @@ export type ContractWhereInput = {
   endDate?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   noticePeriod?: Prisma.IntNullableFilter<"Contract"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Contract"> | number
   category?: Prisma.XOR<Prisma.ContractCategoryScalarRelationFilter, Prisma.ContractCategoryWhereInput>
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   files?: Prisma.FileAssetListRelationFilter
   tags?: Prisma.EntryTagListRelationFilter
 }
@@ -303,9 +316,11 @@ export type ContractOrderByWithRelationInput = {
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   noticePeriod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   category?: Prisma.ContractCategoryOrderByWithRelationInput
   supplier?: Prisma.SupplierOrderByWithRelationInput
   frequency?: Prisma.FrequencyOrderByWithRelationInput
+  workspace?: Prisma.WorkspaceOrderByWithRelationInput
   files?: Prisma.FileAssetOrderByRelationAggregateInput
   tags?: Prisma.EntryTagOrderByRelationAggregateInput
 }
@@ -325,9 +340,11 @@ export type ContractWhereUniqueInput = Prisma.AtLeast<{
   endDate?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   noticePeriod?: Prisma.IntNullableFilter<"Contract"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Contract"> | number
   category?: Prisma.XOR<Prisma.ContractCategoryScalarRelationFilter, Prisma.ContractCategoryWhereInput>
   supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
+  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   files?: Prisma.FileAssetListRelationFilter
   tags?: Prisma.EntryTagListRelationFilter
 }, "id">
@@ -344,6 +361,7 @@ export type ContractOrderByWithAggregationInput = {
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   noticePeriod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
   _count?: Prisma.ContractCountOrderByAggregateInput
   _avg?: Prisma.ContractAvgOrderByAggregateInput
   _max?: Prisma.ContractMaxOrderByAggregateInput
@@ -366,6 +384,7 @@ export type ContractScalarWhereWithAggregatesInput = {
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
   noticePeriod?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Contract"> | Date | string
+  workspaceId?: Prisma.IntWithAggregatesFilter<"Contract"> | number
 }
 
 export type ContractCreateInput = {
@@ -379,6 +398,7 @@ export type ContractCreateInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
@@ -395,6 +415,7 @@ export type ContractUncheckedCreateInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
@@ -410,6 +431,7 @@ export type ContractUpdateInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
@@ -426,6 +448,7 @@ export type ContractUncheckedUpdateInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
@@ -442,6 +465,7 @@ export type ContractCreateManyInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
 }
 
 export type ContractUpdateManyMutationInput = {
@@ -466,6 +490,7 @@ export type ContractUncheckedUpdateManyInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ContractListRelationFilter = {
@@ -490,6 +515,7 @@ export type ContractCountOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   noticePeriod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type ContractAvgOrderByAggregateInput = {
@@ -499,6 +525,7 @@ export type ContractAvgOrderByAggregateInput = {
   totalAmount?: Prisma.SortOrder
   frequencyId?: Prisma.SortOrder
   noticePeriod?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type ContractMaxOrderByAggregateInput = {
@@ -513,6 +540,7 @@ export type ContractMaxOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   noticePeriod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type ContractMinOrderByAggregateInput = {
@@ -527,6 +555,7 @@ export type ContractMinOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   noticePeriod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type ContractSumOrderByAggregateInput = {
@@ -536,6 +565,7 @@ export type ContractSumOrderByAggregateInput = {
   totalAmount?: Prisma.SortOrder
   frequencyId?: Prisma.SortOrder
   noticePeriod?: Prisma.SortOrder
+  workspaceId?: Prisma.SortOrder
 }
 
 export type ContractNullableScalarRelationFilter = {
@@ -689,6 +719,48 @@ export type ContractUpdateOneWithoutFilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutFilesInput, Prisma.ContractUpdateWithoutFilesInput>, Prisma.ContractUncheckedUpdateWithoutFilesInput>
 }
 
+export type ContractCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput> | Prisma.ContractCreateWithoutWorkspaceInput[] | Prisma.ContractUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutWorkspaceInput | Prisma.ContractCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.ContractCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutWorkspaceInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput> | Prisma.ContractCreateWithoutWorkspaceInput[] | Prisma.ContractUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutWorkspaceInput | Prisma.ContractCreateOrConnectWithoutWorkspaceInput[]
+  createMany?: Prisma.ContractCreateManyWorkspaceInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput> | Prisma.ContractCreateWithoutWorkspaceInput[] | Prisma.ContractUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutWorkspaceInput | Prisma.ContractCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.ContractUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.ContractCreateManyWorkspaceInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.ContractUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutWorkspaceInput | Prisma.ContractUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput> | Prisma.ContractCreateWithoutWorkspaceInput[] | Prisma.ContractUncheckedCreateWithoutWorkspaceInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutWorkspaceInput | Prisma.ContractCreateOrConnectWithoutWorkspaceInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.ContractUpsertWithWhereUniqueWithoutWorkspaceInput[]
+  createMany?: Prisma.ContractCreateManyWorkspaceInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.ContractUpdateWithWhereUniqueWithoutWorkspaceInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutWorkspaceInput | Prisma.ContractUpdateManyWithWhereWithoutWorkspaceInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
 export type ContractCreateNestedOneWithoutTagsInput = {
   create?: Prisma.XOR<Prisma.ContractCreateWithoutTagsInput, Prisma.ContractUncheckedCreateWithoutTagsInput>
   connectOrCreate?: Prisma.ContractCreateOrConnectWithoutTagsInput
@@ -715,6 +787,7 @@ export type ContractCreateWithoutCategoryInput = {
   createdAt?: Date | string
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
@@ -730,6 +803,7 @@ export type ContractUncheckedCreateWithoutCategoryInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
@@ -774,6 +848,7 @@ export type ContractScalarWhereInput = {
   endDate?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   noticePeriod?: Prisma.IntNullableFilter<"Contract"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
+  workspaceId?: Prisma.IntFilter<"Contract"> | number
 }
 
 export type ContractCreateWithoutSupplierInput = {
@@ -786,6 +861,7 @@ export type ContractCreateWithoutSupplierInput = {
   createdAt?: Date | string
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
@@ -801,6 +877,7 @@ export type ContractUncheckedCreateWithoutSupplierInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
@@ -840,6 +917,7 @@ export type ContractCreateWithoutFrequencyInput = {
   createdAt?: Date | string
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
@@ -855,6 +933,7 @@ export type ContractUncheckedCreateWithoutFrequencyInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
@@ -895,6 +974,7 @@ export type ContractCreateWithoutFilesInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
 }
 
@@ -910,6 +990,7 @@ export type ContractUncheckedCreateWithoutFilesInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
 }
 
@@ -940,6 +1021,7 @@ export type ContractUpdateWithoutFilesInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
 
@@ -955,7 +1037,64 @@ export type ContractUncheckedUpdateWithoutFilesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutWorkspaceInput = {
+  name: string
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate: Date | string
+  endDate?: Date | string | null
+  noticePeriod?: number | null
+  createdAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
+  frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutWorkspaceInput = {
+  id?: number
+  name: string
+  categoryId: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  noticePeriod?: number | null
+  createdAt?: Date | string
+  files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
+  tags?: Prisma.EntryTagUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutWorkspaceInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type ContractCreateManyWorkspaceInputEnvelope = {
+  data: Prisma.ContractCreateManyWorkspaceInput | Prisma.ContractCreateManyWorkspaceInput[]
+}
+
+export type ContractUpsertWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutWorkspaceInput, Prisma.ContractUncheckedUpdateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutWorkspaceInput, Prisma.ContractUncheckedCreateWithoutWorkspaceInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutWorkspaceInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutWorkspaceInput, Prisma.ContractUncheckedUpdateWithoutWorkspaceInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutWorkspaceInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutWorkspaceInput>
 }
 
 export type ContractCreateWithoutTagsInput = {
@@ -969,6 +1108,7 @@ export type ContractCreateWithoutTagsInput = {
   category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
   supplier: Prisma.SupplierCreateNestedOneWithoutContractsInput
   frequency: Prisma.FrequencyCreateNestedOneWithoutContractsInput
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutContractsInput
   files?: Prisma.FileAssetCreateNestedManyWithoutContractInput
 }
 
@@ -984,6 +1124,7 @@ export type ContractUncheckedCreateWithoutTagsInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
   files?: Prisma.FileAssetUncheckedCreateNestedManyWithoutContractInput
 }
 
@@ -1014,6 +1155,7 @@ export type ContractUpdateWithoutTagsInput = {
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
 }
 
@@ -1029,6 +1171,7 @@ export type ContractUncheckedUpdateWithoutTagsInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
 }
 
@@ -1043,6 +1186,7 @@ export type ContractCreateManyCategoryInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
 }
 
 export type ContractUpdateWithoutCategoryInput = {
@@ -1055,6 +1199,7 @@ export type ContractUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
@@ -1070,6 +1215,7 @@ export type ContractUncheckedUpdateWithoutCategoryInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
@@ -1085,6 +1231,7 @@ export type ContractUncheckedUpdateManyWithoutCategoryInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ContractCreateManySupplierInput = {
@@ -1098,6 +1245,7 @@ export type ContractCreateManySupplierInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
 }
 
 export type ContractUpdateWithoutSupplierInput = {
@@ -1110,6 +1258,7 @@ export type ContractUpdateWithoutSupplierInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
@@ -1125,6 +1274,7 @@ export type ContractUncheckedUpdateWithoutSupplierInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
@@ -1140,6 +1290,7 @@ export type ContractUncheckedUpdateManyWithoutSupplierInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ContractCreateManyFrequencyInput = {
@@ -1153,6 +1304,7 @@ export type ContractCreateManyFrequencyInput = {
   endDate?: Date | string | null
   noticePeriod?: number | null
   createdAt?: Date | string
+  workspaceId: number
 }
 
 export type ContractUpdateWithoutFrequencyInput = {
@@ -1165,6 +1317,7 @@ export type ContractUpdateWithoutFrequencyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutContractsNestedInput
   files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
 }
@@ -1180,6 +1333,7 @@ export type ContractUncheckedUpdateWithoutFrequencyInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
   files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
   tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
 }
@@ -1191,6 +1345,66 @@ export type ContractUncheckedUpdateManyWithoutFrequencyInput = {
   supplierId?: Prisma.IntFieldUpdateOperationsInput | number
   documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ContractCreateManyWorkspaceInput = {
+  id?: number
+  name: string
+  categoryId: number
+  supplierId: number
+  documentNumber?: string | null
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId: number
+  startDate: Date | string
+  endDate?: Date | string | null
+  noticePeriod?: number | null
+  createdAt?: Date | string
+}
+
+export type ContractUpdateWithoutWorkspaceInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutContractsNestedInput
+  frequency?: Prisma.FrequencyUpdateOneRequiredWithoutContractsNestedInput
+  files?: Prisma.FileAssetUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutWorkspaceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  files?: Prisma.FileAssetUncheckedUpdateManyWithoutContractNestedInput
+  tags?: Prisma.EntryTagUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutWorkspaceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  supplierId?: Prisma.IntFieldUpdateOperationsInput | number
+  documentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  frequencyId?: Prisma.IntFieldUpdateOperationsInput | number
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   noticePeriod?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1249,9 +1463,11 @@ export type ContractSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   endDate?: boolean
   noticePeriod?: boolean
   createdAt?: boolean
+  workspaceId?: boolean
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   files?: boolean | Prisma.Contract$filesArgs<ExtArgs>
   tags?: boolean | Prisma.Contract$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
@@ -1269,9 +1485,11 @@ export type ContractSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   endDate?: boolean
   noticePeriod?: boolean
   createdAt?: boolean
+  workspaceId?: boolean
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
 export type ContractSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1286,9 +1504,11 @@ export type ContractSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   endDate?: boolean
   noticePeriod?: boolean
   createdAt?: boolean
+  workspaceId?: boolean
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
 export type ContractSelectScalar = {
@@ -1303,13 +1523,15 @@ export type ContractSelectScalar = {
   endDate?: boolean
   noticePeriod?: boolean
   createdAt?: boolean
+  workspaceId?: boolean
 }
 
-export type ContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "categoryId" | "supplierId" | "documentNumber" | "totalAmount" | "frequencyId" | "startDate" | "endDate" | "noticePeriod" | "createdAt", ExtArgs["result"]["contract"]>
+export type ContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "categoryId" | "supplierId" | "documentNumber" | "totalAmount" | "frequencyId" | "startDate" | "endDate" | "noticePeriod" | "createdAt" | "workspaceId", ExtArgs["result"]["contract"]>
 export type ContractInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   files?: boolean | Prisma.Contract$filesArgs<ExtArgs>
   tags?: boolean | Prisma.Contract$tagsArgs<ExtArgs>
   _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
@@ -1318,11 +1540,13 @@ export type ContractIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 export type ContractIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   frequency?: boolean | Prisma.FrequencyDefaultArgs<ExtArgs>
+  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }
 
 export type $ContractPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1331,6 +1555,7 @@ export type $ContractPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     category: Prisma.$ContractCategoryPayload<ExtArgs>
     supplier: Prisma.$SupplierPayload<ExtArgs>
     frequency: Prisma.$FrequencyPayload<ExtArgs>
+    workspace: Prisma.$WorkspacePayload<ExtArgs>
     files: Prisma.$FileAssetPayload<ExtArgs>[]
     tags: Prisma.$EntryTagPayload<ExtArgs>[]
   }
@@ -1346,6 +1571,7 @@ export type $ContractPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     endDate: Date | null
     noticePeriod: number | null
     createdAt: Date
+    workspaceId: number
   }, ExtArgs["result"]["contract"]>
   composites: {}
 }
@@ -1743,6 +1969,7 @@ export interface Prisma__ContractClient<T, Null = never, ExtArgs extends runtime
   category<T extends Prisma.ContractCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContractCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ContractCategoryClient<runtime.Types.Result.GetResult<Prisma.$ContractCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   frequency<T extends Prisma.FrequencyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FrequencyDefaultArgs<ExtArgs>>): Prisma.Prisma__FrequencyClient<runtime.Types.Result.GetResult<Prisma.$FrequencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   files<T extends Prisma.Contract$filesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$filesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FileAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tags<T extends Prisma.Contract$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EntryTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1785,6 +2012,7 @@ export interface ContractFieldRefs {
   readonly endDate: Prisma.FieldRef<"Contract", 'DateTime'>
   readonly noticePeriod: Prisma.FieldRef<"Contract", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly workspaceId: Prisma.FieldRef<"Contract", 'Int'>
 }
     
 

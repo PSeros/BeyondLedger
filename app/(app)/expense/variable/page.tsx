@@ -9,6 +9,7 @@ import BillChartCard from "@/features/expense/variable/components/BillChartCard"
 import BillTopKCard from "@/features/expense/variable/components/BillTopKCard";
 import ExpenseEmptyState from "@/features/expense/shared/components/ExpenseEmptyState";
 import {getBillCount} from "@/features/expense/variable/db/billTableData";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type VariablePageProps = {
   searchParams: Promise<{
@@ -42,6 +43,9 @@ function parseIsoDate(value?: string): string | undefined {
 
 export default async function VariablePage({searchParams}: VariablePageProps) {
   const params = await searchParams;
+  // The active account (Phase 14) comes from the persisted AppSettings singleton, not the URL — it's
+  // a global switcher. null = "All accounts" → no filter. It applies to every section.
+  const activeWorkspaceId = await getActiveWorkspaceId();
   // Categorical filters apply to every section (table, chart, top-k). The date range
   // applies to the table + top-k only — never the chart (see billChartData).
   const categoricalFilters = {
@@ -49,6 +53,7 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
     supplierId: parseId(params.supplierId),
     supplierCategoryId: parseId(params.supplierCategoryId),
     itemCategoryId: parseId(params.itemCategoryId),
+    workspaceId: activeWorkspaceId ?? undefined,
     tagIds: parseIds(params.tags),
   };
   const topKFilters = {
@@ -85,7 +90,7 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
             </div>
             <div className="min-h-0 flex-1 overflow-hidden">
               <Suspense>
-                <BillTable/>
+                <BillTable activeWorkspaceId={activeWorkspaceId}/>
               </Suspense>
             </div>
           </div>

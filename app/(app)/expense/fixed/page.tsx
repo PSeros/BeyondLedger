@@ -9,6 +9,7 @@ import ContractChartCard from "@/features/expense/fixed/components/ContractChart
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
 import ExpenseEmptyState from "@/features/expense/shared/components/ExpenseEmptyState";
 import {getContractCount} from "@/features/expense/fixed/db/contractTableData";
+import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type FixedPageProps = {
   searchParams: Promise<{
@@ -36,11 +37,13 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function FixedPage({searchParams}: FixedPageProps) {
   const params = await searchParams;
+  const activeWorkspaceId = await getActiveWorkspaceId();
   const filters = {
     q: params.q,
     supplierId: parseId(params.supplierId),
     categoryId: parseId(params.categoryId),
     frequencyId: parseId(params.frequencyId),
+    workspaceId: activeWorkspaceId ?? undefined,
     tagIds: parseIds(params.tags),
   };
 
@@ -72,7 +75,7 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
             </div>
             <div className="min-h-0 flex-1 overflow-hidden">
               <Suspense>
-                <ContractTable/>
+                <ContractTable activeWorkspaceId={activeWorkspaceId}/>
               </Suspense>
             </div>
           </div>

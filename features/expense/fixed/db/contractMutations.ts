@@ -11,6 +11,7 @@ import {
   requireString,
 } from "@/features/expense/shared/db/formData";
 import {parseTagIds} from "@/features/tags/tagFormData";
+import {parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
 
 // Reads and validates the Contract's own fields from the form. Shared by create + update.
 function parseContractData(formData: FormData) {
@@ -24,6 +25,7 @@ function parseContractData(formData: FormData) {
     supplierId: requireId(formData, "supplierId"),
     categoryId: requireId(formData, "categoryId"),
     frequencyId: requireId(formData, "frequencyId"),
+    workspaceId: parseWorkspaceId(formData),
     documentNumber: optionalString(formData, "documentNumber"),
     totalAmount: amount,
     startDate: requireDate(formData, "startDate"),

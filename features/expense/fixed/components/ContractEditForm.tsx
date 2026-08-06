@@ -8,6 +8,7 @@ import {updateContract} from "@/features/expense/fixed/db/contractMutations";
 import {SelectField, TextInputField} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createContractCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {ContractDetailData} from "@/features/expense/fixed/db/contractDetail";
@@ -69,6 +70,7 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
           onCreate={createContractCategory}
         />
         <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
+        <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(contract.workspaceId)}/>
         <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date" defaultValue={contract.endDate?.slice(0, 10) ?? ""}/>

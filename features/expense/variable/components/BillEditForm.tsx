@@ -12,6 +12,7 @@ import BillItemsEditor, {
 } from "@/features/expense/shared/components/BillItemsEditor";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import SupplierSelectField from "@/features/expense/shared/components/SupplierSelectField";
+import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createItemCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {BillDetailData} from "@/features/expense/variable/db/billDetail";
@@ -66,6 +67,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
           supplierCategories={options.supplierCategories}
           defaultValue={String(bill.supplierId)}
         />
+        <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(bill.workspaceId)}/>
         <TextInputField label={t("date")} name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>
         <TextInputField label={t("documentNumber")} name="documentNumber" defaultValue={bill.documentNumber ?? ""}/>
         {/* Amount is auto-summed from the items below when there are any; only a bill left with no
