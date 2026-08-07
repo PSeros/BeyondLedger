@@ -2,7 +2,7 @@
 
 import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
-import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip} from "recharts";
+import {Cell, Pie, PieChart, Tooltip} from "recharts";
 import type {PieLabelRenderProps} from "recharts";
 import {collapseSmall, sliceColor, type DonutSlice} from "@/features/dashboard/lib/donut";
 
@@ -30,7 +30,16 @@ function renderArcLabel(props: PieLabelRenderProps) {
   const x = cx + r * Math.cos(-midAngle * RADIAN);
   const y = cy + r * Math.sin(-midAngle * RADIAN);
   return (
-    <text x={x} y={y} fill="white" fontSize="0.7rem" fontWeight={600} textAnchor="middle" dominantBaseline="central">
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      fontSize="0.7rem"
+      fontWeight={600}
+      textAnchor="middle"
+      dominantBaseline="central"
+      style={{pointerEvents: "none"}}
+    >
       {Math.round(percent * 100)}%
     </text>
   );
@@ -58,8 +67,16 @@ export default function HalfDonutCard({title, rows}: {title: string; rows: Donut
         ) : (
           <div className="flex w-64 flex-col items-center gap-4">
             <div className="relative h-36 w-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+              {/* Total sits in the arc's mouth, BEHIND the z-10 chart wrapper so the hover tooltip
+                  (part of the chart) always draws above it; it shows through the transparent mouth. */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center">
+                <span className="text-xs text-muted">{t("total")}</span>
+                <span className="text-lg font-semibold tabular-nums">{format.number(total, "currencyWhole")}</span>
+              </div>
+              <div className="relative z-10">
+                {/* Explicit pixel size (w-64 = 256, h-36 = 144) — no ResponsiveContainer, which
+                    reported width/height −1 while measuring inside the w-fit/flex card. */}
+                <PieChart width={256} height={144}>
                   <Pie
                     data={slices}
                     dataKey="amount"
@@ -81,14 +98,11 @@ export default function HalfDonutCard({title, rows}: {title: string; rows: Donut
                     ))}
                   </Pie>
                   <Tooltip
+                    wrapperStyle={{zIndex: 20}}
                     contentStyle={tooltipStyle}
                     formatter={(value, name) => [format.number(Number(value), "currencyWhole"), name]}
                   />
                 </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center">
-                <span className="text-xs text-muted">{t("total")}</span>
-                <span className="text-lg font-semibold tabular-nums">{format.number(total, "currencyWhole")}</span>
               </div>
             </div>
 

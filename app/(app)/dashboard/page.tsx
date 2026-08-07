@@ -73,7 +73,7 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
 
       {/* Composition half-donuts: variable spend by category + monthly fixed costs by contract
           category. Content-width cards, so they sit side by side and wrap on narrow screens. */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         <Suspense fallback={<Card className="h-64 w-72 animate-pulse"/>}>
           <DashboardCategoryDonut workspaceId={activeWorkspaceId}/>
         </Suspense>
