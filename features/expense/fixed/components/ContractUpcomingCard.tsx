@@ -11,7 +11,7 @@ export default async function ContractUpcomingCard({withinDays = 30, ...filters}
 
   return (
     <UpcomingDueCard
-      title={t("titleDays", {days: withinDays})}
+      title={t("titleExpensesDays", {days: withinDays})}
       rows={rows}
       windowDays={withinDays}
       basePath="/expense/fixed"

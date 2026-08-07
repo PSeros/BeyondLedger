@@ -58,10 +58,10 @@ export default function HalfDonutCard({title, rows}: {title: string; rows: Donut
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
-      <Card.Header>
+      <Card.Header className="pb-0">
         <p className="text-sm">{title}</p>
       </Card.Header>
-      <Card.Content className="flex flex-1 flex-col items-center justify-center pt-2">
+      <Card.Content className="flex flex-1 flex-col items-center justify-start pt-0">
         {slices.length === 0 ? (
           <p className="w-64 py-12 text-center text-sm text-muted">{tCommon("noData")}</p>
         ) : (

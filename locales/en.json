@@ -88,7 +88,8 @@
     "dueToday": "Due today",
     "dueTomorrow": "Due tomorrow",
     "dueInDays": "in {days} days",
-    "titleDays": "Upcoming ({days} days)"
+    "titleExpensesDays": "Upcoming payments ({days} days)",
+    "titleIncomeDays": "Upcoming income ({days} days)"
   },
   "fields": {
     "name": "Name",
@@ -383,8 +384,8 @@
     "weekNumber": "CW {week}"
   },
   "categoryChart": {
-    "title": "Spending by category",
-    "monthlyFixedTitle": "Monthly fixed costs",
+    "title": "Variable spending by category",
+    "monthlyFixedTitle": "Fixed costs by category (monthly)",
     "other": "Other",
     "total": "Total"
   }

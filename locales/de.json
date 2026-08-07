@@ -88,7 +88,8 @@
     "dueToday": "Heute fällig",
     "dueTomorrow": "Morgen fällig",
     "dueInDays": "in {days} Tagen",
-    "titleDays": "Bevorstehend ({days} Tage)"
+    "titleExpensesDays": "Anstehende Zahlungen ({days} Tage)",
+    "titleIncomeDays": "Erwartete Einnahmen ({days} Tage)"
   },
   "fields": {
     "name": "Name",
@@ -383,8 +384,8 @@
     "weekNumber": "KW {week}"
   },
   "categoryChart": {
-    "title": "Ausgaben nach Kategorie",
-    "monthlyFixedTitle": "Monatliche Fixkosten",
+    "title": "Variable Ausgaben nach Kategorie",
+    "monthlyFixedTitle": "Fixkosten nach Kategorie (monatlich)",
     "other": "Sonstige",
     "total": "Gesamt"
   }
