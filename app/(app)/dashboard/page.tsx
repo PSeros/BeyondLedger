@@ -52,7 +52,7 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
   const cardFallback = <Card className="h-56 animate-pulse"/>;
 
   return (
-    <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
+    <div className="mt-4 h-full min-h-0 space-y-8 overflow-y-auto pb-8 [scrollbar-gutter:stable]">
       {/* Headline: warranties about to expire (full width). Renders nothing when none are due, so
           its Suspense uses a null fallback — no placeholder flash before it resolves to empty. */}
       <Suspense fallback={null}>
