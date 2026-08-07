@@ -381,5 +381,11 @@
     "next": "Nächster Zeitraum",
     "current": "Zurück zum aktuellen Zeitraum",
     "weekNumber": "KW {week}"
+  },
+  "categoryChart": {
+    "title": "Ausgaben nach Kategorie",
+    "monthlyFixedTitle": "Monatliche Fixkosten",
+    "other": "Sonstige",
+    "total": "Gesamt"
   }
 }

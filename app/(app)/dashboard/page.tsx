@@ -8,6 +8,8 @@ import {getBudgetCount} from "@/features/budget/db/budgets";
 import WarrantyAlertCard from "@/features/dashboard/components/WarrantyAlertCard";
 import DashboardKpis from "@/features/dashboard/components/DashboardKpis";
 import CashFlowCards from "@/features/dashboard/components/CashFlowCards";
+import DashboardCategoryDonut from "@/features/dashboard/components/DashboardCategoryDonut";
+import DashboardContractDonut from "@/features/dashboard/components/DashboardContractDonut";
 import BudgetStatusCard from "@/features/dashboard/components/BudgetStatusCard";
 import DashboardEmptyState from "@/features/dashboard/components/DashboardEmptyState";
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
@@ -68,6 +70,17 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
       <Suspense fallback={cardFallback}>
         <CashFlowCards workspaceId={activeWorkspaceId} offset={chartOffset}/>
       </Suspense>
+
+      {/* Composition half-donuts: variable spend by category + monthly fixed costs by contract
+          category. Content-width cards, so they sit side by side and wrap on narrow screens. */}
+      <div className="flex flex-wrap gap-4">
+        <Suspense fallback={<Card className="h-64 w-72 animate-pulse"/>}>
+          <DashboardCategoryDonut workspaceId={activeWorkspaceId}/>
+        </Suspense>
+        <Suspense fallback={<Card className="h-64 w-72 animate-pulse"/>}>
+          <DashboardContractDonut workspaceId={activeWorkspaceId}/>
+        </Suspense>
+      </div>
 
       {/* Upcoming due + budget status. */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

@@ -381,5 +381,11 @@
     "next": "Next period",
     "current": "Back to current period",
     "weekNumber": "CW {week}"
+  },
+  "categoryChart": {
+    "title": "Spending by category",
+    "monthlyFixedTitle": "Monthly fixed costs",
+    "other": "Other",
+    "total": "Total"
   }
 }
