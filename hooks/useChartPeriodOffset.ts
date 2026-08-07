@@ -9,9 +9,11 @@ type Granularity = "1W" | "1M" | "1Y";
 
 // Drives the chart period navigator (?co=<int>). The offset is "N periods back/forward" in the
 // currently-selected granularity's own unit — the server emits every granularity's series shifted by
-// N of its unit, so switching 1W/1M/1Y stays an instant client toggle while the same offset keeps its
-// meaning. Returns the formatted label for the *current* granularity, whether we're on the current
-// period (reveals the reset affordance), and step/reset writers mirroring BudgetSearchField's ?q.
+// N of its unit. Because the same integer means a different span per unit, the consumer resets the
+// offset when the user switches 1W/1M/1Y (so "−4 months" doesn't silently become "−4 years"); within
+// a unit, switching granularity otherwise stays an instant client toggle. Returns the formatted label
+// for the *current* granularity, whether we're on the current period (reveals the reset affordance),
+// and step/reset writers mirroring BudgetSearchField's ?q.
 export function useChartPeriodOffset(granularity: Granularity) {
   const router = useRouter();
   const pathname = usePathname();

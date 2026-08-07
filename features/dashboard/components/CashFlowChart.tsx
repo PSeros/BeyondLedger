@@ -37,6 +37,15 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
   const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1M");
   const period = useChartPeriodOffset(granularity);
 
+  // Switching the unit resets the navigator to the current period: the ?co offset is expressed in the
+  // selected granularity's own unit, so carrying "−4" from months into years would silently mean 4
+  // years back. Re-clicking the active unit keeps your position.
+  function selectGranularity(next: Granularity) {
+    if (next === granularity) return;
+    setGranularity(next);
+    if (!period.isCurrent) period.reset();
+  }
+
   const points = useMemo<MergedPoint[]>(() => {
     const inc = income[granularity] ?? [];
     const exp = expense[granularity] ?? [];
@@ -96,7 +105,7 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
                 <Button
                   key={g}
                   variant={granularity === g ? "secondary" : "tertiary"}
-                  onPress={() => setGranularity(g)}
+                  onPress={() => selectGranularity(g)}
                 >
                   {g}
                 </Button>

@@ -71,6 +71,15 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
   const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1W");
   const period = useChartPeriodOffset(granularity);
 
+  // Switching the unit resets the navigator to the current period: the ?co offset is expressed in the
+  // selected granularity's own unit, so carrying "−4" from months into years would silently mean 4
+  // years back. Re-clicking the active unit keeps your position.
+  function selectGranularity(next: Granularity) {
+    if (next === granularity) return;
+    setGranularity(next);
+    if (!period.isCurrent) period.reset();
+  }
+
   const points = useMemo(() => source[granularity] ?? [], [source, granularity]);
 
   const {current, previous, changePercent} = useMemo(() => {
@@ -127,7 +136,7 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
                 <Button
                   key={item}
                   variant={granularity === item ? "secondary" : "tertiary"}
-                  onPress={() => setGranularity(item)}
+                  onPress={() => selectGranularity(item)}
                 >
                   {item}
                 </Button>
