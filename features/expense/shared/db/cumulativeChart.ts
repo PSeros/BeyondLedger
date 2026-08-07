@@ -25,6 +25,16 @@ export function utcDate(year: number, month: number, day: number): Date {
   return new Date(Date.UTC(year, month, day));
 }
 
+// ISO-8601 calendar week number (weeks start Monday; week 1 is the one containing the year's first
+// Thursday). Used for the "KW 33" period-navigator label.
+export function isoWeek(date: Date): number {
+  const d = utcDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  const dayNum = d.getUTCDay() || 7; // Mon=1 .. Sun=7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum); // shift onto this week's Thursday
+  const yearStart = utcDate(d.getUTCFullYear(), 0, 1);
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
 export function addDays(date: Date, days: number): Date {
   return new Date(date.getTime() + days * MS_PER_DAY);
 }

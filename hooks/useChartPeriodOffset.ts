@@ -3,7 +3,7 @@
 import {startTransition, useEffect, useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {addDays, addMonths, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {addDays, addMonths, isoWeek, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 
 type Granularity = "1W" | "1M" | "1Y";
 
@@ -40,9 +40,7 @@ export function useChartPeriodOffset(granularity: Granularity) {
 
   let label: string;
   if (granularity === "1W") {
-    const anchor = addDays(today, offset * 7);
-    const weekStart = addDays(anchor, -((anchor.getUTCDay() + 6) % 7));
-    label = t("weekOf", {date: format.dateTime(weekStart, {day: "numeric", month: "short", timeZone: "UTC"})});
+    label = t("weekNumber", {week: isoWeek(addDays(today, offset * 7))});
   } else if (granularity === "1Y") {
     const anchor = utcDate(today.getUTCFullYear() + offset, 0, 1);
     label = format.dateTime(anchor, {year: "numeric", timeZone: "UTC"});

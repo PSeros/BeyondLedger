@@ -372,6 +372,6 @@
     "prev": "Previous period",
     "next": "Next period",
     "current": "Back to current period",
-    "weekOf": "Week of {date}"
+    "weekNumber": "CW {week}"
   }
 }
