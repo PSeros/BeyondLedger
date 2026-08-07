@@ -339,7 +339,13 @@
     "emptyTitle": "No budgets yet",
     "emptyText": "Create a budget to track spending across any mix of categories against a target.",
     "noResults": "No budgets match your search or filters.",
-    "entityLabel": "budget"
+    "entityLabel": "budget",
+    "chartTitle": "Budgets at a glance",
+    "chartActual": "Spent",
+    "chartTarget": "Target",
+    "chartRemaining": "Remaining",
+    "chartOverspend": "Over budget",
+    "chartUtilization": "Budget used"
   },
   "tags": {
     "title": "Tags",

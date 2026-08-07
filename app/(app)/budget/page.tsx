@@ -6,6 +6,7 @@ import BudgetCard from "@/features/budget/components/BudgetCard";
 import BudgetEmptyState from "@/features/budget/components/BudgetEmptyState";
 import BudgetPeriodNavigator from "@/features/budget/components/BudgetPeriodNavigator";
 import BudgetSearchField from "@/features/budget/components/BudgetSearchField";
+import BudgetBarChart from "@/features/budget/components/BudgetBarChart";
 import {getBudgetCount, getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
 import {BUDGET_PERIOD_TYPES, parseMonthAnchor} from "@/features/budget/period";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
@@ -68,10 +69,13 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
         ) : filtered.length === 0 ? (
           <p className="text-muted py-16 text-center text-sm">{t("noResults")}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((budget) => (
-              <BudgetCard key={budget.id} budget={budget} options={options}/>
-            ))}
+          <div className="flex flex-col gap-4">
+            <BudgetBarChart budgets={filtered}/>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+              {filtered.map((budget) => (
+                <BudgetCard key={budget.id} budget={budget} options={options}/>
+              ))}
+            </div>
           </div>
         )}
       </div>
