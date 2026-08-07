@@ -72,7 +72,7 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
           • a footer of the two upcoming lists + budget status (three 2-col tiles)
         On < lg it folds to a 2-column bento.
       */}
-      <div className="grid grid-flow-row-dense auto-rows-[7.5rem] grid-cols-2 gap-4 lg:grid-cols-6">
+      <div className="grid grid-flow-row-dense auto-rows-[6rem] grid-cols-2 gap-4 lg:grid-cols-6">
         {/* KPI strip: money in / out / net, this month vs. last (renders three grid cells). */}
         <Suspense fallback={<div className="col-span-2 lg:col-span-6">{tileFallback}</div>}>
           <DashboardKpis workspaceId={activeWorkspaceId}/>

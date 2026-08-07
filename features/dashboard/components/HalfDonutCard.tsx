@@ -65,59 +65,46 @@ export default function HalfDonutCard({title, rows}: {title: string; rows: Donut
         {slices.length === 0 ? (
           <p className="w-64 py-12 text-center text-sm text-muted">{tCommon("noData")}</p>
         ) : (
-          <div className="flex w-64 flex-col items-center gap-4">
-            <div className="relative h-36 w-64">
-              {/* Total sits in the arc's mouth, BEHIND the z-10 chart wrapper so the hover tooltip
-                  (part of the chart) always draws above it; it shows through the transparent mouth. */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center">
-                <span className="text-xs text-muted">{t("total")}</span>
-                <span className="text-lg font-semibold tabular-nums">{format.number(total, "currencyWhole")}</span>
-              </div>
-              <div className="relative z-10">
-                {/* Explicit pixel size (w-64 = 256, h-36 = 144) — no ResponsiveContainer, which
-                    reported width/height −1 while measuring inside the w-fit/flex card. */}
-                <PieChart width={256} height={144}>
-                  <Pie
-                    data={slices}
-                    dataKey="amount"
-                    nameKey="label"
-                    cx="50%"
-                    cy="100%"
-                    startAngle={180}
-                    endAngle={0}
-                    innerRadius="120%"
-                    outerRadius="170%"
-                    paddingAngle={2}
-                    cornerRadius={8}
-                    stroke="none"
-                    labelLine={false}
-                    label={renderArcLabel}
-                  >
-                    {slices.map((row, index) => (
-                      <Cell key={row.id} fill={sliceColor(row, index)}/>
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    wrapperStyle={{zIndex: 20}}
-                    contentStyle={tooltipStyle}
-                    formatter={(value, name) => [format.number(Number(value), "currencyWhole"), name]}
-                  />
-                </PieChart>
-              </div>
+          // No legend — it made the card too tall to stack two beside the chart. Slice identity
+          // lives in the hover tooltip (name + amount); the % sits on each arc.
+          <div className="relative h-32 w-56">
+            {/* Total sits in the arc's mouth, BEHIND the z-10 chart wrapper so the hover tooltip
+                (part of the chart) always draws above it; it shows through the transparent mouth. */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center">
+              <span className="text-xs text-muted">{t("total")}</span>
+              <span className="text-lg font-semibold tabular-nums">{format.number(total, "currencyWhole")}</span>
             </div>
-
-            <ul className="flex flex-wrap justify-center gap-x-3 gap-y-1.5">
-              {slices.map((row, index) => {
-                const pct = total > 0 ? (row.amount / total) * 100 : 0;
-                return (
-                  <li key={row.id} className="flex items-center gap-1.5 text-sm">
-                    <span className="size-2.5 shrink-0 rounded-full" style={{background: sliceColor(row, index)}}/>
-                    <span className="max-w-32 truncate">{row.label}</span>
-                    <span className="text-xs tabular-nums text-muted">{pct.toFixed(0)}%</span>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="relative z-10">
+              {/* Explicit pixel size (w-56 = 224, h-32 = 128) — no ResponsiveContainer, which
+                  reported width/height −1 while measuring inside a flex card. */}
+              <PieChart width={224} height={128}>
+                <Pie
+                  data={slices}
+                  dataKey="amount"
+                  nameKey="label"
+                  cx="50%"
+                  cy="100%"
+                  startAngle={180}
+                  endAngle={0}
+                  innerRadius="120%"
+                  outerRadius="170%"
+                  paddingAngle={2}
+                  cornerRadius={8}
+                  stroke="none"
+                  labelLine={false}
+                  label={renderArcLabel}
+                >
+                  {slices.map((row, index) => (
+                    <Cell key={row.id} fill={sliceColor(row, index)}/>
+                  ))}
+                </Pie>
+                <Tooltip
+                  wrapperStyle={{zIndex: 20}}
+                  contentStyle={tooltipStyle}
+                  formatter={(value, name) => [format.number(Number(value), "currencyWhole"), name]}
+                />
+              </PieChart>
+            </div>
           </div>
         )}
       </Card.Content>
