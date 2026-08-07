@@ -5,7 +5,9 @@
     "expense": "Expense",
     "budget": "Budget",
     "settings": "Settings",
-    "unknownRoute": "{pathname} not in NavigationProvider"
+    "unknownRoute": "{pathname} not in NavigationProvider",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "dashboard": {
     "warrantyTitle": "Warranties expiring ({days} days)",

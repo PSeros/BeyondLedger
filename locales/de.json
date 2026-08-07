@@ -5,7 +5,9 @@
     "expense": "Ausgaben",
     "budget": "Budget",
     "settings": "Einstellungen",
-    "unknownRoute": "{pathname} nicht im NavigationProvider"
+    "unknownRoute": "{pathname} nicht im NavigationProvider",
+    "collapseSidebar": "Seitenleiste einklappen",
+    "expandSidebar": "Seitenleiste ausklappen"
   },
   "dashboard": {
     "warrantyTitle": "Garantien laufen ab ({days} Tage)",
