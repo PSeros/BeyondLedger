@@ -101,8 +101,10 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
 
   return (
     <Card className="min-h-fit min-w-fit shrink-0">
-      <Card.Header className="flex gap-4 flex-row items-center justify-between">
-        <div>
+      {/* Three-zone header: title left, period navigator centered (equal-width side zones keep it in
+          the card's middle), granularity buttons right. */}
+      <Card.Header className="flex gap-4 flex-row items-center">
+        <div className="min-w-0 flex-1">
           <p className="text-sm">{title}</p>
 
           <div className="mt-1 flex items-center gap-3">
@@ -121,15 +123,16 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {data ? (
-            <PeriodNavigator
-              label={period.label}
-              isCurrent={period.isCurrent}
-              onStep={period.step}
-              onReset={period.reset}
-            />
-          ) : null}
+        {data ? (
+          <PeriodNavigator
+            label={period.label}
+            isCurrent={period.isCurrent}
+            onStep={period.step}
+            onReset={period.reset}
+          />
+        ) : null}
+
+        <div className="flex flex-1 justify-end">
           {granularities.length > 1 && (
             <ButtonGroup size="sm">
               {granularities.map((item) => (

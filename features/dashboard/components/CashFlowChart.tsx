@@ -69,8 +69,10 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
 
   return (
     <Card className="min-h-fit min-w-fit shrink-0">
-      <Card.Header className="flex flex-row items-start justify-between gap-4">
-        <div>
+      {/* Three-zone header: legend left, period navigator centered (equal-width side zones keep it in
+          the card's middle), granularity buttons right. */}
+      <Card.Header className="flex flex-row items-start gap-4">
+        <div className="min-w-0 flex-1">
           <p className="text-sm">{t("cashFlowTitle")}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="flex items-center gap-1.5 text-sm">
@@ -92,13 +94,14 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <PeriodNavigator
-            label={period.label}
-            isCurrent={period.isCurrent}
-            onStep={period.step}
-            onReset={period.reset}
-          />
+        <PeriodNavigator
+          label={period.label}
+          isCurrent={period.isCurrent}
+          onStep={period.step}
+          onReset={period.reset}
+        />
+
+        <div className="flex flex-1 justify-end">
           {granularities.length > 1 && (
             <ButtonGroup size="sm">
               {granularities.map((g) => (
