@@ -71,10 +71,15 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
                 <ContractChartCard {...filters} offset={parseChartOffset(params.co)}/>
               </Suspense>
             </div>
-            <div className="w-2/5">
-              <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <ContractUpcomingCard {...filters}/>
-              </Suspense>
+            {/* The chart (left) sets the row height. The upcoming card overlays its own column
+                (absolute) so its row count can't stretch the row — its h-full card fills the chart's
+                height and scrolls internally instead of growing the page. */}
+            <div className="relative w-2/5">
+              <div className="absolute inset-0">
+                <Suspense fallback={<Card className="h-full animate-pulse"/>}>
+                  <ContractUpcomingCard {...filters}/>
+                </Suspense>
+              </div>
             </div>
           </div>
           <div className="shrink-0">
