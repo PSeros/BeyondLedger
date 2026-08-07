@@ -68,7 +68,7 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
   const net = incomeTotal - expenseTotal;
 
   return (
-    <Card className="min-h-fit min-w-fit shrink-0">
+    <Card className="flex h-full min-h-0 flex-col">
       {/* Three-zone header: legend left, period navigator centered (equal-width side zones keep it in
           the card's middle), granularity buttons right. */}
       <Card.Header className="flex flex-row items-start gap-4">
@@ -118,8 +118,8 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
         </div>
       </Card.Header>
 
-      <Card.Content className="pt-2">
-        <div className="h-40">
+      <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">
+        <div className="min-h-[12rem] flex-1">
           <LineChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
             <Line
               type="monotone"

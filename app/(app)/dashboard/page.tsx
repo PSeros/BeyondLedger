@@ -51,48 +51,68 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
     );
   }
 
-  const cardFallback = <Card className="h-56 animate-pulse"/>;
+  const tileFallback = <Card className="h-full animate-pulse"/>;
 
   return (
-    <div className="mt-4 h-full min-h-0 space-y-8 overflow-y-auto pb-8 [scrollbar-gutter:stable]">
-      {/* Headline: warranties about to expire (full width). Renders nothing when none are due, so
-          its Suspense uses a null fallback — no placeholder flash before it resolves to empty. */}
-      <Suspense fallback={null}>
-        <WarrantyAlertCard withinDays={warrantyWarnDays} workspaceId={activeWorkspaceId}/>
-      </Suspense>
-
-      {/* KPI row: money in / out / net, this month vs. last. */}
-      <Suspense fallback={cardFallback}>
-        <DashboardKpis workspaceId={activeWorkspaceId}/>
-      </Suspense>
-
-      {/* Cash-flow: income & expense trend. */}
-      <Suspense fallback={cardFallback}>
-        <CashFlowCards workspaceId={activeWorkspaceId} offset={chartOffset}/>
-      </Suspense>
-
-      {/* Composition half-donuts: variable spend by category + monthly fixed costs by contract
-          category. Content-width cards, so they sit side by side and wrap on narrow screens. */}
-      <div className="flex flex-wrap justify-center gap-4">
-        <Suspense fallback={<Card className="h-64 w-72 animate-pulse"/>}>
-          <DashboardCategoryDonut workspaceId={activeWorkspaceId}/>
-        </Suspense>
-        <Suspense fallback={<Card className="h-64 w-72 animate-pulse"/>}>
-          <DashboardContractDonut workspaceId={activeWorkspaceId}/>
+    <div className="mt-4 h-full min-h-0 space-y-4 overflow-y-auto pb-8 [scrollbar-gutter:stable]">
+      {/* Headline banner: warranties about to expire. Renders nothing when none are due (null
+          fallback → no flash); wrapped in an auto-height div so its h-full card sizes to content. */}
+      <div>
+        <Suspense fallback={null}>
+          <WarrantyAlertCard withinDays={warrantyWarnDays} workspaceId={activeWorkspaceId}/>
         </Suspense>
       </div>
 
-      {/* Upcoming due + budget status. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Suspense fallback={cardFallback}>
-          <ContractUpcomingCard workspaceId={activeWorkspaceId ?? undefined} withinDays={upcomingWindowDays}/>
+      {/*
+        Bento: a fixed row grid (auto-rows) with cards that fill their cell (h-full), so tiles get
+        their varied, aligned sizes. Auto-placement (dense) lays the DOM order out as:
+          • row 1 — three KPI tiles
+          • the cash-flow chart as a tall hero (cols 1–4, 4 rows) with the two composition donuts
+            stacked beside it (cols 5–6, 2 rows each)
+          • a footer of the two upcoming lists + budget status (three 2-col tiles)
+        On < lg it folds to a 2-column bento.
+      */}
+      <div className="grid grid-flow-row-dense auto-rows-[7.5rem] grid-cols-2 gap-4 lg:grid-cols-6">
+        {/* KPI strip: money in / out / net, this month vs. last (renders three grid cells). */}
+        <Suspense fallback={<div className="col-span-2 lg:col-span-6">{tileFallback}</div>}>
+          <DashboardKpis workspaceId={activeWorkspaceId}/>
         </Suspense>
-        <Suspense fallback={cardFallback}>
-          <IncomeUpcomingCard workspaceId={activeWorkspaceId ?? undefined} withinDays={upcomingWindowDays}/>
-        </Suspense>
-        <Suspense fallback={cardFallback}>
-          <BudgetStatusCard workspaceId={activeWorkspaceId}/>
-        </Suspense>
+
+        {/* Hero: income & expense trend. */}
+        <div className="col-span-2 row-span-3 lg:col-span-4 lg:row-span-4">
+          <Suspense fallback={tileFallback}>
+            <CashFlowCards workspaceId={activeWorkspaceId} offset={chartOffset}/>
+          </Suspense>
+        </div>
+
+        {/* Composition donuts, stacked beside the hero: variable spend + monthly fixed costs. */}
+        <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
+          <Suspense fallback={tileFallback}>
+            <DashboardCategoryDonut workspaceId={activeWorkspaceId}/>
+          </Suspense>
+        </div>
+        <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
+          <Suspense fallback={tileFallback}>
+            <DashboardContractDonut workspaceId={activeWorkspaceId}/>
+          </Suspense>
+        </div>
+
+        {/* Footer: upcoming due + budget status. */}
+        <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-3">
+          <Suspense fallback={tileFallback}>
+            <ContractUpcomingCard workspaceId={activeWorkspaceId ?? undefined} withinDays={upcomingWindowDays}/>
+          </Suspense>
+        </div>
+        <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-3">
+          <Suspense fallback={tileFallback}>
+            <IncomeUpcomingCard workspaceId={activeWorkspaceId ?? undefined} withinDays={upcomingWindowDays}/>
+          </Suspense>
+        </div>
+        <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-3">
+          <Suspense fallback={tileFallback}>
+            <BudgetStatusCard workspaceId={activeWorkspaceId}/>
+          </Suspense>
+        </div>
       </div>
     </div>
   );

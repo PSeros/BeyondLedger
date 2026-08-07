@@ -57,11 +57,11 @@ export default function HalfDonutCard({title, rows}: {title: string; rows: Donut
   const total = slices.reduce((sum, row) => sum + row.amount, 0);
 
   return (
-    <Card className="min-h-fit w-fit shrink-0">
+    <Card className="flex h-full min-h-0 flex-col">
       <Card.Header>
         <p className="text-sm">{title}</p>
       </Card.Header>
-      <Card.Content className="pt-2">
+      <Card.Content className="flex flex-1 flex-col items-center justify-center pt-2">
         {slices.length === 0 ? (
           <p className="w-64 py-12 text-center text-sm text-muted">{tCommon("noData")}</p>
         ) : (

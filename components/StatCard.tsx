@@ -26,11 +26,11 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
   const hasPct = Number.isFinite(pctChange);
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <Card.Header>
         <Card.Title className="text-muted">{title}</Card.Title>
       </Card.Header>
-      <Card.Content className="flex flex-row justify-between items-center gap-3">
+      <Card.Content className="flex flex-1 flex-row items-end justify-between gap-3">
         <span className="text-2xl font-bold tabular-nums">{format.number(currentAmount, "currency")}</span>
         <Chip variant="soft" color={color} size="sm" className="h-fit">
           {isIncrease ? <FiArrowUp/> : <FiArrowDown/>}

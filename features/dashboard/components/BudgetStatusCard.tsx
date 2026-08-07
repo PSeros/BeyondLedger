@@ -29,7 +29,7 @@ export default async function BudgetStatusCard({workspaceId}: {workspaceId?: num
     .slice(0, MAX_ROWS);
 
   return (
-    <Card className="max-h-[268px]">
+    <Card className="h-full">
       <Card.Header>
         <p className="text-sm">{t("budgetStatusTitle")}</p>
       </Card.Header>

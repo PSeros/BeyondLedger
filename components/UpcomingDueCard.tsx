@@ -50,11 +50,9 @@ export default async function UpcomingDueCard({title, rows = [], windowDays = 30
   const today = new Date();
 
   return (
-    // `max-h-[268px]` matches ChartCard's measured rendered height (header + h-40 chart). An
-    // absolute cap, not `h-full` — percentage heights don't work here since the row above it
-    // has no definite height of its own to resolve against, so the card would just grow to
-    // fit however many rows are due.
-    <Card className="max-h-[268px]">
+    // `h-full` fills the card's grid cell (the dashboard bento gives it a definite height); the
+    // content below scrolls internally when more rows are due than fit.
+    <Card className="h-full">
       <Card.Header>
         <p className="text-sm">{title}</p>
       </Card.Header>

@@ -8,25 +8,18 @@ export default async function DashboardKpis({workspaceId}: {workspaceId?: number
   const t = await getTranslations("dashboard");
   const {income, expense, net} = await getMonthlyKpis(workspaceId);
 
+  // Three bento tiles (grid cells) — the parent dashboard grid lays them out. Each fills its cell.
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <StatCard
-        title={t("kpiIncome")}
-        currentAmount={income.current}
-        previousAmount={income.previous}
-        isHigherBetter
-      />
-      <StatCard
-        title={t("kpiExpenses")}
-        currentAmount={expense.current}
-        previousAmount={expense.previous}
-      />
-      <StatCard
-        title={t("kpiNet")}
-        currentAmount={net.current}
-        previousAmount={net.previous}
-        isHigherBetter
-      />
-    </div>
+    <>
+      <div className="col-span-2 lg:col-span-2">
+        <StatCard title={t("kpiIncome")} currentAmount={income.current} previousAmount={income.previous} isHigherBetter/>
+      </div>
+      <div className="col-span-2 lg:col-span-2">
+        <StatCard title={t("kpiExpenses")} currentAmount={expense.current} previousAmount={expense.previous}/>
+      </div>
+      <div className="col-span-2 lg:col-span-2">
+        <StatCard title={t("kpiNet")} currentAmount={net.current} previousAmount={net.previous} isHigherBetter/>
+      </div>
+    </>
   );
 }
