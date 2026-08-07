@@ -29,11 +29,20 @@ export default function PeriodNavigator({label, isCurrent, onStep, onReset, clas
       <Button variant="tertiary" size="sm" isIconOnly aria-label={t("next")} onPress={() => onStep(1)}>
         <LuChevronRight className="size-4"/>
       </Button>
-      {!isCurrent ? (
-        <Button variant="tertiary" size="sm" isIconOnly aria-label={t("current")} onPress={onReset}>
-          <LuRotateCcw className="size-4"/>
-        </Button>
-      ) : null}
+      {/* Always occupy the slot; hide via visibility when on the current period so its appearance
+          doesn't shift the arrows/label. Disabled + aria-hidden keeps it non-interactive while hidden. */}
+      <Button
+        variant="tertiary"
+        size="sm"
+        isIconOnly
+        aria-label={t("current")}
+        onPress={onReset}
+        isDisabled={isCurrent}
+        aria-hidden={isCurrent || undefined}
+        className={isCurrent ? "invisible" : undefined}
+      >
+        <LuRotateCcw className="size-4"/>
+      </Button>
     </div>
   );
 }
