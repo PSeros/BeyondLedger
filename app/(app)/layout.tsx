@@ -14,11 +14,11 @@ export default async function AppLayout({
   return (
     <div className="flex h-full min-h-0 overflow-hidden">
       <aside className="w-fit text-center">
-        <Sidebar/>
+        <Sidebar workspaces={workspaces} activeWorkspaceId={activeWorkspaceId}/>
       </aside>
 
       <div className="flex min-h-0 flex-1 flex-col border-l border-separator">
-        <Topbar workspaces={workspaces} activeWorkspaceId={activeWorkspaceId}/>
+        <Topbar/>
         <main className="min-h-0 flex-1 overflow-hidden p-4">
           <div className="mx-auto h-full min-h-0 w-full">
             {children}
