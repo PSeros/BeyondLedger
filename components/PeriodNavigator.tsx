@@ -29,15 +29,16 @@ export default function PeriodNavigator({label, isCurrent, onStep, onReset, clas
       <Button variant="tertiary" size="sm" isIconOnly aria-label={t("next")} onPress={() => onStep(1)}>
         <LuChevronRight className="size-4"/>
       </Button>
-      {/* Always occupy the slot; hide via visibility when on the current period so its appearance
-          doesn't shift the arrows/label. Disabled + aria-hidden keeps it non-interactive while hidden. */}
+      {/* Always occupy the slot; hide via `visibility:hidden` when on the current period so its
+          appearance doesn't shift the arrows/label. `invisible` also makes it non-focusable and
+          non-clickable, so no `isDisabled` is needed — and avoids a React-Aria SSR/hydration mismatch
+          on the native `disabled` attribute. `aria-hidden` keeps it out of the accessibility tree. */}
       <Button
         variant="tertiary"
         size="sm"
         isIconOnly
         aria-label={t("current")}
         onPress={onReset}
-        isDisabled={isCurrent}
         aria-hidden={isCurrent || undefined}
         className={isCurrent ? "invisible" : undefined}
       >
