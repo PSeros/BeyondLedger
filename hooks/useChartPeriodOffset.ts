@@ -1,19 +1,26 @@
 "use client";
 
-import {startTransition} from "react";
+import {startTransition, useEffect, useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {addDays, addMonths, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 
 type Granularity = "1W" | "1M" | "1Y";
 
+function readOffset(value: string | null): number {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : 0;
+}
+
 // Drives the chart period navigator (?co=<int>). The offset is "N periods back/forward" in the
 // currently-selected granularity's own unit — the server emits every granularity's series shifted by
 // N of its unit. Because the same integer means a different span per unit, the consumer resets the
-// offset when the user switches 1W/1M/1Y (so "−4 months" doesn't silently become "−4 years"); within
-// a unit, switching granularity otherwise stays an instant client toggle. Returns the formatted label
-// for the *current* granularity, whether we're on the current period (reveals the reset affordance),
-// and step/reset writers mirroring BudgetSearchField's ?q.
+// offset when the user switches 1W/1M/1Y (so "−4 months" doesn't silently become "−4 years").
+//
+// The offset is held in local state (source of truth for the label) and mirrored to the URL for the
+// server refetch. Splitting them keeps the label instant: a granularity switch updates the label from
+// client state in the same batched render, while the ?co write (and the chart data it refetches) can
+// lag behind under Suspense without the label flashing the stale period.
 export function useChartPeriodOffset(granularity: Granularity) {
   const router = useRouter();
   const pathname = usePathname();
@@ -21,8 +28,12 @@ export function useChartPeriodOffset(granularity: Granularity) {
   const format = useFormatter();
   const t = useTranslations("periodNavigator");
 
-  const raw = Number(searchParams.get("co"));
-  const offset = Number.isInteger(raw) ? raw : 0;
+  const urlOffset = readOffset(searchParams.get("co"));
+  const [offset, setOffset] = useState(urlOffset);
+  // Reconcile with the URL when it changes from outside this hook (back/forward, deep link).
+  useEffect(() => {
+    setOffset(urlOffset);
+  }, [urlOffset]);
 
   const now = new Date();
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
@@ -40,7 +51,8 @@ export function useChartPeriodOffset(granularity: Granularity) {
     label = format.dateTime(anchor, {month: "long", year: "numeric", timeZone: "UTC"});
   }
 
-  function pushOffset(next: number) {
+  function commit(next: number) {
+    setOffset(next); // instant: the label reflects the new period this render
     const params = new URLSearchParams(searchParams.toString());
     if (next !== 0) {
       params.set("co", String(next));
@@ -56,7 +68,7 @@ export function useChartPeriodOffset(granularity: Granularity) {
   return {
     label,
     isCurrent: offset === 0,
-    step: (delta: -1 | 1) => pushOffset(offset + delta),
-    reset: () => pushOffset(0),
+    step: (delta: -1 | 1) => commit(offset + delta),
+    reset: () => commit(0),
   };
 }
