@@ -2,6 +2,7 @@ import Link from "next/link";
 import {getFormatter, getTranslations} from "next-intl/server";
 import {Card, Chip} from "@heroui/react";
 import {getBudgetsResolved} from "@/features/budget/db/budgets";
+import {isBudgetActiveInMonth, parseMonthAnchor} from "@/features/budget/period";
 
 // Dashboard budget status (Phase 12): the budgets closest to (or over) their cap this period, as
 // compact meter rows linking to /budget. Reuses getBudgetsResolved + BudgetCard's meter color logic.
@@ -12,7 +13,13 @@ export default async function BudgetStatusCard({workspaceId}: {workspaceId?: num
   const tCommon = await getTranslations("common");
   const format = await getFormatter();
 
-  const budgets = await getBudgetsResolved(new Date(), workspaceId);
+  // The dashboard has no month navigator — it's always the current month. A RANGE budget whose span
+  // doesn't cover this month is dropped (same rule as the budget page, anchored to today's month).
+  const now = new Date();
+  const monthStart = parseMonthAnchor(undefined, now);
+  const budgets = (await getBudgetsResolved(now, workspaceId)).filter((budget) =>
+    isBudgetActiveInMonth(budget, monthStart),
+  );
   const ranked = budgets
     .map((budget) => {
       const ratio = budget.target > 0 ? budget.actual / budget.target : budget.actual > 0 ? Infinity : 0;
