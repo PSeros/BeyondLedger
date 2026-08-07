@@ -8,7 +8,7 @@ import BudgetPeriodNavigator from "@/features/budget/components/BudgetPeriodNavi
 import BudgetSearchField from "@/features/budget/components/BudgetSearchField";
 import BudgetBarChart from "@/features/budget/components/BudgetBarChart";
 import {getBudgetCount, getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
-import {BUDGET_PERIOD_TYPES, parseMonthAnchor} from "@/features/budget/period";
+import {BUDGET_PERIOD_TYPES, isBudgetActiveInMonth, parseMonthAnchor} from "@/features/budget/period";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 // The Budget page: user-defined budgets (name + period + target + members), each showing target
@@ -33,6 +33,11 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
   const periodFilter = (period ?? "").split(",").filter((p) => (BUDGET_PERIOD_TYPES as string[]).includes(p));
 
   const filtered = budgets.filter((budget) => {
+    // RANGE budgets surface only in the months their span overlaps the viewed month (?at); every
+    // other period type always resolves a window for the anchor month, so this is a no-op for them.
+    if (!isBudgetActiveInMonth(budget, anchor)) {
+      return false;
+    }
     if (periodFilter.length && !periodFilter.includes(budget.periodType)) {
       return false;
     }

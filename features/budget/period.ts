@@ -104,6 +104,27 @@ export function resolveActivePeriod(input: PeriodInput, now: Date = new Date()):
   }
 }
 
+// Whether a budget should surface for the month the navigator is pointing at (`anchorMonthStart` =
+// the UTC first-of-month from parseMonthAnchor). Periodic types resolve a window for the anchor month
+// and OPEN never ends, so they always show; only RANGE is a fixed window that can sit wholly outside
+// the viewed month — it surfaces solely in the months its span actually overlaps. An incomplete range
+// (missing start or end) is never hidden.
+export function isBudgetActiveInMonth(input: PeriodInput, anchorMonthStart: Date): boolean {
+  if (input.periodType !== "RANGE") return true;
+
+  const start = toDate(input.startDate);
+  const endInclusive = toDate(input.endDate);
+  if (!start || !endInclusive) return true;
+
+  // endDate is an inclusive day → the exclusive end is the following midnight (matches resolveActivePeriod).
+  const endExclusive = new Date(endInclusive.getTime() + MS_PER_DAY);
+  const monthStart = new Date(Date.UTC(anchorMonthStart.getUTCFullYear(), anchorMonthStart.getUTCMonth(), 1));
+  const monthEnd = new Date(Date.UTC(anchorMonthStart.getUTCFullYear(), anchorMonthStart.getUTCMonth() + 1, 1));
+
+  // Half-open interval overlap: [start, endExclusive) intersects [monthStart, monthEnd).
+  return start < monthEnd && endExclusive > monthStart;
+}
+
 const AVG_DAYS_PER_MONTH = 365.25 / 12;
 
 function addUTCMonths(date: Date, months: number): Date {
