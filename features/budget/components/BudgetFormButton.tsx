@@ -4,7 +4,7 @@ import {useMemo, useState} from "react";
 import type {Key} from "react-aria-components";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react";
+import {Button, ButtonGroup, Label, ListBox, Modal, Select, Separator} from "@heroui/react";
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import MultiSelectField from "@/features/budget/components/MultiSelectField";
@@ -15,10 +15,44 @@ import {createBudget, updateBudget} from "@/features/budget/db/budgetMutations";
 
 // Create/edit form for a budget in a controlled Modal (not an interception route). `budget`
 // undefined = create. The period-type Select reveals its extra fields (anchor month for
-// MONTH_OF_YEAR; start/end for RANGE). Members are picked via four multi-Selects and mirrored into
-// hidden inputs so the native <form action> posts them (memberItemCategoryId, …).
+// MONTH_OF_YEAR; start/end for RANGE).
+//
+// MATCH MODEL (this branch): smart selector. Item + contract categories are the ORed base (stacked
+// with an OR divider); supplier category / supplier / tag are ANDed refiners. The base block and the
+// refiner block are joined by an AND divider. Picks mirror into hidden inputs (memberItemCategoryId,
+// …) so the native <form action> posts them.
 
 const PERIOD_TYPES: BudgetPeriodType[] = ["MONTHLY", "QUARTERLY", "YEARLY", "MONTH_OF_YEAR", "RANGE", "OPEN"];
+
+// A HeroUI Separator flanking a small OR/AND label. Horizontal (default) sits between stacked fields;
+// vertical joins the two side-by-side columns on wider screens.
+function MatchDivider({
+  label,
+  orientation = "horizontal",
+  className = "",
+}: {
+  label: string;
+  orientation?: "horizontal" | "vertical";
+  className?: string;
+}) {
+  const chip = "text-[0.65rem] font-semibold uppercase tracking-wide text-muted";
+  if (orientation === "vertical") {
+    return (
+      <div className={`flex-col items-center gap-2 self-stretch ${className}`}>
+        <Separator orientation="vertical" className="flex-1"/>
+        <span className={chip}>{label}</span>
+        <Separator orientation="vertical" className="flex-1"/>
+      </div>
+    );
+  }
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <Separator className="flex-1"/>
+      <span className={chip}>{label}</span>
+      <Separator className="flex-1"/>
+    </div>
+  );
+}
 
 type Selection = {
   itemCategory: string[];
@@ -235,13 +269,15 @@ export default function BudgetFormButton({
                   <p className="text-xs text-muted">{t("membersHintSmart")}</p>
                 </div>
 
-                {/* BASE (ORed): article ∪ contract categories — the two mutually-exclusive domains. */}
-                <div className="flex flex-col gap-3 rounded-(--radius) border border-default-200 p-4">
-                  <div className="flex flex-col gap-0.5">
+                {/*
+                  Smart layout: (article OR contract) AND supplier-category AND supplier AND tag.
+                  Left column = the ORed base (article stacked over contract with an OR divider);
+                  right column = the ANDed refiners; an AND divider joins the two columns (vertical on
+                  sm+, horizontal when they stack on mobile).
+                */}
+                <div className="flex flex-col gap-4 rounded-(--radius) border border-default-200 p-4 sm:flex-row sm:items-stretch sm:gap-5">
+                  <div className="flex flex-1 flex-col gap-3">
                     <span className="text-xs font-semibold">{t("baseSectionTitle")}</span>
-                    <span className="text-xs text-muted">{t("baseSectionHint")}</span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <MultiSelectField
                       label={t("groupItemCategories")}
                       options={options.itemCategories}
@@ -249,6 +285,7 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
+                    <MatchDivider label={t("or")}/>
                     <MultiSelectField
                       label={t("groupContractCategories")}
                       options={options.contractCategories}
@@ -257,17 +294,13 @@ export default function BudgetFormButton({
                       placeholder={t("selectPlaceholder")}
                     />
                   </div>
-                </div>
 
-                {/* REFINERS (ANDed): supplier category, supplier, tag — narrow the base on both domains. */}
-                <div className="flex flex-col gap-3 rounded-(--radius) border border-default-200 p-4">
-                  <div className="flex flex-col gap-0.5">
+                  {/* AND join: vertical between columns on sm+, horizontal when stacked on mobile. */}
+                  <MatchDivider label={t("and")} orientation="vertical" className="hidden sm:flex"/>
+                  <MatchDivider label={t("and")} className="sm:hidden"/>
+
+                  <div className="flex flex-1 flex-col gap-3">
                     <span className="text-xs font-semibold">{t("refineSectionTitle")}</span>
-                    <span className="text-xs text-muted">
-                      {hasBase ? t("refineSectionHint") : t("refineSectionHintNoBase")}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <MultiSelectField
                       label={t("groupSupplierCategories")}
                       options={options.supplierCategories}
@@ -275,6 +308,7 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
+                    <MatchDivider label={t("and")}/>
                     <MultiSelectField
                       label={t("groupSuppliers")}
                       options={options.suppliers}
@@ -282,6 +316,7 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
+                    <MatchDivider label={t("and")}/>
                     <MultiSelectField
                       label={t("groupTags")}
                       options={options.tags}
@@ -292,7 +327,9 @@ export default function BudgetFormButton({
                   </div>
                 </div>
 
-                {!hasBase && hasRefiner ? <p className="text-xs text-muted">{t("noBaseHint")}</p> : null}
+                <p className="text-xs text-muted">
+                  {!hasBase && hasRefiner ? t("noBaseHint") : t("membersHintSmart")}
+                </p>
                 {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
 
                 {/* Selected member ids mirrored into hidden inputs for FormData. */}
