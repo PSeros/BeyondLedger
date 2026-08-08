@@ -1,17 +1,12 @@
 "use client";
 
-import {useMemo, useState} from "react";
+import {useMemo} from "react";
 import {useFormatter, useTranslations} from "next-intl";
-import {Button, ButtonGroup, Card} from "@heroui/react";
+import {Card} from "@heroui/react";
 import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
-import PeriodNavigator from "@/components/PeriodNavigator";
-import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
-import type {ChartPoint} from "@/features/expense/shared/db/cumulativeChart";
+import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 
-type Granularity = "1W" | "1M" | "1Y";
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
-
-const GRANULARITY_ORDER: Granularity[] = ["1W", "1M", "1Y"];
 
 const INCOME_COLOR = "var(--success)";
 const EXPENSE_COLOR = "var(--danger)";
@@ -20,31 +15,25 @@ type MergedPoint = {
   label: string;
   income: number | null;
   incomeUpcoming?: number | null;
+  incomePrevious: number | null;
   expense: number | null;
   expenseUpcoming?: number | null;
+  expensePrevious: number | null;
 };
 
 // Dashboard cash-flow (Phase 12, revised): income (green) and expense (red) on one shared axis, so
 // the gap between the two lines reads as the month's/year's net at a glance. Dashed continuations
-// are each stream's projected (upcoming) portion. Income & expense views share label sets per
-// granularity (same buildWeek/Month/YearView), so they zip by index.
-export default function CashFlowChart({income, expense}: {income: SeriesData; expense: SeriesData}) {
+// are each stream's projected (upcoming) portion; the faint dotted lines are each stream's rolling
+// baseline (average pace of the prior periods) so you can read this period against the norm. Income &
+// expense views share label sets per granularity (same buildWeek/Month/YearView), so they zip by index.
+export default function CashFlowChart({
+  income,
+  expense,
+  granularity,
+}: {income: SeriesData; expense: SeriesData; granularity: Granularity}) {
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
-
-  const granularities = GRANULARITY_ORDER.filter((g) => income[g] || expense[g]);
-  const [granularity, setGranularity] = useState<Granularity>(granularities[0] ?? "1M");
-  const period = useChartPeriodOffset(granularity);
-
-  // Switching the unit resets the navigator to the current period: the ?co offset is expressed in the
-  // selected granularity's own unit, so carrying "−4" from months into years would silently mean 4
-  // years back. Re-clicking the active unit keeps your position.
-  function selectGranularity(next: Granularity) {
-    if (next === granularity) return;
-    setGranularity(next);
-    if (!period.isCurrent) period.reset();
-  }
 
   const points = useMemo<MergedPoint[]>(() => {
     const inc = income[granularity] ?? [];
@@ -54,73 +43,57 @@ export default function CashFlowChart({income, expense}: {income: SeriesData; ex
       label: inc[i]?.label ?? exp[i]?.label ?? "",
       income: inc[i]?.current ?? null,
       incomeUpcoming: inc[i]?.upcoming,
+      incomePrevious: inc[i]?.previous ?? null,
       expense: exp[i]?.current ?? null,
       expenseUpcoming: exp[i]?.upcoming,
+      expensePrevious: exp[i]?.previous ?? null,
     }));
   }, [income, expense, granularity]);
 
-  // Latest realized cumulative value per stream (for the header legend) + net.
-  const {incomeTotal, expenseTotal} = useMemo(() => {
-    const lastReal = (key: "income" | "expense") =>
-      [...points].reverse().find((p) => p[key] !== null)?.[key] ?? 0;
-    return {incomeTotal: lastReal("income") as number, expenseTotal: lastReal("expense") as number};
-  }, [points]);
-  const net = incomeTotal - expenseTotal;
-
   return (
     <Card className="flex h-full min-h-0 flex-col">
-      {/* Three-zone header: legend left, period navigator centered (equal-width side zones keep it in
-          the card's middle), granularity buttons right. */}
-      <Card.Header className="flex flex-row items-start gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm">{t("cashFlowTitle")}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="flex items-center gap-1.5 text-sm">
-              <span className="size-2.5 rounded-full" style={{background: INCOME_COLOR}}/>
-              {t("kpiIncome")}
-              <span className="font-semibold tabular-nums">{format.number(incomeTotal, "currencyWhole")}</span>
-            </span>
-            <span className="flex items-center gap-1.5 text-sm">
-              <span className="size-2.5 rounded-full" style={{background: EXPENSE_COLOR}}/>
-              {t("kpiExpenses")}
-              <span className="font-semibold tabular-nums">{format.number(expenseTotal, "currencyWhole")}</span>
-            </span>
-            <span className="text-sm text-muted">
-              {t("kpiNet")}:{" "}
-              <span className={`font-semibold tabular-nums ${net >= 0 ? "text-success" : "text-danger"}`}>
-                {format.number(net, "currencyWhole")}
-              </span>
-            </span>
-          </div>
-        </div>
-
-        <PeriodNavigator
-          label={period.label}
-          isCurrent={period.isCurrent}
-          onStep={period.step}
-          onReset={period.reset}
-        />
-
-        <div className="flex flex-1 justify-end">
-          {granularities.length > 1 && (
-            <ButtonGroup size="sm">
-              {granularities.map((g) => (
-                <Button
-                  key={g}
-                  variant={granularity === g ? "secondary" : "tertiary"}
-                  onPress={() => selectGranularity(g)}
-                >
-                  {g}
-                </Button>
-              ))}
-            </ButtonGroup>
-          )}
-        </div>
+      {/* Header is a color legend only: the period unit + navigator live in the dashboard toolbar, and
+          the money totals now live in the KPI cards (dropped here to avoid mirroring them). This just
+          names which line is which. */}
+      <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1">
+        <p className="text-sm">{t("cashFlowTitle")}</p>
+        <span className="flex items-center gap-1.5 text-sm text-muted">
+          <span className="size-2.5 rounded-full" style={{background: INCOME_COLOR}}/>
+          {t("kpiIncome")}
+        </span>
+        <span className="flex items-center gap-1.5 text-sm text-muted">
+          <span className="size-2.5 rounded-full" style={{background: EXPENSE_COLOR}}/>
+          {t("kpiExpenses")}
+        </span>
       </Card.Header>
 
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">
         <div className="min-h-[12rem] flex-1">
           <LineChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
+            {/* Rolling baselines first, so they sit behind the solid current lines: each stream's
+                average pace over the prior periods, drawn faint + dotted in its own hue. */}
+            <Line
+              type="monotone"
+              dataKey="incomePrevious"
+              name={`${t("kpiIncome")} ${tChart("average")}`}
+              stroke={INCOME_COLOR}
+              strokeOpacity={0.45}
+              strokeDasharray="2 3"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{r: 4}}
+            />
+            <Line
+              type="monotone"
+              dataKey="expensePrevious"
+              name={`${t("kpiExpenses")} ${tChart("average")}`}
+              stroke={EXPENSE_COLOR}
+              strokeOpacity={0.45}
+              strokeDasharray="2 3"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{r: 4}}
+            />
             <Line
               type="monotone"
               dataKey="income"

@@ -385,7 +385,7 @@
   },
   "categoryChart": {
     "title": "Variable spending by category",
-    "monthlyFixedTitle": "Fixed costs by category (monthly)",
+    "monthlyFixedTitle": "Fixed costs by category",
     "other": "Other",
     "total": "Total"
   }
