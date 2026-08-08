@@ -6,6 +6,7 @@ import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
+import {getSelectorTotals} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
 // Read side for the Budget page. Each budget carries its members, period config, and per-instance
@@ -140,6 +141,8 @@ export async function getBudgets(workspaceId?: number | null): Promise<BudgetVie
 // periodKey else the default), and actual spend.
 export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: number | null): Promise<BudgetResolved[]> {
   const budgets = await getBudgets(workspaceId);
+  // Selector totals (fetched once) let the matcher treat "every value selected" as no constraint.
+  const totals = await getSelectorTotals();
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
   const actuals = await Promise.all(
     budgets.map((budget, index) =>
@@ -150,6 +153,7 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
         budget.workspaceId,
         windowMonthsFor(budget.periodType, periods[index].start, periods[index].end),
         now,
+        totals,
       ),
     ),
   );
