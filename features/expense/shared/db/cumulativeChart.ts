@@ -10,6 +10,15 @@ export type ChartPoint = {
   upcoming?: number | null;
 };
 
+export type Granularity = "1W" | "1M" | "1Y";
+
+export type DateWindow = {start: Date; end: Date};
+
+// Parse the ?cg param into a chart granularity. Anything unrecognized falls back to the monthly view.
+export function parseGranularity(value: string | null | undefined): Granularity {
+  return value === "1W" || value === "1Y" ? value : "1M";
+}
+
 export function dateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
@@ -62,6 +71,56 @@ export function daysInMonth(year: number, month: number): number {
 
 export function average(values: number[]): number {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+}
+
+// The half-open [start, end) calendar window for `granularity` at `offset` periods from `today`
+// (negative = past). Anchored exactly like the chart views (buildWeek/Month/YearView) so the toolbar
+// label, chart, KPIs and donuts all describe the same span.
+export function chartWindow(granularity: Granularity, offset: number, today: Date): DateWindow {
+  if (granularity === "1W") {
+    const anchor = addDays(today, offset * 7);
+    const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
+    const start = addDays(anchor, -anchorIndex);
+    return {start, end: addDays(start, 7)};
+  }
+  if (granularity === "1Y") {
+    const year = today.getUTCFullYear() + offset;
+    return {start: utcDate(year, 0, 1), end: utcDate(year + 1, 0, 1)};
+  }
+  const anchor = addMonths(today, offset);
+  const start = utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth(), 1);
+  return {start, end: utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1)};
+}
+
+// How many occurrences of a recurring record (billed every 12/frequencyValue months from startDate)
+// land in [start, end), clamped to the record's own lifetime (never past endDate). Fast-forwards to
+// the window rather than stepping from a possibly years-old startDate.
+export function countOccurrences(
+  record: {startDate: Date; endDate: Date | null; frequencyValue: number},
+  start: Date,
+  end: Date,
+): number {
+  const monthsBetween = 12 / record.frequencyValue;
+  const stop = record.endDate && record.endDate < end ? record.endDate : end;
+  let step = 0;
+  const at = () =>
+    utcDate(
+      record.startDate.getUTCFullYear(),
+      record.startDate.getUTCMonth() + step * monthsBetween,
+      record.startDate.getUTCDate(),
+    );
+  let occurrence = at();
+  while (occurrence < start) {
+    step += 1;
+    occurrence = at();
+  }
+  let count = 0;
+  while (occurrence < stop) {
+    count += 1;
+    step += 1;
+    occurrence = at();
+  }
+  return count;
 }
 
 /** Sum of `totalsByDay` over `days` consecutive days starting at `start`. */

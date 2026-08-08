@@ -385,7 +385,7 @@
   },
   "categoryChart": {
     "title": "Variable Ausgaben nach Kategorie",
-    "monthlyFixedTitle": "Fixkosten nach Kategorie (monatlich)",
+    "monthlyFixedTitle": "Fixkosten nach Kategorie",
     "other": "Sonstige",
     "total": "Gesamt"
   }

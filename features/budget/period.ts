@@ -109,7 +109,12 @@ export function resolveActivePeriod(input: PeriodInput, now: Date = new Date()):
 // and OPEN never ends, so they always show; only RANGE is a fixed window that can sit wholly outside
 // the viewed month — it surfaces solely in the months its span actually overlaps. An incomplete range
 // (missing start or end) is never hidden.
-export function isBudgetActiveInMonth(input: PeriodInput, anchorMonthStart: Date): boolean {
+// Does a budget surface for the half-open viewing window [windowStart, windowEnd)? Only RANGE (a
+// fixed span) can sit wholly outside the window; periodic types resolve a window for the anchor and
+// OPEN never ends, so they always show. An incomplete range (missing start or end) is never hidden.
+// The dashboard passes its selected period window here so a range that falls anywhere inside, say, the
+// viewed year still surfaces — not only in the anchor month.
+export function isBudgetActiveInWindow(input: PeriodInput, windowStart: Date, windowEnd: Date): boolean {
   if (input.periodType !== "RANGE") return true;
 
   const start = toDate(input.startDate);
@@ -118,11 +123,14 @@ export function isBudgetActiveInMonth(input: PeriodInput, anchorMonthStart: Date
 
   // endDate is an inclusive day → the exclusive end is the following midnight (matches resolveActivePeriod).
   const endExclusive = new Date(endInclusive.getTime() + MS_PER_DAY);
+  // Half-open interval overlap: [start, endExclusive) intersects [windowStart, windowEnd).
+  return start < windowEnd && endExclusive > windowStart;
+}
+
+export function isBudgetActiveInMonth(input: PeriodInput, anchorMonthStart: Date): boolean {
   const monthStart = new Date(Date.UTC(anchorMonthStart.getUTCFullYear(), anchorMonthStart.getUTCMonth(), 1));
   const monthEnd = new Date(Date.UTC(anchorMonthStart.getUTCFullYear(), anchorMonthStart.getUTCMonth() + 1, 1));
-
-  // Half-open interval overlap: [start, endExclusive) intersects [monthStart, monthEnd).
-  return start < monthEnd && endExclusive > monthStart;
+  return isBudgetActiveInWindow(input, monthStart, monthEnd);
 }
 
 const AVG_DAYS_PER_MONTH = 365.25 / 12;

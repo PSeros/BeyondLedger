@@ -14,7 +14,8 @@ import BudgetStatusCard from "@/features/dashboard/components/BudgetStatusCard";
 import DashboardEmptyState from "@/features/dashboard/components/DashboardEmptyState";
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
 import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard";
-import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
+import DashboardPeriodToolbar from "@/features/dashboard/components/DashboardPeriodToolbar";
+import {parseChartOffset, parseGranularity} from "@/features/expense/shared/db/cumulativeChart";
 
 // The dashboard is a live view of DB state (active account, counts, budgets, projected occurrences)
 // with no searchParams to make it dynamic on its own — without this it would be prerendered once at
@@ -25,12 +26,15 @@ export const dynamic = "force-dynamic";
 // widget fetches its own data inside its own Suspense boundary so a slow section never blocks the
 // rest. The active-account + reminder-window settings come from the AppSettings singleton, not the
 // URL. Topbar auto-titles the route, so this page renders only content.
-export default async function DashboardPage({searchParams}: {searchParams: Promise<{co?: string}>}) {
-  const [{co}, activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
+export default async function DashboardPage({
+  searchParams,
+}: {searchParams: Promise<{cg?: string; co?: string}>}) {
+  const [{cg, co}, activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
     searchParams,
     getActiveWorkspaceId(),
     getAppSettings(),
   ]);
+  const granularity = parseGranularity(cg);
   const chartOffset = parseChartOffset(co);
 
   const [billCount, contractCount, fixedIncomeCount, variableIncomeCount, budgetCount] = await Promise.all([
@@ -54,7 +58,13 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
   const tileFallback = <Card className="h-full animate-pulse"/>;
 
   return (
-    <div className="mt-4 h-full min-h-0 space-y-4 overflow-y-auto pb-8 [scrollbar-gutter:stable]">
+    <div className="flex h-full min-h-0 flex-col">
+      {/* Period toolbar: governs every period-scoped tile below (chart, KPIs, donuts). A sibling above
+          the scroll container (like the expense/income/budget PageToolbars) so it stays put while the
+          dashboard body scrolls. */}
+      <DashboardPeriodToolbar/>
+
+      <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto pb-8 [scrollbar-gutter:stable]">
       {/* Headline banner: warranties about to expire. Renders nothing when none are due (null
           fallback → no flash); wrapped in an auto-height div so its h-full card sizes to content. */}
       <div>
@@ -66,34 +76,38 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
       {/*
         Bento: a fixed row grid (auto-rows) with cards that fill their cell (h-full), so tiles get
         their varied, aligned sizes. Auto-placement (dense) lays the DOM order out as:
-          • row 1 — three KPI tiles
-          • the cash-flow chart as a tall hero (cols 1–4, 4 rows) with the two composition donuts
-            stacked beside it (cols 5–6, 2 rows each)
+          • a left column (cols 1–4) of the KPI row (1 row) above the cash-flow chart (3 rows)…
+          • …beside the two composition donuts stacked on the right (cols 5–6, 2 rows each), so the
+            KPIs + chart together stand exactly as tall as the two donuts (4 rows each)
           • a footer of the two upcoming lists + budget status (three 2-col tiles)
         On < lg it folds to a 2-column bento.
       */}
       <div className="grid grid-flow-row-dense auto-rows-[6rem] grid-cols-2 gap-4 lg:grid-cols-6">
-        {/* KPI strip: money in / out / net, this month vs. last (renders three grid cells). */}
-        <Suspense fallback={<div className="col-span-2 lg:col-span-6">{tileFallback}</div>}>
-          <DashboardKpis workspaceId={activeWorkspaceId}/>
-        </Suspense>
-
-        {/* Hero: income & expense trend. */}
-        <div className="col-span-2 row-span-3 lg:col-span-4 lg:row-span-4">
-          <Suspense fallback={tileFallback}>
-            <CashFlowCards workspaceId={activeWorkspaceId} offset={chartOffset}/>
+        {/* KPI row: money in / out / net for the selected period vs. the trailing 3-period pace. One
+            cell as wide as the chart (holds three cards); keyed on the period so it re-suspends. */}
+        <div className="col-span-2 row-span-1 lg:col-span-4 lg:row-span-1">
+          <Suspense key={`kpi-${granularity}-${chartOffset}`} fallback={tileFallback}>
+            <DashboardKpis workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
         </div>
 
-        {/* Composition donuts, stacked beside the hero: variable spend + monthly fixed costs. */}
+        {/* Hero: income & expense trend (under the KPIs, same width). */}
+        <div className="col-span-2 row-span-3 lg:col-span-4 lg:row-span-3">
+          <Suspense key={`chart-${granularity}-${chartOffset}`} fallback={tileFallback}>
+            <CashFlowCards workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
+          </Suspense>
+        </div>
+
+        {/* Composition donuts, stacked to the right of the KPIs + chart: variable spend + fixed
+            costs, both scoped to the selected period. */}
         <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
-          <Suspense fallback={tileFallback}>
-            <DashboardCategoryDonut workspaceId={activeWorkspaceId}/>
+          <Suspense key={`cat-${granularity}-${chartOffset}`} fallback={tileFallback}>
+            <DashboardCategoryDonut workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
         </div>
         <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
-          <Suspense fallback={tileFallback}>
-            <DashboardContractDonut workspaceId={activeWorkspaceId}/>
+          <Suspense key={`con-${granularity}-${chartOffset}`} fallback={tileFallback}>
+            <DashboardContractDonut workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
         </div>
 
@@ -109,10 +123,11 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
           </Suspense>
         </div>
         <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-3">
-          <Suspense fallback={tileFallback}>
-            <BudgetStatusCard workspaceId={activeWorkspaceId}/>
+          <Suspense key={`budget-${granularity}-${chartOffset}`} fallback={tileFallback}>
+            <BudgetStatusCard workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
         </div>
+      </div>
       </div>
     </div>
   );

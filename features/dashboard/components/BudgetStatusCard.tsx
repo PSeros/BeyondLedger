@@ -2,23 +2,34 @@ import Link from "next/link";
 import {getFormatter, getTranslations} from "next-intl/server";
 import {Card, Chip} from "@heroui/react";
 import {getBudgetsResolved} from "@/features/budget/db/budgets";
-import {isBudgetActiveInMonth, parseMonthAnchor} from "@/features/budget/period";
+import {isBudgetActiveInWindow} from "@/features/budget/period";
+import {addDays, chartWindow, type Granularity, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 
 // Dashboard budget status (Phase 12): the budgets closest to (or over) their cap this period, as
 // compact meter rows linking to /budget. Reuses getBudgetsResolved + BudgetCard's meter color logic.
 const MAX_ROWS = 5;
 
-export default async function BudgetStatusCard({workspaceId}: {workspaceId?: number | null}) {
+export default async function BudgetStatusCard({
+  workspaceId,
+  granularity,
+  offset,
+}: {workspaceId?: number | null; granularity: Granularity; offset: number}) {
   const t = await getTranslations("dashboard");
   const tCommon = await getTranslations("common");
   const format = await getFormatter();
 
-  // The dashboard has no month navigator — it's always the current month. A RANGE budget whose span
-  // doesn't cover this month is dropped (same rule as the budget page, anchored to today's month).
+  // Follow the dashboard period: anchor to a date inside the selected window, clamped to today so we
+  // never show forecast actuals (offset 0 → today; a past period → its last day; a future one → its
+  // first day). Each budget still resolves its OWN period type around that date. RANGE budgets are
+  // kept when their span overlaps the whole selected window (not just the anchor month), so a range
+  // that lands anywhere in, e.g., the viewed year still surfaces.
   const now = new Date();
-  const monthStart = parseMonthAnchor(undefined, now);
-  const budgets = (await getBudgetsResolved(now, workspaceId)).filter((budget) =>
-    isBudgetActiveInMonth(budget, monthStart),
+  const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const window = chartWindow(granularity, offset, today);
+  const lastDay = addDays(window.end, -1);
+  const anchor = today < window.start ? window.start : today > lastDay ? lastDay : today;
+  const budgets = (await getBudgetsResolved(anchor, workspaceId)).filter((budget) =>
+    isBudgetActiveInWindow(budget, window.start, window.end),
   );
   const ranked = budgets
     .map((budget) => {
