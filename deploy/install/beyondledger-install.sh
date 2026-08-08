@@ -20,6 +20,13 @@ msg_ok "Installed Dependencies"
 
 NODE_VERSION="22" setup_nodejs
 
+# Node 22 bundles npm 10.9.x, which cannot read an npm-11-generated
+# package-lock.json (reports transitive deps as "missing"). Match the repo's
+# lockfile version so `npm ci` stays reproducible.
+msg_info "Aligning npm version"
+$STD npm install -g npm@11
+msg_ok "npm $(npm -v)"
+
 msg_info "Cloning BeyondLedger"
 $STD git clone https://github.com/PSeros/BeyondLedger.git "$APP_DIR"
 msg_ok "Cloned BeyondLedger"
