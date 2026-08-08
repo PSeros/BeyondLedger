@@ -1,12 +1,11 @@
 import {PrismaBetterSqlite3} from "@prisma/adapter-better-sqlite3";
 import {PrismaClient} from "@/prisma/generated/client";
 
-// Sqlite adapter
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set");
-}
+// Sqlite adapter.
+// TRY-BRANCH(match-smart): this prototype branch is pinned to its OWN isolated database copy so
+// comparing the budget-matching prototypes never mutates the real DB or collides with another
+// branch's schema.
+const databaseUrl = "file:./prisma/beyondledger-smart.db";
 
 const adapter = new PrismaBetterSqlite3({
   url: databaseUrl,

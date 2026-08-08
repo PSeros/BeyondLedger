@@ -81,16 +81,15 @@ export default function BudgetFormButton({
     [format],
   );
 
-  const billLevel = selection.supplier.length > 0 || selection.supplierCategory.length > 0;
-  const hasOverlap =
-    (billLevel && selection.itemCategory.length > 0) ||
-    (selection.supplier.length > 0 && selection.supplierCategory.length > 0);
   const totalSelected =
     selection.itemCategory.length +
     selection.supplierCategory.length +
     selection.supplier.length +
     selection.contractCategory.length +
     selection.tag.length;
+  const hasBase = selection.itemCategory.length > 0 || selection.contractCategory.length > 0;
+  const hasRefiner =
+    selection.supplierCategory.length > 0 || selection.supplier.length > 0 || selection.tag.length > 0;
 
   function openModal() {
     setSelection(initialSelection(budget));
@@ -233,48 +232,67 @@ export default function BudgetFormButton({
 
                 <div className="flex flex-col gap-1">
                   <span className={labelClass}>{t("membersLabel")}</span>
-                  <p className="text-xs text-muted">{t("membersHint")}</p>
+                  <p className="text-xs text-muted">{t("membersHintSmart")}</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <MultiSelectField
-                    label={t("groupItemCategories")}
-                    options={options.itemCategories}
-                    value={selection.itemCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupContractCategories")}
-                    options={options.contractCategories}
-                    value={selection.contractCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, contractCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupSupplierCategories")}
-                    options={options.supplierCategories}
-                    value={selection.supplierCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupSuppliers")}
-                    options={options.suppliers}
-                    value={selection.supplier}
-                    onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupTags")}
-                    options={options.tags}
-                    value={selection.tag}
-                    onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
+                {/* BASE (ORed): article ∪ contract categories — the two mutually-exclusive domains. */}
+                <div className="flex flex-col gap-3 rounded-(--radius) border border-default-200 p-4">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold">{t("baseSectionTitle")}</span>
+                    <span className="text-xs text-muted">{t("baseSectionHint")}</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <MultiSelectField
+                      label={t("groupItemCategories")}
+                      options={options.itemCategories}
+                      value={selection.itemCategory}
+                      onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
+                      placeholder={t("selectPlaceholder")}
+                    />
+                    <MultiSelectField
+                      label={t("groupContractCategories")}
+                      options={options.contractCategories}
+                      value={selection.contractCategory}
+                      onChange={(keys) => setSelection((s) => ({...s, contractCategory: keys}))}
+                      placeholder={t("selectPlaceholder")}
+                    />
+                  </div>
                 </div>
 
-                {hasOverlap ? <p className="text-xs text-warning">{t("overlapHint")}</p> : null}
+                {/* REFINERS (ANDed): supplier category, supplier, tag — narrow the base on both domains. */}
+                <div className="flex flex-col gap-3 rounded-(--radius) border border-default-200 p-4">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold">{t("refineSectionTitle")}</span>
+                    <span className="text-xs text-muted">
+                      {hasBase ? t("refineSectionHint") : t("refineSectionHintNoBase")}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <MultiSelectField
+                      label={t("groupSupplierCategories")}
+                      options={options.supplierCategories}
+                      value={selection.supplierCategory}
+                      onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
+                      placeholder={t("selectPlaceholder")}
+                    />
+                    <MultiSelectField
+                      label={t("groupSuppliers")}
+                      options={options.suppliers}
+                      value={selection.supplier}
+                      onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
+                      placeholder={t("selectPlaceholder")}
+                    />
+                    <MultiSelectField
+                      label={t("groupTags")}
+                      options={options.tags}
+                      value={selection.tag}
+                      onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
+                      placeholder={t("selectPlaceholder")}
+                    />
+                  </div>
+                </div>
+
+                {!hasBase && hasRefiner ? <p className="text-xs text-muted">{t("noBaseHint")}</p> : null}
                 {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
 
                 {/* Selected member ids mirrored into hidden inputs for FormData. */}
