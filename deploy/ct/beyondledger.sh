@@ -27,12 +27,15 @@ variables
 color
 catch_errors
 
-# Base language — asked ALWAYS, even when using default settings. Drives the UI language and
-# which preconfigured category set (German/English) the database is seeded with after build.
-BL_LOCALE=$(whiptail --backtitle "BeyondLedger" --title "Base Language" --menu \
-  $'Select the base language.\n\nSets the UI language and seeds the preconfigured\ncategories (items, suppliers, contracts, income) in it.' \
-  13 64 2 "de" "Deutsch" "en" "English" 3>&1 1>&2 2>&3) || BL_LOCALE="de"
-BL_LOCALE="${BL_LOCALE:-de}"
+# Base language — asked on a FRESH INSTALL only (always, even on default settings). Detected via
+# pveversion: install runs on the Proxmox host (pveversion present); an update re-runs this script
+# INSIDE the container (no pveversion) and hits update_script instead, where seeding doesn't apply.
+if command -v pveversion >/dev/null 2>&1; then
+  BL_LOCALE=$(whiptail --backtitle "BeyondLedger" --title "Base Language" --menu \
+    $'Select the base language.\n\nSets the UI language and seeds the preconfigured\ncategories (items, suppliers, contracts, income) in it.' \
+    13 64 2 "de" "Deutsch" "en" "English" 3>&1 1>&2 2>&3) || BL_LOCALE="de"
+  BL_LOCALE="${BL_LOCALE:-de}"
+fi
 
 function update_script() {
   header_info
