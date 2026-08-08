@@ -46,14 +46,39 @@ function update_script() {
     exit
   fi
   msg_info "Updating ${APP}"
-  systemctl stop beyondledger
   cd /opt/beyondledger || exit
+  # Build with the app still RUNNING, then restart at the very end. If any step fails, the current
+  # version keeps serving instead of leaving a stopped service behind.
   $STD git pull --ff-only
   $STD npm ci
   $STD npx prisma generate
   $STD npx prisma migrate deploy
   $STD npm run build
-  systemctl start beyondledger
+  # Re-assert the hardened unit and boot-enable it, healing older installs that didn't survive a
+  # container reboot. Keep in sync with deploy/install/beyondledger-install.sh.
+  cat > /etc/systemd/system/beyondledger.service <<'UNIT'
+[Unit]
+Description=BeyondLedger
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/beyondledger
+EnvironmentFile=/opt/beyondledger/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=HOSTNAME=0.0.0.0
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+  $STD systemctl daemon-reload
+  $STD systemctl enable beyondledger
+  $STD systemctl restart beyondledger
   msg_ok "Updated ${APP}"
   exit
 }

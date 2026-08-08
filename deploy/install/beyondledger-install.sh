@@ -54,11 +54,15 @@ $STD npm run build
 msg_ok "Built Application"
 
 msg_info "Creating Service"
+# NOTE: keep this unit in sync with the self-heal copy in deploy/ct/beyondledger.sh (update_script).
+# After=network.target (not network-online.target, which is unreliable in LXC and can stall boot).
+# StartLimitIntervalSec=0 disables the start-rate limit so Restart=always never gives up after a
+# few fast failures at boot.
 cat <<EOF >/etc/systemd/system/beyondledger.service
 [Unit]
 Description=BeyondLedger
-After=network-online.target
-Wants=network-online.target
+After=network.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
@@ -74,6 +78,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
+systemctl daemon-reload
 systemctl enable -q --now beyondledger
 msg_ok "Created Service"
 
