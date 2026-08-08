@@ -271,13 +271,13 @@ export default function BudgetFormButton({
 
                 {/*
                   Smart layout: (article OR contract) AND supplier-category AND supplier AND tag.
-                  Left column = the ORed base (article stacked over contract with an OR divider);
-                  right column = the ANDed refiners; an AND divider joins the two columns (vertical on
-                  sm+, horizontal when they stack on mobile).
+                  Row 1 — the ORed base: article and contract side by side with a vertical OR divider
+                  between them (horizontal when they stack on mobile). A single horizontal AND divider
+                  sits below. Row 2 — the ANDed refiners (supplier category / supplier / tag).
                 */}
-                <div className="flex flex-col gap-4 rounded-(--radius) border border-default-200 p-4 sm:flex-row sm:items-stretch sm:gap-5">
-                  <div className="flex flex-1 flex-col gap-3">
-                    <span className="text-xs font-semibold">{t("baseSectionTitle")}</span>
+                <div className="flex flex-col gap-4 rounded-(--radius) border border-default-200 p-4">
+                  {/* Row 1: article | OR | contract */}
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-4">
                     <MultiSelectField
                       label={t("groupItemCategories")}
                       options={options.itemCategories}
@@ -285,7 +285,8 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
-                    <MatchDivider label={t("or")}/>
+                    <MatchDivider label={t("or")} orientation="vertical" className="hidden sm:flex"/>
+                    <MatchDivider label={t("or")} className="sm:hidden"/>
                     <MultiSelectField
                       label={t("groupContractCategories")}
                       options={options.contractCategories}
@@ -295,12 +296,11 @@ export default function BudgetFormButton({
                     />
                   </div>
 
-                  {/* AND join: vertical between columns on sm+, horizontal when stacked on mobile. */}
-                  <MatchDivider label={t("and")} orientation="vertical" className="hidden sm:flex"/>
-                  <MatchDivider label={t("and")} className="sm:hidden"/>
+                  {/* Single AND divider joining the base row to the refiner row. */}
+                  <MatchDivider label={t("and")}/>
 
-                  <div className="flex flex-1 flex-col gap-3">
-                    <span className="text-xs font-semibold">{t("refineSectionTitle")}</span>
+                  {/* Row 2: the refiners (all ANDed). */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <MultiSelectField
                       label={t("groupSupplierCategories")}
                       options={options.supplierCategories}
@@ -308,7 +308,6 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
-                    <MatchDivider label={t("and")}/>
                     <MultiSelectField
                       label={t("groupSuppliers")}
                       options={options.suppliers}
@@ -316,7 +315,6 @@ export default function BudgetFormButton({
                       onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
                       placeholder={t("selectPlaceholder")}
                     />
-                    <MatchDivider label={t("and")}/>
                     <MultiSelectField
                       label={t("groupTags")}
                       options={options.tags}
