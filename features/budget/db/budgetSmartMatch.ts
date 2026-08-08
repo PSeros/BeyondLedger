@@ -1,20 +1,27 @@
 import {client} from "@/lib/prisma";
 import {computeContractContribution} from "@/features/budget/period";
 
-// "Smart selector" matcher (V4 prototype). Selectors split by role:
+// "Smart selector" matcher (V4). Selectors split by role:
 //
-//   BASE (ORed) — item categories and contract categories. Because an expense is EITHER a variable
-//     line OR a fixed contract, these two never intersect, so they're unioned. Pick only article
-//     categories → contracts don't count; pick only contract categories → variable doesn't count;
-//     pick both → both count; pick neither → the base is "all spend".
+//   BASE (ORed) — item categories and contract categories. An expense is EITHER a variable line OR a
+//     fixed contract, so these two never intersect and are unioned. Pick only article categories →
+//     contracts drop out; pick only contract categories → variable drops out; pick both, or neither,
+//     → both domains are in scope.
 //
 //   REFINERS (ANDed) — supplier category, supplier, tag. Each is an AND constraint applied on top of
-//     the base, on BOTH domains (bills and contracts each have a supplier + tags). Within one
-//     selector the values are ORed ("REWE or Aldi").
+//     the base, on BOTH domains. Within one selector the values are ORed.
 //
-// So "Food + REWE + Vacation" = Food lines, from REWE, tagged Vacation (no contracts). "REWE +
-// Vacation" alone = every REWE bill and REWE contract tagged Vacation. Tag cascade: a bill's tag
-// counts for all its lines.
+// Two rules that surprised earlier versions, both handled here:
+//
+//   • The variable domain is always measured at the LINE ITEM (item.totalPrice), never the whole
+//     bill. A tag on one €39.66 line counts €39.66, not the €83.78 bill. Tag cascade still holds: a
+//     tag on the BILL matches every line in it. (Safe because every bill's items sum to its total
+//     and no bill is item-less in this data.)
+//
+//   • Selecting EVERY available value of a selector means "no constraint" — otherwise a budget that
+//     picks all tags would still exclude every untagged row. So a fully-selected selector is
+//     normalized to empty before matching (see normalizeAllSelected). A budget that selected nothing
+//     at all still matches nothing.
 
 export type FacetGroup = {
   itemCategoryIds: number[];
@@ -23,6 +30,58 @@ export type FacetGroup = {
   contractCategoryIds: number[];
   tagIds: number[];
 };
+
+// Total available values per selector, used to detect "all selected" (⇒ unconstrained).
+export type SelectorTotals = {
+  itemCategories: number;
+  contractCategories: number;
+  supplierCategories: number;
+  suppliers: number;
+  tags: number;
+};
+
+export async function getSelectorTotals(): Promise<SelectorTotals> {
+  const [itemCategories, contractCategories, supplierCategories, suppliers, tags] = await Promise.all([
+    client.itemCategory.count(),
+    client.contractCategory.count(),
+    client.supplierCategory.count(),
+    client.supplier.count(),
+    client.tag.count(),
+  ]);
+  return {itemCategories, contractCategories, supplierCategories, suppliers, tags};
+}
+
+// A selector holding every available value imposes no constraint → normalize it to empty.
+export function normalizeAllSelected(g: FacetGroup, totals: SelectorTotals): FacetGroup {
+  const drop = (sel: number[], total: number) => (total > 0 && sel.length >= total ? [] : sel);
+  return {
+    itemCategoryIds: drop(g.itemCategoryIds, totals.itemCategories),
+    contractCategoryIds: drop(g.contractCategoryIds, totals.contractCategories),
+    supplierCategoryIds: drop(g.supplierCategoryIds, totals.supplierCategories),
+    supplierIds: drop(g.supplierIds, totals.suppliers),
+    tagIds: drop(g.tagIds, totals.tags),
+  };
+}
+
+export function hasAnySelector(g: FacetGroup): boolean {
+  return (
+    g.itemCategoryIds.length > 0 ||
+    g.contractCategoryIds.length > 0 ||
+    g.supplierCategoryIds.length > 0 ||
+    g.supplierIds.length > 0 ||
+    g.tagIds.length > 0
+  );
+}
+
+// Which domains are in scope, from the (normalized) base. Neither base selected → both domains
+// (refiners, if any, define the budget; none → all spend); one base selected → only that domain.
+export function activeDomains(g: FacetGroup): {variable: boolean; contract: boolean} {
+  const bothEmpty = g.itemCategoryIds.length === 0 && g.contractCategoryIds.length === 0;
+  return {
+    variable: g.itemCategoryIds.length > 0 || bothEmpty,
+    contract: g.contractCategoryIds.length > 0 || bothEmpty,
+  };
+}
 
 const CONTRACT_SELECT = {
   startDate: true,
@@ -58,60 +117,25 @@ function sumContracts(rows: ContractRow[], start: Date | null, end: Date | null,
   );
 }
 
-// Which domains the base activates. Neither base selected → both domains active (refiners define the
-// budget); one base selected → only that domain; both → both.
-export function activeDomains(g: FacetGroup): {variable: boolean; contract: boolean} {
-  const bothEmpty = g.itemCategoryIds.length === 0 && g.contractCategoryIds.length === 0;
-  return {
-    variable: g.itemCategoryIds.length > 0 || bothEmpty,
-    contract: g.contractCategoryIds.length > 0 || bothEmpty,
-  };
-}
-
-export function hasAnySelector(g: FacetGroup): boolean {
-  return (
-    g.itemCategoryIds.length > 0 ||
-    g.contractCategoryIds.length > 0 ||
-    g.supplierCategoryIds.length > 0 ||
-    g.supplierIds.length > 0 ||
-    g.tagIds.length > 0
-  );
-}
-
-// ITEM `where` for the variable base when item categories ARE selected: lines in those categories,
-// AND-refined by supplier / supplier-category (on the parent bill) and tag (line or bill — cascade).
-export function itemWhereSmart(g: FacetGroup, dateInWindow: object | undefined, workspaceId: number): object {
+// ITEM `where` for the variable domain — always item-granular. Applies the base item-category filter
+// (if any) and the refiners: supplier / supplier-category (on the parent bill) and tag (line OR bill
+// — cascade). Empty facets impose no constraint, so an all-empty group matches every line.
+export function variableItemWhere(g: FacetGroup, dateInWindow: object | undefined, workspaceId: number): object {
   const bill: Record<string, unknown> = {workspaceId};
   if (dateInWindow) bill.date = dateInWindow;
   if (g.supplierIds.length) bill.supplierId = {in: g.supplierIds};
   if (g.supplierCategoryIds.length) bill.supplier = {categoryId: {in: g.supplierCategoryIds}};
   return {
-    categoryId: {in: g.itemCategoryIds},
     bill,
+    ...(g.itemCategoryIds.length ? {categoryId: {in: g.itemCategoryIds}} : {}),
     ...(g.tagIds.length
       ? {OR: [{tags: {some: {tagId: {in: g.tagIds}}}}, {bill: {tags: {some: {tagId: {in: g.tagIds}}}}}]}
       : {}),
   };
 }
 
-// BILL `where` for the variable base when NO item category is selected (base = all bills), refined
-// by supplier / supplier-category / tag (bill or any line — cascade).
-export function billWhereSmart(g: FacetGroup, dateInWindow: object | undefined, workspaceId: number): object {
-  const where: Record<string, unknown> = {workspaceId};
-  if (dateInWindow) where.date = dateInWindow;
-  if (g.supplierIds.length) where.supplierId = {in: g.supplierIds};
-  if (g.supplierCategoryIds.length) where.supplier = {categoryId: {in: g.supplierCategoryIds}};
-  if (g.tagIds.length) {
-    where.OR = [
-      {tags: {some: {tagId: {in: g.tagIds}}}},
-      {items: {some: {tags: {some: {tagId: {in: g.tagIds}}}}}},
-    ];
-  }
-  return where;
-}
-
-// CONTRACT `where`: base (contract category, if any) AND-refined by supplier / supplier-category (on
-// the contract's supplier) and tag (on the contract).
+// CONTRACT `where`: base contract-category (if any) AND-refined by supplier / supplier-category (on
+// the contract's supplier) and tag. Empty facets impose no constraint.
 export function contractWhereSmart(g: FacetGroup, contractOverlap: object, workspaceId: number): object {
   return {
     workspaceId,
@@ -123,16 +147,20 @@ export function contractWhereSmart(g: FacetGroup, contractOverlap: object, works
   };
 }
 
-// Actual spend under the smart model: variable domain (items or bills) + contract domain, unioned.
+// Actual spend under the smart model. `gRaw` is the budget's raw selectors; it is normalized here so
+// callers don't have to. Returns 0 for a budget with no selectors at all.
 export async function computeSmartTotal(
-  g: FacetGroup,
+  gRaw: FacetGroup,
   start: Date | null,
   end: Date | null,
   workspaceId: number,
   windowMonths: number,
   now: Date,
+  totals: SelectorTotals,
 ): Promise<number> {
-  if (!hasAnySelector(g)) return 0; // nothing selected → nothing counts
+  if (!hasAnySelector(gRaw)) return 0; // an empty budget counts nothing
+  const g = normalizeAllSelected(gRaw, totals);
+
   const dateInWindow = start || end ? {...(start ? {gte: start} : {}), ...(end ? {lt: end} : {})} : undefined;
   const contractOverlap = {
     ...(end != null ? {startDate: {lt: end}} : {}),
@@ -140,20 +168,13 @@ export async function computeSmartTotal(
   };
   const {variable, contract} = activeDomains(g);
 
-  // Variable domain: item-level when an item category is picked, else bill-level.
-  const itemWhere = variable && g.itemCategoryIds.length > 0 ? itemWhereSmart(g, dateInWindow, workspaceId) : null;
-  const billWhere = variable && g.itemCategoryIds.length === 0 ? billWhereSmart(g, dateInWindow, workspaceId) : null;
+  const itemWhere = variable ? variableItemWhere(g, dateInWindow, workspaceId) : null;
   const contractWhere = contract ? contractWhereSmart(g, contractOverlap, workspaceId) : null;
 
-  const [itemAgg, billAgg, contracts] = await Promise.all([
+  const [itemAgg, contracts] = await Promise.all([
     itemWhere ? client.item.aggregate({_sum: {totalPrice: true}, where: itemWhere}) : null,
-    billWhere ? client.bill.aggregate({_sum: {totalAmount: true}, where: billWhere}) : null,
     contractWhere ? client.contract.findMany({where: contractWhere, select: CONTRACT_SELECT}) : [],
   ]);
 
-  return (
-    Number(itemAgg?._sum.totalPrice ?? 0) +
-    Number(billAgg?._sum.totalAmount ?? 0) +
-    sumContracts(contracts, start, end, windowMonths, now)
-  );
+  return Number(itemAgg?._sum.totalPrice ?? 0) + sumContracts(contracts, start, end, windowMonths, now);
 }
