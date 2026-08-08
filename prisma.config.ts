@@ -9,7 +9,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // TRY-BRANCH(match-smart): pinned to this branch's isolated DB copy (see lib/prisma.ts).
-    url: "file:./prisma/beyondledger-smart.db",
+    url: process.env["DATABASE_URL"],
   },
 });
+
+console.log(process.env["DATABASE_URL"])
