@@ -4,7 +4,7 @@ import {useMemo, useState} from "react";
 import type {Key} from "react-aria-components";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button, ButtonGroup, Label, ListBox, Modal, Select, Separator} from "@heroui/react";
+import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react";
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import MultiSelectField from "@/features/budget/components/MultiSelectField";
@@ -15,44 +15,10 @@ import {createBudget, updateBudget} from "@/features/budget/db/budgetMutations";
 
 // Create/edit form for a budget in a controlled Modal (not an interception route). `budget`
 // undefined = create. The period-type Select reveals its extra fields (anchor month for
-// MONTH_OF_YEAR; start/end for RANGE).
-//
-// MATCH MODEL (this branch): smart selector. Item + contract categories are the ORed base (stacked
-// with an OR divider); supplier category / supplier / tag are ANDed refiners. The base block and the
-// refiner block are joined by an AND divider. Picks mirror into hidden inputs (memberItemCategoryId,
-// …) so the native <form action> posts them.
+// MONTH_OF_YEAR; start/end for RANGE). Members are picked via four multi-Selects and mirrored into
+// hidden inputs so the native <form action> posts them (memberItemCategoryId, …).
 
 const PERIOD_TYPES: BudgetPeriodType[] = ["MONTHLY", "QUARTERLY", "YEARLY", "MONTH_OF_YEAR", "RANGE", "OPEN"];
-
-// A HeroUI Separator flanking a small OR/AND label. Horizontal (default) sits between stacked fields;
-// vertical joins the two side-by-side columns on wider screens.
-function MatchDivider({
-  label,
-  orientation = "horizontal",
-  className = "",
-}: {
-  label: string;
-  orientation?: "horizontal" | "vertical";
-  className?: string;
-}) {
-  const chip = "text-[0.65rem] font-semibold uppercase tracking-wide text-muted";
-  if (orientation === "vertical") {
-    return (
-      <div className={`flex-col items-center gap-2 self-stretch ${className}`}>
-        <Separator orientation="vertical" className="flex-1"/>
-        <span className={chip}>{label}</span>
-        <Separator orientation="vertical" className="flex-1"/>
-      </div>
-    );
-  }
-  return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <Separator className="flex-1"/>
-      <span className={chip}>{label}</span>
-      <Separator className="flex-1"/>
-    </div>
-  );
-}
 
 type Selection = {
   itemCategory: string[];
@@ -115,15 +81,16 @@ export default function BudgetFormButton({
     [format],
   );
 
+  const billLevel = selection.supplier.length > 0 || selection.supplierCategory.length > 0;
+  const hasOverlap =
+    (billLevel && selection.itemCategory.length > 0) ||
+    (selection.supplier.length > 0 && selection.supplierCategory.length > 0);
   const totalSelected =
     selection.itemCategory.length +
     selection.supplierCategory.length +
     selection.supplier.length +
     selection.contractCategory.length +
     selection.tag.length;
-  const hasBase = selection.itemCategory.length > 0 || selection.contractCategory.length > 0;
-  const hasRefiner =
-    selection.supplierCategory.length > 0 || selection.supplier.length > 0 || selection.tag.length > 0;
 
   function openModal() {
     setSelection(initialSelection(budget));
@@ -266,68 +233,48 @@ export default function BudgetFormButton({
 
                 <div className="flex flex-col gap-1">
                   <span className={labelClass}>{t("membersLabel")}</span>
-                  <p className="text-xs text-muted">{t("membersHintSmart")}</p>
+                  <p className="text-xs text-muted">{t("membersHint")}</p>
                 </div>
 
-                {/*
-                  Smart layout: (article OR contract) AND supplier-category AND supplier AND tag.
-                  Row 1 — the ORed base: article and contract side by side with a vertical OR divider
-                  between them (horizontal when they stack on mobile). A single horizontal AND divider
-                  sits below. Row 2 — the ANDed refiners (supplier category / supplier / tag).
-                */}
-                <div className="flex flex-col gap-4 rounded-(--radius) border border-default-200 p-4">
-                  {/* Row 1: article | OR | contract */}
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:gap-4">
-                    <MultiSelectField
-                      label={t("groupItemCategories")}
-                      options={options.itemCategories}
-                      value={selection.itemCategory}
-                      onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
-                      placeholder={t("selectPlaceholder")}
-                    />
-                    <MatchDivider label={t("or")} orientation="vertical" className="hidden sm:flex"/>
-                    <MatchDivider label={t("or")} className="sm:hidden"/>
-                    <MultiSelectField
-                      label={t("groupContractCategories")}
-                      options={options.contractCategories}
-                      value={selection.contractCategory}
-                      onChange={(keys) => setSelection((s) => ({...s, contractCategory: keys}))}
-                      placeholder={t("selectPlaceholder")}
-                    />
-                  </div>
-
-                  {/* Single AND divider joining the base row to the refiner row. */}
-                  <MatchDivider label={t("and")}/>
-
-                  {/* Row 2: the refiners (all ANDed). */}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <MultiSelectField
-                      label={t("groupSupplierCategories")}
-                      options={options.supplierCategories}
-                      value={selection.supplierCategory}
-                      onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
-                      placeholder={t("selectPlaceholder")}
-                    />
-                    <MultiSelectField
-                      label={t("groupSuppliers")}
-                      options={options.suppliers}
-                      value={selection.supplier}
-                      onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
-                      placeholder={t("selectPlaceholder")}
-                    />
-                    <MultiSelectField
-                      label={t("groupTags")}
-                      options={options.tags}
-                      value={selection.tag}
-                      onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
-                      placeholder={t("selectPlaceholder")}
-                    />
-                  </div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <MultiSelectField
+                    label={t("groupItemCategories")}
+                    options={options.itemCategories}
+                    value={selection.itemCategory}
+                    onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
+                  <MultiSelectField
+                    label={t("groupContractCategories")}
+                    options={options.contractCategories}
+                    value={selection.contractCategory}
+                    onChange={(keys) => setSelection((s) => ({...s, contractCategory: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
+                  <MultiSelectField
+                    label={t("groupSupplierCategories")}
+                    options={options.supplierCategories}
+                    value={selection.supplierCategory}
+                    onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
+                  <MultiSelectField
+                    label={t("groupSuppliers")}
+                    options={options.suppliers}
+                    value={selection.supplier}
+                    onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
+                  <MultiSelectField
+                    label={t("groupTags")}
+                    options={options.tags}
+                    value={selection.tag}
+                    onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
+                    placeholder={t("selectPlaceholder")}
+                  />
                 </div>
 
-                <p className="text-xs text-muted">
-                  {!hasBase && hasRefiner ? t("noBaseHint") : t("membersHintSmart")}
-                </p>
+                {hasOverlap ? <p className="text-xs text-warning">{t("overlapHint")}</p> : null}
                 {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
 
                 {/* Selected member ids mirrored into hidden inputs for FormData. */}
