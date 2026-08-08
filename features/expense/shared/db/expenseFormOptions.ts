@@ -23,15 +23,15 @@ export type ExpenseFormOptions = {
 // every supplier/category/frequency (not domain-scoped like the filter options) so a new
 // expense of either kind can reference any of them. `supplierCategories` feeds the inline
 // "create a new supplier" popover (a new supplier needs a category). Frequencies are
-// value-sorted (One-time, Yearly, Quarterly, Monthly by billing-per-year) to match the
-// edit-form ordering.
+// value-sorted (Yearly, Semi-annually, Quarterly, Monthly by billing-per-year) and recurring
+// only — a one-off expense is a Bill, so the one-time frequency is Income-only.
 export async function getExpenseFormOptions(): Promise<ExpenseFormOptions> {
   const [suppliers, supplierCategories, itemCategories, contractCategories, frequencies, tags, workspaces, activeWorkspaceId] = await Promise.all([
     client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplierCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.itemCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
-    client.frequency.findMany({select: {id: true, name: true}, orderBy: {value: "asc"}}),
+    client.frequency.findMany({where: {isRecurring: true}, select: {id: true, name: true}, orderBy: {value: "asc"}}),
     client.tag.findMany({select: {id: true, name: true, color: true}, orderBy: {name: "asc"}}),
     getWorkspaces(),
     getActiveWorkspaceId(),

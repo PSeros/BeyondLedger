@@ -27,6 +27,13 @@ variables
 color
 catch_errors
 
+# Base language — asked ALWAYS, even when using default settings. Drives the UI language and
+# which preconfigured category set (German/English) the database is seeded with after build.
+BL_LOCALE=$(whiptail --backtitle "BeyondLedger" --title "Base Language" --menu \
+  $'Select the base language.\n\nSets the UI language and seeds the preconfigured\ncategories (items, suppliers, contracts, income) in it.' \
+  13 64 2 "de" "Deutsch" "en" "English" 3>&1 1>&2 2>&3) || BL_LOCALE="de"
+BL_LOCALE="${BL_LOCALE:-de}"
+
 function update_script() {
   header_info
   check_container_storage
@@ -51,6 +58,16 @@ function update_script() {
 start
 build_container
 description
+
+# Set the base language and seed the preconfigured categories in that language (idempotent).
+# Runs here (not in the installer) because the language choice lives on the host prompt, and
+# build.func does not forward custom env into the lxc-attach install.
+msg_info "Setting language & seeding categories (${BL_LOCALE})"
+if pct exec "$CTID" -- bash -c "cd /opt/beyondledger && APP_LOCALE=${BL_LOCALE} NODE_ENV=production npm run db:init" &>/dev/null; then
+  msg_ok "Initialized database (${BL_LOCALE})"
+else
+  msg_error "Database init failed. Run it manually:\n  pct exec ${CTID} -- bash -c 'cd /opt/beyondledger && APP_LOCALE=${BL_LOCALE} npm run db:init'"
+fi
 
 msg_ok "Completed Successfully!\n"
 echo -e "${CREATING}${GN}${APP} setup has been successfully initialized!${CL}"

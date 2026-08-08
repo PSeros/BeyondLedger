@@ -25,7 +25,8 @@ export async function getContractFormOptions(): Promise<ContractFormOptions> {
     client.supplier.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.supplierCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.contractCategory.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
-    client.frequency.findMany({select: {id: true, name: true}, orderBy: {value: "asc"}}),
+    // Recurring only: a one-off fixed expense is a Bill, so the one-time frequency is Income-only.
+    client.frequency.findMany({where: {isRecurring: true}, select: {id: true, name: true}, orderBy: {value: "asc"}}),
     client.tag.findMany({select: {id: true, name: true, color: true}, orderBy: {name: "asc"}}),
     getWorkspaces(),
     getActiveWorkspaceId(),
