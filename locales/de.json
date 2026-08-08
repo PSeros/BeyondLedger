@@ -255,6 +255,16 @@
       "upcomingHint": "Zeige fixe Ausgaben und Einnahmen, die innerhalb dieser Tage fällig sind.",
       "saved": "Gespeichert",
       "couldNotSave": "Speichern fehlgeschlagen"
+    },
+    "backup": {
+      "heading": "Sicherung & Wiederherstellung",
+      "headingDescription": "Lade eine vollständige Sicherung herunter (Datenbank + hochgeladene Dateien) oder stelle die App daraus wieder her.",
+      "download": "Sicherung herunterladen",
+      "restore": "Wiederherstellen…",
+      "hint": "Die Sicherung ist eine einzelne .tar.gz-Datei mit der Datenbank und allen hochgeladenen Dateien.",
+      "confirm": "Beim Wiederherstellen werden ALLE aktuellen Daten – die Datenbank und alle hochgeladenen Dateien – durch den Inhalt dieser Sicherung ersetzt. Die aktuellen Daten werden als .bak-Kopie behalten. Fortfahren?",
+      "restarting": "Sicherung wiederhergestellt. Die App wird neu gestartet; diese Seite wird in wenigen Sekunden neu geladen.",
+      "restoredNeedsRestart": "Sicherung wiederhergestellt. Starte die App neu, um die Änderungen zu übernehmen."
     }
   },
   "detail": {

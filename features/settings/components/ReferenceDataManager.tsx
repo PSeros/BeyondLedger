@@ -17,6 +17,7 @@ import type {
 } from "@/features/settings/db/referenceData";
 import type {AiSettingsForm} from "@/features/settings/db/aiSettings";
 import AiSettingsSection from "@/features/settings/components/AiSettingsSection";
+import BackupSettingsSection from "@/features/settings/components/BackupSettingsSection";
 import LocaleSettingsSection from "@/features/settings/components/LocaleSettingsSection";
 import WindowSettingsSection from "@/features/settings/components/WindowSettingsSection";
 import {SectionCard} from "@/features/settings/components/SectionCard";
@@ -127,6 +128,16 @@ export default function ReferenceDataManager({
           </div>
           <div className="max-w-2xl">
             <AiSettingsSection settings={aiSettings}/>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-base font-semibold">{t("backup.heading")}</h2>
+            <p className="mt-1 max-w-2xl text-sm text-muted">{t("backup.headingDescription")}</p>
+          </div>
+          <div className="max-w-2xl">
+            <BackupSettingsSection/>
           </div>
         </section>
 

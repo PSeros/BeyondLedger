@@ -3,9 +3,14 @@ import {mkdir, unlink, writeFile} from "node:fs/promises";
 import path from "node:path";
 
 // Where uploaded document bytes live on disk. Configurable so a deployment can point at a
-// mounted volume; defaults to a gitignored ./storage/uploads under the project root.
-function baseDir(): string {
+// mounted volume; defaults to a gitignored ./storage/uploads under the project root. Exported
+// for the backup/restore routes, which bundle and swap this whole directory.
+export function getStorageDir(): string {
   return process.env.FILE_STORAGE_DIR ?? path.join(process.cwd(), "storage", "uploads");
+}
+
+function baseDir(): string {
+  return getStorageDir();
 }
 
 export type StoredFileMeta = {

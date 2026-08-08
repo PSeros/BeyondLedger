@@ -255,6 +255,16 @@
       "upcomingHint": "Show fixed expenses and income due within this many days.",
       "saved": "Saved",
       "couldNotSave": "Could not save"
+    },
+    "backup": {
+      "heading": "Backup & Restore",
+      "headingDescription": "Download a complete backup (database + uploaded files) or restore the app from one.",
+      "download": "Download backup",
+      "restore": "Restore…",
+      "hint": "The backup is a single .tar.gz containing the database and every uploaded file.",
+      "confirm": "Restoring replaces ALL current data — the database and every uploaded file — with the contents of this backup. The current data is kept as a .bak copy. Continue?",
+      "restarting": "Backup restored. The app is restarting; this page will reload in a few seconds.",
+      "restoredNeedsRestart": "Backup restored. Restart the app to apply the changes."
     }
   },
   "detail": {
