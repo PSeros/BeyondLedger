@@ -10,7 +10,7 @@ import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUp
 import ExpenseEmptyState from "@/features/expense/shared/components/ExpenseEmptyState";
 import {getContractCount} from "@/features/expense/fixed/db/contractTableData";
 import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
-import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
+import {getAppSettings} from "@/features/settings/db/appSettings";
 
 type FixedPageProps = {
   searchParams: Promise<{
@@ -39,7 +39,7 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function FixedPage({searchParams}: FixedPageProps) {
   const params = await searchParams;
-  const activeWorkspaceId = await getActiveWorkspaceId();
+  const {activeWorkspaceId, upcomingWindowDays} = await getAppSettings();
   const filters = {
     q: params.q,
     supplierId: parseId(params.supplierId),
@@ -77,7 +77,7 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
             <div className="relative w-2/5">
               <div className="absolute inset-0">
                 <Suspense fallback={<Card className="h-full animate-pulse"/>}>
-                  <ContractUpcomingCard {...filters}/>
+                  <ContractUpcomingCard {...filters} withinDays={upcomingWindowDays}/>
                 </Suspense>
               </div>
             </div>

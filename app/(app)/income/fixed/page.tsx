@@ -10,7 +10,7 @@ import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
 import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
-import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
+import {getAppSettings} from "@/features/settings/db/appSettings";
 
 type FixedIncomePageProps = {
   searchParams: Promise<{
@@ -39,7 +39,7 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function FixedIncomePage({searchParams}: FixedIncomePageProps) {
   const params = await searchParams;
-  const activeWorkspaceId = await getActiveWorkspaceId();
+  const {activeWorkspaceId, upcomingWindowDays} = await getAppSettings();
   // Categorical filters feed every section (chart, upcoming, table). Status is table-only (chart +
   // upcoming are Active-by-nature).
   const filters = {
@@ -79,7 +79,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
             <div className="relative w-2/5">
               <div className="absolute inset-0">
                 <Suspense fallback={<Card className="h-full animate-pulse"/>}>
-                  <IncomeUpcomingCard {...filters}/>
+                  <IncomeUpcomingCard {...filters} withinDays={upcomingWindowDays}/>
                 </Suspense>
               </div>
             </div>
