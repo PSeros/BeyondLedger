@@ -11,6 +11,7 @@ import BudgetDetailModal from "@/features/budget/components/BudgetDetailModal";
 import BudgetFormButton from "@/features/budget/components/BudgetFormButton";
 import type {BudgetMemberOptions, BudgetResolved} from "@/features/budget/db/budgets";
 import {clearBudgetOverride, deleteBudget, setBudgetOverride} from "@/features/budget/db/budgetMutations";
+import {budgetProgress} from "@/features/budget/progress";
 
 // One budget shown for its CURRENT period: the period label + window, target vs. actual vs.
 // remaining, a usage meter, member chips, edit/delete, and a per-period override control.
@@ -21,10 +22,7 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
   const format = useFormatter();
   const router = useRouter();
 
-  const remaining = budget.target - budget.actual;
-  const isOver = remaining < 0;
-  const ratio = budget.target > 0 ? budget.actual / budget.target : 0;
-  const meterPct = Math.min(100, Math.round(ratio * 100));
+  const {remaining, isOver, ratio, meterPercent: meterPct} = budgetProgress(budget.target, budget.actual);
   const meterColor = isOver ? "bg-danger" : ratio >= 0.85 ? "bg-warning" : "bg-success";
 
   const hasOverride = budget.overrides.some((o) => o.periodKey === budget.periodKey);
