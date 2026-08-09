@@ -165,6 +165,7 @@
     "addItem": "Position hinzufügen",
     "itemName": "Positionsname",
     "removeItem": "Position entfernen",
+    "toggleSign": "Vorzeichen umkehren (Geld zurück)",
     "noItems": "Jede Rechnung braucht mindestens eine Position.",
     "newSupplier": "Neuer Lieferant",
     "newSupplierCategory": "Neue Lieferantenkategorie",

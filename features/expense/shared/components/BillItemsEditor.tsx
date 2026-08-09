@@ -211,8 +211,20 @@ function ItemRowFields({
           isRequired
           className="col-span-2 sm:col-span-1"
         />
-        <RowNumber name="itemQuantity" label={tFields("quantity")} value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
-        <RowNumber name="itemUnitPrice" label={tFields("unitPrice")} value={row.unitPrice} onChange={(unitPrice) => onChange({unitPrice})}/>
+        <RowNumber
+          name="itemQuantity"
+          label={tFields("quantity")}
+          value={row.quantity}
+          onChange={(quantity) => onChange({quantity})}
+          signToggle
+        />
+        <RowNumber
+          name="itemUnitPrice"
+          label={tFields("unitPrice")}
+          value={row.unitPrice}
+          onChange={(unitPrice) => onChange({unitPrice})}
+          signToggle
+        />
         <RowNumber
           name="itemWarranty"
           label={tFields("warranty")}
@@ -238,19 +250,36 @@ function ItemRowFields({
   );
 }
 
+// Flips the leading minus of an already-typed value. Blank / non-numeric input is left alone (the
+// button is disabled then): a lone "-" is not a valid number, so a controlled type="number" input
+// would sanitize it straight back to an empty field and the tap would look like it did nothing.
+function toggleSign(value: string): string {
+  const trimmed = value.trim();
+  if (!Number.isFinite(Number(trimmed)) || trimmed === "") {
+    return value;
+  }
+  return trimmed.startsWith("-") ? trimmed.slice(1) : `-${trimmed}`;
+}
+
 function RowNumber({
   name,
   label,
   value,
   onChange,
   optional,
+  signToggle,
 }: {
   name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
   optional?: boolean;
+  // Adds a touch-only ± button (see below). Only for fields that may go negative — a bill line can
+  // give money back (Pfand/Leergut, a refund, a returned article).
+  signToggle?: boolean;
 }) {
+  const t = useTranslations("forms");
+
   return (
     <TextField
       name={name}
@@ -261,7 +290,29 @@ function RowNumber({
       className="flex flex-col gap-1"
     >
       <Label className={labelClass}>{label}</Label>
-      <Input type="number" step="any" inputMode="decimal"/>
+      {/* The ± button is `sm:hidden` — touch keyboards only. `inputMode` (not `type`) picks the
+          Android keyboard, and the "decimal" keypad is defined as digits + the locale's decimal
+          separator, so it has no minus key at all; a physical keyboard does, hence desktop keeps
+          the plain field. */}
+      <div className="flex min-w-0 items-center gap-1">
+        {/* min-w-0 so the input yields the button's width instead of widening the grid column —
+            an <input> carries a wide intrinsic min-width. */}
+        <Input type="number" step="any" inputMode="decimal" className="min-w-0 flex-1"/>
+        {signToggle ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="tertiary"
+            isIconOnly
+            className="sm:hidden"
+            aria-label={t("toggleSign")}
+            isDisabled={value.trim() === ""}
+            onPress={() => onChange(toggleSign(value))}
+          >
+            <span aria-hidden="true" className="text-base leading-none">±</span>
+          </Button>
+        ) : null}
+      </div>
       <FieldErrorMessage/>
     </TextField>
   );
