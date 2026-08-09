@@ -36,7 +36,10 @@ export default async function AppLayout({
 
       {/* Border only at lg+ — below it there is nothing to the left, so it would be a stray 1px line
           down the edge of the screen. */}
-      <div className="flex min-h-0 flex-1 flex-col lg:border-l lg:border-separator">
+      {/* min-w-0 is load-bearing: as a flex item this column keeps the default min-width:auto, i.e. it
+          refuses to shrink below its content's min-content width. A wide table would push it past the
+          viewport (and get clipped by the overflow-hidden shell) instead of letting the content scroll. */}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:border-l lg:border-separator">
         <Topbar
           nav={<MobileNavDrawer workspaces={workspaces} activeWorkspaceId={activeWorkspaceId}/>}
         />

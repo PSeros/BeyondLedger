@@ -4,7 +4,7 @@ import type {SortDescriptor} from "@heroui/react";
 
 import {EmptyState, Spinner, Table, cn} from "@heroui/react";
 import {useLocale, useTranslations} from "next-intl";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import type {Key, ReactNode} from "react";
 import {MdKeyboardArrowUp} from "react-icons/md";
 import {LuInbox} from "react-icons/lu";
@@ -121,8 +121,43 @@ export default function DataTable<T extends DataTableRow>({
   }, [columns, manualSorting, rows, sortDescriptor, locale]);
 
   const isPageScroll = scroll === "page";
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Load-more is driven by our own sentinel in page mode, not React Aria's.
+  //
+  // React Aria roots its load-more IntersectionObserver at getScrollParent(sentinel), and
+  // getScrollParent picks any ancestor whose *computed overflow* contains "auto" — it is called
+  // without a can-this-actually-scroll check. Below lg the ScrollContainer becomes a horizontal
+  // scroller (see its className), i.e. a box that never scrolls vertically and whose height equals
+  // its content height, with React Aria's 1px sentinel sitting on its bottom edge. That root makes
+  // the sentinel either permanently intersecting (runaway pagination, since the callers' in-flight
+  // guard only de-dupes concurrent calls) or permanently outside it (infinite scroll silently dead)
+  // depending on sub-pixel layout.
+  //
+  // Observing our own sentinel against the viewport sidesteps the whole problem: ancestor scroll
+  // containers still clip it, so it fires exactly when the end of the list is genuinely visible, and
+  // the behaviour is identical above and below lg — one code path, no breakpoint branch.
+  useEffect(() => {
+    if (!isPageScroll || !hasMore || !onLoadMore) return;
+
+    const element = sentinelRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) onLoadMore();
+      },
+      {rootMargin: "0px 0px 200px 0px"},
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+    // sortedRows.length re-arms the observer after each append (mirroring React Aria's own
+    // tear-down-on-collection-change), so a first page too short to fill the viewport keeps loading.
+  }, [isPageScroll, hasMore, onLoadMore, sortedRows.length]);
 
   return (
+    <>
     <Table
       className={cn(
         "flex w-full flex-col",
@@ -135,9 +170,20 @@ export default function DataTable<T extends DataTableRow>({
     >
       <Table.ScrollContainer
         className={
-          // overflow-visible keeps this element OUT of getScrollParent's chain so the LoadMore
-          // sentinel observes the page scroll container instead, and the sticky header sticks there.
-          isPageScroll ? "overflow-visible" : "min-h-0 overflow-auto [scrollbar-gutter:stable]"
+          // Below lg the table scrolls horizontally on its own (HeroUI's default for this element).
+          // At lg+ overflow-visible keeps it OUT of getScrollParent's chain so the sticky header
+          // sticks to the page scroll container. Note overflow-x-auto + overflow-y-visible is not an
+          // option: CSS computes the `visible` axis to `auto` once the other axis isn't visible, so
+          // it would be a scroll container on both axes anyway.
+          //
+          // min-w-0 is required, not cosmetic: the Table root's `flex flex-col` overrides
+          // .table-root's grid + minmax(0,1fr), so this flex item keeps the default min-width:auto
+          // and sizes itself to the table's content (~900px). It would then be clipped by the
+          // overflow-hidden <main> instead of scrolling. min-w-0 lets it shrink to the viewport so
+          // overflow-x-auto has something to scroll.
+          isPageScroll
+            ? "min-w-0 overflow-x-auto lg:overflow-visible"
+            : "min-h-0 overflow-auto [scrollbar-gutter:stable]"
         }
       >
         <Table.Content
@@ -151,7 +197,13 @@ export default function DataTable<T extends DataTableRow>({
             {(column) => (
               <Table.Column
                 allowsSorting={column.allowsSorting ?? true}
-                className="sticky top-0 z-10 bg-surface-secondary"
+                // In page mode below lg the ScrollContainer is a horizontal scroller, so there is no
+                // vertical scroll container for the header to stick to — claim sticky only at lg+,
+                // where the page container is the scroll parent again.
+                className={cn(
+                  "bg-surface-secondary max-lg:whitespace-nowrap",
+                  isPageScroll ? "z-10 lg:sticky lg:top-0" : "sticky top-0 z-10",
+                )}
                 id={column.id}
                 isRowHeader={column.isRowHeader}
               >
@@ -178,12 +230,24 @@ export default function DataTable<T extends DataTableRow>({
                 className={onRowAction ? "cursor-pointer" : undefined}
               >
                 {columns.map((column) => (
-                  <Table.Cell key={column.id}>{row[column.id]}</Table.Cell>
+                  // nowrap below lg so the table's min-content width actually exceeds a phone
+                  // viewport and the horizontal scroller engages, instead of cells squashing to one
+                  // word per line.
+                  <Table.Cell key={column.id} className="max-lg:whitespace-nowrap">
+                    {row[column.id]}
+                  </Table.Cell>
                 ))}
               </Table.Row>
             ))}
             {!!hasMore && !!onLoadMore && (
-              <Table.LoadMore isLoading={isLoadingMore} scrollOffset={0} onLoadMore={onLoadMore}>
+              // In page mode this row is kept purely for the spanning spinner — withholding
+              // onLoadMore no-ops React Aria's own sentinel so it can't double-fire against our
+              // viewport-rooted observer below.
+              <Table.LoadMore
+                isLoading={isLoadingMore}
+                scrollOffset={0}
+                onLoadMore={isPageScroll ? undefined : onLoadMore}
+              >
                 <Table.LoadMoreContent>
                   <Spinner size="md"/>
                 </Table.LoadMoreContent>
@@ -193,5 +257,11 @@ export default function DataTable<T extends DataTableRow>({
         </Table.Content>
       </Table.ScrollContainer>
     </Table>
+    {/* Outside <Table> on purpose: no overflow anywhere inside the table can capture it, at any
+        width. See the IntersectionObserver above. */}
+    {isPageScroll && hasMore ? (
+      <div ref={sentinelRef} aria-hidden="true" className="h-px w-full"/>
+    ) : null}
+    </>
   );
 }
