@@ -140,8 +140,10 @@ export default function CashFlowChart({
               axisLine={false}
               tickLine={false}
               tickMargin={10}
-              interval={granularity === "1M" ? 1 : 0}
-              tick={{fontSize: "0.875rem", fill: "var(--muted)"}}
+              // Same reasoning as components/ChartCard: a fixed stride tuned for desktop collides at
+              // phone widths, so let recharts drop overlapping ticks from the measured width.
+              interval="preserveStartEnd"
+              tick={{fontSize: "0.75rem", fill: "var(--muted)"}}
             />
             <YAxis
               domain={["dataMin - 80", "dataMax + 80"]}

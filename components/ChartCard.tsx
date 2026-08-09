@@ -104,10 +104,13 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
     // chip + navigator + granularity buttons), which on a phone pushes the whole card past the
     // viewport. Below lg the header wraps instead.
     <Card className="min-h-fit shrink-0 lg:min-w-fit">
-      {/* Three-zone header: title left, period navigator centered (equal-width side zones keep it in
-          the card's middle), granularity buttons right. Wraps below lg. */}
-      <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="min-w-0 flex-1">
+      {/* Three-zone header at lg+: title left, period navigator centered (equal-width side zones keep
+          it in the card's middle), granularity buttons right.
+          Below lg it wraps into rows instead — the navigator is ~230px and does not shrink, so
+          sharing a row with the title squeezed the title to ~78px and wrapped it onto two lines
+          alongside the navigator. The title now claims a full row of its own. */}
+      <Card.Header className="flex flex-row flex-wrap items-center gap-x-2 gap-y-2 lg:gap-x-4">
+        <div className="w-full min-w-0 lg:w-auto lg:flex-1">
           <p className="text-sm">{title}</p>
 
           <div className="mt-1 flex items-center gap-3">
@@ -135,7 +138,9 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
           />
         ) : null}
 
-        <div className="flex flex-1 justify-end">
+        {/* ml-auto (not flex-1) below lg: auto width lets it wrap to its own row on very narrow
+            screens rather than overflowing, and still sit right-aligned when it does. */}
+        <div className="ml-auto flex justify-end lg:ml-0 lg:flex-1">
           {granularities.length > 1 && (
             <ButtonGroup size="sm">
               {granularities.map((item) => (

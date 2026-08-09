@@ -26,9 +26,10 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
   const hasPct = Number.isFinite(pctChange);
 
   return (
-    // Tighter padding below sm: the dashboard KPI strip keeps three cards across even on a phone,
-    // which leaves each one ~114px, and HeroUI's default p-4 eats 32 of them.
-    <Card className="flex h-full flex-col p-3 sm:p-4">
+    // Tighter padding and gap below sm: the dashboard KPI strip keeps three cards across even on a
+    // phone, which leaves each one ~114px wide in a single 6rem grid row, and HeroUI's defaults
+    // (p-4 + gap-3) spend 44 of those 96 vertical pixels on whitespace.
+    <Card className="flex h-full flex-col gap-1 p-2 sm:gap-3 sm:p-4">
       <Card.Header>
         <Card.Title className="text-muted">{title}</Card.Title>
       </Card.Header>
