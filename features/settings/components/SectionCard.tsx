@@ -1,7 +1,7 @@
 import type {ReactNode} from "react";
 
 // Shared card shell for every /settings block (reference-data lists, the AI config, the
-// preference forms). `id` is the anchor the settings search jumps to.
+// preference forms). `id` is a link anchor, so a section can be deep-linked with a #hash.
 // `title` is optional: on the preference pages the surrounding SettingsSection already carries the
 // heading, so the card is used as a bare shell.
 export function SectionCard({id, title, count, description, children}: {

@@ -198,11 +198,6 @@
       "ai": "AI",
       "backup": "Backup"
     },
-    "search": {
-      "label": "Search settings",
-      "placeholder": "Search settings…",
-      "noResults": "No matching setting."
-    },
     "aiHeading": "AI / Document processing",
     "aiHeadingDescription": "Configure the provider that reads uploaded documents and auto-creates expenses from them.",
     "refDataHeading": "Reference data",

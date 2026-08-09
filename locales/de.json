@@ -198,11 +198,6 @@
       "ai": "KI",
       "backup": "Backup"
     },
-    "search": {
-      "label": "Einstellungen durchsuchen",
-      "placeholder": "Einstellungen durchsuchen…",
-      "noResults": "Keine passende Einstellung."
-    },
     "aiHeading": "KI / Dokumentenverarbeitung",
     "aiHeadingDescription": "Konfiguriere den Anbieter, der hochgeladene Dokumente liest und daraus automatisch Ausgaben erstellt.",
     "refDataHeading": "Stammdaten",

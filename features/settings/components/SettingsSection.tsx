@@ -1,7 +1,7 @@
 import type {ReactNode} from "react";
 
-// Heading + description block that opens every settings section. `id` is the anchor the settings
-// search jumps to (scroll-mt keeps the heading clear of the scroll container's top edge).
+// Heading + description block that opens every settings section. `id` is a link anchor, so a
+// section can be deep-linked with a #hash (scroll-mt keeps the heading clear of the container top).
 export function SettingsSection({id, heading, description, children}: {
   id?: string;
   heading: string;

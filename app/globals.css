@@ -55,19 +55,6 @@
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
-
-}
-
-/* Jumped-to settings block (see features/settings/components/SettingsSearch): rings the section you
-   landed on, so the result you picked is obvious after the scroll. :target covers a real page load
-   with a #hash; .anchor-flash is added by hand for client-side jumps, where the browser never
-   re-evaluates :target. Kept outside @layer utilities — Tailwind v4 only emits utility-layer rules
-   whose class it finds in the source scan, and .anchor-flash is applied via classList at runtime. */
-[id]:target,
-.anchor-flash {
-    outline: 2px solid var(--accent);
-    outline-offset: 4px;
-    border-radius: var(--radius);
 }
 
 .dark,
