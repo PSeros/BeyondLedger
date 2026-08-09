@@ -4,6 +4,7 @@ import {useRef, useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button} from "@heroui/react";
 import {LuDownload, LuUpload} from "react-icons/lu";
+import {SectionCard} from "@/features/settings/components/SectionCard";
 
 // Backup & Restore. "Download" streams a complete .tar.gz (DB snapshot + uploads) from
 // /api/backup. "Restore" posts an archive to /api/restore, which validates it, swaps the data in
@@ -52,7 +53,7 @@ export default function BackupSettingsSection() {
   }
 
   return (
-    <div className="border-default bg-surface flex flex-col gap-3 rounded-[var(--radius)] border p-5">
+    <SectionCard>
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="primary" onPress={download} isDisabled={busy !== null}>
           <LuDownload aria-hidden/>
@@ -82,6 +83,6 @@ export default function BackupSettingsSection() {
           {status.message}
         </p>
       ) : null}
-    </div>
+    </SectionCard>
   );
 }

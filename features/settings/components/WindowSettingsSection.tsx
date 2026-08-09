@@ -9,6 +9,7 @@ import {
   updateUpcomingWindowDays,
   updateWarrantyWarnDays,
 } from "@/features/settings/db/appSettingsMutations";
+import {SectionCard} from "@/features/settings/components/SectionCard";
 
 // Edit surface for the dashboard reminder windows (Phase 12): the warranty-expiry alert window and
 // the upcoming fixed-expense/income window, both in days. Form-shaped (edit-then-Save), mirroring
@@ -56,7 +57,7 @@ export default function WindowSettingsSection({
   }
 
   return (
-    <div className="border-default bg-surface flex flex-col gap-4 rounded-[var(--radius)] border p-5">
+    <SectionCard>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField
           value={warranty}
@@ -89,6 +90,6 @@ export default function WindowSettingsSection({
           {tCommon("save")}
         </Button>
       </div>
-    </div>
+    </SectionCard>
   );
 }

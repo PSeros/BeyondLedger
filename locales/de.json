@@ -190,6 +190,14 @@
     "emptyVariableText": "Füge eine einmalige Zahlung hinzu, z. B. eine Erstattung, einen Nebenjob oder einen Verkauf."
   },
   "settings": {
+    "nav": {
+      "label": "Einstellungsbereiche",
+      "general": "Allgemein",
+      "data": "Stammdaten",
+      "tags": "Tags & Workspaces",
+      "ai": "KI",
+      "backup": "Backup"
+    },
     "aiHeading": "KI / Dokumentenverarbeitung",
     "aiHeadingDescription": "Konfiguriere den Anbieter, der hochgeladene Dokumente liest und daraus automatisch Ausgaben erstellt.",
     "refDataHeading": "Stammdaten",
@@ -267,7 +275,13 @@
       "confirm": "Beim Wiederherstellen werden ALLE aktuellen Daten – die Datenbank und alle hochgeladenen Dateien – durch den Inhalt dieser Sicherung ersetzt. Die aktuellen Daten werden als .bak-Kopie behalten. Fortfahren?",
       "restarting": "Sicherung wiederhergestellt. Die App wird neu gestartet; diese Seite wird in wenigen Sekunden neu geladen.",
       "restoredNeedsRestart": "Sicherung wiederhergestellt. Starte die App neu, um die Änderungen zu übernehmen."
-    }
+    },
+    "appearance": {
+      "heading": "Darstellung",
+      "headingDescription": "Hell, dunkel oder der Systemeinstellung folgen. Wird nur in diesem Browser gespeichert."
+    },
+    "tagsHeading": "Tags & Workspaces",
+    "tagsDescription": "Die beiden Arten, Einträge in der App zu gruppieren: der Workspace, zu dem ein Datensatz gehört, und die frei vergebbaren Tags."
   },
   "detail": {
     "backToFixedExpenses": "Zurück zu fixen Ausgaben",
