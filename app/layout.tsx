@@ -1,5 +1,5 @@
 import type {Metadata, Viewport} from "next";
-import { Inter } from "next/font/google"
+import {Inter} from "next/font/google"
 import {NextIntlClientProvider} from "next-intl";
 import {getLocale, getMessages} from "next-intl/server";
 import "./globals.css";
@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   title: "BeyondLedger",
   description:
     "The Next level ledger for tracking expenses, incomes and managing budgets. Take control of your personal finances – all in one place.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "BeyondLedger",
+  },
 };
 
 // Next already injects width=device-width,initial-scale=1 by default; this export exists to add
@@ -18,6 +23,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: [
     {media: "(prefers-color-scheme: light)", color: "#f7f7f8"},
     {media: "(prefers-color-scheme: dark)", color: "#0a0a0b"},
