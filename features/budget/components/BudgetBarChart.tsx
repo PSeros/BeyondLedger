@@ -37,10 +37,13 @@ export default function BudgetBarChart({budgets}: {budgets: BudgetResolved[]}) {
           const fillPct = pct > 0 ? Math.max(2, (pct / domainMax) * 100) : 0;
 
           return (
-            <div key={budget.id} className="flex items-center gap-3">
-              <span className="w-28 shrink-0 truncate text-sm" title={budget.name}>{budget.name}</span>
+            // The fixed rails (name + pct + amounts + gaps) came to ~248px, which collapsed the bar
+            // to nothing on a phone. Below sm the name takes its own line and the absolute figures
+            // drop out — they are repeated on every BudgetCard directly below this chart.
+            <div key={budget.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="w-full truncate text-sm sm:w-28 sm:shrink-0" title={budget.name}>{budget.name}</span>
 
-              <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-default">
+              <div className="relative h-4 min-w-24 flex-1 overflow-hidden rounded-full bg-default">
                 <div
                   className="absolute inset-y-0 left-0 rounded-full"
                   style={{width: `${fillPct}%`, background: color}}
@@ -56,7 +59,7 @@ export default function BudgetBarChart({budgets}: {budgets: BudgetResolved[]}) {
               <span className="w-12 shrink-0 text-right text-xs font-medium tabular-nums" style={{color}}>
                 {Math.round(pct)}%
               </span>
-              <span className="w-32 shrink-0 text-right text-xs tabular-nums text-muted">
+              <span className="hidden w-32 shrink-0 text-right text-xs tabular-nums text-muted sm:block">
                 {format.number(budget.actual, "currencyWhole")} / {format.number(budget.target, "currencyWhole")}
               </span>
             </div>

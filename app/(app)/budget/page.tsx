@@ -53,7 +53,7 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
   const t = await getTranslations("budget");
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <PageToolbar
         left={
           <Suspense>
@@ -68,7 +68,7 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
         right={<BudgetActions options={options}/>}
       />
 
-      <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
+      <div className="mt-4 min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         {totalCount === 0 ? (
           <BudgetEmptyState options={options}/>
         ) : filtered.length === 0 ? (
