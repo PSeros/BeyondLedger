@@ -15,6 +15,9 @@ export default function BudgetBarChart({budgets}: {budgets: BudgetResolved[]}) {
 
   const rows = budgets
     .map((budget) => {
+      // TODO: move to budgetProgress() in features/budget/progress.ts. The 150 is a bar-length
+      // rendering hack for a target-less budget (the shared helper reports 100), so switching it
+      // changes what this chart draws — worth a look, but not a mechanical swap.
       const pct = budget.target > 0 ? (budget.actual / budget.target) * 100 : budget.actual > 0 ? 150 : 0;
       return {budget, pct};
     })

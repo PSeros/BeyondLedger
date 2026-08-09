@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {nudge} from "@/features/integrations/mqtt/runtime";
 import {FileStatusChoice} from "@/prisma/generated/client";
 import {client} from "@/lib/prisma";
 import {
@@ -68,6 +69,7 @@ export async function createBill(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/expense/variable");
+  nudge("bill");
 }
 
 // Updates a Bill's own fields plus its nested line items in one transaction. Existing items are
@@ -135,6 +137,7 @@ export async function updateBill(id: number, formData: FormData): Promise<void> 
 
   revalidatePath("/expense/variable");
   revalidatePath(`/expense/variable/${id}`);
+  nudge("bill");
 }
 
 // Creates a Bill from an OCR-resolved draft (Phase 8d) and links the source document to it, in one
@@ -183,6 +186,7 @@ export async function createBillFromResolvedDraft(
   });
 
   revalidatePath("/expense/variable");
+  nudge("bill");
   return {billId: bill.id};
 }
 
@@ -190,4 +194,5 @@ export async function createBillFromResolvedDraft(
 export async function deleteBill(id: number): Promise<void> {
   await client.bill.delete({where: {id}});
   revalidatePath("/expense/variable");
+  nudge("bill");
 }

@@ -396,6 +396,7 @@ export const ModelName = {
   Item: 'Item',
   Frequency: 'Frequency',
   AiSettings: 'AiSettings',
+  MqttSettings: 'MqttSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
   Workspace: 'Workspace',
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "appSettings" | "fileAsset" | "workspace" | "tag" | "entryTag" | "incomeCategory" | "incomeSource" | "income"
+    modelProps: "budget" | "budgetMember" | "budgetOverride" | "supplierCategory" | "itemCategory" | "contractCategory" | "supplier" | "contract" | "bill" | "item" | "frequency" | "aiSettings" | "mqttSettings" | "appSettings" | "fileAsset" | "workspace" | "tag" | "entryTag" | "incomeCategory" | "incomeSource" | "income"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1311,6 +1312,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MqttSettings: {
+      payload: Prisma.$MqttSettingsPayload<ExtArgs>
+      fields: Prisma.MqttSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MqttSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MqttSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.MqttSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MqttSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.MqttSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.MqttSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.MqttSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MqttSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.MqttSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        update: {
+          args: Prisma.MqttSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.MqttSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MqttSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MqttSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.MqttSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MqttSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.MqttSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMqttSettings>
+        }
+        groupBy: {
+          args: Prisma.MqttSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MqttSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MqttSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MqttSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
     AppSettings: {
       payload: Prisma.$AppSettingsPayload<ExtArgs>
       fields: Prisma.AppSettingsFieldRefs
@@ -2083,6 +2158,26 @@ export const AiSettingsScalarFieldEnum = {
 export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
 
 
+export const MqttSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  host: 'host',
+  port: 'port',
+  useTls: 'useTls',
+  username: 'username',
+  password: 'password',
+  clientId: 'clientId',
+  topicPrefix: 'topicPrefix',
+  discoveryPrefix: 'discoveryPrefix',
+  currency: 'currency',
+  appUrl: 'appUrl',
+  publishIntervalSeconds: 'publishIntervalSeconds',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MqttSettingsScalarFieldEnum = (typeof MqttSettingsScalarFieldEnum)[keyof typeof MqttSettingsScalarFieldEnum]
+
+
 export const AppSettingsScalarFieldEnum = {
   id: 'id',
   locale: 'locale',
@@ -2383,6 +2478,7 @@ export type GlobalOmitConfig = {
   item?: Prisma.ItemOmit
   frequency?: Prisma.FrequencyOmit
   aiSettings?: Prisma.AiSettingsOmit
+  mqttSettings?: Prisma.MqttSettingsOmit
   appSettings?: Prisma.AppSettingsOmit
   fileAsset?: Prisma.FileAssetOmit
   workspace?: Prisma.WorkspaceOmit

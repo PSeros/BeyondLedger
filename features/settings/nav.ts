@@ -2,6 +2,7 @@ import {IconType} from "react-icons";
 import {
   LuDatabase,
   LuHardDrive,
+  LuRadioTower,
   LuSlidersHorizontal,
   LuSparkles,
   LuTags,
@@ -14,7 +15,8 @@ import {
 // NEUTRAL MODULE (no "use client"): imported by both the Server Component layout and the client
 // nav — a "use client" module would hand the Server Component a stub instead of the array.
 
-export type SettingsSectionKey = "general" | "data" | "tags" | "ai" | "backup";
+// NOTE: `key` must equal the URL segment — SettingsNavTabs pushes `/settings/${key}`.
+export type SettingsSectionKey = "general" | "data" | "tags" | "ai" | "integrations" | "backup";
 
 export type SettingsSection = {
   key: SettingsSectionKey;
@@ -27,6 +29,7 @@ export const settingsSections: SettingsSection[] = [
   {key: "data", href: "/settings/data", icon: LuDatabase},
   {key: "tags", href: "/settings/tags", icon: LuTags},
   {key: "ai", href: "/settings/ai", icon: LuSparkles},
+  {key: "integrations", href: "/settings/integrations", icon: LuRadioTower},
   {key: "backup", href: "/settings/backup", icon: LuHardDrive},
 ];
 

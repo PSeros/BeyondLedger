@@ -33,6 +33,8 @@ export default async function BudgetStatusCard({
   );
   const ranked = budgets
     .map((budget) => {
+      // TODO: swap for budgetProgress().ratio from features/budget/progress.ts — this rule IS the
+      // canonical one the helper adopted, so the change is mechanical.
       const ratio = budget.target > 0 ? budget.actual / budget.target : budget.actual > 0 ? Infinity : 0;
       return {budget, ratio};
     })
