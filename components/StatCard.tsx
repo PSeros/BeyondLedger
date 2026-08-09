@@ -30,8 +30,10 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
       <Card.Header>
         <Card.Title className="text-muted">{title}</Card.Title>
       </Card.Header>
-      <Card.Content className="flex flex-1 flex-row items-end justify-between gap-3">
-        <span className="text-2xl font-bold tabular-nums">{format.number(currentAmount, "currency")}</span>
+      {/* Stacks below sm so three of these still fit across a phone (the dashboard KPI row keeps its
+          three columns at every width — see DashboardKpis). */}
+      <Card.Content className="flex flex-1 flex-col items-start gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+        <span className="text-lg font-bold tabular-nums sm:text-2xl">{format.number(currentAmount, "currency")}</span>
         <Chip variant="soft" color={color} size="sm" className="h-fit">
           {isIncrease ? <FiArrowUp/> : <FiArrowDown/>}
           <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}%` : "–"}</Chip.Label>

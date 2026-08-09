@@ -100,15 +100,18 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
   const isGoodTrend = polarity === "higherIsBetter" ? isPositive : !isPositive;
 
   return (
-    <Card className="min-h-fit min-w-fit shrink-0">
+    // min-w-fit only at lg+: it is a hard floor at the header's intrinsic width (title + amount +
+    // chip + navigator + granularity buttons), which on a phone pushes the whole card past the
+    // viewport. Below lg the header wraps instead.
+    <Card className="min-h-fit shrink-0 lg:min-w-fit">
       {/* Three-zone header: title left, period navigator centered (equal-width side zones keep it in
-          the card's middle), granularity buttons right. */}
-      <Card.Header className="flex gap-4 flex-row items-center">
+          the card's middle), granularity buttons right. Wraps below lg. */}
+      <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-2">
         <div className="min-w-0 flex-1">
           <p className="text-sm">{title}</p>
 
           <div className="mt-1 flex items-center gap-3">
-            <h3 className="text-2xl font-semibold tracking-tight">
+            <h3 className="text-xl font-semibold tracking-tight sm:text-2xl">
               {format.number(current, "currencyWhole")}
             </h3>
 
@@ -193,9 +196,12 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
               axisLine={false}
               tickLine={false}
               tickMargin={10}
-              interval={granularity === "1M" ? 1 : 0}
+              // Let recharts drop overlapping ticks based on the measured width instead of using a
+              // fixed stride: a hardcoded interval that reads fine on a desktop 1M view collides at
+              // phone widths (and 1Y's 12 month labels collide regardless).
+              interval="preserveStartEnd"
               tick={{
-                fontSize: "0.875rem",
+                fontSize: "0.75rem",
                 fill: "var(--muted)",
               }}
             />
