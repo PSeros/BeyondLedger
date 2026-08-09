@@ -80,13 +80,13 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
       ) : (
         // The toolbar above stays pinned; everything below (charts + table) scrolls as one region.
         <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
-          <div className="flex shrink-0 flex-row gap-4">
-            <div className="w-3/5">
+          <div className="flex shrink-0 flex-col gap-4 lg:flex-row">
+            <div className="w-full lg:w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
                 <BillChartCard {...categoricalFilters} offset={parseChartOffset(params.co)}/>
               </Suspense>
             </div>
-            <div className="w-2/5">
+            <div className="w-full lg:w-2/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
                 <BillTopKCard {...topKFilters}/>
               </Suspense>

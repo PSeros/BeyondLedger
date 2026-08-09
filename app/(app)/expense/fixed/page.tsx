@@ -65,17 +65,19 @@ export default async function FixedPage({searchParams}: FixedPageProps) {
       ) : (
         // The toolbar above stays pinned; everything below (charts + table) scrolls as one region.
         <div className="mt-4 flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto [scrollbar-gutter:stable]">
-          <div className="flex shrink-0 flex-row gap-4">
-            <div className="w-3/5">
+          <div className="flex shrink-0 flex-col gap-4 lg:flex-row">
+            <div className="w-full lg:w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
                 <ContractChartCard {...filters} offset={parseChartOffset(params.co)}/>
               </Suspense>
             </div>
-            {/* The chart (left) sets the row height. The upcoming card overlays its own column
-                (absolute) so its row count can't stretch the row — its h-full card fills the chart's
-                height and scrolls internally instead of growing the page. */}
-            <div className="relative w-2/5">
-              <div className="absolute inset-0">
+            {/* At lg+ the chart (left) sets the row height and the upcoming card overlays its own
+                column (absolute) so its row count can't stretch the row — its h-full card fills the
+                chart's height and scrolls internally instead of growing the page. Below lg the row
+                stacks, so there is no sibling height to match and the overlay would collapse to 0px;
+                a fixed h-72 gives the h-full card the definite height it needs to scroll instead. */}
+            <div className="relative w-full lg:w-2/5">
+              <div className="h-72 lg:absolute lg:inset-0 lg:h-auto">
                 <Suspense fallback={<Card className="h-full animate-pulse"/>}>
                   <ContractUpcomingCard {...filters} withinDays={upcomingWindowDays}/>
                 </Suspense>
