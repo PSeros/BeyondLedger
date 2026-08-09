@@ -149,7 +149,7 @@ export default function ReferenceDataManager({
             </p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             <div className="md:col-span-2">
               <SupplierSection suppliers={data.suppliers} categories={data.supplierCategories}/>
             </div>
@@ -314,9 +314,9 @@ function NameSection({title, rows, create, rename, remove}: {
 
   return (
     <SectionCard title={title} count={rows.length}>
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={t("newAria", {title})}
-                   className="flex flex-1 flex-col gap-1">
+                   className="flex min-w-0 flex-1 flex-col gap-1">
           <Input placeholder={t("addNew")}/>
         </TextField>
         <Button
@@ -342,7 +342,7 @@ function NameSection({title, rows, create, rename, remove}: {
               {editingId === row.id ? (
                 <>
                   <TextField value={editName} onChange={setEditName} aria-label={tFields("name")}
-                             className="flex flex-1 flex-col gap-1">
+                             className="flex min-w-0 flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <Button
@@ -416,11 +416,11 @@ function SupplierSection({suppliers, categories}: { suppliers: SupplierRow[]; ca
     >
       <div className="flex flex-wrap items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={t("newSupplierName")}
-                   className="flex min-w-40 flex-1 flex-col gap-1">
+                   className="flex min-w-0 flex-1 flex-col gap-1 sm:min-w-40">
           <Label className={labelClass}>{tFields("name")}</Label>
           <Input placeholder={t("supplierNamePlaceholder")}/>
         </TextField>
-        <div className="min-w-40 flex-1">
+        <div className="min-w-0 flex-1 sm:min-w-40">
           <PlainSelect label={tFields("category")} value={newCategoryId} options={categoryOptions}
                        onChange={setNewCategoryId}/>
         </div>
@@ -447,7 +447,7 @@ function SupplierSection({suppliers, categories}: { suppliers: SupplierRow[]; ca
               {editingId === row.id ? (
                 <>
                   <TextField value={editName} onChange={setEditName} aria-label={tFields("name")}
-                             className="flex flex-1 flex-col gap-1">
+                             className="flex min-w-0 flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <div className="w-40">
@@ -524,7 +524,7 @@ function FrequencySection({frequencies}: { frequencies: FrequencyRow[] }) {
     >
       <div className="flex flex-wrap items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={t("newFrequencyName")}
-                   className="flex min-w-40 flex-1 flex-col gap-1">
+                   className="flex min-w-0 flex-1 flex-col gap-1 sm:min-w-40">
           <Label className={labelClass}>{tFields("name")}</Label>
           <Input placeholder={t("frequencyNamePlaceholder")}/>
         </TextField>
@@ -563,7 +563,7 @@ function FrequencySection({frequencies}: { frequencies: FrequencyRow[] }) {
               {editingId === row.id ? (
                 <>
                   <TextField value={editName} onChange={setEditName} aria-label={tFields("name")}
-                             className="flex flex-1 flex-col gap-1">
+                             className="flex min-w-0 flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <TextField value={editValue} onChange={setEditValue} aria-label={tFields("billingsPerYear")}
@@ -674,10 +674,10 @@ function TagSection({tags}: { tags: TagRow[] }) {
 
   return (
     <SectionCard title={tTags("title")} count={tags.length} description={tTags("manageDescription")}>
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <ColorPicker value={newColor} onChange={setNewColor} ariaLabel={tTags("pickColor")}/>
         <TextField value={newName} onChange={setNewName} aria-label={tTags("newAria")}
-                   className="flex flex-1 flex-col gap-1">
+                   className="flex min-w-0 flex-1 flex-col gap-1">
           <Input placeholder={tTags("addNew")}/>
         </TextField>
         <Button
@@ -703,7 +703,7 @@ function TagSection({tags}: { tags: TagRow[] }) {
               {editingId === row.id ? (
                 <>
                   <TextField value={editName} onChange={setEditName} aria-label={tFields("name")}
-                             className="flex flex-1 flex-col gap-1">
+                             className="flex min-w-0 flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <Button
@@ -772,10 +772,10 @@ function WorkspaceSection({workspaces}: { workspaces: WorkspaceRow[] }) {
 
   return (
     <SectionCard title={tWs("title")} count={workspaces.length} description={tWs("manageDescription")}>
-      <div className="flex items-end gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <ColorPicker value={newColor} onChange={setNewColor} ariaLabel={tWs("pickColor")}/>
         <TextField value={newName} onChange={setNewName} aria-label={tWs("newAria")}
-                   className="flex flex-1 flex-col gap-1">
+                   className="flex min-w-0 flex-1 flex-col gap-1">
           <Input placeholder={tWs("addNew")}/>
         </TextField>
         <Button
@@ -801,7 +801,7 @@ function WorkspaceSection({workspaces}: { workspaces: WorkspaceRow[] }) {
               {editingId === row.id ? (
                 <>
                   <TextField value={editName} onChange={setEditName} aria-label={tFields("name")}
-                             className="flex flex-1 flex-col gap-1">
+                             className="flex min-w-0 flex-1 flex-col gap-1">
                     <Input autoFocus/>
                   </TextField>
                   <Button

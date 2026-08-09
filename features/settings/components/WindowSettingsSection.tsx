@@ -57,7 +57,7 @@ export default function WindowSettingsSection({
 
   return (
     <div className="border-default bg-surface flex flex-col gap-4 rounded-[var(--radius)] border p-5">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField
           value={warranty}
           onChange={setWarranty}
