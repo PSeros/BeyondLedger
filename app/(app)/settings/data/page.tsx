@@ -11,10 +11,10 @@ export default async function Page() {
 
   return (
     <SettingsSection heading={t("refDataHeading")} description={t("refDataDescription")}>
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <div className="md:col-span-2">
-          <SupplierSection id="suppliers" suppliers={data.suppliers} categories={data.supplierCategories}/>
-        </div>
+      {/* Suppliers is the widest and longest list, so it gets its own full-width row; the settings
+          nav rail leaves too little room for it to share one. */}
+      <SupplierSection id="suppliers" suppliers={data.suppliers} categories={data.supplierCategories}/>
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-3">
         <FrequencySection id="frequencies" frequencies={data.frequencies}/>
         <CategoryLists
           supplierCategories={data.supplierCategories}

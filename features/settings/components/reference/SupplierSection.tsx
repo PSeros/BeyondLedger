@@ -52,7 +52,7 @@ export default function SupplierSection({id, suppliers, categories}: {
     >
       <div className="flex flex-wrap items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={t("newSupplierName")}
-                   className="flex min-w-0 flex-1 flex-col gap-1 sm:min-w-40">
+                   className="flex min-w-0 flex-1 basis-full flex-col gap-1 sm:min-w-40 sm:basis-auto">
           <Label className={labelClass}>{tFields("name")}</Label>
           <Input placeholder={t("supplierNamePlaceholder")}/>
         </TextField>
@@ -108,9 +108,15 @@ export default function SupplierSection({id, suppliers, categories}: {
                 </>
               ) : (
                 <>
-                  <span className="flex-1 truncate text-sm">{row.name}</span>
-                  <span className="text-xs text-muted">{row.categoryName}</span>
-                  <UsageNote count={row.usage}/>
+                  {/* Name over its metadata on phones — side by side there leaves the name a few
+                      characters and pushes the row under the action buttons. */}
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
+                    <span className="min-w-24 flex-1 truncate text-sm">{row.name}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="text-xs text-muted">{row.categoryName}</span>
+                      <UsageNote count={row.usage}/>
+                    </span>
+                  </div>
                   <Button type="button" size="sm" variant="tertiary" isIconOnly
                           aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
                     <LuPencil className="size-4"/>

@@ -25,7 +25,7 @@ export default function SettingsNavTabs({className}: {className?: string}) {
         <Tabs.ListContainer>
           <Tabs.List aria-label={t("label")}>
             {settingsSections.map((section) => (
-              <Tabs.Tab key={section.key} id={section.key}>
+              <Tabs.Tab key={section.key} id={section.key} className="whitespace-nowrap">
                 {t(section.key)}
                 <Tabs.Indicator/>
               </Tabs.Tab>

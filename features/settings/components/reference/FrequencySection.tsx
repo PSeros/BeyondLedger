@@ -44,7 +44,7 @@ export default function FrequencySection({id, frequencies}: {id?: string; freque
     >
       <div className="flex flex-wrap items-end gap-2">
         <TextField value={newName} onChange={setNewName} aria-label={t("newFrequencyName")}
-                   className="flex min-w-0 flex-1 flex-col gap-1 sm:min-w-40">
+                   className="flex min-w-0 flex-1 basis-full flex-col gap-1 sm:min-w-40 sm:basis-auto">
           <Label className={labelClass}>{tFields("name")}</Label>
           <Input placeholder={t("frequencyNamePlaceholder")}/>
         </TextField>
@@ -113,11 +113,18 @@ export default function FrequencySection({id, frequencies}: {id?: string; freque
                 </>
               ) : (
                 <>
-                  <span className="flex-1 truncate text-sm">{row.name}</span>
-                  <span className="text-xs text-muted">
-                    {t("perYearSuffix", {value: row.value})}{row.isRecurring ? "" : ` · ${t("oneTime")}`}
-                  </span>
-                  <UsageNote count={row.usage}/>
+                  {/* min-w keeps the name readable: `truncate` sets its automatic minimum size to
+                      0, so without a floor it yields all its width to the meta columns. Metadata
+                      drops to its own line on phones (see SupplierSection). */}
+                  <div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
+                    <span className="min-w-24 flex-1 truncate text-sm">{row.name}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="text-xs text-muted">
+                        {t("perYearSuffix", {value: row.value})}{row.isRecurring ? "" : ` · ${t("oneTime")}`}
+                      </span>
+                      <UsageNote count={row.usage}/>
+                    </span>
+                  </div>
                   <Button type="button" size="sm" variant="tertiary" isIconOnly
                           aria-label={t("editAria", {label: row.name})} onPress={() => startEdit(row)}>
                     <LuPencil className="size-4"/>
