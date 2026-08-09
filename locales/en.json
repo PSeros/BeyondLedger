@@ -61,6 +61,7 @@
     "couldNotSave": "Could not save — please check the fields and try again.",
     "invalidAmount": "Invalid amount",
     "nameRequired": "Name is required.",
+    "fieldRequired": "This field is required.",
     "invalidId": "Invalid id.",
     "alreadyExists": "\"{name}\" already exists.",
     "inUse": "Can't delete this {label} — it's still used by existing expenses.",

@@ -1,6 +1,6 @@
 "use client";
 
-import {type Key, type ReactNode, useState} from "react";
+import {type Key, type ReactNode, useEffect, useRef, useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button as AriaButton} from "react-aria-components";
 import {Button, Input, Label, ListBox, Popover, TextField} from "@heroui/react";
@@ -17,7 +17,8 @@ import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions
 // Selection is controlled when `value` is passed (report changes via `onSelect`; the parent owns
 // the option list) and uncontrolled otherwise (internal state + a hidden `<input name>` for
 // FormData, options appended locally on create). `onCreate` is optional — omit it for a plain
-// picker with no "+".
+// picker with no "+". `isRequired` makes an empty selection block form submission (see the
+// validation input below).
 export default function CreatableSelect({
   label,
   name,
@@ -30,6 +31,7 @@ export default function CreatableSelect({
   onSelect,
   extraFields,
   canSubmit = true,
+  isRequired = false,
   className,
 }: {
   label: string;
@@ -43,6 +45,7 @@ export default function CreatableSelect({
   onSelect?: (id: string) => void;
   extraFields?: ReactNode;
   canSubmit?: boolean;
+  isRequired?: boolean;
   className?: string;
 }) {
   const t = useTranslations();
@@ -55,10 +58,39 @@ export default function CreatableSelect({
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [missing, setMissing] = useState(false);
+
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const validationRef = useRef<HTMLInputElement>(null);
 
   const opts = isControlled ? options : internalOpts;
   const currentId = isControlled ? value : internalId;
   const selectedName = opts.find((option) => String(option.id) === currentId)?.name;
+
+  // The trigger is a plain button, so the browser has nothing to validate — the required
+  // `display: none` input below mirrors the selection and blocks submission on its behalf.
+  // A hidden input can't host the browser's own error bubble (Chrome would just cancel the
+  // submit and log "not focusable"), so swallow the event, show our own message, and move
+  // focus to the trigger — the same trick React Aria uses for its hidden selects. Only the
+  // form's *first* invalid control steals focus, matching native ordering.
+  useEffect(() => {
+    const input = validationRef.current;
+    if (input === null) {
+      return;
+    }
+
+    function handleInvalid(event: Event) {
+      event.preventDefault();
+      setMissing(true);
+      const form = input?.form;
+      if (form && firstInvalidControl(form) === input) {
+        triggerRef.current?.focus();
+      }
+    }
+
+    input.addEventListener("invalid", handleInvalid);
+    return () => input.removeEventListener("invalid", handleInvalid);
+  }, []);
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
@@ -72,6 +104,7 @@ export default function CreatableSelect({
       setInternalId(id);
     }
     onSelect?.(id);
+    setMissing(false);
     setOpen(false);
     setMode("list");
   }
@@ -117,10 +150,23 @@ export default function CreatableSelect({
   }
 
   return (
-    <div className={`flex min-w-0 flex-col gap-1${className ? ` ${className}` : ""}`}>
+    // The `select` class is HeroUI's own field wrapper: it drives the required asterisk on the
+    // label (`[data-required]`) and the invalid ring on the trigger (`[data-invalid]`), so this
+    // control shows the same states as the native selects next to it.
+    <div
+      className={`select flex min-w-0 flex-col gap-1${className ? ` ${className}` : ""}`}
+      data-required={isRequired ? "true" : undefined}
+      data-invalid={missing ? "true" : undefined}
+    >
       <Label className={labelClass}>{label}</Label>
       <Popover isOpen={open} onOpenChange={handleOpenChange}>
-        <AriaButton type="button" aria-label={label} className="select__trigger w-full min-w-0">
+        <AriaButton
+          ref={triggerRef}
+          type="button"
+          aria-label={label}
+          aria-invalid={missing || undefined}
+          className="select__trigger w-full min-w-0"
+        >
           <span className={`min-w-0 flex-1 truncate text-left${selectedName ? "" : " text-muted"}`}>
             {selectedName ?? placeholder ?? t("forms.select")}
           </span>
@@ -187,7 +233,28 @@ export default function CreatableSelect({
           </Popover.Dialog>
         </Popover.Content>
       </Popover>
+      {missing ? <p className="field-error" data-visible="true">{t("errors.fieldRequired")}</p> : null}
       {name ? <input type="hidden" name={name} value={currentId}/> : null}
+      {/* Validation-only twin of the value above: an <input type="hidden"> is barred from
+          constraint validation, a text input isn't. Nameless so it never reaches FormData. */}
+      {isRequired ? (
+        <input
+          ref={validationRef}
+          type="text"
+          required
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{display: "none"}}
+          value={currentId}
+          onChange={() => {}}
+        />
+      ) : null}
     </div>
   );
+}
+
+// The first control in the form the browser considers invalid, in DOM order.
+function firstInvalidControl(form: HTMLFormElement): Element | null {
+  return [...form.elements].find((element) => "validity" in element
+    && (element as {validity: ValidityState}).validity.valid === false) ?? null;
 }

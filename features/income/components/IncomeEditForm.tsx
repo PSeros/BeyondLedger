@@ -60,6 +60,7 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
           defaultValue={String(income.sourceId)}
           createTitle={tForms("newIncomeSource")}
           onCreate={createIncomeSource}
+          isRequired
         />
         <CreatableSelect
           label={t("category")}
@@ -68,8 +69,15 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
           defaultValue={String(income.categoryId)}
           createTitle={tForms("newIncomeCategory")}
           onCreate={createIncomeCategory}
+          isRequired
         />
-        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} defaultValue={String(income.frequencyId)}/>
+        <SelectField
+          label={t("frequency")}
+          name="frequencyId"
+          options={options.frequencies}
+          defaultValue={String(income.frequencyId)}
+          isRequired
+        />
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(income.workspaceId)}/>
         <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(income.amount)} isRequired/>
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={income.startDate.slice(0, 10)} isRequired/>

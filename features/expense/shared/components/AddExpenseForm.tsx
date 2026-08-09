@@ -100,6 +100,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               name="supplierId"
               suppliers={options.suppliers}
               supplierCategories={options.supplierCategories}
+              isRequired
             />
             <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("date")} name="date" type="date" defaultValue={today()} isRequired/>
@@ -141,6 +142,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               name="supplierId"
               suppliers={options.suppliers}
               supplierCategories={options.supplierCategories}
+              isRequired
             />
             <CreatableSelect
               label={t("category")}
@@ -148,8 +150,9 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               options={options.contractCategories}
               createTitle={tForms("newContractCategory")}
               onCreate={createContractCategory}
+              isRequired
             />
-            <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+            <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} isRequired/>
             <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
             <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>

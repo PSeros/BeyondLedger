@@ -61,6 +61,7 @@
     "couldNotSave": "Speichern fehlgeschlagen — bitte überprüfe die Felder und versuche es erneut.",
     "invalidAmount": "Ungültiger Betrag",
     "nameRequired": "Name ist erforderlich.",
+    "fieldRequired": "Dieses Feld ist erforderlich.",
     "invalidId": "Ungültige ID.",
     "alreadyExists": "„{name}“ existiert bereits.",
     "inUse": "Diese {label} kann nicht gelöscht werden — sie wird noch von bestehenden Ausgaben verwendet.",

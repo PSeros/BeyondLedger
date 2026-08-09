@@ -202,6 +202,7 @@ function ItemRowFields({
           onSelect={(categoryId) => onChange({categoryId})}
           onCreate={onCreateCategory}
           createTitle={t("newItemCategory")}
+          isRequired
           className="col-span-2 sm:col-span-1"
         />
         <RowNumber name="itemQuantity" label={tFields("quantity")} value={row.quantity} onChange={(quantity) => onChange({quantity})}/>
