@@ -70,7 +70,10 @@ export default function TopKTableCard({
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-default">
                     <div
                       className="h-full rounded-full bg-[var(--accent)]"
-                      style={{width: `${(row.amount / maxAmount) * 100}%`}}
+                      // Clamped at 0: a row can now total negative (a bill line that gives money
+                      // back), and a negative width is an invalid CSS value the browser drops —
+                      // leaving the bar at its auto width, i.e. a full bar for the smallest row.
+                      style={{width: `${Math.max(0, row.amount / maxAmount) * 100}%`}}
                     />
                   </div>
                 </div>

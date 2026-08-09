@@ -49,8 +49,19 @@ export function buildBillDraftSchema(itemCategoryNames: string[], supplierCatego
           category: itemCategoryEnum.describe(
             `Pick the closest matching category from this fixed list; use "${UNCATEGORIZED}" if none fit.`,
           ),
-          quantity: z.number().describe("Quantity purchased (1 if not stated)."),
-          unitPrice: z.number().describe("Price per unit."),
+          quantity: z
+            .number()
+            .describe(
+              "Quantity purchased (1 if not stated). Keep it negative if the document prints it " +
+                "negative, e.g. a returned article or a deposit return (Pfand/Leergut).",
+            ),
+          unitPrice: z
+            .number()
+            .describe(
+              "Price per unit. Use a negative price for lines that give money back — deposit " +
+                "returns (Pfand/Leergut), refunds, returned articles and discount lines — so the " +
+                "line total is negative.",
+            ),
         }),
       )
       .describe("The individual purchased line items. Empty if the document has no itemization."),

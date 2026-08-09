@@ -35,10 +35,15 @@ export function collapseSmall(
 ): DonutSlice[] {
   const maxSlices = opts.maxSlices ?? 8;
   const minShare = opts.minShare ?? 0.03;
-  const total = rows.reduce((sum, row) => sum + row.amount, 0) || 1;
+  // Non-positive slices are dropped before anything else: a donut draws shares of a total, and a
+  // category CAN net out at or below zero now that bill lines may be negative (a Pfand/Leergut
+  // return, a refund). Recharts turns a negative value into a backwards arc that overlaps its
+  // neighbours, so such a category simply has no share to show.
+  const positive = rows.filter((row) => row.amount > 0);
+  const total = positive.reduce((sum, row) => sum + row.amount, 0) || 1;
 
-  const kept = rows.filter((row) => row.amount / total >= minShare).slice(0, maxSlices);
-  const dropped = rows.filter((row) => !kept.includes(row));
+  const kept = positive.filter((row) => row.amount / total >= minShare).slice(0, maxSlices);
+  const dropped = positive.filter((row) => !kept.includes(row));
 
   if (dropped.length === 1) {
     return [...kept, dropped[0]];

@@ -89,13 +89,17 @@ export function parseItems(formData: FormData): ParsedItem[] {
       throw new Error(`Invalid category for item: ${name}`);
     }
 
+    // Quantity and unit price may both be negative: a bill line can give money back (a German
+    // Pfand/Leergut return, a refunded or returned article, a discount line), and receipts print
+    // that either as a negative price or as a negative quantity. Only a zero quantity is rejected —
+    // it contributes nothing and is always a typo (an empty field parses to 0 as well).
     const quantity = Number(quantities[i]);
-    if (Number.isNaN(quantity) || quantity <= 0) {
+    if (!Number.isFinite(quantity) || quantity === 0) {
       throw new Error(`Invalid quantity for item: ${name}`);
     }
 
     const unitPrice = Number(unitPrices[i]);
-    if (Number.isNaN(unitPrice) || unitPrice < 0) {
+    if (!Number.isFinite(unitPrice)) {
       throw new Error(`Invalid unit price for item: ${name}`);
     }
 
