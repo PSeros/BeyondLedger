@@ -1,6 +1,6 @@
 import {client} from "@/lib/prisma";
 
-// Read side for the /settings reference-data manager. Every row carries a usage count so the UI
+// Read side for the /settings/data and /settings/tags lists. Every row carries a usage count so the UI
 // can disable deleting a row that's still referenced by an expense (deleting one would fail the
 // FK constraint anyway — this just surfaces it up front).
 
@@ -10,7 +10,8 @@ export type FrequencyRow = {id: number; name: string; value: number; isRecurring
 export type TagRow = {id: number; name: string; color: string; usage: number};
 export type WorkspaceRow = {id: number; name: string; color: string; usage: number};
 
-export type ReferenceData = {
+// Split by settings sub-route so /settings/tags doesn't pay for the lookup tables it never shows.
+export type LookupReferenceData = {
   suppliers: SupplierRow[];
   supplierCategories: CategoryRow[];
   itemCategories: CategoryRow[];
@@ -18,11 +19,15 @@ export type ReferenceData = {
   incomeSources: CategoryRow[];
   incomeCategories: CategoryRow[];
   frequencies: FrequencyRow[];
+};
+
+export type TagsAndWorkspaces = {
   tags: TagRow[];
   workspaces: WorkspaceRow[];
 };
 
-export async function getReferenceData(): Promise<ReferenceData> {
+// Everything behind /settings/data: suppliers, the five name-only lists, billing frequencies.
+export async function getLookupReferenceData(): Promise<LookupReferenceData> {
   const [
     suppliers,
     supplierCategories,
@@ -31,8 +36,6 @@ export async function getReferenceData(): Promise<ReferenceData> {
     incomeSources,
     incomeCategories,
     frequencies,
-    tags,
-    workspaces,
   ] = await Promise.all([
     client.supplier.findMany({
       select: {
@@ -68,19 +71,6 @@ export async function getReferenceData(): Promise<ReferenceData> {
       select: {id: true, name: true, value: true, isRecurring: true, _count: {select: {contracts: true, incomes: true}}},
       orderBy: {value: "asc"},
     }),
-    client.tag.findMany({
-      select: {id: true, name: true, color: true, _count: {select: {entries: true}}},
-      orderBy: {name: "asc"},
-    }),
-    client.workspace.findMany({
-      select: {
-        id: true,
-        name: true,
-        color: true,
-        _count: {select: {bills: true, contracts: true, incomes: true, budgets: true}},
-      },
-      orderBy: {name: "asc"},
-    }),
   ]);
 
   return {
@@ -103,6 +93,28 @@ export async function getReferenceData(): Promise<ReferenceData> {
       isRecurring: f.isRecurring,
       usage: f._count.contracts + f._count.incomes,
     })),
+  };
+}
+
+// Everything behind /settings/tags: tags and accounts (workspaces).
+export async function getTagsAndWorkspaces(): Promise<TagsAndWorkspaces> {
+  const [tags, workspaces] = await Promise.all([
+    client.tag.findMany({
+      select: {id: true, name: true, color: true, _count: {select: {entries: true}}},
+      orderBy: {name: "asc"},
+    }),
+    client.workspace.findMany({
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        _count: {select: {bills: true, contracts: true, incomes: true, budgets: true}},
+      },
+      orderBy: {name: "asc"},
+    }),
+  ]);
+
+  return {
     tags: tags.map((tag) => ({id: tag.id, name: tag.name, color: tag.color, usage: tag._count.entries})),
     workspaces: workspaces.map((w) => ({
       id: w.id,

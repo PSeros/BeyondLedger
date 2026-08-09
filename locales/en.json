@@ -190,6 +190,14 @@
     "emptyVariableText": "Add a one-off payment like a refund, side gig, or sale."
   },
   "settings": {
+    "nav": {
+      "label": "Settings sections",
+      "general": "General",
+      "data": "Reference data",
+      "tags": "Tags & accounts",
+      "ai": "AI",
+      "backup": "Backup"
+    },
     "aiHeading": "AI / Document processing",
     "aiHeadingDescription": "Configure the provider that reads uploaded documents and auto-creates expenses from them.",
     "refDataHeading": "Reference data",
@@ -267,7 +275,13 @@
       "confirm": "Restoring replaces ALL current data — the database and every uploaded file — with the contents of this backup. The current data is kept as a .bak copy. Continue?",
       "restarting": "Backup restored. The app is restarting; this page will reload in a few seconds.",
       "restoredNeedsRestart": "Backup restored. Restart the app to apply the changes."
-    }
+    },
+    "appearance": {
+      "heading": "Appearance",
+      "headingDescription": "Light, dark, or follow your system. Stored in this browser only."
+    },
+    "tagsHeading": "Tags & accounts",
+    "tagsDescription": "The two ways entries get grouped across the app: the account a record belongs to, and the free-form tags you attach to it."
   },
   "detail": {
     "backToFixedExpenses": "Back to fixed expenses",

@@ -16,7 +16,7 @@ import {
 import {SectionCard} from "@/features/settings/components/SectionCard";
 
 // Edit surface for the AI / document-processing provider config (Phase 8b). Form-shaped
-// (edit-then-Save), unlike the per-row immediate writes in ReferenceDataManager. The raw API key is
+// (edit-then-Save), unlike the per-row immediate writes on /settings/data. The raw API key is
 // never sent here — `settings.hasApiKey` tells us whether one is stored; leaving the field blank on
 // Save keeps the existing key.
 export default function AiSettingsSection({settings}: {settings: AiSettingsForm}) {
@@ -69,10 +69,7 @@ export default function AiSettingsSection({settings}: {settings: AiSettingsForm}
   }
 
   return (
-    <SectionCard
-      title={t("title")}
-      description={t("description")}
-    >
+    <SectionCard>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)}/>
         {t("enable")}

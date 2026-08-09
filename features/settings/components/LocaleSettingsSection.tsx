@@ -6,6 +6,7 @@ import {useRouter} from "next/navigation";
 import {Label, ListBox, Select} from "@heroui/react";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
 import {updateLocale} from "@/features/settings/db/appSettingsMutations";
+import {SectionCard} from "@/features/settings/components/SectionCard";
 
 // Language / region picker. Locale is persisted in the AppSettings singleton (server-side) so it
 // reaches Server Components (<html lang>, currency/date formatting, translated strings). Changing
@@ -28,7 +29,7 @@ export default function LocaleSettingsSection({locale}: {locale: string}) {
   }
 
   return (
-    <div className="border-default bg-surface flex flex-col gap-3 rounded-[var(--radius)] border p-5">
+    <SectionCard>
       <Select
         value={current}
         onChange={onChange}
@@ -48,6 +49,6 @@ export default function LocaleSettingsSection({locale}: {locale: string}) {
           </ListBox>
         </Select.Popover>
       </Select>
-    </div>
+    </SectionCard>
   );
 }

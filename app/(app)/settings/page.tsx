@@ -1,21 +1,7 @@
-import ReferenceDataManager from "@/features/settings/components/ReferenceDataManager";
-import {getReferenceData} from "@/features/settings/db/referenceData";
-import {getAiSettingsForm} from "@/features/settings/db/aiSettings";
-import {getAppSettings} from "@/features/settings/db/appSettings";
+import {redirect} from "next/navigation";
+import {DEFAULT_SETTINGS_SECTION} from "@/features/settings/nav";
 
-export default async function Page() {
-  const [data, aiSettings, appSettings] = await Promise.all([
-    getReferenceData(),
-    getAiSettingsForm(),
-    getAppSettings(),
-  ]);
-  return (
-    <ReferenceDataManager
-      data={data}
-      aiSettings={aiSettings}
-      locale={appSettings.locale}
-      warrantyWarnDays={appSettings.warrantyWarnDays}
-      upcomingWindowDays={appSettings.upcomingWindowDays}
-    />
-  );
+// /settings has no content of its own — it opens on the first section, mirroring /expense.
+export default function SettingsPage() {
+  return (redirect(DEFAULT_SETTINGS_SECTION.href));
 }
