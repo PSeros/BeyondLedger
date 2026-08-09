@@ -165,6 +165,7 @@
     "addItem": "Add item",
     "itemName": "Item name",
     "removeItem": "Remove item",
+    "toggleSign": "Flip sign (money back)",
     "noItems": "Every bill needs at least one item.",
     "newSupplier": "New supplier",
     "newSupplierCategory": "New supplier category",
