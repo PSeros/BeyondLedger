@@ -110,9 +110,25 @@ export async function resolveDraft(draft: BillDraft): Promise<ResolvedBillDraft>
     });
   }
 
-  // Mirror createBill: derive the total from items when present, else the extracted grand total.
-  const totalAmount =
-    items.length > 0 ? round2(items.reduce((sum, item) => sum + item.totalPrice, 0)) : round2(draft.total);
+  // A bill must always carry at least one item, or its amount is invisible to every item-level
+  // analysis (category breakdown, top-k, budget matching). When the model returned no usable line
+  // items — a total-only receipt, or one it couldn't itemize — book the extracted grand total as a
+  // single Uncategorized line named after the merchant, which the user can then split up by hand.
+  if (items.length === 0) {
+    uncategorizedItemId ??= await getOrCreateItemCategoryId(UNCATEGORIZED);
+    const total = round2(draft.total);
+    items.push({
+      name: supplierName,
+      categoryId: uncategorizedItemId,
+      quantity: 1,
+      unitPrice: total,
+      totalPrice: total,
+      warranty: null,
+    });
+  }
+
+  // Mirror createBill: the total is the sum of the line totals.
+  const totalAmount = round2(items.reduce((sum, item) => sum + item.totalPrice, 0));
 
   return {
     supplierId,

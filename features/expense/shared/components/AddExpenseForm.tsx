@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import {createBill} from "@/features/expense/variable/db/billMutations";
 import {createContract} from "@/features/expense/fixed/db/contractMutations";
 import BillItemsEditor, {
+  emptyRow,
   grandTotalOf,
   type ItemRow,
 } from "@/features/expense/shared/components/BillItemsEditor";
@@ -33,7 +34,8 @@ type AddExpenseFormProps = {
 };
 
 // The unified Add form. A Variable/Fixed toggle (defaulted from the page it was opened on)
-// swaps the field set: Variable creates a Bill (supplier/date/items or manual amount/notes),
+// swaps the field set: Variable creates a Bill (supplier/date/items/notes — the total is always
+// the sum of the items, so the form starts with one row and never posts a bare amount),
 // Fixed creates a Contract (name/category/supplier/frequency/amount/dates/notice). Only the
 // active branch's inputs are mounted, so only they post; the toggle just picks which create
 // action runs. On success the parent closes the modal and the list refreshes.
@@ -48,11 +50,13 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
   const tVf = useTranslations("vf");
   const format = useFormatter();
   const [type, setType] = useState<AddExpenseType>(defaultType);
-  const [rows, setRows] = useState<ItemRow[]>([]);
+  // A bill always has at least one item, so open with one empty row on the first category.
+  const [rows, setRows] = useState<ItemRow[]>(() => [
+    emptyRow(options.itemCategories[0] ? String(options.itemCategories[0].id) : ""),
+  ]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasItems = rows.length > 0;
   const grandTotal = grandTotalOf(rows);
 
   async function action(formData: FormData) {
@@ -105,9 +109,6 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("date")} name="date" type="date" defaultValue={today()} isRequired/>
             <TextInputField label={t("documentNumber")} name="documentNumber"/>
-            {/* Amount is auto-summed from the items below when there are any; only a bill with no
-                items takes a manually-entered amount. */}
-            {hasItems ? null : <TextInputField label={t("amount")} name="amount" type="number" isRequired/>}
           </div>
 
           <BillItemsEditor
@@ -126,13 +127,11 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             <TextArea/>
           </TextField>
 
-          {hasItems ? (
-            <div
-              className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
-              <span className="text-sm font-medium">{t("total")}</span>
-              <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{format.number(grandTotal, "currency")}</span>
-            </div>
-          ) : null}
+          <div
+            className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
+            <span className="text-sm font-medium">{t("total")}</span>
+            <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{format.number(grandTotal, "currency")}</span>
+          </div>
         </>
       ) : (
         <>

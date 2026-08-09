@@ -4,7 +4,7 @@ import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {Button, Input, Label, TextField} from "@heroui/react";
 import {LuPlus, LuTrash2} from "react-icons/lu";
-import {labelClass} from "@/features/expense/shared/components/FormFields";
+import {FieldErrorMessage, labelClass} from "@/features/expense/shared/components/FormFields";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
@@ -76,8 +76,10 @@ type BillItemsEditorProps = {
 };
 
 // Presentational item-rows editor shared by the Bill create + edit forms. The parent owns the
-// `rows` state (so it can decide layout and whether to show a manual Amount fallback when there
-// are no items); this renders the section header, the add button, the rows, and the empty hint.
+// `rows` state (and seeds it with one row, since a Bill must always carry at least one item —
+// its total is the sum of the lines, and only item-level rows show up in the category breakdown /
+// top-k / budget matching); this renders the section header, the add button and the rows. The
+// last remaining row has no remove button, so the form can't be emptied out.
 // Each row carries its own tag picker so a cross-cutting tag can land on a single line item.
 export default function BillItemsEditor({rows, categories, tags, onChange, onCreateCategory, onCreateTag}: BillItemsEditorProps) {
   const t = useTranslations("forms");
@@ -127,7 +129,8 @@ export default function BillItemsEditor({rows, categories, tags, onChange, onCre
               onCreateCategory={createCategory}
               onCreateTag={onCreateTag}
               onChange={(patch) => updateRow(row.uid, patch)}
-              onRemove={() => removeRow(row.uid)}
+              // The last row stays put: a bill without items has an amount nothing can attribute.
+              onRemove={rows.length > 1 ? () => removeRow(row.uid) : undefined}
             />
           ))}
         </ul>
@@ -153,7 +156,7 @@ function ItemRowFields({
   onCreateCategory?: (name: string) => Promise<FilterOption>;
   onCreateTag?: (name: string) => Promise<TagOption>;
   onChange: (patch: Partial<ItemRow>) => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const t = useTranslations("forms");
   const tFields = useTranslations("fields");
@@ -176,20 +179,23 @@ function ItemRowFields({
           onChange={(name) => onChange({name})}
           isRequired
           aria-label={t("itemName")}
-          className="flex-1"
+          className="flex flex-1 flex-col gap-1"
         >
           <Input placeholder={t("itemName")}/>
+          <FieldErrorMessage/>
         </TextField>
-        <Button
-          type="button"
-          size="sm"
-          variant="tertiary"
-          isIconOnly
-          aria-label={t("removeItem")}
-          onPress={onRemove}
-        >
-          <LuTrash2 className="size-4"/>
-        </Button>
+        {onRemove ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="tertiary"
+            isIconOnly
+            aria-label={t("removeItem")}
+            onPress={onRemove}
+          >
+            <LuTrash2 className="size-4"/>
+          </Button>
+        ) : null}
       </div>
 
       {/* Four equal columns on desktop (Category, Qty, Unit, Warranty). On the 2-col mobile
@@ -256,6 +262,7 @@ function RowNumber({
     >
       <Label className={labelClass}>{label}</Label>
       <Input type="number" step="any" inputMode="decimal"/>
+      <FieldErrorMessage/>
     </TextField>
   );
 }
