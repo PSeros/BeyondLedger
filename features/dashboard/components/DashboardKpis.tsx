@@ -16,7 +16,7 @@ export default async function DashboardKpis({
   // Three equal cards filling one bento cell (sits above the chart, left of the donuts), so the row
   // spans the chart's width regardless of the outer 6-col grid. Each card fills the row height.
   return (
-    <div className="grid h-full grid-cols-3 gap-4">
+    <div className="grid h-full grid-cols-3 gap-2 sm:gap-4">
       <StatCard title={t("kpiIncome")} currentAmount={income.current} previousAmount={income.previous} isHigherBetter/>
       <StatCard title={t("kpiExpenses")} currentAmount={expense.current} previousAmount={expense.previous}/>
       <StatCard title={t("kpiNet")} currentAmount={net.current} previousAmount={net.previous} isHigherBetter/>

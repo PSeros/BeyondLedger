@@ -85,7 +85,7 @@ export default async function DashboardPage({
       <div className="grid grid-flow-row-dense auto-rows-[6rem] grid-cols-2 gap-4 lg:grid-cols-6">
         {/* KPI row: money in / out / net for the selected period vs. the trailing 3-period pace. One
             cell as wide as the chart (holds three cards); keyed on the period so it re-suspends. */}
-        <div className="col-span-2 row-span-1 lg:col-span-4 lg:row-span-1">
+        <div className="col-span-2 row-span-2 lg:col-span-4 lg:row-span-1">
           <Suspense key={`kpi-${granularity}-${chartOffset}`} fallback={tileFallback}>
             <DashboardKpis workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
@@ -100,12 +100,12 @@ export default async function DashboardPage({
 
         {/* Composition donuts, stacked to the right of the KPIs + chart: variable spend + fixed
             costs, both scoped to the selected period. */}
-        <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
+        <div className="col-span-2 row-span-2 sm:col-span-1 lg:col-span-2 lg:row-span-2">
           <Suspense key={`cat-${granularity}-${chartOffset}`} fallback={tileFallback}>
             <DashboardCategoryDonut workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
         </div>
-        <div className="col-span-1 row-span-2 lg:col-span-2 lg:row-span-2">
+        <div className="col-span-2 row-span-2 sm:col-span-1 lg:col-span-2 lg:row-span-2">
           <Suspense key={`con-${granularity}-${chartOffset}`} fallback={tileFallback}>
             <DashboardContractDonut workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
           </Suspense>
