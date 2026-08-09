@@ -1,6 +1,7 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
+import {nudge} from "@/features/integrations/mqtt/runtime";
 import {client} from "@/lib/prisma";
 import {
   optionalDate,
@@ -42,6 +43,7 @@ export async function createContract(formData: FormData): Promise<void> {
     data: {...parseContractData(formData), tags: {create: tagIds.map((tagId) => ({tagId}))}},
   });
   revalidatePath("/expense/fixed");
+  nudge("contract");
 }
 
 // Reads the edit form's FormData and updates the Contract's own fields. Revalidates the list +
@@ -61,10 +63,12 @@ export async function updateContract(id: number, formData: FormData): Promise<vo
 
   revalidatePath("/expense/fixed");
   revalidatePath(`/expense/fixed/${id}`);
+  nudge("contract");
 }
 
 // Deletes a Contract (its FileAssets cascade). The detail view navigates back to the list.
 export async function deleteContract(id: number): Promise<void> {
   await client.contract.delete({where: {id}});
   revalidatePath("/expense/fixed");
+  nudge("contract");
 }

@@ -5,6 +5,7 @@ import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import {BUDGET_PERIOD_TYPES, type BudgetPeriodType} from "@/features/budget/period";
 import {parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
+import {nudge} from "@/features/integrations/mqtt/runtime";
 
 // Server actions for the Budget page: create/update/delete a budget (name + period + target +
 // members), and set/clear a per-period override. Mirrors referenceDataMutations.ts (localized
@@ -12,6 +13,8 @@ import {parseWorkspaceId} from "@/features/workspaces/workspaceFormData";
 
 function revalidateBudget(): void {
   revalidatePath("/budget");
+  // Budgets are published to Home Assistant; nudge is a no-op when the bridge is off.
+  nudge("budget");
 }
 
 async function cleanName(name: FormDataEntryValue | null): Promise<string> {

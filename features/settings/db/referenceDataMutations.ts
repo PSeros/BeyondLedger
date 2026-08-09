@@ -12,6 +12,7 @@ import {normalizeWorkspaceColor} from "@/features/workspaces/colors";
 // from "@/features/tags/types" directly.
 import type {TagOption} from "@/features/tags/types";
 import type {WorkspaceOption} from "@/features/workspaces/types";
+import {nudge} from "@/features/integrations/mqtt/runtime";
 
 // Reference-data (lookup-table) mutations: Supplier, SupplierCategory, ItemCategory,
 // ContractCategory, Frequency. Used by BOTH the inline "+ Add new…" popovers in the Add form
@@ -24,7 +25,10 @@ import type {WorkspaceOption} from "@/features/workspaces/types";
 // and calls router.refresh() itself.
 
 // Every option list the new/renamed/deleted lookup can appear in.
+// Deleting a category/supplier/tag cascades into BudgetMember, silently changing which entries a
+// budget counts — so this moves published actuals too.
 function revalidateLookupSurfaces(): void {
+  nudge("reference-data");
   revalidatePath("/settings");
   revalidatePath("/expense/fixed");
   revalidatePath("/expense/variable");
