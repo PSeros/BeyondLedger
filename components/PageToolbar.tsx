@@ -7,11 +7,21 @@ type PageToolbarProps = {
 };
 
 export default function PageToolbar({left, center, right}: PageToolbarProps) {
+  // Below lg this wraps: row 1 is left + right (actions pushed to the far edge by ml-auto), row 2 is
+  // the search field at full width. At lg+ the flex properties are inert and the original
+  // three-equal-column grid takes over unchanged. `center` is null on the dashboard toolbar, so it is
+  // omitted rather than rendered empty — an empty div would add a phantom gap and a stray wrap row.
   return (
-    <div className="grid grid-cols-3 items-center">
-      <div className="justify-self-start">{left}</div>
-      <div className="justify-self-center">{center}</div>
-      <div className="justify-self-end">{right}</div>
+    <div className="flex flex-wrap items-center gap-3 lg:grid lg:grid-cols-3 lg:gap-0">
+      <div className="order-1 min-w-0 lg:justify-self-start">{left}</div>
+      {center ? (
+        <div className="order-3 w-full min-w-0 lg:order-2 lg:w-auto lg:justify-self-center">
+          {center}
+        </div>
+      ) : null}
+      <div className="order-2 ml-auto min-w-0 shrink-0 lg:order-3 lg:ml-0 lg:justify-self-end">
+        {right}
+      </div>
     </div>
   );
 }

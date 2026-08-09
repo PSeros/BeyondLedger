@@ -65,7 +65,7 @@ export default function IncomeSearchField({className}: IncomeSearchFieldProps) {
         <SearchField.SearchIcon/>
         <SearchField.Input
           ref={inputRef}
-          className="w-lg"
+          className="w-lg max-w-full"
           placeholder={t("placeholder")}
           aria-keyshortcuts="Control+K Meta+K"
         />
