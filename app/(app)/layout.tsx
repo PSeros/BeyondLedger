@@ -3,6 +3,7 @@ import {cookies} from "next/headers";
 import Sidebar from "@/components/Sidebar";
 import {SIDEBAR_COLLAPSED_COOKIE} from "@/lib/sidebar";
 import Topbar from "@/components/Topbar";
+import MobileNavDrawer from "@/components/MobileNavDrawer";
 import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
@@ -22,7 +23,10 @@ export default async function AppLayout({
 
   return (
     <div className="flex h-full min-h-0 overflow-hidden">
-      <aside className="w-fit text-center">
+      {/* The rail is hidden below lg in pure CSS (MobileNavDrawer takes over there) rather than by a
+          JS breakpoint check, so the SSR HTML is identical at every width — no flash, no hydration
+          mismatch, and the collapsed cookie keeps driving the w-16/w-50 width unchanged. */}
+      <aside className="hidden w-fit text-center lg:block">
         <Sidebar
           workspaces={workspaces}
           activeWorkspaceId={activeWorkspaceId}
@@ -30,8 +34,12 @@ export default async function AppLayout({
         />
       </aside>
 
-      <div className="flex min-h-0 flex-1 flex-col border-l border-separator">
-        <Topbar/>
+      {/* Border only at lg+ — below it there is nothing to the left, so it would be a stray 1px line
+          down the edge of the screen. */}
+      <div className="flex min-h-0 flex-1 flex-col lg:border-l lg:border-separator">
+        <Topbar
+          nav={<MobileNavDrawer workspaces={workspaces} activeWorkspaceId={activeWorkspaceId}/>}
+        />
         <main className="min-h-0 flex-1 overflow-hidden p-4">
           <div className="mx-auto h-full min-h-0 w-full">
             {children}

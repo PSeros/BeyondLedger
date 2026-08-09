@@ -7,7 +7,9 @@
     "settings": "Einstellungen",
     "unknownRoute": "{pathname} nicht im NavigationProvider",
     "collapseSidebar": "Seitenleiste einklappen",
-    "expandSidebar": "Seitenleiste ausklappen"
+    "expandSidebar": "Seitenleiste ausklappen",
+    "openMenu": "Menü öffnen",
+    "menu": "Navigation"
   },
   "dashboard": {
     "warrantyTitle": "Garantien laufen ab ({days} Tage)",

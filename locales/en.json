@@ -7,7 +7,9 @@
     "settings": "Settings",
     "unknownRoute": "{pathname} not in NavigationProvider",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "openMenu": "Open menu",
+    "menu": "Navigation"
   },
   "dashboard": {
     "warrantyTitle": "Warranties expiring ({days} days)",
