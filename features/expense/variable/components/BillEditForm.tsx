@@ -6,6 +6,7 @@ import {Button, Label, TextArea, TextField} from "@heroui/react";
 import {useRouter} from "next/navigation";
 import {updateBill} from "@/features/expense/variable/db/billMutations";
 import BillItemsEditor, {
+  emptyRow,
   grandTotalOf,
   itemRowFromDetail,
   type ItemRow,
@@ -32,10 +33,22 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
   const format = useFormatter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rows, setRows] = useState<ItemRow[]>(() => bill.items.map(itemRowFromDetail));
+  // Bills created before items were mandatory can still have none. Seed such a bill with a single
+  // row carrying its whole amount, so saving the form converts it into a categorized item instead
+  // of an amount no breakdown can see; the user only has to name it and pick a category.
+  const [rows, setRows] = useState<ItemRow[]>(() =>
+    bill.items.length > 0
+      ? bill.items.map(itemRowFromDetail)
+      : [
+        {
+          ...emptyRow(options.itemCategories[0] ? String(options.itemCategories[0].id) : ""),
+          name: bill.supplier,
+          unitPrice: String(bill.amount),
+        },
+      ],
+  );
 
   const grandTotal = useMemo(() => grandTotalOf(rows), [rows]);
-  const hasItems = rows.length > 0;
 
   // Edit mode is entered by pushing ?edit onto history (EditLink / Cancel target). Leaving it
   // must POP that entry with router.back(), not push a fresh detail entry — otherwise the
@@ -71,11 +84,6 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(bill.workspaceId)}/>
         <TextInputField label={t("date")} name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>
         <TextInputField label={t("documentNumber")} name="documentNumber" defaultValue={bill.documentNumber ?? ""}/>
-        {/* Amount is auto-summed from the items below when there are any; only a bill left with no
-            items keeps a manually-entered amount. */}
-        {hasItems ? null : (
-          <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(bill.amount)} isRequired/>
-        )}
       </div>
 
       <BillItemsEditor
@@ -99,13 +107,11 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
         <TextArea/>
       </TextField>
 
-      {hasItems ? (
-        <div
-          className="flex items-center justify-between rounded-(--radius) bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
-          <span className="text-sm font-medium">{t("total")}</span>
-          <span className="text-lg font-semibold tabular-nums text-(--accent)">{format.number(grandTotal, "currency")}</span>
-        </div>
-      ) : null}
+      <div
+        className="flex items-center justify-between rounded-(--radius) bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
+        <span className="text-sm font-medium">{t("total")}</span>
+        <span className="text-lg font-semibold tabular-nums text-(--accent)">{format.number(grandTotal, "currency")}</span>
+      </div>
 
       {error ? <p className="text-danger text-sm">{error}</p> : null}
 

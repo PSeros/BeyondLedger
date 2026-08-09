@@ -165,7 +165,7 @@
     "addItem": "Position hinzufügen",
     "itemName": "Positionsname",
     "removeItem": "Position entfernen",
-    "noItems": "Keine Positionen — füge eine hinzu oder setze oben den Betrag.",
+    "noItems": "Jede Rechnung braucht mindestens eine Position.",
     "newSupplier": "Neuer Lieferant",
     "newSupplierCategory": "Neue Lieferantenkategorie",
     "newItemCategory": "Neue Positionskategorie",

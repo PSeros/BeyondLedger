@@ -10,7 +10,9 @@ export const labelClass = "text-foreground-500 text-xs uppercase tracking-wide";
 // The message under an invalid field. React Aria suppresses the browser's own error bubble and
 // expects a FieldError instead; the missing-value case gets an app-localized message (the native
 // one follows the *browser's* language, not the app's), anything else falls back to the native text.
-function FieldErrorMessage() {
+// Exported because the item-row fields in BillItemsEditor are built by hand (no Label) but are
+// required all the same.
+export function FieldErrorMessage() {
   const t = useTranslations("errors");
   return (
     <FieldError>

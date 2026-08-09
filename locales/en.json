@@ -165,7 +165,7 @@
     "addItem": "Add item",
     "itemName": "Item name",
     "removeItem": "Remove item",
-    "noItems": "No items — add one, or set the amount above.",
+    "noItems": "Every bill needs at least one item.",
     "newSupplier": "New supplier",
     "newSupplierCategory": "New supplier category",
     "newItemCategory": "New item category",
