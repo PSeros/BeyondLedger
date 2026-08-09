@@ -55,6 +55,14 @@
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
+
+    /* Jumped-to settings block (see features/settings/components/SettingsSearch): rings the
+       section the URL hash points at, so the result you picked is obvious after the scroll. */
+    [id]:target {
+        outline: 2px solid var(--accent);
+        outline-offset: 4px;
+        border-radius: var(--radius);
+    }
 }
 
 .dark,

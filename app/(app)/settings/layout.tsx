@@ -2,6 +2,7 @@ import type {ReactNode} from "react";
 import PageToolbar from "@/components/PageToolbar";
 import SettingsNav from "@/features/settings/components/SettingsNav";
 import SettingsNavTabs from "@/features/settings/components/SettingsNavTabs";
+import SettingsSearch from "@/features/settings/components/SettingsSearch";
 
 // Shell for the /settings area: the section nav (vertical rail at lg+, tab row below) plus the
 // single scroll container the sub-pages render into. Pages therefore render a plain section stack
@@ -9,7 +10,7 @@ import SettingsNavTabs from "@/features/settings/components/SettingsNavTabs";
 export default function SettingsLayout({children}: {children: ReactNode}) {
   return (
     <section className="flex h-full min-h-0 flex-col">
-      <PageToolbar left={<SettingsNavTabs className="lg:hidden"/>} center={null} right={null}/>
+      <PageToolbar left={<SettingsNavTabs className="lg:hidden"/>} center={<SettingsSearch/>} right={null}/>
       <div className="mt-4 flex min-h-0 flex-1 gap-6">
         <SettingsNav className="hidden lg:flex"/>
         <div className="min-h-0 flex-1 space-y-8 overflow-y-auto pb-6 [scrollbar-gutter:stable]">
