@@ -35,45 +35,47 @@ export default async function ContractPage({params, searchParams}: ContractPageP
   const t = await getTranslations("detail");
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
-      <Link
-        href="/expense/fixed"
-        className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
-      >
-        <LuArrowLeft/>
-        {t("backToFixedExpenses")}
-      </Link>
+    <div className="h-full min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
+        <Link
+          href="/expense/fixed"
+          className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
+        >
+          <LuArrowLeft/>
+          {t("backToFixedExpenses")}
+        </Link>
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
-            <LuRepeat className="size-5"/>
-          </span>
-          <div className="min-w-0">
-            <h1 className="truncate text-2xl font-semibold tracking-tight">{contract.name}</h1>
-            <div className="text-foreground-500 mt-0.5 flex min-w-0 items-center gap-1.5 text-sm">
-              <span className="truncate">{contract.supplier}</span>
-              <CategoryChip label={contract.category}/>
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 sm:size-11 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
+              <LuRepeat className="size-5"/>
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{contract.name}</h1>
+              <div className="text-foreground-500 mt-0.5 flex min-w-0 items-center gap-1.5 text-sm">
+                <span className="truncate">{contract.supplier}</span>
+                <CategoryChip label={contract.category}/>
+              </div>
             </div>
           </div>
-        </div>
-        {editing ? null : (
-          <div className="flex items-center gap-2">
-            <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name} redirectTo="/expense/fixed"/>
-            <EditLink id={contract.id} basePath="/expense/fixed"/>
-          </div>
-        )}
-      </div>
-
-      <Card>
-        <Card.Content className="pt-6">
-          {editing && options ? (
-            <ContractEditForm contract={contract} options={options}/>
-          ) : (
-            <ContractDetail contract={contract}/>
+          {editing ? null : (
+            <div className="flex items-center gap-2">
+              <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name} redirectTo="/expense/fixed"/>
+              <EditLink id={contract.id} basePath="/expense/fixed"/>
+            </div>
           )}
-        </Card.Content>
-      </Card>
+        </div>
+
+        <Card>
+          <Card.Content className="pt-6">
+            {editing && options ? (
+              <ContractEditForm contract={contract} options={options}/>
+            ) : (
+              <ContractDetail contract={contract}/>
+            )}
+          </Card.Content>
+        </Card>
+      </div>
     </div>
   );
 }

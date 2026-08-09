@@ -35,47 +35,49 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
   const t = await getTranslations("detail");
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
-      <Link
-        href="/expense/variable"
-        className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
-      >
-        <LuArrowLeft/>
-        {t("backToVariableExpenses")}
-      </Link>
+    <div className="h-full min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
+        <Link
+          href="/expense/variable"
+          className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
+        >
+          <LuArrowLeft/>
+          {t("backToVariableExpenses")}
+        </Link>
 
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
-            <LuReceipt className="size-5"/>
-          </span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="min-w-0 truncate text-2xl font-semibold tracking-tight">{bill.supplier}</h1>
-              <CategoryChip label={bill.supplierCategory}/>
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 sm:size-11 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
+              <LuReceipt className="size-5"/>
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="min-w-0 truncate text-xl font-semibold tracking-tight sm:text-2xl">{bill.supplier}</h1>
+                <CategoryChip label={bill.supplierCategory}/>
+              </div>
+              {bill.documentNumber ? (
+                <p className="text-foreground-500 text-sm">{t("docNumber", {number: bill.documentNumber})}</p>
+              ) : null}
             </div>
-            {bill.documentNumber ? (
-              <p className="text-foreground-500 text-sm">{t("docNumber", {number: bill.documentNumber})}</p>
-            ) : null}
           </div>
-        </div>
-        {editing ? null : (
-          <div className="flex items-center gap-2">
-            <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier} redirectTo="/expense/variable"/>
-            <EditLink id={bill.id} basePath="/expense/variable"/>
-          </div>
-        )}
-      </div>
-
-      <Card>
-        <Card.Content className="pt-6">
-          {editing && options ? (
-            <BillEditForm bill={bill} options={options}/>
-          ) : (
-            <BillDetail bill={bill}/>
+          {editing ? null : (
+            <div className="flex items-center gap-2">
+              <DeleteEntityButton id={bill.id} action={deleteBill} label={bill.supplier} redirectTo="/expense/variable"/>
+              <EditLink id={bill.id} basePath="/expense/variable"/>
+            </div>
           )}
-        </Card.Content>
-      </Card>
+        </div>
+
+        <Card>
+          <Card.Content className="pt-6">
+            {editing && options ? (
+              <BillEditForm bill={bill} options={options}/>
+            ) : (
+              <BillDetail bill={bill}/>
+            )}
+          </Card.Content>
+        </Card>
+      </div>
     </div>
   );
 }
