@@ -15,7 +15,9 @@ const EXTRACTION_INSTRUCTION =
   "You are extracting structured data from a purchase receipt or invoice. Return the supplier " +
   "name, the supplier's business category, document number (or null), the document date as " +
   "YYYY-MM-DD, the grand total, and the line items. For both the supplier category and each line " +
-  `item's category, choose ONLY from the allowed list; if none fit, use "${UNCATEGORIZED}".`;
+  `item's category, choose ONLY from the allowed list; if none fit, use "${UNCATEGORIZED}". Keep ` +
+  "lines that give money back — deposit returns (Pfand/Leergut), refunds, returned articles, " +
+  "discounts — as line items with a negative amount; never drop them and never flip them positive.";
 
 // Loads the existing item-category names the extraction should be constrained to.
 async function getItemCategoryNames(): Promise<string[]> {

@@ -33,6 +33,8 @@ export function budgetProgress(target: number, actual: number): BudgetProgress {
     isOver: remaining < 0,
     ratio,
     percent,
-    meterPercent: Math.min(100, Math.round(percent)),
+    // Clamped at both ends, as documented: a net-negative actual (a period whose refunds /
+    // deposit returns outweigh its spend) would otherwise hand a progress bar a negative width.
+    meterPercent: Math.min(100, Math.max(0, Math.round(percent))),
   };
 }

@@ -98,8 +98,12 @@ export async function resolveDraft(draft: BillDraft): Promise<ResolvedBillDraft>
       uncategorizedItemId ??= await getOrCreateItemCategoryId(UNCATEGORIZED);
       categoryId = uncategorizedItemId;
     }
-    const quantity = lineItem.quantity > 0 ? lineItem.quantity : 1;
-    const unitPrice = lineItem.unitPrice >= 0 ? lineItem.unitPrice : 0;
+    // Signs are kept as extracted: a receipt line can be money coming back (Pfand/Leergut return,
+    // a returned article, a discount line), printed either as a negative price or as a negative
+    // quantity — both give the same negative line total. Only unusable values are repaired: a zero
+    // or non-finite quantity becomes 1, a non-finite price becomes 0.
+    const quantity = Number.isFinite(lineItem.quantity) && lineItem.quantity !== 0 ? lineItem.quantity : 1;
+    const unitPrice = Number.isFinite(lineItem.unitPrice) ? lineItem.unitPrice : 0;
     items.push({
       name: lineItem.name.trim(),
       categoryId,
