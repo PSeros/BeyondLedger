@@ -20,7 +20,7 @@ export default function BillFilterButton({options, ...buttonProps}: BillFilterBu
         <LuFilter/>
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-72 flex-col gap-3">
+        <Popover.Dialog className="flex w-72 max-w-[calc(100vw-2rem)] flex-col gap-3">
           <BillFilterMenu options={options}/>
         </Popover.Dialog>
       </Popover.Content>

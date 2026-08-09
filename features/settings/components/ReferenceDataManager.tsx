@@ -246,7 +246,7 @@ function DeleteButton({label, usage, disabled, onConfirm}: {
         <LuTrash2 className="size-4"/>
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-56 flex-col gap-3">
+        <Popover.Dialog className="flex w-56 max-w-[calc(100vw-2rem)] flex-col gap-3">
           <p className="text-sm">{t("deleteConfirm", {label})}</p>
           <Button type="button" size="sm" variant="danger" onPress={onConfirm}>
             {tCommon("delete")}

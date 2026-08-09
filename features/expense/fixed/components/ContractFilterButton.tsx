@@ -20,7 +20,7 @@ export default function ContractFilterButton({options, ...buttonProps}: Contract
         <LuFilter/>
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-64 flex-col gap-3">
+        <Popover.Dialog className="flex w-64 max-w-[calc(100vw-2rem)] flex-col gap-3">
           <ContractFilterMenu options={options}/>
         </Popover.Dialog>
       </Popover.Content>

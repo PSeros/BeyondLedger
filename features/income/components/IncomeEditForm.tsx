@@ -52,7 +52,7 @@ export default function IncomeEditForm({income, options}: IncomeEditFormProps) {
     <form action={action} className="flex flex-col gap-5">
       <TextInputField label={t("name")} name="name" defaultValue={income.name} isRequired/>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
         <CreatableSelect
           label={t("source")}
           name="sourceId"

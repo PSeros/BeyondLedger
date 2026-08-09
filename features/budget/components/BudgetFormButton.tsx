@@ -151,7 +151,7 @@ export default function BudgetFormButton({
                 <input type="hidden" name="periodType" value={periodType}/>
                 {periodType === "MONTH_OF_YEAR" ? <input type="hidden" name="anchorMonth" value={anchorMonth}/> : null}
 
-                <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
                   <TextInputField label={t("nameLabel")} name="name" defaultValue={budget?.name ?? ""} isRequired/>
                   <TextInputField
                     label={t("targetLabel")}

@@ -54,7 +54,7 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
     <form action={action} className="flex flex-col gap-5">
       <TextInputField label={t("name")} name="name" defaultValue={contract.name} isRequired/>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
         <SupplierSelectField
           name="supplierId"
           suppliers={options.suppliers}

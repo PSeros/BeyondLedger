@@ -51,7 +51,7 @@ export default function BudgetFilterButton({...buttonProps}) {
         <LuFilter/>
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-56 flex-col gap-2 p-2">
+        <Popover.Dialog className="flex w-56 max-w-[calc(100vw-2rem)] flex-col gap-2 p-2">
           <p className="text-foreground-500 px-1 text-xs font-medium uppercase tracking-wide">{t("periodLabel")}</p>
           <ListBox aria-label={t("periodLabel")} selectionMode="multiple" selectedKeys={selected}
                    onSelectionChange={apply}>

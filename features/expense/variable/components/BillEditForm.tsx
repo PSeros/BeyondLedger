@@ -60,7 +60,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
         <SupplierSelectField
           name="supplierId"
           suppliers={options.suppliers}

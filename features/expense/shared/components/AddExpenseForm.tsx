@@ -95,7 +95,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
 
       {type === "variable" ? (
         <>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
             <SupplierSelectField
               name="supplierId"
               suppliers={options.suppliers}
@@ -136,7 +136,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
       ) : (
         <>
           <TextInputField label={t("name")} name="name" isRequired/>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
             <SupplierSelectField
               name="supplierId"
               suppliers={options.suppliers}

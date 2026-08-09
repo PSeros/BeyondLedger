@@ -21,7 +21,7 @@ export default function IncomeFilterButton({options, isRecurring, ...buttonProps
         <LuFilter/>
       </Button>
       <Popover.Content>
-        <Popover.Dialog className="flex w-64 flex-col gap-3">
+        <Popover.Dialog className="flex w-64 max-w-[calc(100vw-2rem)] flex-col gap-3">
           <IncomeFilterMenu options={options} isRecurring={isRecurring}/>
         </Popover.Dialog>
       </Popover.Content>
