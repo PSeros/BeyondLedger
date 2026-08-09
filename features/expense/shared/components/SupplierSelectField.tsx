@@ -15,11 +15,13 @@ export default function SupplierSelectField({
   suppliers,
   supplierCategories,
   defaultValue,
+  isRequired,
 }: {
   name: string;
   suppliers: FilterOption[];
   supplierCategories: FilterOption[];
   defaultValue?: string;
+  isRequired?: boolean;
 }) {
   const t = useTranslations("fields");
   const tForms = useTranslations("forms");
@@ -31,6 +33,7 @@ export default function SupplierSelectField({
       name={name}
       options={suppliers}
       defaultValue={defaultValue}
+      isRequired={isRequired}
       createTitle={tForms("newSupplier")}
       canSubmit={categoryId !== ""}
       onCreate={(supplierName) => createSupplier(supplierName, Number(categoryId))}

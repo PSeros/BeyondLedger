@@ -66,6 +66,7 @@ export default function BillEditForm({bill, options}: BillEditFormProps) {
           suppliers={options.suppliers}
           supplierCategories={options.supplierCategories}
           defaultValue={String(bill.supplierId)}
+          isRequired
         />
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(bill.workspaceId)}/>
         <TextInputField label={t("date")} name="date" type="date" defaultValue={bill.date.slice(0, 10)} isRequired/>

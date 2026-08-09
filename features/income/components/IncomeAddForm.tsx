@@ -60,6 +60,7 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
           options={options.sources}
           createTitle={tForms("newIncomeSource")}
           onCreate={createIncomeSource}
+          isRequired
         />
         <CreatableSelect
           label={t("category")}
@@ -67,8 +68,9 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
           options={options.categories}
           createTitle={tForms("newIncomeCategory")}
           onCreate={createIncomeCategory}
+          isRequired
         />
-        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies}/>
+        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} isRequired/>
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
         <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>

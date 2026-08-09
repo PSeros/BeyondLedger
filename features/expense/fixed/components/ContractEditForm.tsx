@@ -60,6 +60,7 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
           suppliers={options.suppliers}
           supplierCategories={options.supplierCategories}
           defaultValue={String(contract.supplierId)}
+          isRequired
         />
         <CreatableSelect
           label={t("category")}
@@ -68,8 +69,15 @@ export default function ContractEditForm({contract, options}: ContractEditFormPr
           defaultValue={String(contract.categoryId)}
           createTitle={tForms("newContractCategory")}
           onCreate={createContractCategory}
+          isRequired
         />
-        <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} defaultValue={String(contract.frequencyId)}/>
+        <SelectField
+          label={t("frequency")}
+          name="frequencyId"
+          options={options.frequencies}
+          defaultValue={String(contract.frequencyId)}
+          isRequired
+        />
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={String(contract.workspaceId)}/>
         <TextInputField label={t("amount")} name="amount" type="number" defaultValue={String(contract.amount)} isRequired/>
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={contract.startDate.slice(0, 10)} isRequired/>
