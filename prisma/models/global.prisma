@@ -35,6 +35,31 @@ model AiSettings {
   updatedAt    DateTime     @updatedAt
 }
 
+// Singleton (always operated on at id: 1 via upsert) holding the Home Assistant MQTT bridge config
+// (Phase 17). Kept in the DB rather than env vars so enabling the bridge never requires editing
+// /opt/beyondledger/.env or the two deploy scripts — an existing install picks the feature up from
+// the plain `git pull && migrate deploy && build` the update script already runs. NOTE: password is
+// stored plaintext — same tradeoff as AiSettings.apiKey; it is only ever read server-side (see
+// features/integrations/db/mqttSettings.ts), never sent to the client.
+model MqttSettings {
+  id                     Int      @id @default(autoincrement())
+  enabled                Boolean  @default(false)
+  host                   String   @default("")
+  port                   Int      @default(1883)
+  useTls                 Boolean  @default(false)
+  username               String   @default("")
+  password               String   @default("")
+  clientId               String   @default("beyondledger")
+  topicPrefix            String   @default("beyondledger")
+  discoveryPrefix        String   @default("homeassistant")
+  /// ISO currency code (not a symbol) — Home Assistant's statistics machinery keys on this string.
+  currency               String   @default("EUR")
+  /// Optional http://host:port of this app, published as the HA device's configuration_url.
+  appUrl                 String   @default("")
+  publishIntervalSeconds Int      @default(300)
+  updatedAt              DateTime @updatedAt
+}
+
 // Singleton (always operated on at id: 1 via upsert) holding app-wide user preferences that must
 // reach Server Components — currently the UI/formatting locale ("en" | "de"). Unlike the theme
 // (client-side via next-themes), locale drives server-rendered output (<html lang>, currency/date

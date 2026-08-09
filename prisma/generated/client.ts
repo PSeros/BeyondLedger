@@ -102,6 +102,11 @@ export type Frequency = Prisma.FrequencyModel
  */
 export type AiSettings = Prisma.AiSettingsModel
 /**
+ * Model MqttSettings
+ * 
+ */
+export type MqttSettings = Prisma.MqttSettingsModel
+/**
  * Model AppSettings
  * 
  */

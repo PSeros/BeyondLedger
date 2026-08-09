@@ -63,6 +63,7 @@ export const ModelName = {
   Item: 'Item',
   Frequency: 'Frequency',
   AiSettings: 'AiSettings',
+  MqttSettings: 'MqttSettings',
   AppSettings: 'AppSettings',
   FileAsset: 'FileAsset',
   Workspace: 'Workspace',
@@ -228,6 +229,26 @@ export const AiSettingsScalarFieldEnum = {
 } as const
 
 export type AiSettingsScalarFieldEnum = (typeof AiSettingsScalarFieldEnum)[keyof typeof AiSettingsScalarFieldEnum]
+
+
+export const MqttSettingsScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  host: 'host',
+  port: 'port',
+  useTls: 'useTls',
+  username: 'username',
+  password: 'password',
+  clientId: 'clientId',
+  topicPrefix: 'topicPrefix',
+  discoveryPrefix: 'discoveryPrefix',
+  currency: 'currency',
+  appUrl: 'appUrl',
+  publishIntervalSeconds: 'publishIntervalSeconds',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MqttSettingsScalarFieldEnum = (typeof MqttSettingsScalarFieldEnum)[keyof typeof MqttSettingsScalarFieldEnum]
 
 
 export const AppSettingsScalarFieldEnum = {
