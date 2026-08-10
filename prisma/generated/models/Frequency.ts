@@ -366,10 +366,6 @@ export type FrequencyUpdateOneRequiredWithoutContractsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FrequencyUpdateToOneWithWhereWithoutContractsInput, Prisma.FrequencyUpdateWithoutContractsInput>, Prisma.FrequencyUncheckedUpdateWithoutContractsInput>
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type FrequencyCreateNestedOneWithoutIncomesInput = {
   create?: Prisma.XOR<Prisma.FrequencyCreateWithoutIncomesInput, Prisma.FrequencyUncheckedCreateWithoutIncomesInput>
   connectOrCreate?: Prisma.FrequencyCreateOrConnectWithoutIncomesInput

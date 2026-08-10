@@ -40,6 +40,12 @@ model BudgetMember {
   budget   Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   budgetId Int
 
+  // Include (false, the default) vs. EXCLUDE (true). An excluded selector is a global AND-NOT:
+  // anything matching it is dropped from the budget on BOTH domains, whatever the includes said.
+  // Lets "Food & Drink" cover the article categories while carving out the Restaurant supplier
+  // category, which a sibling "Restaurant" budget then claims. See budgetSmartMatch.ts.
+  isExcluded Boolean @default(false)
+
   itemCategory   ItemCategory? @relation(fields: [itemCategoryId], references: [id], onDelete: Cascade)
   itemCategoryId Int?
 

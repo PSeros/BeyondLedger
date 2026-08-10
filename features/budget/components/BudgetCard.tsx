@@ -4,7 +4,7 @@ import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import {Button, Card, Chip, Input, Label, TextField} from "@heroui/react";
-import {LuCalendarRange, LuArrowDownUp, LuTriangleAlert} from "react-icons/lu";
+import {LuCalendarRange, LuArrowDownUp} from "react-icons/lu";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import TagChip from "@/components/TagChip";
 import BudgetDetailModal from "@/features/budget/components/BudgetDetailModal";
@@ -26,10 +26,6 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
   const meterColor = isOver ? "bg-danger" : ratio >= 0.85 ? "bg-warning" : "bg-success";
 
   const hasOverride = budget.overrides.some((o) => o.periodKey === budget.periodKey);
-  const billLevel = budget.memberIds.supplierIds.length > 0 || budget.memberIds.supplierCategoryIds.length > 0;
-  const hasOverlap =
-    (billLevel && budget.memberIds.itemCategoryIds.length > 0) ||
-    (budget.memberIds.supplierIds.length > 0 && budget.memberIds.supplierCategoryIds.length > 0);
 
   const [editingOverride, setEditingOverride] = useState(false);
   const [overrideValue, setOverrideValue] = useState(String(budget.target));
@@ -142,26 +138,29 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
 
         {budget.members.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
-            {budget.members.map((member) =>
-              member.type === "tag" && member.color ? (
-                <TagChip key={`${member.type}-${member.id}`} name={member.name} color={member.color}/>
+            {budget.members.map((member) => {
+              const key = `${member.type}-${member.id}`;
+              // Excluded selectors are carved OUT of the budget, so they read as a struck-through
+              // "−name" rather than a colored tag.
+              if (member.isExcluded) {
+                return (
+                  <Chip key={key} variant="soft" color="danger" size="sm" title={t("excludedChip", {name: member.name})}>
+                    <Chip.Label className="line-through">−{member.name}</Chip.Label>
+                  </Chip>
+                );
+              }
+              return member.type === "tag" && member.color ? (
+                <TagChip key={key} name={member.name} color={member.color}/>
               ) : (
-                <Chip key={`${member.type}-${member.id}`} variant="soft" size="sm">
+                <Chip key={key} variant="soft" size="sm">
                   <Chip.Label>{member.name}</Chip.Label>
                 </Chip>
-              ),
-            )}
+              );
+            })}
           </div>
         ) : (
           <p className="text-xs text-muted">{t("noMembers")}</p>
         )}
-
-        {hasOverlap ? (
-          <p className="flex items-center gap-1.5 text-xs text-warning">
-            <LuTriangleAlert className="size-3.5 shrink-0"/>
-            {t("overlapHint")}
-          </p>
-        ) : null}
 
         {editingOverride ? (
           <div className="flex flex-col gap-2 rounded-(--radius) border border-default-200 p-3">
