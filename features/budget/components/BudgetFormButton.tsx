@@ -7,9 +7,11 @@ import {useRouter} from "next/navigation";
 import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react";
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
-import MultiSelectField from "@/features/budget/components/MultiSelectField";
+import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
 import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSelectField";
 import type {BudgetMemberOptions, BudgetView} from "@/features/budget/db/budgets";
+import type {FacetGroup} from "@/features/budget/db/budgetSmartMatch";
+import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions";
 import type {BudgetPeriodType} from "@/features/budget/period";
 import {createBudget, updateBudget} from "@/features/budget/db/budgetMutations";
 
@@ -20,21 +22,31 @@ import {createBudget, updateBudget} from "@/features/budget/db/budgetMutations";
 
 const PERIOD_TYPES: BudgetPeriodType[] = ["MONTHLY", "QUARTERLY", "YEARLY", "MONTH_OF_YEAR", "RANGE", "OPEN"];
 
-type Selection = {
-  itemCategory: string[];
-  supplierCategory: string[];
-  supplier: string[];
-  contractCategory: string[];
-  tag: string[];
-};
+// One entry per selector, each holding both signs. `field` is the FormData name suffix: included
+// ids post as `member<Field>Id`, excluded ones as `exclude<Field>Id` (see parseMembers).
+const SELECTORS = [
+  {key: "itemCategory", field: "ItemCategoryId"},
+  {key: "contractCategory", field: "ContractCategoryId"},
+  {key: "supplierCategory", field: "SupplierCategoryId"},
+  {key: "supplier", field: "SupplierId"},
+  {key: "tag", field: "TagId"},
+] as const;
+
+type SelectorKey = (typeof SELECTORS)[number]["key"];
+type Selection = Record<SelectorKey, TriStateValue>;
 
 function initialSelection(budget?: BudgetView): Selection {
+  const ids = (list: number[] | undefined): string[] => (list ?? []).map(String);
+  const of = (pick: (g: FacetGroup) => number[]): TriStateValue => ({
+    included: ids(budget && pick(budget.memberIds.include)),
+    excluded: ids(budget && pick(budget.memberIds.exclude)),
+  });
   return {
-    itemCategory: (budget?.memberIds.itemCategoryIds ?? []).map(String),
-    supplierCategory: (budget?.memberIds.supplierCategoryIds ?? []).map(String),
-    supplier: (budget?.memberIds.supplierIds ?? []).map(String),
-    contractCategory: (budget?.memberIds.contractCategoryIds ?? []).map(String),
-    tag: (budget?.memberIds.tagIds ?? []).map(String),
+    itemCategory: of((g) => g.itemCategoryIds),
+    contractCategory: of((g) => g.contractCategoryIds),
+    supplierCategory: of((g) => g.supplierCategoryIds),
+    supplier: of((g) => g.supplierIds),
+    tag: of((g) => g.tagIds),
   };
 }
 
@@ -81,12 +93,34 @@ export default function BudgetFormButton({
     [format],
   );
 
-  const totalSelected =
-    selection.itemCategory.length +
-    selection.supplierCategory.length +
-    selection.supplier.length +
-    selection.contractCategory.length +
-    selection.tag.length;
+  const totalSelected = SELECTORS.reduce(
+    (sum, {key}) => sum + selection[key].included.length + selection[key].excluded.length,
+    0,
+  );
+
+  // Trigger text for one selector: "3 included", "1 excluded", or both; null → show the placeholder.
+  function summarize(value: TriStateValue): string | null {
+    const parts: string[] = [];
+    if (value.included.length) parts.push(t("countIncluded", {count: value.included.length}));
+    if (value.excluded.length) parts.push(t("countExcluded", {count: value.excluded.length}));
+    return parts.length ? parts.join(", ") : null;
+  }
+
+  const selectorLabels: Record<SelectorKey, string> = {
+    itemCategory: t("groupItemCategories"),
+    contractCategory: t("groupContractCategories"),
+    supplierCategory: t("groupSupplierCategories"),
+    supplier: t("groupSuppliers"),
+    tag: t("groupTags"),
+  };
+
+  const selectorOptions: Record<SelectorKey, FilterOption[]> = {
+    itemCategory: options.itemCategories,
+    contractCategory: options.contractCategories,
+    supplierCategory: options.supplierCategories,
+    supplier: options.suppliers,
+    tag: options.tags,
+  };
 
   function openModal() {
     setSelection(initialSelection(budget));
@@ -233,61 +267,30 @@ export default function BudgetFormButton({
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  <MultiSelectField
-                    label={t("groupItemCategories")}
-                    options={options.itemCategories}
-                    value={selection.itemCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, itemCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupContractCategories")}
-                    options={options.contractCategories}
-                    value={selection.contractCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, contractCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupSupplierCategories")}
-                    options={options.supplierCategories}
-                    value={selection.supplierCategory}
-                    onChange={(keys) => setSelection((s) => ({...s, supplierCategory: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupSuppliers")}
-                    options={options.suppliers}
-                    value={selection.supplier}
-                    onChange={(keys) => setSelection((s) => ({...s, supplier: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
-                  <MultiSelectField
-                    label={t("groupTags")}
-                    options={options.tags}
-                    value={selection.tag}
-                    onChange={(keys) => setSelection((s) => ({...s, tag: keys}))}
-                    placeholder={t("selectPlaceholder")}
-                  />
+                  {SELECTORS.map(({key}) => (
+                    <MultiSelectField
+                      key={key}
+                      label={selectorLabels[key]}
+                      options={selectorOptions[key]}
+                      value={selection[key]}
+                      onChange={(next) => setSelection((s) => ({...s, [key]: next}))}
+                      placeholder={t("selectPlaceholder")}
+                      summary={summarize}
+                    />
+                  ))}
                 </div>
 
                 {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
 
-                {/* Selected member ids mirrored into hidden inputs for FormData. */}
-                {selection.itemCategory.map((id) => (
-                  <input key={`ic-${id}`} type="hidden" name="memberItemCategoryId" value={id}/>
-                ))}
-                {selection.supplierCategory.map((id) => (
-                  <input key={`sc-${id}`} type="hidden" name="memberSupplierCategoryId" value={id}/>
-                ))}
-                {selection.supplier.map((id) => (
-                  <input key={`sp-${id}`} type="hidden" name="memberSupplierId" value={id}/>
-                ))}
-                {selection.contractCategory.map((id) => (
-                  <input key={`cc-${id}`} type="hidden" name="memberContractCategoryId" value={id}/>
-                ))}
-                {selection.tag.map((id) => (
-                  <input key={`tag-${id}`} type="hidden" name="memberTagId" value={id}/>
-                ))}
+                {/* Picked ids mirrored into hidden inputs for FormData, one name per sign. */}
+                {SELECTORS.flatMap(({key, field}) => [
+                  ...selection[key].included.map((id) => (
+                    <input key={`${key}-in-${id}`} type="hidden" name={`member${field}`} value={id}/>
+                  )),
+                  ...selection[key].excluded.map((id) => (
+                    <input key={`${key}-ex-${id}`} type="hidden" name={`exclude${field}`} value={id}/>
+                  )),
+                ])}
 
                 {error ? <p className="text-danger text-sm">{error}</p> : null}
 

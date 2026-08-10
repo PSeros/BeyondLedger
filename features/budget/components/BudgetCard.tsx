@@ -138,15 +138,25 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
 
         {budget.members.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
-            {budget.members.map((member) =>
-              member.type === "tag" && member.color ? (
-                <TagChip key={`${member.type}-${member.id}`} name={member.name} color={member.color}/>
+            {budget.members.map((member) => {
+              const key = `${member.type}-${member.id}`;
+              // Excluded selectors are carved OUT of the budget, so they read as a struck-through
+              // "−name" rather than a colored tag.
+              if (member.isExcluded) {
+                return (
+                  <Chip key={key} variant="soft" color="danger" size="sm" title={t("excludedChip", {name: member.name})}>
+                    <Chip.Label className="line-through">−{member.name}</Chip.Label>
+                  </Chip>
+                );
+              }
+              return member.type === "tag" && member.color ? (
+                <TagChip key={key} name={member.name} color={member.color}/>
               ) : (
-                <Chip key={`${member.type}-${member.id}`} variant="soft" size="sm">
+                <Chip key={key} variant="soft" size="sm">
                   <Chip.Label>{member.name}</Chip.Label>
                 </Chip>
-              ),
-            )}
+              );
+            })}
           </div>
         ) : (
           <p className="text-xs text-muted">{t("noMembers")}</p>
