@@ -81,10 +81,6 @@ export default function BudgetFormButton({
     [format],
   );
 
-  const billLevel = selection.supplier.length > 0 || selection.supplierCategory.length > 0;
-  const hasOverlap =
-    (billLevel && selection.itemCategory.length > 0) ||
-    (selection.supplier.length > 0 && selection.supplierCategory.length > 0);
   const totalSelected =
     selection.itemCategory.length +
     selection.supplierCategory.length +
@@ -274,7 +270,6 @@ export default function BudgetFormButton({
                   />
                 </div>
 
-                {hasOverlap ? <p className="text-xs text-warning">{t("overlapHint")}</p> : null}
                 {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
 
                 {/* Selected member ids mirrored into hidden inputs for FormData. */}
