@@ -105,6 +105,7 @@ export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof 
 export const BudgetMemberScalarFieldEnum = {
   id: 'id',
   budgetId: 'budgetId',
+  isExcluded: 'isExcluded',
   itemCategoryId: 'itemCategoryId',
   supplierCategoryId: 'supplierCategoryId',
   supplierId: 'supplierId',

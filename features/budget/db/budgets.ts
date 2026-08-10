@@ -6,7 +6,7 @@ import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
-import {getSelectorTotals} from "@/features/budget/db/budgetSmartMatch";
+import {facetSelectionFromMembers, getSelectorTotals} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
 // Read side for the Budget page. Each budget carries its members, period config, and per-instance
@@ -16,7 +16,8 @@ import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/fea
 export type BudgetMemberType = "itemCategory" | "supplierCategory" | "supplier" | "contractCategory" | "tag";
 
 // `color` is set only for tag members, so the card can render them as colored TagChips.
-export type BudgetMemberView = {type: BudgetMemberType; id: number; name: string; color?: string};
+// `isExcluded` flips the selector's sign: an excluded value is carved OUT of the budget.
+export type BudgetMemberView = {type: BudgetMemberType; id: number; name: string; color?: string; isExcluded: boolean};
 
 export type BudgetOverrideView = {periodKey: string; amount: number};
 
@@ -67,33 +68,25 @@ function toMemberView(member: {
   contractCategory: {name: string} | null;
   tagId: number | null;
   tag: {name: string; color: string} | null;
+  isExcluded: boolean;
 }): BudgetMemberView | null {
+  const sign = {isExcluded: member.isExcluded};
   if (member.itemCategoryId != null && member.itemCategory) {
-    return {type: "itemCategory", id: member.itemCategoryId, name: member.itemCategory.name};
+    return {type: "itemCategory", id: member.itemCategoryId, name: member.itemCategory.name, ...sign};
   }
   if (member.supplierCategoryId != null && member.supplierCategory) {
-    return {type: "supplierCategory", id: member.supplierCategoryId, name: member.supplierCategory.name};
+    return {type: "supplierCategory", id: member.supplierCategoryId, name: member.supplierCategory.name, ...sign};
   }
   if (member.supplierId != null && member.supplier) {
-    return {type: "supplier", id: member.supplierId, name: member.supplier.name};
+    return {type: "supplier", id: member.supplierId, name: member.supplier.name, ...sign};
   }
   if (member.contractCategoryId != null && member.contractCategory) {
-    return {type: "contractCategory", id: member.contractCategoryId, name: member.contractCategory.name};
+    return {type: "contractCategory", id: member.contractCategoryId, name: member.contractCategory.name, ...sign};
   }
   if (member.tagId != null && member.tag) {
-    return {type: "tag", id: member.tagId, name: member.tag.name, color: member.tag.color};
+    return {type: "tag", id: member.tagId, name: member.tag.name, color: member.tag.color, ...sign};
   }
   return null;
-}
-
-function toMemberIds(members: BudgetMemberView[]): BudgetMemberIds {
-  return {
-    itemCategoryIds: members.filter((m) => m.type === "itemCategory").map((m) => m.id),
-    supplierCategoryIds: members.filter((m) => m.type === "supplierCategory").map((m) => m.id),
-    supplierIds: members.filter((m) => m.type === "supplier").map((m) => m.id),
-    contractCategoryIds: members.filter((m) => m.type === "contractCategory").map((m) => m.id),
-    tagIds: members.filter((m) => m.type === "tag").map((m) => m.id),
-  };
 }
 
 // `workspaceId` (the active account) filters the list to that account; null/undefined = all accounts.
@@ -131,7 +124,7 @@ export async function getBudgets(workspaceId?: number | null): Promise<BudgetVie
       workspaceId: budget.workspaceId,
       workspace: {id: budget.workspace.id, name: budget.workspace.name, color: budget.workspace.color},
       members,
-      memberIds: toMemberIds(members),
+      memberIds: facetSelectionFromMembers(budget.members),
       overrides: budget.overrides.map((o) => ({periodKey: o.periodKey, amount: Number(o.amount)})),
     };
   });

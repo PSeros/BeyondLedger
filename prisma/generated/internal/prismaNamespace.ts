@@ -2032,6 +2032,7 @@ export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof 
 export const BudgetMemberScalarFieldEnum = {
   id: 'id',
   budgetId: 'budgetId',
+  isExcluded: 'isExcluded',
   itemCategoryId: 'itemCategoryId',
   supplierCategoryId: 'supplierCategoryId',
   supplierId: 'supplierId',
@@ -2330,16 +2331,16 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'Boolean'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'Float'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 

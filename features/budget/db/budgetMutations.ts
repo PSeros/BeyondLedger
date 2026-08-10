@@ -86,13 +86,11 @@ async function parsePeriodFields(
   return {anchorMonth: null, startDate: null, endDate: null};
 }
 
-type MemberCreate =
-  | {itemCategoryId: number}
-  | {supplierCategoryId: number}
-  | {supplierId: number}
-  | {contractCategoryId: number}
-  | {tagId: number};
+type MemberColumn = "itemCategoryId" | "supplierCategoryId" | "supplierId" | "contractCategoryId" | "tagId";
+type MemberCreate = {[K in MemberColumn]?: number} & {isExcluded: boolean};
 
+// Members arrive as repeated hidden inputs, one per picked id: `memberItemCategoryId` for included
+// values and `excludeItemCategoryId` for excluded ones, and so on per selector.
 function parseMembers(formData: FormData): MemberCreate[] {
   const collect = (key: string): number[] =>
     formData
@@ -100,13 +98,22 @@ function parseMembers(formData: FormData): MemberCreate[] {
       .map((value) => Number(value))
       .filter((value) => Number.isInteger(value) && value > 0);
 
-  return [
-    ...collect("memberItemCategoryId").map((id): MemberCreate => ({itemCategoryId: id})),
-    ...collect("memberSupplierCategoryId").map((id): MemberCreate => ({supplierCategoryId: id})),
-    ...collect("memberSupplierId").map((id): MemberCreate => ({supplierId: id})),
-    ...collect("memberContractCategoryId").map((id): MemberCreate => ({contractCategoryId: id})),
-    ...collect("memberTagId").map((id): MemberCreate => ({tagId: id})),
+  const fields: {suffix: string; column: MemberColumn}[] = [
+    {suffix: "ItemCategoryId", column: "itemCategoryId"},
+    {suffix: "SupplierCategoryId", column: "supplierCategoryId"},
+    {suffix: "SupplierId", column: "supplierId"},
+    {suffix: "ContractCategoryId", column: "contractCategoryId"},
+    {suffix: "TagId", column: "tagId"},
   ];
+
+  return fields.flatMap(({suffix, column}) =>
+    ([
+      ["member", false],
+      ["exclude", true],
+    ] as const).flatMap(([prefix, isExcluded]) =>
+      collect(`${prefix}${suffix}`).map((id): MemberCreate => ({[column]: id, isExcluded})),
+    ),
+  );
 }
 
 export async function createBudget(formData: FormData): Promise<void> {

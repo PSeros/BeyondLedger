@@ -49,6 +49,7 @@ export type BudgetMemberSumAggregateOutputType = {
 export type BudgetMemberMinAggregateOutputType = {
   id: number | null
   budgetId: number | null
+  isExcluded: boolean | null
   itemCategoryId: number | null
   supplierCategoryId: number | null
   supplierId: number | null
@@ -59,6 +60,7 @@ export type BudgetMemberMinAggregateOutputType = {
 export type BudgetMemberMaxAggregateOutputType = {
   id: number | null
   budgetId: number | null
+  isExcluded: boolean | null
   itemCategoryId: number | null
   supplierCategoryId: number | null
   supplierId: number | null
@@ -69,6 +71,7 @@ export type BudgetMemberMaxAggregateOutputType = {
 export type BudgetMemberCountAggregateOutputType = {
   id: number
   budgetId: number
+  isExcluded: number
   itemCategoryId: number
   supplierCategoryId: number
   supplierId: number
@@ -101,6 +104,7 @@ export type BudgetMemberSumAggregateInputType = {
 export type BudgetMemberMinAggregateInputType = {
   id?: true
   budgetId?: true
+  isExcluded?: true
   itemCategoryId?: true
   supplierCategoryId?: true
   supplierId?: true
@@ -111,6 +115,7 @@ export type BudgetMemberMinAggregateInputType = {
 export type BudgetMemberMaxAggregateInputType = {
   id?: true
   budgetId?: true
+  isExcluded?: true
   itemCategoryId?: true
   supplierCategoryId?: true
   supplierId?: true
@@ -121,6 +126,7 @@ export type BudgetMemberMaxAggregateInputType = {
 export type BudgetMemberCountAggregateInputType = {
   id?: true
   budgetId?: true
+  isExcluded?: true
   itemCategoryId?: true
   supplierCategoryId?: true
   supplierId?: true
@@ -218,6 +224,7 @@ export type BudgetMemberGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type BudgetMemberGroupByOutputType = {
   id: number
   budgetId: number
+  isExcluded: boolean
   itemCategoryId: number | null
   supplierCategoryId: number | null
   supplierId: number | null
@@ -251,6 +258,7 @@ export type BudgetMemberWhereInput = {
   NOT?: Prisma.BudgetMemberWhereInput | Prisma.BudgetMemberWhereInput[]
   id?: Prisma.IntFilter<"BudgetMember"> | number
   budgetId?: Prisma.IntFilter<"BudgetMember"> | number
+  isExcluded?: Prisma.BoolFilter<"BudgetMember"> | boolean
   itemCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
@@ -267,6 +275,7 @@ export type BudgetMemberWhereInput = {
 export type BudgetMemberOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   budgetId?: Prisma.SortOrder
+  isExcluded?: Prisma.SortOrder
   itemCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -286,6 +295,7 @@ export type BudgetMemberWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BudgetMemberWhereInput[]
   NOT?: Prisma.BudgetMemberWhereInput | Prisma.BudgetMemberWhereInput[]
   budgetId?: Prisma.IntFilter<"BudgetMember"> | number
+  isExcluded?: Prisma.BoolFilter<"BudgetMember"> | boolean
   itemCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
@@ -302,6 +312,7 @@ export type BudgetMemberWhereUniqueInput = Prisma.AtLeast<{
 export type BudgetMemberOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   budgetId?: Prisma.SortOrder
+  isExcluded?: Prisma.SortOrder
   itemCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierCategoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   supplierId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -320,6 +331,7 @@ export type BudgetMemberScalarWhereWithAggregatesInput = {
   NOT?: Prisma.BudgetMemberScalarWhereWithAggregatesInput | Prisma.BudgetMemberScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"BudgetMember"> | number
   budgetId?: Prisma.IntWithAggregatesFilter<"BudgetMember"> | number
+  isExcluded?: Prisma.BoolWithAggregatesFilter<"BudgetMember"> | boolean
   itemCategoryId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
   supplierCategoryId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableWithAggregatesFilter<"BudgetMember"> | number | null
@@ -328,6 +340,7 @@ export type BudgetMemberScalarWhereWithAggregatesInput = {
 }
 
 export type BudgetMemberCreateInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
@@ -339,6 +352,7 @@ export type BudgetMemberCreateInput = {
 export type BudgetMemberUncheckedCreateInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -347,6 +361,7 @@ export type BudgetMemberUncheckedCreateInput = {
 }
 
 export type BudgetMemberUpdateInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
@@ -358,6 +373,7 @@ export type BudgetMemberUpdateInput = {
 export type BudgetMemberUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -368,6 +384,7 @@ export type BudgetMemberUncheckedUpdateInput = {
 export type BudgetMemberCreateManyInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -376,12 +393,13 @@ export type BudgetMemberCreateManyInput = {
 }
 
 export type BudgetMemberUpdateManyMutationInput = {
-
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type BudgetMemberUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -402,6 +420,7 @@ export type BudgetMemberOrderByRelationAggregateInput = {
 export type BudgetMemberCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   budgetId?: Prisma.SortOrder
+  isExcluded?: Prisma.SortOrder
   itemCategoryId?: Prisma.SortOrder
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
@@ -422,6 +441,7 @@ export type BudgetMemberAvgOrderByAggregateInput = {
 export type BudgetMemberMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   budgetId?: Prisma.SortOrder
+  isExcluded?: Prisma.SortOrder
   itemCategoryId?: Prisma.SortOrder
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
@@ -432,6 +452,7 @@ export type BudgetMemberMaxOrderByAggregateInput = {
 export type BudgetMemberMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   budgetId?: Prisma.SortOrder
+  isExcluded?: Prisma.SortOrder
   itemCategoryId?: Prisma.SortOrder
   supplierCategoryId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
@@ -489,6 +510,10 @@ export type BudgetMemberUncheckedUpdateManyWithoutBudgetNestedInput = {
   update?: Prisma.BudgetMemberUpdateWithWhereUniqueWithoutBudgetInput | Prisma.BudgetMemberUpdateWithWhereUniqueWithoutBudgetInput[]
   updateMany?: Prisma.BudgetMemberUpdateManyWithWhereWithoutBudgetInput | Prisma.BudgetMemberUpdateManyWithWhereWithoutBudgetInput[]
   deleteMany?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type BudgetMemberCreateNestedManyWithoutSupplierCategoryInput = {
@@ -702,6 +727,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutTagNestedInput = {
 }
 
 export type BudgetMemberCreateWithoutBudgetInput = {
+  isExcluded?: boolean
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
@@ -711,6 +737,7 @@ export type BudgetMemberCreateWithoutBudgetInput = {
 
 export type BudgetMemberUncheckedCreateWithoutBudgetInput = {
   id?: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -749,6 +776,7 @@ export type BudgetMemberScalarWhereInput = {
   NOT?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
   id?: Prisma.IntFilter<"BudgetMember"> | number
   budgetId?: Prisma.IntFilter<"BudgetMember"> | number
+  isExcluded?: Prisma.BoolFilter<"BudgetMember"> | boolean
   itemCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierCategoryId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
   supplierId?: Prisma.IntNullableFilter<"BudgetMember"> | number | null
@@ -757,6 +785,7 @@ export type BudgetMemberScalarWhereInput = {
 }
 
 export type BudgetMemberCreateWithoutSupplierCategoryInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
@@ -767,6 +796,7 @@ export type BudgetMemberCreateWithoutSupplierCategoryInput = {
 export type BudgetMemberUncheckedCreateWithoutSupplierCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
@@ -799,6 +829,7 @@ export type BudgetMemberUpdateManyWithWhereWithoutSupplierCategoryInput = {
 }
 
 export type BudgetMemberCreateWithoutItemCategoryInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
   supplier?: Prisma.SupplierCreateNestedOneWithoutBudgetMembersInput
@@ -809,6 +840,7 @@ export type BudgetMemberCreateWithoutItemCategoryInput = {
 export type BudgetMemberUncheckedCreateWithoutItemCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
@@ -841,6 +873,7 @@ export type BudgetMemberUpdateManyWithWhereWithoutItemCategoryInput = {
 }
 
 export type BudgetMemberCreateWithoutContractCategoryInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
@@ -851,6 +884,7 @@ export type BudgetMemberCreateWithoutContractCategoryInput = {
 export type BudgetMemberUncheckedCreateWithoutContractCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -883,6 +917,7 @@ export type BudgetMemberUpdateManyWithWhereWithoutContractCategoryInput = {
 }
 
 export type BudgetMemberCreateWithoutSupplierInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
@@ -893,6 +928,7 @@ export type BudgetMemberCreateWithoutSupplierInput = {
 export type BudgetMemberUncheckedCreateWithoutSupplierInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   contractCategoryId?: number | null
@@ -925,6 +961,7 @@ export type BudgetMemberUpdateManyWithWhereWithoutSupplierInput = {
 }
 
 export type BudgetMemberCreateWithoutTagInput = {
+  isExcluded?: boolean
   budget: Prisma.BudgetCreateNestedOneWithoutMembersInput
   itemCategory?: Prisma.ItemCategoryCreateNestedOneWithoutBudgetMembersInput
   supplierCategory?: Prisma.SupplierCategoryCreateNestedOneWithoutBudgetMembersInput
@@ -935,6 +972,7 @@ export type BudgetMemberCreateWithoutTagInput = {
 export type BudgetMemberUncheckedCreateWithoutTagInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -968,6 +1006,7 @@ export type BudgetMemberUpdateManyWithWhereWithoutTagInput = {
 
 export type BudgetMemberCreateManyBudgetInput = {
   id?: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -976,6 +1015,7 @@ export type BudgetMemberCreateManyBudgetInput = {
 }
 
 export type BudgetMemberUpdateWithoutBudgetInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
@@ -985,6 +1025,7 @@ export type BudgetMemberUpdateWithoutBudgetInput = {
 
 export type BudgetMemberUncheckedUpdateWithoutBudgetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -994,6 +1035,7 @@ export type BudgetMemberUncheckedUpdateWithoutBudgetInput = {
 
 export type BudgetMemberUncheckedUpdateManyWithoutBudgetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1004,6 +1046,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutBudgetInput = {
 export type BudgetMemberCreateManySupplierCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
@@ -1011,6 +1054,7 @@ export type BudgetMemberCreateManySupplierCategoryInput = {
 }
 
 export type BudgetMemberUpdateWithoutSupplierCategoryInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
@@ -1021,6 +1065,7 @@ export type BudgetMemberUpdateWithoutSupplierCategoryInput = {
 export type BudgetMemberUncheckedUpdateWithoutSupplierCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1030,6 +1075,7 @@ export type BudgetMemberUncheckedUpdateWithoutSupplierCategoryInput = {
 export type BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1039,6 +1085,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutSupplierCategoryInput = {
 export type BudgetMemberCreateManyItemCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   supplierCategoryId?: number | null
   supplierId?: number | null
   contractCategoryId?: number | null
@@ -1046,6 +1093,7 @@ export type BudgetMemberCreateManyItemCategoryInput = {
 }
 
 export type BudgetMemberUpdateWithoutItemCategoryInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplier?: Prisma.SupplierUpdateOneWithoutBudgetMembersNestedInput
@@ -1056,6 +1104,7 @@ export type BudgetMemberUpdateWithoutItemCategoryInput = {
 export type BudgetMemberUncheckedUpdateWithoutItemCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1065,6 +1114,7 @@ export type BudgetMemberUncheckedUpdateWithoutItemCategoryInput = {
 export type BudgetMemberUncheckedUpdateManyWithoutItemCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1074,6 +1124,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutItemCategoryInput = {
 export type BudgetMemberCreateManyContractCategoryInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -1081,6 +1132,7 @@ export type BudgetMemberCreateManyContractCategoryInput = {
 }
 
 export type BudgetMemberUpdateWithoutContractCategoryInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
@@ -1091,6 +1143,7 @@ export type BudgetMemberUpdateWithoutContractCategoryInput = {
 export type BudgetMemberUncheckedUpdateWithoutContractCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1100,6 +1153,7 @@ export type BudgetMemberUncheckedUpdateWithoutContractCategoryInput = {
 export type BudgetMemberUncheckedUpdateManyWithoutContractCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1109,6 +1163,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutContractCategoryInput = {
 export type BudgetMemberCreateManySupplierInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   contractCategoryId?: number | null
@@ -1116,6 +1171,7 @@ export type BudgetMemberCreateManySupplierInput = {
 }
 
 export type BudgetMemberUpdateWithoutSupplierInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
@@ -1126,6 +1182,7 @@ export type BudgetMemberUpdateWithoutSupplierInput = {
 export type BudgetMemberUncheckedUpdateWithoutSupplierInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1135,6 +1192,7 @@ export type BudgetMemberUncheckedUpdateWithoutSupplierInput = {
 export type BudgetMemberUncheckedUpdateManyWithoutSupplierInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   contractCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1144,6 +1202,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutSupplierInput = {
 export type BudgetMemberCreateManyTagInput = {
   id?: number
   budgetId: number
+  isExcluded?: boolean
   itemCategoryId?: number | null
   supplierCategoryId?: number | null
   supplierId?: number | null
@@ -1151,6 +1210,7 @@ export type BudgetMemberCreateManyTagInput = {
 }
 
 export type BudgetMemberUpdateWithoutTagInput = {
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budget?: Prisma.BudgetUpdateOneRequiredWithoutMembersNestedInput
   itemCategory?: Prisma.ItemCategoryUpdateOneWithoutBudgetMembersNestedInput
   supplierCategory?: Prisma.SupplierCategoryUpdateOneWithoutBudgetMembersNestedInput
@@ -1161,6 +1221,7 @@ export type BudgetMemberUpdateWithoutTagInput = {
 export type BudgetMemberUncheckedUpdateWithoutTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1170,6 +1231,7 @@ export type BudgetMemberUncheckedUpdateWithoutTagInput = {
 export type BudgetMemberUncheckedUpdateManyWithoutTagInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   budgetId?: Prisma.IntFieldUpdateOperationsInput | number
+  isExcluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   itemCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierCategoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   supplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1181,6 +1243,7 @@ export type BudgetMemberUncheckedUpdateManyWithoutTagInput = {
 export type BudgetMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   budgetId?: boolean
+  isExcluded?: boolean
   itemCategoryId?: boolean
   supplierCategoryId?: boolean
   supplierId?: boolean
@@ -1197,6 +1260,7 @@ export type BudgetMemberSelect<ExtArgs extends runtime.Types.Extensions.Internal
 export type BudgetMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   budgetId?: boolean
+  isExcluded?: boolean
   itemCategoryId?: boolean
   supplierCategoryId?: boolean
   supplierId?: boolean
@@ -1213,6 +1277,7 @@ export type BudgetMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
 export type BudgetMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   budgetId?: boolean
+  isExcluded?: boolean
   itemCategoryId?: boolean
   supplierCategoryId?: boolean
   supplierId?: boolean
@@ -1229,6 +1294,7 @@ export type BudgetMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
 export type BudgetMemberSelectScalar = {
   id?: boolean
   budgetId?: boolean
+  isExcluded?: boolean
   itemCategoryId?: boolean
   supplierCategoryId?: boolean
   supplierId?: boolean
@@ -1236,7 +1302,7 @@ export type BudgetMemberSelectScalar = {
   tagId?: boolean
 }
 
-export type BudgetMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "budgetId" | "itemCategoryId" | "supplierCategoryId" | "supplierId" | "contractCategoryId" | "tagId", ExtArgs["result"]["budgetMember"]>
+export type BudgetMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "budgetId" | "isExcluded" | "itemCategoryId" | "supplierCategoryId" | "supplierId" | "contractCategoryId" | "tagId", ExtArgs["result"]["budgetMember"]>
 export type BudgetMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   budget?: boolean | Prisma.BudgetDefaultArgs<ExtArgs>
   itemCategory?: boolean | Prisma.BudgetMember$itemCategoryArgs<ExtArgs>
@@ -1275,6 +1341,7 @@ export type $BudgetMemberPayload<ExtArgs extends runtime.Types.Extensions.Intern
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     budgetId: number
+    isExcluded: boolean
     itemCategoryId: number | null
     supplierCategoryId: number | null
     supplierId: number | null
@@ -1711,6 +1778,7 @@ export interface Prisma__BudgetMemberClient<T, Null = never, ExtArgs extends run
 export interface BudgetMemberFieldRefs {
   readonly id: Prisma.FieldRef<"BudgetMember", 'Int'>
   readonly budgetId: Prisma.FieldRef<"BudgetMember", 'Int'>
+  readonly isExcluded: Prisma.FieldRef<"BudgetMember", 'Boolean'>
   readonly itemCategoryId: Prisma.FieldRef<"BudgetMember", 'Int'>
   readonly supplierCategoryId: Prisma.FieldRef<"BudgetMember", 'Int'>
   readonly supplierId: Prisma.FieldRef<"BudgetMember", 'Int'>
