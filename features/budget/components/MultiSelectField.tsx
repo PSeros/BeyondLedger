@@ -58,8 +58,13 @@ export default function MultiSelectField({
       className="flex min-w-0 flex-col gap-1"
     >
       <Label className={labelClass}>{label}</Label>
+      {/* The summary can outrun a half-width trigger ("2 included, 1 excluded"), so keep the full
+          text reachable on hover rather than shortening it into symbols. */}
       <Select.Trigger>
-        <span className={`min-w-0 flex-1 truncate text-start ${triggerText ? "" : "text-muted"}`}>
+        <span
+          title={triggerText ?? undefined}
+          className={`min-w-0 flex-1 truncate text-start ${triggerText ? "" : "text-muted"}`}
+        >
           {triggerText ?? placeholder}
         </span>
         <Select.Indicator/>
