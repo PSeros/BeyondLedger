@@ -85,12 +85,12 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
       >
         <Tabs.ListContainer>
           <Tabs.List aria-label={tForms("expenseType")}>
-            <Tabs.Tab id="variable">
-              {tVf("variable")}
-              <Tabs.Indicator/>
-            </Tabs.Tab>
             <Tabs.Tab id="fixed">
               {tVf("fixed")}
+              <Tabs.Indicator/>
+            </Tabs.Tab>
+            <Tabs.Tab id="variable">
+              {tVf("variable")}
               <Tabs.Indicator/>
             </Tabs.Tab>
           </Tabs.List>
@@ -130,7 +130,8 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
           <div
             className="flex items-center justify-between rounded-[var(--radius)] bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] px-4 py-3">
             <span className="text-sm font-medium">{t("total")}</span>
-            <span className="text-lg font-semibold tabular-nums text-[var(--accent)]">{format.number(grandTotal, "currency")}</span>
+            <span
+              className="text-lg font-semibold tabular-nums text-[var(--accent)]">{format.number(grandTotal, "currency")}</span>
           </div>
         </>
       ) : (
