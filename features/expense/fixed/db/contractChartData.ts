@@ -1,11 +1,16 @@
 import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
 import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
-import {addMonths, buildMonthView, buildYearView, dateKey, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {
+  addMonths,
+  buildMonthView,
+  buildYearView,
+  dateKey,
+  earliestDay,
+  utcDate,
+} from "@/features/expense/shared/db/cumulativeChart";
+import {getLookback} from "@/features/settings/db/appSettings";
 import type {ContractChartData} from "@/features/expense/fixed/types";
-
-const MONTH_LOOKBACK = 6;
-const YEAR_LOOKBACK = 3;
 
 // Chart restricts to Active contracts by nature, so the status filter is not applicable here.
 type GetFixedExpenseChartDataInput = Omit<ContractFilters, "status">;
@@ -14,10 +19,13 @@ export async function getFixedExpenseChartData(
   filters: GetFixedExpenseChartDataInput = {},
   offset = 0,
 ): Promise<ContractChartData> {
-  const contracts = await client.contract.findMany({
-    where: buildContractWhere(filters),
-    include: {frequency: true},
-  });
+  const [contracts, lookback] = await Promise.all([
+    client.contract.findMany({
+      where: buildContractWhere(filters),
+      include: {frequency: true},
+    }),
+    getLookback(),
+  ]);
 
   const now = new Date();
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
@@ -63,8 +71,22 @@ export async function getFixedExpenseChartData(
     }
   }
 
+  // Horizon = the first projected billing date of the contracts that actually feed this chart, so a
+  // rent contract running since 2019 legitimately extends the baseline back that far.
+  const dataStart = earliestDay(totalsByDay);
+
   return {
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), MONTH_LOOKBACK, upcomingTotalsByDay, today),
-    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), YEAR_LOOKBACK, upcomingTotalsByDay, today),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+      lookback: lookback.months,
+      dataStart,
+      futureTotalsByDay: upcomingTotalsByDay,
+      today,
+    }),
+    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
+      lookback: lookback.years,
+      dataStart,
+      futureTotalsByDay: upcomingTotalsByDay,
+      today,
+    }),
   };
 }

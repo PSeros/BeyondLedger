@@ -31,6 +31,9 @@ export type AppSettingsAvgAggregateOutputType = {
   activeWorkspaceId: number | null
   warrantyWarnDays: number | null
   upcomingWindowDays: number | null
+  lookbackWeeks: number | null
+  lookbackMonths: number | null
+  lookbackYears: number | null
 }
 
 export type AppSettingsSumAggregateOutputType = {
@@ -38,6 +41,9 @@ export type AppSettingsSumAggregateOutputType = {
   activeWorkspaceId: number | null
   warrantyWarnDays: number | null
   upcomingWindowDays: number | null
+  lookbackWeeks: number | null
+  lookbackMonths: number | null
+  lookbackYears: number | null
 }
 
 export type AppSettingsMinAggregateOutputType = {
@@ -46,6 +52,9 @@ export type AppSettingsMinAggregateOutputType = {
   activeWorkspaceId: number | null
   warrantyWarnDays: number | null
   upcomingWindowDays: number | null
+  lookbackWeeks: number | null
+  lookbackMonths: number | null
+  lookbackYears: number | null
   updatedAt: Date | null
 }
 
@@ -55,6 +64,9 @@ export type AppSettingsMaxAggregateOutputType = {
   activeWorkspaceId: number | null
   warrantyWarnDays: number | null
   upcomingWindowDays: number | null
+  lookbackWeeks: number | null
+  lookbackMonths: number | null
+  lookbackYears: number | null
   updatedAt: Date | null
 }
 
@@ -64,6 +76,9 @@ export type AppSettingsCountAggregateOutputType = {
   activeWorkspaceId: number
   warrantyWarnDays: number
   upcomingWindowDays: number
+  lookbackWeeks: number
+  lookbackMonths: number
+  lookbackYears: number
   updatedAt: number
   _all: number
 }
@@ -74,6 +89,9 @@ export type AppSettingsAvgAggregateInputType = {
   activeWorkspaceId?: true
   warrantyWarnDays?: true
   upcomingWindowDays?: true
+  lookbackWeeks?: true
+  lookbackMonths?: true
+  lookbackYears?: true
 }
 
 export type AppSettingsSumAggregateInputType = {
@@ -81,6 +99,9 @@ export type AppSettingsSumAggregateInputType = {
   activeWorkspaceId?: true
   warrantyWarnDays?: true
   upcomingWindowDays?: true
+  lookbackWeeks?: true
+  lookbackMonths?: true
+  lookbackYears?: true
 }
 
 export type AppSettingsMinAggregateInputType = {
@@ -89,6 +110,9 @@ export type AppSettingsMinAggregateInputType = {
   activeWorkspaceId?: true
   warrantyWarnDays?: true
   upcomingWindowDays?: true
+  lookbackWeeks?: true
+  lookbackMonths?: true
+  lookbackYears?: true
   updatedAt?: true
 }
 
@@ -98,6 +122,9 @@ export type AppSettingsMaxAggregateInputType = {
   activeWorkspaceId?: true
   warrantyWarnDays?: true
   upcomingWindowDays?: true
+  lookbackWeeks?: true
+  lookbackMonths?: true
+  lookbackYears?: true
   updatedAt?: true
 }
 
@@ -107,6 +134,9 @@ export type AppSettingsCountAggregateInputType = {
   activeWorkspaceId?: true
   warrantyWarnDays?: true
   upcomingWindowDays?: true
+  lookbackWeeks?: true
+  lookbackMonths?: true
+  lookbackYears?: true
   updatedAt?: true
   _all?: true
 }
@@ -203,6 +233,9 @@ export type AppSettingsGroupByOutputType = {
   activeWorkspaceId: number | null
   warrantyWarnDays: number
   upcomingWindowDays: number
+  lookbackWeeks: number
+  lookbackMonths: number
+  lookbackYears: number
   updatedAt: Date
   _count: AppSettingsCountAggregateOutputType | null
   _avg: AppSettingsAvgAggregateOutputType | null
@@ -235,6 +268,9 @@ export type AppSettingsWhereInput = {
   activeWorkspaceId?: Prisma.IntNullableFilter<"AppSettings"> | number | null
   warrantyWarnDays?: Prisma.IntFilter<"AppSettings"> | number
   upcomingWindowDays?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackWeeks?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackMonths?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackYears?: Prisma.IntFilter<"AppSettings"> | number
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }
 
@@ -244,6 +280,9 @@ export type AppSettingsOrderByWithRelationInput = {
   activeWorkspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -256,6 +295,9 @@ export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   activeWorkspaceId?: Prisma.IntNullableFilter<"AppSettings"> | number | null
   warrantyWarnDays?: Prisma.IntFilter<"AppSettings"> | number
   upcomingWindowDays?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackWeeks?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackMonths?: Prisma.IntFilter<"AppSettings"> | number
+  lookbackYears?: Prisma.IntFilter<"AppSettings"> | number
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }, "id">
 
@@ -265,6 +307,9 @@ export type AppSettingsOrderByWithAggregationInput = {
   activeWorkspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppSettingsCountOrderByAggregateInput
   _avg?: Prisma.AppSettingsAvgOrderByAggregateInput
@@ -282,6 +327,9 @@ export type AppSettingsScalarWhereWithAggregatesInput = {
   activeWorkspaceId?: Prisma.IntNullableWithAggregatesFilter<"AppSettings"> | number | null
   warrantyWarnDays?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
   upcomingWindowDays?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
+  lookbackWeeks?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
+  lookbackMonths?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
+  lookbackYears?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppSettings"> | Date | string
 }
 
@@ -290,6 +338,9 @@ export type AppSettingsCreateInput = {
   activeWorkspaceId?: number | null
   warrantyWarnDays?: number
   upcomingWindowDays?: number
+  lookbackWeeks?: number
+  lookbackMonths?: number
+  lookbackYears?: number
   updatedAt?: Date | string
 }
 
@@ -299,6 +350,9 @@ export type AppSettingsUncheckedCreateInput = {
   activeWorkspaceId?: number | null
   warrantyWarnDays?: number
   upcomingWindowDays?: number
+  lookbackWeeks?: number
+  lookbackMonths?: number
+  lookbackYears?: number
   updatedAt?: Date | string
 }
 
@@ -307,6 +361,9 @@ export type AppSettingsUpdateInput = {
   activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyWarnDays?: Prisma.IntFieldUpdateOperationsInput | number
   upcomingWindowDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -316,6 +373,9 @@ export type AppSettingsUncheckedUpdateInput = {
   activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyWarnDays?: Prisma.IntFieldUpdateOperationsInput | number
   upcomingWindowDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -325,6 +385,9 @@ export type AppSettingsCreateManyInput = {
   activeWorkspaceId?: number | null
   warrantyWarnDays?: number
   upcomingWindowDays?: number
+  lookbackWeeks?: number
+  lookbackMonths?: number
+  lookbackYears?: number
   updatedAt?: Date | string
 }
 
@@ -333,6 +396,9 @@ export type AppSettingsUpdateManyMutationInput = {
   activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyWarnDays?: Prisma.IntFieldUpdateOperationsInput | number
   upcomingWindowDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -342,6 +408,9 @@ export type AppSettingsUncheckedUpdateManyInput = {
   activeWorkspaceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   warrantyWarnDays?: Prisma.IntFieldUpdateOperationsInput | number
   upcomingWindowDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
+  lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -351,6 +420,9 @@ export type AppSettingsCountOrderByAggregateInput = {
   activeWorkspaceId?: Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -359,6 +431,9 @@ export type AppSettingsAvgOrderByAggregateInput = {
   activeWorkspaceId?: Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
 }
 
 export type AppSettingsMaxOrderByAggregateInput = {
@@ -367,6 +442,9 @@ export type AppSettingsMaxOrderByAggregateInput = {
   activeWorkspaceId?: Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -376,6 +454,9 @@ export type AppSettingsMinOrderByAggregateInput = {
   activeWorkspaceId?: Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -384,6 +465,9 @@ export type AppSettingsSumOrderByAggregateInput = {
   activeWorkspaceId?: Prisma.SortOrder
   warrantyWarnDays?: Prisma.SortOrder
   upcomingWindowDays?: Prisma.SortOrder
+  lookbackWeeks?: Prisma.SortOrder
+  lookbackMonths?: Prisma.SortOrder
+  lookbackYears?: Prisma.SortOrder
 }
 
 
@@ -394,6 +478,9 @@ export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   activeWorkspaceId?: boolean
   warrantyWarnDays?: boolean
   upcomingWindowDays?: boolean
+  lookbackWeeks?: boolean
+  lookbackMonths?: boolean
+  lookbackYears?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -403,6 +490,9 @@ export type AppSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   activeWorkspaceId?: boolean
   warrantyWarnDays?: boolean
   upcomingWindowDays?: boolean
+  lookbackWeeks?: boolean
+  lookbackMonths?: boolean
+  lookbackYears?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -412,6 +502,9 @@ export type AppSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   activeWorkspaceId?: boolean
   warrantyWarnDays?: boolean
   upcomingWindowDays?: boolean
+  lookbackWeeks?: boolean
+  lookbackMonths?: boolean
+  lookbackYears?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -421,10 +514,13 @@ export type AppSettingsSelectScalar = {
   activeWorkspaceId?: boolean
   warrantyWarnDays?: boolean
   upcomingWindowDays?: boolean
+  lookbackWeeks?: boolean
+  lookbackMonths?: boolean
+  lookbackYears?: boolean
   updatedAt?: boolean
 }
 
-export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "activeWorkspaceId" | "warrantyWarnDays" | "upcomingWindowDays" | "updatedAt", ExtArgs["result"]["appSettings"]>
+export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "activeWorkspaceId" | "warrantyWarnDays" | "upcomingWindowDays" | "lookbackWeeks" | "lookbackMonths" | "lookbackYears" | "updatedAt", ExtArgs["result"]["appSettings"]>
 
 export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AppSettings"
@@ -435,6 +531,9 @@ export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.Interna
     activeWorkspaceId: number | null
     warrantyWarnDays: number
     upcomingWindowDays: number
+    lookbackWeeks: number
+    lookbackMonths: number
+    lookbackYears: number
     updatedAt: Date
   }, ExtArgs["result"]["appSettings"]>
   composites: {}
@@ -864,6 +963,9 @@ export interface AppSettingsFieldRefs {
   readonly activeWorkspaceId: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly warrantyWarnDays: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly upcomingWindowDays: Prisma.FieldRef<"AppSettings", 'Int'>
+  readonly lookbackWeeks: Prisma.FieldRef<"AppSettings", 'Int'>
+  readonly lookbackMonths: Prisma.FieldRef<"AppSettings", 'Int'>
+  readonly lookbackYears: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly updatedAt: Prisma.FieldRef<"AppSettings", 'DateTime'>
 }
     

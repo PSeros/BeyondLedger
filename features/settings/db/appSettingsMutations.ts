@@ -3,6 +3,11 @@
 import {revalidatePath} from "next/cache";
 import {client} from "@/lib/prisma";
 import {APP_SETTINGS_ID, DEFAULT_LOCALE, LOCALES, type Locale} from "@/features/settings/db/appSettings";
+import {
+  MAX_LOOKBACK_MONTHS,
+  MAX_LOOKBACK_WEEKS,
+  MAX_LOOKBACK_YEARS,
+} from "@/features/settings/lookback";
 
 // Write side for app-wide preferences (Phase i18n). Mirrors aiSettingsMutations conventions.
 // Changing the locale re-renders the entire tree (translated strings + <html lang> +
@@ -72,4 +77,32 @@ export async function updateUpcomingWindowDays(days: number): Promise<void> {
 
   revalidatePath("/settings");
   revalidatePath("/dashboard");
+}
+
+// Ø-baseline lookback (per granularity). Unlike the reminder windows this reaches every chart in the
+// app — the dashboard, both expense tabs and both income tabs — so revalidate the whole layout
+// rather than naming five paths, matching updateLocale's reasoning.
+function normalizeLookback(periods: number, max: number, unit: string): number {
+  if (!Number.isInteger(periods) || periods < 1 || periods > max) {
+    throw new Error(`Lookback must be a whole number of ${unit} between 1 and ${max}.`);
+  }
+  return periods;
+}
+
+export async function updateLookback({
+  weeks,
+  months,
+  years,
+}: {weeks: number; months: number; years: number}): Promise<void> {
+  const lookbackWeeks = normalizeLookback(weeks, MAX_LOOKBACK_WEEKS, "weeks");
+  const lookbackMonths = normalizeLookback(months, MAX_LOOKBACK_MONTHS, "months");
+  const lookbackYears = normalizeLookback(years, MAX_LOOKBACK_YEARS, "years");
+
+  await client.appSettings.upsert({
+    where: {id: APP_SETTINGS_ID},
+    create: {id: APP_SETTINGS_ID, lookbackWeeks, lookbackMonths, lookbackYears},
+    update: {lookbackWeeks, lookbackMonths, lookbackYears},
+  });
+
+  revalidatePath("/", "layout");
 }

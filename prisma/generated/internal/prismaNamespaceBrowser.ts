@@ -258,6 +258,9 @@ export const AppSettingsScalarFieldEnum = {
   activeWorkspaceId: 'activeWorkspaceId',
   warrantyWarnDays: 'warrantyWarnDays',
   upcomingWindowDays: 'upcomingWindowDays',
+  lookbackWeeks: 'lookbackWeeks',
+  lookbackMonths: 'lookbackMonths',
+  lookbackYears: 'lookbackYears',
   updatedAt: 'updatedAt'
 } as const
 

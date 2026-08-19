@@ -271,6 +271,19 @@
       "saved": "Gespeichert",
       "couldNotSave": "Speichern fehlgeschlagen"
     },
+    "lookback": {
+      "heading": "Durchschnitts-Basislinie",
+      "headingDescription": "Über wie viele vergangene Zeiträume die Ø-Linie in den Diagrammen und der Dashboard-Vergleich gemittelt werden.",
+      "weeksLabel": "Wochenansicht (Wochen)",
+      "weeksHint": "Wochen, die in die 1W-Basislinie einfließen.",
+      "monthsLabel": "Monatsansicht (Monate)",
+      "monthsHint": "Monate, die in die 1M-Basislinie einfließen.",
+      "yearsLabel": "Jahresansicht (Jahre)",
+      "yearsHint": "Jahre, die in die 1Y-Basislinie einfließen.",
+      "horizonNote": "Das sind Obergrenzen. Zeiträume vor deinem ersten Eintrag zählen nie mit, der Durchschnitt bildet also immer nur die tatsächlich vorhandene Historie ab — und ohne mindestens einen früheren Zeitraum wird gar keine Basislinie angezeigt.",
+      "saved": "Gespeichert",
+      "couldNotSave": "Speichern fehlgeschlagen"
+    },
     "backup": {
       "heading": "Sicherung & Wiederherstellung",
       "headingDescription": "Lade eine vollständige Sicherung herunter (Datenbank + hochgeladene Dateien) oder stelle die App daraus wieder her.",

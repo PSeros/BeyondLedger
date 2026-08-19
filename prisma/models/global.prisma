@@ -76,6 +76,14 @@ model AppSettings {
   // dashboard's upcoming fixed-expense/income lists. Kept separate so each can be tuned on its own.
   warrantyWarnDays   Int      @default(60)
   upcomingWindowDays Int      @default(30)
+  // How many preceding periods every rolling baseline averages over, per chart granularity: the Ø
+  // line on each chart and the dashboard KPI comparison both read these. Separate per unit because
+  // "the last 8 weeks" and "the last 8 years" are wildly different asks of the data. Note these are
+  // only ceilings — the average never counts a period older than the earliest record (see
+  // features/expense/shared/db/dataHorizon.ts), so a fresh install is not diluted by empty periods.
+  lookbackWeeks      Int      @default(8)
+  lookbackMonths     Int      @default(6)
+  lookbackYears      Int      @default(3)
   updatedAt          DateTime @updatedAt
 }
 

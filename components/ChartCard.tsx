@@ -20,7 +20,7 @@ import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
 
 type Granularity = "1W" | "1M" | "1Y";
 
-type ChartCardPoint = {label: string; current: number | null; previous: number; upcoming?: number | null};
+type ChartCardPoint = {label: string; current: number | null; previous: number | null; upcoming?: number | null};
 
 const chartData: Record<Granularity, ChartCardPoint[]> = {
   "1W": [
@@ -82,17 +82,19 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
 
   const points = useMemo(() => source[granularity] ?? [], [source, granularity]);
 
-  const {current, previous, changePercent} = useMemo(() => {
+  const {current, changePercent, hasBaseline} = useMemo(() => {
     const latest = [...points].reverse().find((point) => point.current !== null);
     const current = latest?.current ?? 0;
-    const previous = latest?.previous ?? current;
+    // null previous = no baseline exists yet (every candidate period predates the first record), so
+    // there is no percentage to show — distinct from a baseline that is genuinely 0.
+    const previous = latest?.previous ?? null;
     const changePercent =
-      previous === 0 ? 0 : ((current - previous) / previous) * 100;
+      previous === null || previous === 0 ? 0 : ((current - previous) / previous) * 100;
 
     return {
       current,
-      previous,
       changePercent,
+      hasBaseline: previous !== null,
     };
   }, [points]);
 
@@ -120,11 +122,10 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
 
             <Chip
               size="sm"
-              color={isGoodTrend ? "success" : "danger"}
+              color={!hasBaseline ? "default" : isGoodTrend ? "success" : "danger"}
               variant="soft"
             >
-              {isPositive ? "+" : ""}
-              {changePercent.toFixed(1)}%
+              {hasBaseline ? `${isPositive ? "+" : ""}${changePercent.toFixed(1)}%` : "–"}
             </Chip>
           </div>
         </div>

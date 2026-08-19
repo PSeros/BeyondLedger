@@ -8,21 +8,27 @@ import {FiArrowDown, FiArrowUp} from "react-icons/fi";
 type StatCardProps = {
   title: string;
   currentAmount: number;
-  previousAmount: number;
+  /**
+   * The baseline to compare against, or `null` when none can be computed yet (every candidate period
+   * predates the user's first record). Null renders a neutral "–" chip rather than a direction,
+   * because there is nothing to be up or down against.
+   */
+  previousAmount: number | null;
   isHigherBetter?: boolean;
 };
 
 export default function StatCard({title, currentAmount, previousAmount, isHigherBetter = false}: StatCardProps) {
   const format = useFormatter();
-  const change = currentAmount - previousAmount;
+  const hasBaseline = previousAmount !== null;
+  const change = hasBaseline ? currentAmount - previousAmount : 0;
   const isIncrease = change >= 0;
   // Whether the movement is bad news depends on the metric: for income/net a drop is bad, for
-  // expense a rise is bad.
+  // expense a rise is bad. With no baseline there is no news at all, so stay neutral.
   const isBad = isHigherBetter ? change < 0 : change > 0;
-  const color = isBad ? "danger" : "success";
+  const color = !hasBaseline ? "default" : isBad ? "danger" : "success";
   // Percent change is only meaningful against a non-zero, finite baseline (a from-zero jump or a net
   // that crossed sign has no honest percentage) — fall back to a dash then.
-  const pctChange = previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
+  const pctChange = hasBaseline && previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
   const hasPct = Number.isFinite(pctChange);
 
   return (
@@ -42,7 +48,7 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
           {format.number(currentAmount, "currency")}
         </span>
         <Chip variant="soft" color={color} size="sm" className="h-fit">
-          {isIncrease ? <FiArrowUp/> : <FiArrowDown/>}
+          {hasBaseline ? isIncrease ? <FiArrowUp/> : <FiArrowDown/> : null}
           <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}%` : "–"}</Chip.Label>
         </Chip>
       </Card.Content>
