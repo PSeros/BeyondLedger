@@ -271,6 +271,19 @@
       "saved": "Saved",
       "couldNotSave": "Could not save"
     },
+    "lookback": {
+      "heading": "Average baseline",
+      "headingDescription": "How many past periods the Ø line on the charts and the dashboard comparison are measured against.",
+      "weeksLabel": "Weekly view (weeks)",
+      "weeksHint": "Weeks averaged for the 1W baseline.",
+      "monthsLabel": "Monthly view (months)",
+      "monthsHint": "Months averaged for the 1M baseline.",
+      "yearsLabel": "Yearly view (years)",
+      "yearsHint": "Years averaged for the 1Y baseline.",
+      "horizonNote": "These are upper limits. Periods from before your first entry are never counted, so the average always reflects the history you actually have — and no baseline is shown until at least one earlier period exists.",
+      "saved": "Saved",
+      "couldNotSave": "Could not save"
+    },
     "backup": {
       "heading": "Backup & Restore",
       "headingDescription": "Download a complete backup (database + uploaded files) or restore the app from one.",

@@ -6,13 +6,36 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export type ChartPoint = {
   label: string;
   current: number | null;
-  previous: number;
+  /**
+   * The rolling Ø baseline. `null` means "no baseline exists yet" — every candidate period predates
+   * the user's first record — and is deliberately distinct from 0 ("periods existed, they were
+   * empty"). Recharts leaves a gap for null (connectNulls defaults to false), so the Ø line simply
+   * isn't drawn rather than flat-lining at zero.
+   */
+  previous: number | null;
   upcoming?: number | null;
 };
 
 export type Granularity = "1W" | "1M" | "1Y";
 
 export type DateWindow = {start: Date; end: Date};
+
+/** How many preceding periods each granularity's Ø baseline averages over (an AppSettings preference). */
+export type Lookback = {weeks: number; months: number; years: number};
+
+/** Shared tail options for the three cumulative view builders. */
+type ViewOptions = {
+  /** Ceiling on how many preceding periods to average; the data horizon may cut it shorter. */
+  lookback: number;
+  /**
+   * The earliest date at which this view's streams hold any record (null = no data at all). A prior
+   * period only counts toward the Ø if it overlaps this horizon, so a fresh install isn't averaged
+   * against periods that never had a chance to contain anything. See db/dataHorizon.ts.
+   */
+  dataStart: Date | null;
+  /** The realized/forecast boundary. Defaults to the view's own anchor. */
+  today?: Date;
+};
 
 // Parse the ?cg param into a chart granularity. Anything unrecognized falls back to the monthly view.
 export function parseGranularity(value: string | null | undefined): Granularity {
@@ -73,6 +96,25 @@ export function average(values: number[]): number {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
+/**
+ * Mean of the periods that actually qualified as baseline samples, or `null` when none did. Unlike
+ * {@link average} this never invents a 0 for "no samples": dividing a real total by a fixed period
+ * count that includes pre-history is exactly the dilution this returns null to avoid.
+ */
+export function baselineAverage(values: number[]): number | null {
+  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+}
+
+/**
+ * Whether a prior period [start, end) is a usable baseline sample: it must overlap the span in which
+ * the user actually has data. Overlap (not full coverage) is the chosen rule, so a period the user
+ * only tracked part of still counts — and it is decided per period rather than per data point, which
+ * keeps the divisor constant across the x-axis so the Ø line has no kink where a sample drops in.
+ */
+function hasData(periodEnd: Date, dataStart: Date | null): boolean {
+  return dataStart !== null && periodEnd > dataStart;
+}
+
 // The half-open [start, end) calendar window for `granularity` at `offset` periods from `today`
 // (negative = past). Anchored exactly like the chart views (buildWeek/Month/YearView) so the toolbar
 // label, chart, KPIs and donuts all describe the same span.
@@ -123,6 +165,26 @@ export function countOccurrences(
   return count;
 }
 
+/**
+ * The earliest day present across one or more day-total maps — i.e. the realized data horizon of the
+ * streams those maps were built from, used to stop a Ø baseline reaching back before any data
+ * existed. Returns null for empty maps ("no baseline is possible yet").
+ *
+ * Preferred over querying the horizon separately wherever the caller already holds the full-history
+ * maps: it costs nothing, and it inherits every filter that shaped them (account, supplier,
+ * category, and the Active-only rule the chart builders apply to contracts).
+ */
+export function earliestDay(...totalsByDay: Map<string, number>[]): Date | null {
+  let earliest: string | null = null;
+  for (const map of totalsByDay) {
+    for (const key of map.keys()) {
+      // dateKey() is a zero-padded ISO yyyy-mm-dd, so lexical order is chronological order.
+      if (earliest === null || key < earliest) earliest = key;
+    }
+  }
+  return earliest === null ? null : new Date(`${earliest}T00:00:00.000Z`);
+}
+
 /** Sum of `totalsByDay` over `days` consecutive days starting at `start`. */
 export function sumRange(totalsByDay: Map<string, number>, start: Date, days: number): number {
   let sum = 0;
@@ -134,16 +196,15 @@ export function sumRange(totalsByDay: Map<string, number>, start: Date, days: nu
 
 /**
  * Cumulative spend across the Mon–Sun week containing `anchor`, vs. the average cumulative pace of
- * the prior `lookbackWeeks` weeks. `today` is the realized/forecast boundary: a day is "current"
- * (has a value) only up to and including `today`, so the current week cuts off at today while a past
- * week (anchor before today) fills entirely and a future week shows nothing. Defaults `today` to
- * `anchor` for the no-navigation case (current period).
+ * the prior `lookback` weeks — counting only those weeks that overlap `dataStart`. `today` is the
+ * realized/forecast boundary: a day is "current" (has a value) only up to and including `today`, so
+ * the current week cuts off at today while a past week (anchor before today) fills entirely and a
+ * future week shows nothing. Defaults `today` to `anchor` for the no-navigation case.
  */
 export function buildWeekView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  lookbackWeeks: number,
-  today: Date = anchor,
+  {lookback, dataStart, today = anchor}: ViewOptions,
 ): ChartPoint[] {
   const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
   const weekStart = addDays(anchor, -anchorIndex);
@@ -153,19 +214,21 @@ export function buildWeekView(
     const current = dayDate <= today ? sumRange(totalsByDay, weekStart, index + 1) : null;
 
     const historical: number[] = [];
-    for (let w = 1; w <= lookbackWeeks; w++) {
-      historical.push(sumRange(totalsByDay, addDays(weekStart, -7 * w), index + 1));
+    for (let w = 1; w <= lookback; w++) {
+      const pastWeekStart = addDays(weekStart, -7 * w);
+      if (!hasData(addDays(pastWeekStart, 7), dataStart)) continue;
+      historical.push(sumRange(totalsByDay, pastWeekStart, index + 1));
     }
 
-    return {label, current, previous: average(historical)};
+    return {label, current, previous: baselineAverage(historical)};
   });
 }
 
 /**
  * Cumulative spend by day-of-month (1-31) for the month containing `anchor` vs. the average
- * cumulative pace of the last `lookbackMonths` complete months. Shorter historical months hold
- * their final total for day positions past their actual length (e.g. day 31 against a 30-day month),
- * so the average line never has gaps.
+ * cumulative pace of the last `lookback` months, counting only those overlapping `dataStart`.
+ * Shorter historical months hold their final total for day positions past their actual length
+ * (e.g. day 31 against a 30-day month), so the average line never has gaps.
  *
  * `today` is the realized/forecast boundary (defaults to `anchor`): within the anchor's month, days
  * are "current" only up to `today`. A month entirely before `today` fills completely; a month
@@ -177,9 +240,7 @@ export function buildWeekView(
 export function buildMonthView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  lookbackMonths: number,
-  futureTotalsByDay?: Map<string, number>,
-  today: Date = anchor,
+  {lookback, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const month = anchor.getUTCMonth();
@@ -197,8 +258,9 @@ export function buildMonthView(
     const current = day <= realizedDay ? sumRange(totalsByDay, monthStart, day) : null;
 
     const historical: number[] = [];
-    for (let m = 1; m <= lookbackMonths; m++) {
+    for (let m = 1; m <= lookback; m++) {
       const pastMonthStart = utcDate(year, month - m, 1);
+      if (!hasData(utcDate(year, month - m + 1, 1), dataStart)) continue;
       const pastMonthLength = daysInMonth(pastMonthStart.getUTCFullYear(), pastMonthStart.getUTCMonth());
       historical.push(sumRange(totalsByDay, pastMonthStart, Math.min(day, pastMonthLength)));
     }
@@ -214,22 +276,20 @@ export function buildMonthView(
       }
     }
 
-    return {label: String(day), current, previous: average(historical), upcoming};
+    return {label: String(day), current, previous: baselineAverage(historical), upcoming};
   });
 }
 
 /**
  * Cumulative spend by month-of-year (Jan-Dec) for the year containing `anchor` vs. the average
- * cumulative pace of the last `lookbackYears` years. `today` is the realized/forecast boundary
- * (defaults to `anchor`). See {@link buildMonthView} for the `futureTotalsByDay` / `upcoming`
- * behavior.
+ * cumulative pace of the last `lookback` years, counting only those overlapping `dataStart`.
+ * `today` is the realized/forecast boundary (defaults to `anchor`). See {@link buildMonthView} for
+ * the `futureTotalsByDay` / `upcoming` behavior.
  */
 export function buildYearView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  lookbackYears: number,
-  futureTotalsByDay?: Map<string, number>,
-  today: Date = anchor,
+  {lookback, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const yearStart = utcDate(year, 0, 1);
@@ -252,8 +312,9 @@ export function buildYearView(
         : null;
 
     const historical: number[] = [];
-    for (let y = 1; y <= lookbackYears; y++) {
+    for (let y = 1; y <= lookback; y++) {
       const pastYearStart = utcDate(year - y, 0, 1);
+      if (!hasData(utcDate(year - y + 1, 0, 1), dataStart)) continue;
       const pastMonthEnd = utcDate(year - y, month + 1, 1);
       historical.push(sumRange(totalsByDay, pastYearStart, daysBetween(pastYearStart, pastMonthEnd)));
     }
@@ -270,6 +331,6 @@ export function buildYearView(
       }
     }
 
-    return {label, current, previous: average(historical), upcoming};
+    return {label, current, previous: baselineAverage(historical), upcoming};
   });
 }
