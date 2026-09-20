@@ -261,6 +261,7 @@ export const AppSettingsScalarFieldEnum = {
   lookbackWeeks: 'lookbackWeeks',
   lookbackMonths: 'lookbackMonths',
   lookbackYears: 'lookbackYears',
+  baselineMetric: 'baselineMetric',
   updatedAt: 'updatedAt'
 } as const
 

@@ -37,3 +37,11 @@ export const PipelineMode = {
 } as const
 
 export type PipelineMode = (typeof PipelineMode)[keyof typeof PipelineMode]
+
+
+export const BaselineMetric = {
+  MEAN: 'MEAN',
+  MEDIAN: 'MEDIAN'
+} as const
+
+export type BaselineMetric = (typeof BaselineMetric)[keyof typeof BaselineMetric]

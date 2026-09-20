@@ -1,5 +1,6 @@
 import {client} from "@/lib/prisma";
-import type {Lookback} from "@/features/expense/shared/db/cumulativeChart";
+import type {Baseline} from "@/features/expense/shared/db/cumulativeChart";
+import {type BaselineMetric, normalizeBaselineMetric} from "@/features/settings/lookback";
 
 // Read side for app-wide preferences. Config is a singleton row (always id: 1, created on first
 // read via upsert), mirroring aiSettings.ts. Currently holds the UI/formatting locale.
@@ -24,11 +25,11 @@ export type AppSettings = {
   // Dashboard reminder windows (Phase 12), in days. See the AppSettings model comment.
   warrantyWarnDays: number;
   upcomingWindowDays: number;
-  // How many preceding periods each granularity's Ø baseline averages over. Drives both the chart
-  // Ø lines and the dashboard KPI comparison, so the two always describe the same span.
+  // Drives both the chart Ø lines and the dashboard KPI comparison, so the two always agree.
   lookbackWeeks: number;
   lookbackMonths: number;
   lookbackYears: number;
+  baselineMetric: BaselineMetric;
 };
 
 export const DEFAULT_WARRANTY_WARN_DAYS = 60;
@@ -48,6 +49,7 @@ export async function getAppSettings(): Promise<AppSettings> {
       lookbackWeeks: true,
       lookbackMonths: true,
       lookbackYears: true,
+      baselineMetric: true,
     },
   });
   return {
@@ -58,6 +60,7 @@ export async function getAppSettings(): Promise<AppSettings> {
     lookbackWeeks: row.lookbackWeeks,
     lookbackMonths: row.lookbackMonths,
     lookbackYears: row.lookbackYears,
+    baselineMetric: normalizeBaselineMetric(row.baselineMetric),
   };
 }
 
@@ -85,8 +88,11 @@ export async function getUpcomingWindowDays(): Promise<number> {
   return upcomingWindowDays;
 }
 
-// Convenience: the per-granularity Ø baseline lookback, shaped for the chart/KPI builders.
-export async function getLookback(): Promise<Lookback> {
-  const {lookbackWeeks, lookbackMonths, lookbackYears} = await getAppSettings();
-  return {weeks: lookbackWeeks, months: lookbackMonths, years: lookbackYears};
+// Convenience: the Ø baseline preference, shaped for the chart/KPI builders.
+export async function getBaseline(): Promise<Baseline> {
+  const {lookbackWeeks, lookbackMonths, lookbackYears, baselineMetric} = await getAppSettings();
+  return {
+    lookback: {weeks: lookbackWeeks, months: lookbackMonths, years: lookbackYears},
+    metric: baselineMetric,
+  };
 }

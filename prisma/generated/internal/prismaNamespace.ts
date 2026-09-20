@@ -2201,6 +2201,7 @@ export const AppSettingsScalarFieldEnum = {
   lookbackWeeks: 'lookbackWeeks',
   lookbackMonths: 'lookbackMonths',
   lookbackYears: 'lookbackYears',
+  baselineMetric: 'baselineMetric',
   updatedAt: 'updatedAt'
 } as const
 
@@ -2364,6 +2365,13 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'PipelineMode'
  */
 export type EnumPipelineModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PipelineMode'>
+    
+
+
+/**
+ * Reference to a field of type 'BaselineMetric'
+ */
+export type EnumBaselineMetricFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BaselineMetric'>
     
 
 

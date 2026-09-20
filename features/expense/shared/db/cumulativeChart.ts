@@ -1,3 +1,5 @@
+import type {BaselineMetric} from "@/features/settings/lookback";
+
 const MONTH_LABELS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 const WEEKDAY_LABELS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 
@@ -7,10 +9,10 @@ export type ChartPoint = {
   label: string;
   current: number | null;
   /**
-   * The rolling Ø baseline. `null` means "no baseline exists yet" — every candidate period predates
-   * the user's first record — and is deliberately distinct from 0 ("periods existed, they were
-   * empty"). Recharts leaves a gap for null (connectNulls defaults to false), so the Ø line simply
-   * isn't drawn rather than flat-lining at zero.
+   * The rolling Ø baseline (mean or median, per the user's setting). `null` means "no baseline
+   * exists yet" — every candidate period predates the user's first record — and is deliberately
+   * distinct from 0 ("periods existed, they were empty"). Recharts leaves a gap for null
+   * (connectNulls defaults to false), so the Ø line simply isn't drawn rather than flat-lining.
    */
   previous: number | null;
   upcoming?: number | null;
@@ -20,13 +22,18 @@ export type Granularity = "1W" | "1M" | "1Y";
 
 export type DateWindow = {start: Date; end: Date};
 
-/** How many preceding periods each granularity's Ø baseline averages over (an AppSettings preference). */
+/** How many preceding periods each granularity's Ø baseline is built from (an AppSettings preference). */
 export type Lookback = {weeks: number; months: number; years: number};
+
+/** The full Ø-baseline preference: how far back to sample, and how to reduce those samples. */
+export type Baseline = {lookback: Lookback; metric: BaselineMetric};
 
 /** Shared tail options for the three cumulative view builders. */
 type ViewOptions = {
-  /** Ceiling on how many preceding periods to average; the data horizon may cut it shorter. */
+  /** Ceiling on how many preceding periods to sample; the data horizon may cut it shorter. */
   lookback: number;
+  /** How those samples are reduced to the single Ø value. */
+  metric: BaselineMetric;
   /**
    * The earliest date at which this view's streams hold any record (null = no data at all). A prior
    * period only counts toward the Ø if it overlaps this horizon, so a fresh install isn't averaged
@@ -97,12 +104,21 @@ export function average(values: number[]): number {
 }
 
 /**
- * Mean of the periods that actually qualified as baseline samples, or `null` when none did. Unlike
- * {@link average} this never invents a 0 for "no samples": dividing a real total by a fixed period
- * count that includes pre-history is exactly the dilution this returns null to avoid.
+ * Reduces the qualifying baseline samples to one Ø value, or `null` when there were none — never a
+ * 0, which would be the dilution the data horizon exists to avoid.
+ *
+ * MEDIAN is the default because these views are cumulative: with a mean, one 2.500 € repair lifts
+ * its day AND every later point of the period by amount/sampleCount, a step the line never comes
+ * back down from. Applying it pointwise is safe — the median is order-preserving, so a pointwise
+ * median of non-decreasing samples is itself non-decreasing.
  */
-export function baselineAverage(values: number[]): number | null {
-  return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
+export function baselineOf(values: number[], metric: BaselineMetric): number | null {
+  if (!values.length) return null;
+  if (metric === "MEAN") return values.reduce((sum, value) => sum + value, 0) / values.length;
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 /**
@@ -204,7 +220,7 @@ export function sumRange(totalsByDay: Map<string, number>, start: Date, days: nu
 export function buildWeekView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, dataStart, today = anchor}: ViewOptions,
+  {lookback, metric, dataStart, today = anchor}: ViewOptions,
 ): ChartPoint[] {
   const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
   const weekStart = addDays(anchor, -anchorIndex);
@@ -220,7 +236,7 @@ export function buildWeekView(
       historical.push(sumRange(totalsByDay, pastWeekStart, index + 1));
     }
 
-    return {label, current, previous: baselineAverage(historical)};
+    return {label, current, previous: baselineOf(historical, metric)};
   });
 }
 
@@ -240,7 +256,7 @@ export function buildWeekView(
 export function buildMonthView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  {lookback, metric, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const month = anchor.getUTCMonth();
@@ -276,7 +292,7 @@ export function buildMonthView(
       }
     }
 
-    return {label: String(day), current, previous: baselineAverage(historical), upcoming};
+    return {label: String(day), current, previous: baselineOf(historical, metric), upcoming};
   });
 }
 
@@ -289,7 +305,7 @@ export function buildMonthView(
 export function buildYearView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  {lookback, metric, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const yearStart = utcDate(year, 0, 1);
@@ -331,6 +347,6 @@ export function buildYearView(
       }
     }
 
-    return {label, current, previous: baselineAverage(historical), upcoming};
+    return {label, current, previous: baselineOf(historical, metric), upcoming};
   });
 }

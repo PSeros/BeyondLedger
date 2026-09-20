@@ -1,36 +1,34 @@
 "use client";
 
-import {useState} from "react";
+import {type Key, useState} from "react";
 import {useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button, Input, Label, TextField} from "@heroui/react";
+import {Button, Input, Label, ListBox, Select, TextField} from "@heroui/react";
 import {labelClass} from "@/features/expense/shared/components/FormFields";
-import {updateLookback} from "@/features/settings/db/appSettingsMutations";
+import {updateBaseline} from "@/features/settings/db/appSettingsMutations";
 import {
+  type BaselineMetric,
   MAX_LOOKBACK_MONTHS,
   MAX_LOOKBACK_WEEKS,
   MAX_LOOKBACK_YEARS,
+  normalizeBaselineMetric,
 } from "@/features/settings/lookback";
 import {SectionCard} from "@/features/settings/components/SectionCard";
 
-// Edit surface for the Ø-baseline lookback: how many preceding periods the average line on every
-// chart — and the dashboard's comparison chips — are measured against, tuned separately per
-// granularity because "the last 8 weeks" and "the last 8 years" are very different asks of the data.
-// Form-shaped (edit-then-Save) like WindowSettingsSection; the three values share one Save because
-// they are one conceptual preference. Inputs are guarded to 1..max, and the server action validates
-// again and throws on anything else.
-//
-// Worth knowing when reading the hints: these are ceilings only. Periods older than the first record
-// are dropped from the average rather than counted as zeros, so raising a value never dilutes the
-// baseline with history the user does not have.
+// Edit surface for the Ø baseline the charts and dashboard chips compare against: which statistic
+// reduces the samples, and how many preceding periods to sample per granularity. Form-shaped
+// (edit-then-Save) like WindowSettingsSection — one Save, because it is one preference. The lookback
+// values are ceilings only; periods older than the first record are dropped, never counted as zeros.
 export default function LookbackSettingsSection({
   lookbackWeeks,
   lookbackMonths,
   lookbackYears,
+  baselineMetric,
 }: {
   lookbackWeeks: number;
   lookbackMonths: number;
   lookbackYears: number;
+  baselineMetric: BaselineMetric;
 }) {
   const router = useRouter();
   const t = useTranslations("settings.lookback");
@@ -39,6 +37,7 @@ export default function LookbackSettingsSection({
   const [weeks, setWeeks] = useState(String(lookbackWeeks));
   const [months, setMonths] = useState(String(lookbackMonths));
   const [years, setYears] = useState(String(lookbackYears));
+  const [metric, setMetric] = useState<BaselineMetric>(baselineMetric);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -58,7 +57,7 @@ export default function LookbackSettingsSection({
     setError(null);
     setSaved(false);
     try {
-      await updateLookback({weeks: Number(weeks), months: Number(months), years: Number(years)});
+      await updateBaseline({weeks: Number(weeks), months: Number(months), years: Number(years), metric});
       setSaved(true);
       router.refresh();
     } catch (saveError) {
@@ -70,6 +69,26 @@ export default function LookbackSettingsSection({
 
   return (
     <SectionCard>
+      <Select
+        value={metric}
+        onChange={(key: Key | null) => key != null && setMetric(normalizeBaselineMetric(String(key)))}
+        aria-label={t("metricLabel")}
+        className="flex max-w-xs flex-col gap-1"
+      >
+        <Label className={labelClass}>{t("metricLabel")}</Label>
+        <Select.Trigger>
+          <Select.Value/>
+          <Select.Indicator/>
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            <ListBox.Item id="MEDIAN" textValue={t("metricMedian")}>{t("metricMedian")}</ListBox.Item>
+            <ListBox.Item id="MEAN" textValue={t("metricMean")}>{t("metricMean")}</ListBox.Item>
+          </ListBox>
+        </Select.Popover>
+      </Select>
+      <p className="text-xs text-muted">{metric === "MEDIAN" ? t("metricMedianHint") : t("metricMeanHint")}</p>
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <TextField value={weeks} onChange={setWeeks} aria-label={t("weeksLabel")} className="flex flex-col gap-1">
           <Label className={labelClass}>{t("weeksLabel")}</Label>

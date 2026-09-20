@@ -9,7 +9,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {getLookback} from "@/features/settings/db/appSettings";
+import {getBaseline} from "@/features/settings/db/appSettings";
 import type {ContractChartData} from "@/features/expense/fixed/types";
 
 // Chart restricts to Active contracts by nature, so the status filter is not applicable here.
@@ -19,12 +19,12 @@ export async function getFixedExpenseChartData(
   filters: GetFixedExpenseChartDataInput = {},
   offset = 0,
 ): Promise<ContractChartData> {
-  const [contracts, lookback] = await Promise.all([
+  const [contracts, baseline] = await Promise.all([
     client.contract.findMany({
       where: buildContractWhere(filters),
       include: {frequency: true},
     }),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const now = new Date();
@@ -77,13 +77,15 @@ export async function getFixedExpenseChartData(
 
   return {
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
-      lookback: lookback.months,
+      lookback: baseline.lookback.months,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,
     }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
-      lookback: lookback.years,
+      lookback: baseline.lookback.years,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,

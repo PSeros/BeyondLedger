@@ -84,6 +84,7 @@
   },
   "chart": {
     "average": "Ø",
+    "median": "Median",
     "current": "Aktuell",
     "upcoming": "Bevorstehend"
   },
@@ -272,15 +273,20 @@
       "couldNotSave": "Speichern fehlgeschlagen"
     },
     "lookback": {
-      "heading": "Durchschnitts-Basislinie",
-      "headingDescription": "Über wie viele vergangene Zeiträume die Ø-Linie in den Diagrammen und der Dashboard-Vergleich gemittelt werden.",
+      "heading": "Basislinie",
+      "headingDescription": "Wie die Ø-Linie in den Diagrammen und der Dashboard-Vergleich berechnet werden und über wie viele vergangene Zeiträume.",
+      "metricLabel": "Statistik der Basislinie",
+      "metricMedian": "Median (typischer Zeitraum)",
+      "metricMean": "Mittelwert (Durchschnitt)",
+      "metricMedianHint": "Die Mitte deiner vergangenen Zeiträume. Ein einmaliger Ausreißer wie eine Autoreparatur fällt heraus, die Linie zeigt also einen typischen Zeitraum.",
+      "metricMeanHint": "Das arithmetische Mittel. Jeder vergangene Zeitraum zählt voll, ein einzelner großer Ausreißer hebt die Linie daher bis zum Ende des Zeitraums an.",
       "weeksLabel": "Wochenansicht (Wochen)",
       "weeksHint": "Wochen, die in die 1W-Basislinie einfließen.",
       "monthsLabel": "Monatsansicht (Monate)",
       "monthsHint": "Monate, die in die 1M-Basislinie einfließen.",
       "yearsLabel": "Jahresansicht (Jahre)",
       "yearsHint": "Jahre, die in die 1Y-Basislinie einfließen.",
-      "horizonNote": "Das sind Obergrenzen. Zeiträume vor deinem ersten Eintrag zählen nie mit, der Durchschnitt bildet also immer nur die tatsächlich vorhandene Historie ab — und ohne mindestens einen früheren Zeitraum wird gar keine Basislinie angezeigt.",
+      "horizonNote": "Das sind Obergrenzen. Zeiträume vor deinem ersten Eintrag zählen nie mit, die Basislinie bildet also immer nur die tatsächlich vorhandene Historie ab — und ohne mindestens einen früheren Zeitraum wird gar keine angezeigt.",
       "saved": "Gespeichert",
       "couldNotSave": "Speichern fehlgeschlagen"
     },

@@ -5,6 +5,7 @@ import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
 import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
 import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
+import type {BaselineMetric} from "@/features/settings/lookback";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
@@ -30,10 +31,12 @@ export default function CashFlowChart({
   income,
   expense,
   granularity,
-}: {income: SeriesData; expense: SeriesData; granularity: Granularity}) {
+  baselineMetric = "MEAN",
+}: {income: SeriesData; expense: SeriesData; granularity: Granularity; baselineMetric?: BaselineMetric}) {
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
+  const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
   const points = useMemo<MergedPoint[]>(() => {
     const inc = income[granularity] ?? [];
@@ -75,7 +78,7 @@ export default function CashFlowChart({
             <Line
               type="monotone"
               dataKey="incomePrevious"
-              name={`${t("kpiIncome")} ${tChart("average")}`}
+              name={`${t("kpiIncome")} ${baselineLabel}`}
               stroke={INCOME_COLOR}
               strokeOpacity={0.45}
               strokeDasharray="2 3"
@@ -86,7 +89,7 @@ export default function CashFlowChart({
             <Line
               type="monotone"
               dataKey="expensePrevious"
-              name={`${t("kpiExpenses")} ${tChart("average")}`}
+              name={`${t("kpiExpenses")} ${baselineLabel}`}
               stroke={EXPENSE_COLOR}
               strokeOpacity={0.45}
               strokeDasharray="2 3"

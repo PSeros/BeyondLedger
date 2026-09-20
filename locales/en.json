@@ -84,6 +84,7 @@
   },
   "chart": {
     "average": "Ø",
+    "median": "Median",
     "current": "Current",
     "upcoming": "Upcoming"
   },
@@ -272,15 +273,20 @@
       "couldNotSave": "Could not save"
     },
     "lookback": {
-      "heading": "Average baseline",
-      "headingDescription": "How many past periods the Ø line on the charts and the dashboard comparison are measured against.",
+      "heading": "Baseline",
+      "headingDescription": "How the Ø line on the charts and the dashboard comparison are worked out, and how many past periods they look at.",
+      "metricLabel": "Baseline statistic",
+      "metricMedian": "Median (typical period)",
+      "metricMean": "Mean (average)",
+      "metricMedianHint": "The middle of your past periods. A one-off like a car repair is ignored, so the line shows a typical period.",
+      "metricMeanHint": "The arithmetic average. Every past period counts in full, so a single large one-off lifts the line for the rest of the period.",
       "weeksLabel": "Weekly view (weeks)",
-      "weeksHint": "Weeks averaged for the 1W baseline.",
+      "weeksHint": "Weeks sampled for the 1W baseline.",
       "monthsLabel": "Monthly view (months)",
-      "monthsHint": "Months averaged for the 1M baseline.",
+      "monthsHint": "Months sampled for the 1M baseline.",
       "yearsLabel": "Yearly view (years)",
-      "yearsHint": "Years averaged for the 1Y baseline.",
-      "horizonNote": "These are upper limits. Periods from before your first entry are never counted, so the average always reflects the history you actually have — and no baseline is shown until at least one earlier period exists.",
+      "yearsHint": "Years sampled for the 1Y baseline.",
+      "horizonNote": "These are upper limits. Periods from before your first entry are never counted, so the baseline always reflects the history you actually have — and none is shown until at least one earlier period exists.",
       "saved": "Saved",
       "couldNotSave": "Could not save"
     },
