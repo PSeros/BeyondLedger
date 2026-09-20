@@ -10,7 +10,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {getLookback} from "@/features/settings/db/appSettings";
+import {getBaseline} from "@/features/settings/db/appSettings";
 import type {BillChartData} from "@/features/expense/variable/types";
 
 // How many past periods feed the "previous" (average) line is a user setting (AppSettings.lookback*)
@@ -29,12 +29,12 @@ export async function getVariableExpenseChartData(
   filters: GetVariableExpenseChartDataInput = {},
   offset = 0,
 ): Promise<BillChartData> {
-  const [bills, lookback] = await Promise.all([
+  const [bills, baseline] = await Promise.all([
     client.bill.findMany({
       where: buildBillWhere(filters),
       select: {date: true, totalAmount: true},
     }),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const totalsByDay = new Map<string, number>();
@@ -51,10 +51,21 @@ export async function getVariableExpenseChartData(
   const dataStart = earliestDay(totalsByDay);
 
   return {
-    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {lookback: lookback.weeks, dataStart, today}),
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {lookback: lookback.months, dataStart, today}),
+    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
+      lookback: baseline.lookback.weeks,
+      metric: baseline.metric,
+      dataStart,
+      today,
+    }),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+      lookback: baseline.lookback.months,
+      metric: baseline.metric,
+      dataStart,
+      today,
+    }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
-      lookback: lookback.years,
+      lookback: baseline.lookback.years,
+      metric: baseline.metric,
       dataStart,
       today,
     }),

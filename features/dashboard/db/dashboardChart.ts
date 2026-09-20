@@ -6,16 +6,16 @@ import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
 import {
   addDays,
   addMonths,
+  type Baseline,
   buildMonthView,
   buildWeekView,
   buildYearView,
   type ChartPoint,
   dateKey,
   earliestDay,
-  type Lookback,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {getLookback} from "@/features/settings/db/appSettings";
+import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard cash-flow charts (Phase 12): one combined EXPENSE stream (variable bills + fixed
 // contracts) and one combined INCOME stream (one-time + recurring), each fed into ChartCard. Same
@@ -60,29 +60,32 @@ function projectRecurring(
 
 // `offset` (period navigator's ?co) shifts the anchor back/forward by N of each granularity's own
 // unit; `today` stays the realized/forecast boundary so past periods fill and future ones forecast.
-// `lookback` is the user's Ø setting and `dataStart` the horizon that truncates it.
+// `baseline` is the user's Ø setting and `dataStart` the horizon that truncates it.
 function buildViews(
   totalsByDay: Map<string, number>,
   upcomingTotalsByDay: Map<string, number>,
   today: Date,
   offset: number,
-  lookback: Lookback,
+  baseline: Baseline,
   dataStart: Date | null,
 ): DashboardChartData {
   return {
     "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
-      lookback: lookback.weeks,
+      lookback: baseline.lookback.weeks,
+      metric: baseline.metric,
       dataStart,
       today,
     }),
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
-      lookback: lookback.months,
+      lookback: baseline.lookback.months,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,
     }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
-      lookback: lookback.years,
+      lookback: baseline.lookback.years,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,
@@ -96,10 +99,10 @@ export async function getDashboardExpenseChartData(
   offset = 0,
 ): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
-  const [bills, contracts, lookback] = await Promise.all([
+  const [bills, contracts, baseline] = await Promise.all([
     client.bill.findMany({where: buildBillWhere(wsFilter), select: {date: true, totalAmount: true}}),
     client.contract.findMany({where: buildContractWhere(wsFilter), include: {frequency: true}}),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const now = new Date();
@@ -129,7 +132,7 @@ export async function getDashboardExpenseChartData(
     );
   }
 
-  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, lookback, earliestDay(totalsByDay));
+  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, baseline, earliestDay(totalsByDay));
 }
 
 export async function getDashboardIncomeChartData(
@@ -137,7 +140,7 @@ export async function getDashboardIncomeChartData(
   offset = 0,
 ): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
-  const [variableIncome, fixedIncome, lookback] = await Promise.all([
+  const [variableIncome, fixedIncome, baseline] = await Promise.all([
     client.income.findMany({
       where: buildIncomeWhere({...wsFilter, isRecurring: false}),
       select: {startDate: true, totalAmount: true},
@@ -146,7 +149,7 @@ export async function getDashboardIncomeChartData(
       where: buildIncomeWhere({...wsFilter, isRecurring: true}),
       include: {frequency: true},
     }),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const now = new Date();
@@ -176,5 +179,5 @@ export async function getDashboardIncomeChartData(
     );
   }
 
-  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, lookback, earliestDay(totalsByDay));
+  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, baseline, earliestDay(totalsByDay));
 }

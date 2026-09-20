@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import PeriodNavigator from "@/components/PeriodNavigator";
 import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
+import type {BaselineMetric} from "@/features/settings/lookback";
 
 type Granularity = "1W" | "1M" | "1Y";
 
@@ -60,9 +61,16 @@ type ChartCardProps = {
   data?: Partial<Record<Granularity, ChartCardPoint[]>>;
   /** Whether a higher `current` than `previous` is good (income) or bad (expense) news. */
   polarity?: "higherIsBetter" | "lowerIsBetter";
+  /** Which statistic built `previous`, so the legend names it honestly. */
+  baselineMetric?: BaselineMetric;
 };
 
-export default function ChartCard({title, data, polarity = "higherIsBetter"}: ChartCardProps = {}) {
+export default function ChartCard({
+  title,
+  data,
+  polarity = "higherIsBetter",
+  baselineMetric = "MEAN",
+}: ChartCardProps = {}) {
   const format = useFormatter();
   const t = useTranslations("chart");
   const source = data ?? chartData;
@@ -91,10 +99,12 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
     const changePercent =
       previous === null || previous === 0 ? 0 : ((current - previous) / previous) * 100;
 
+    // A 0 baseline is no more comparable than a null one — there is no percentage against zero, and
+    // a median collapses to 0 whenever most sampled periods were empty. Both render as "–".
     return {
       current,
       changePercent,
-      hasBaseline: previous !== null,
+      hasBaseline: previous !== null && previous !== 0,
     };
   }, [points]);
 
@@ -169,7 +179,7 @@ export default function ChartCard({title, data, polarity = "higherIsBetter"}: Ch
             <Line
               type="monotone"
               dataKey="previous"
-              name={t("average")}
+              name={t(baselineMetric === "MEDIAN" ? "median" : "average")}
               stroke="color-mix(in srgb, var(--accent) 50%, white)"
               strokeDasharray="5 5"
               strokeWidth={3}

@@ -20,6 +20,12 @@ enum PipelineMode {
   SEPARATED
 }
 
+// Which statistic every rolling Ø baseline reduces its samples to (AppSettings.baselineMetric).
+enum BaselineMetric {
+  MEAN
+  MEDIAN
+}
+
 // Singleton (always operated on at id: 1 via upsert) holding the AI/OCR provider config used by
 // the document → OCR → auto-added-expense pipeline (Phase 8c/8d). Kept provider-generic (host +
 // model + key). NOTE: apiKey is stored plaintext — acceptable for a personal local app; it is only
@@ -65,8 +71,8 @@ model MqttSettings {
 // (client-side via next-themes), locale drives server-rendered output (<html lang>, currency/date
 // formatting, translated strings) so it is persisted in the DB and read server-side.
 model AppSettings {
-  id                 Int      @id @default(autoincrement())
-  locale             String   @default("en")
+  id                 Int            @id @default(autoincrement())
+  locale             String         @default("en")
   // The account (Workspace) the app is currently filtered to (Phase 14). null = "All accounts" (no
   // filter). Plain nullable Int rather than a relation so deleting the active workspace can't be
   // blocked by an FK on the settings singleton — a stale id simply reads back as "All".
@@ -74,17 +80,20 @@ model AppSettings {
   // Dashboard reminder windows (Phase 12). warrantyWarnDays drives the "warranties about to expire"
   // alert (item purchase date + warranty months, within N days). upcomingWindowDays drives the
   // dashboard's upcoming fixed-expense/income lists. Kept separate so each can be tuned on its own.
-  warrantyWarnDays   Int      @default(60)
-  upcomingWindowDays Int      @default(30)
+  warrantyWarnDays   Int            @default(60)
+  upcomingWindowDays Int            @default(30)
   // How many preceding periods every rolling baseline averages over, per chart granularity: the Ø
   // line on each chart and the dashboard KPI comparison both read these. Separate per unit because
   // "the last 8 weeks" and "the last 8 years" are wildly different asks of the data. Note these are
   // only ceilings — the average never counts a period older than the earliest record (see
   // features/expense/shared/db/dataHorizon.ts), so a fresh install is not diluted by empty periods.
-  lookbackWeeks      Int      @default(8)
-  lookbackMonths     Int      @default(6)
-  lookbackYears      Int      @default(3)
-  updatedAt          DateTime @updatedAt
+  lookbackWeeks      Int            @default(8)
+  lookbackMonths     Int            @default(6)
+  lookbackYears      Int            @default(3)
+  // How those samples are reduced. MEDIAN by default: the charts are cumulative, so with a mean one
+  // large one-off lifts every later point of the period and never falls back.
+  baselineMetric     BaselineMetric @default(MEDIAN)
+  updatedAt          DateTime       @updatedAt
 }
 
 model FileAsset {
@@ -130,10 +139,10 @@ model Workspace {
 // unique (enforced case-insensitively in code, like IncomeCategory); color is a user-picked hex
 // string with a default applied at create time.
 model Tag {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
   color     String
-  createdAt DateTime   @default(now())
+  createdAt DateTime @default(now())
 
   entries       EntryTag[]
   budgetMembers BudgetMember[]

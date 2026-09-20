@@ -4,22 +4,22 @@ import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
 import {
   addDays,
-  baselineAverage,
+  type Baseline,
+  baselineOf,
   chartWindow,
   daysBetween,
   dateKey,
   type Granularity,
-  type Lookback,
   sumRange,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {getDataStart} from "@/features/expense/shared/db/dataHorizon";
-import {getLookback} from "@/features/settings/db/appSettings";
+import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard KPI row (Phase 12): total money IN (income), OUT (expense = variable bills + fixed
 // contracts) and NET for the period selected in the dashboard toolbar vs. the average of the
 // preceding periods of the same granularity, so StatCard shows how this week/month/year compares to
-// the recent trend. How many periods that is comes from the same AppSettings.lookback* preference
+// the recent trend. How far back and with which statistic come from the same AppSettings baseline
 // the chart Ø lines read, so the two genuinely mirror each other. KPIs report REALIZED money
 // only (never the forecast tail) and compare pace-to-date — see getPeriodKpis. Recurring
 // contracts/income have no per-occurrence row, so their billing dates are projected into the window;
@@ -78,7 +78,7 @@ function projectRecurringInto(
 }
 
 // The user's lookback for the granularity on screen.
-function periodsFor(granularity: Granularity, lookback: Lookback): number {
+function periodsFor(granularity: Granularity, {lookback}: Baseline): number {
   if (granularity === "1W") return lookback.weeks;
   if (granularity === "1Y") return lookback.years;
   return lookback.months;
@@ -97,8 +97,8 @@ export async function getPeriodKpis(
   // Per stream, not shared: a rent contract running since 2019 legitimately extends the EXPENSE
   // horizon back that far, and folding that into income would dilute the income baseline with years
   // of empty periods — the exact problem this whole mechanism exists to avoid.
-  const [lookback, expenseStart, incomeStart] = await Promise.all([
-    getLookback(),
+  const [baseline, expenseStart, incomeStart] = await Promise.all([
+    getBaseline(),
     getDataStart(workspaceId, ["bills", "contracts"]),
     getDataStart(workspaceId, ["income"]),
   ]);
@@ -106,7 +106,7 @@ export async function getPeriodKpis(
   // The selected period, plus the configured number of windows immediately before it (same unit).
   // The full span [oldest baseline start, current end) bounds every query and projection.
   const current = chartWindow(granularity, offset, today);
-  const priors = Array.from({length: periodsFor(granularity, lookback)}, (_, k) =>
+  const priors = Array.from({length: periodsFor(granularity, baseline)}, (_, k) =>
     chartWindow(granularity, offset - (k + 1), today),
   );
   const spanStart = priors[priors.length - 1].start;
@@ -196,10 +196,11 @@ export async function getPeriodKpis(
   // pre-history. None qualifying → null (no baseline yet), never a misleading 0.
   const pair = (map: Map<string, number>, dataStart: Date | null): KpiPair => ({
     current: sumRange(map, current.start, elapsed),
-    previous: baselineAverage(
+    previous: baselineOf(
       priors
         .filter((w) => dataStart !== null && w.end > dataStart)
         .map((w) => sumRange(map, w.start, Math.min(elapsed, daysBetween(w.start, w.end)))),
+      baseline.metric,
     ),
   });
 

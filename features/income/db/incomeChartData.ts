@@ -11,7 +11,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {getLookback} from "@/features/settings/db/appSettings";
+import {getBaseline} from "@/features/settings/db/appSettings";
 import type {IncomeFixedChartData, IncomeVariableChartData} from "@/features/income/types";
 
 // The rolling window for the "previous" (average) baseline line is a user setting
@@ -31,12 +31,12 @@ export async function getVariableIncomeChartData(
   filters: IncomeChartFilters = {},
   offset = 0,
 ): Promise<IncomeVariableChartData> {
-  const [incomes, lookback] = await Promise.all([
+  const [incomes, baseline] = await Promise.all([
     client.income.findMany({
       where: buildIncomeWhere({...filters, isRecurring: false}),
       select: {startDate: true, totalAmount: true},
     }),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const totalsByDay = new Map<string, number>();
@@ -51,10 +51,21 @@ export async function getVariableIncomeChartData(
   const dataStart = earliestDay(totalsByDay);
 
   return {
-    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {lookback: lookback.weeks, dataStart, today}),
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {lookback: lookback.months, dataStart, today}),
+    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
+      lookback: baseline.lookback.weeks,
+      metric: baseline.metric,
+      dataStart,
+      today,
+    }),
+    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+      lookback: baseline.lookback.months,
+      metric: baseline.metric,
+      dataStart,
+      today,
+    }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
-      lookback: lookback.years,
+      lookback: baseline.lookback.years,
+      metric: baseline.metric,
       dataStart,
       today,
     }),
@@ -68,12 +79,12 @@ export async function getFixedIncomeChartData(
   filters: IncomeChartFilters = {},
   offset = 0,
 ): Promise<IncomeFixedChartData> {
-  const [incomes, lookback] = await Promise.all([
+  const [incomes, baseline] = await Promise.all([
     client.income.findMany({
       where: buildIncomeWhere({...filters, isRecurring: true}),
       include: {frequency: true},
     }),
-    getLookback(),
+    getBaseline(),
   ]);
 
   const now = new Date();
@@ -117,13 +128,15 @@ export async function getFixedIncomeChartData(
 
   return {
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
-      lookback: lookback.months,
+      lookback: baseline.lookback.months,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,
     }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
-      lookback: lookback.years,
+      lookback: baseline.lookback.years,
+      metric: baseline.metric,
       dataStart,
       futureTotalsByDay: upcomingTotalsByDay,
       today,

@@ -55,6 +55,7 @@ export type AppSettingsMinAggregateOutputType = {
   lookbackWeeks: number | null
   lookbackMonths: number | null
   lookbackYears: number | null
+  baselineMetric: $Enums.BaselineMetric | null
   updatedAt: Date | null
 }
 
@@ -67,6 +68,7 @@ export type AppSettingsMaxAggregateOutputType = {
   lookbackWeeks: number | null
   lookbackMonths: number | null
   lookbackYears: number | null
+  baselineMetric: $Enums.BaselineMetric | null
   updatedAt: Date | null
 }
 
@@ -79,6 +81,7 @@ export type AppSettingsCountAggregateOutputType = {
   lookbackWeeks: number
   lookbackMonths: number
   lookbackYears: number
+  baselineMetric: number
   updatedAt: number
   _all: number
 }
@@ -113,6 +116,7 @@ export type AppSettingsMinAggregateInputType = {
   lookbackWeeks?: true
   lookbackMonths?: true
   lookbackYears?: true
+  baselineMetric?: true
   updatedAt?: true
 }
 
@@ -125,6 +129,7 @@ export type AppSettingsMaxAggregateInputType = {
   lookbackWeeks?: true
   lookbackMonths?: true
   lookbackYears?: true
+  baselineMetric?: true
   updatedAt?: true
 }
 
@@ -137,6 +142,7 @@ export type AppSettingsCountAggregateInputType = {
   lookbackWeeks?: true
   lookbackMonths?: true
   lookbackYears?: true
+  baselineMetric?: true
   updatedAt?: true
   _all?: true
 }
@@ -236,6 +242,7 @@ export type AppSettingsGroupByOutputType = {
   lookbackWeeks: number
   lookbackMonths: number
   lookbackYears: number
+  baselineMetric: $Enums.BaselineMetric
   updatedAt: Date
   _count: AppSettingsCountAggregateOutputType | null
   _avg: AppSettingsAvgAggregateOutputType | null
@@ -271,6 +278,7 @@ export type AppSettingsWhereInput = {
   lookbackWeeks?: Prisma.IntFilter<"AppSettings"> | number
   lookbackMonths?: Prisma.IntFilter<"AppSettings"> | number
   lookbackYears?: Prisma.IntFilter<"AppSettings"> | number
+  baselineMetric?: Prisma.EnumBaselineMetricFilter<"AppSettings"> | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }
 
@@ -283,6 +291,7 @@ export type AppSettingsOrderByWithRelationInput = {
   lookbackWeeks?: Prisma.SortOrder
   lookbackMonths?: Prisma.SortOrder
   lookbackYears?: Prisma.SortOrder
+  baselineMetric?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -298,6 +307,7 @@ export type AppSettingsWhereUniqueInput = Prisma.AtLeast<{
   lookbackWeeks?: Prisma.IntFilter<"AppSettings"> | number
   lookbackMonths?: Prisma.IntFilter<"AppSettings"> | number
   lookbackYears?: Prisma.IntFilter<"AppSettings"> | number
+  baselineMetric?: Prisma.EnumBaselineMetricFilter<"AppSettings"> | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFilter<"AppSettings"> | Date | string
 }, "id">
 
@@ -310,6 +320,7 @@ export type AppSettingsOrderByWithAggregationInput = {
   lookbackWeeks?: Prisma.SortOrder
   lookbackMonths?: Prisma.SortOrder
   lookbackYears?: Prisma.SortOrder
+  baselineMetric?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.AppSettingsCountOrderByAggregateInput
   _avg?: Prisma.AppSettingsAvgOrderByAggregateInput
@@ -330,6 +341,7 @@ export type AppSettingsScalarWhereWithAggregatesInput = {
   lookbackWeeks?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
   lookbackMonths?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
   lookbackYears?: Prisma.IntWithAggregatesFilter<"AppSettings"> | number
+  baselineMetric?: Prisma.EnumBaselineMetricWithAggregatesFilter<"AppSettings"> | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AppSettings"> | Date | string
 }
 
@@ -341,6 +353,7 @@ export type AppSettingsCreateInput = {
   lookbackWeeks?: number
   lookbackMonths?: number
   lookbackYears?: number
+  baselineMetric?: $Enums.BaselineMetric
   updatedAt?: Date | string
 }
 
@@ -353,6 +366,7 @@ export type AppSettingsUncheckedCreateInput = {
   lookbackWeeks?: number
   lookbackMonths?: number
   lookbackYears?: number
+  baselineMetric?: $Enums.BaselineMetric
   updatedAt?: Date | string
 }
 
@@ -364,6 +378,7 @@ export type AppSettingsUpdateInput = {
   lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
+  baselineMetric?: Prisma.EnumBaselineMetricFieldUpdateOperationsInput | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -376,6 +391,7 @@ export type AppSettingsUncheckedUpdateInput = {
   lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
+  baselineMetric?: Prisma.EnumBaselineMetricFieldUpdateOperationsInput | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -388,6 +404,7 @@ export type AppSettingsCreateManyInput = {
   lookbackWeeks?: number
   lookbackMonths?: number
   lookbackYears?: number
+  baselineMetric?: $Enums.BaselineMetric
   updatedAt?: Date | string
 }
 
@@ -399,6 +416,7 @@ export type AppSettingsUpdateManyMutationInput = {
   lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
+  baselineMetric?: Prisma.EnumBaselineMetricFieldUpdateOperationsInput | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -411,6 +429,7 @@ export type AppSettingsUncheckedUpdateManyInput = {
   lookbackWeeks?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackMonths?: Prisma.IntFieldUpdateOperationsInput | number
   lookbackYears?: Prisma.IntFieldUpdateOperationsInput | number
+  baselineMetric?: Prisma.EnumBaselineMetricFieldUpdateOperationsInput | $Enums.BaselineMetric
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -423,6 +442,7 @@ export type AppSettingsCountOrderByAggregateInput = {
   lookbackWeeks?: Prisma.SortOrder
   lookbackMonths?: Prisma.SortOrder
   lookbackYears?: Prisma.SortOrder
+  baselineMetric?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -445,6 +465,7 @@ export type AppSettingsMaxOrderByAggregateInput = {
   lookbackWeeks?: Prisma.SortOrder
   lookbackMonths?: Prisma.SortOrder
   lookbackYears?: Prisma.SortOrder
+  baselineMetric?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -457,6 +478,7 @@ export type AppSettingsMinOrderByAggregateInput = {
   lookbackWeeks?: Prisma.SortOrder
   lookbackMonths?: Prisma.SortOrder
   lookbackYears?: Prisma.SortOrder
+  baselineMetric?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
@@ -470,6 +492,10 @@ export type AppSettingsSumOrderByAggregateInput = {
   lookbackYears?: Prisma.SortOrder
 }
 
+export type EnumBaselineMetricFieldUpdateOperationsInput = {
+  set?: $Enums.BaselineMetric
+}
+
 
 
 export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -481,6 +507,7 @@ export type AppSettingsSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   lookbackWeeks?: boolean
   lookbackMonths?: boolean
   lookbackYears?: boolean
+  baselineMetric?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -493,6 +520,7 @@ export type AppSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   lookbackWeeks?: boolean
   lookbackMonths?: boolean
   lookbackYears?: boolean
+  baselineMetric?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -505,6 +533,7 @@ export type AppSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   lookbackWeeks?: boolean
   lookbackMonths?: boolean
   lookbackYears?: boolean
+  baselineMetric?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["appSettings"]>
 
@@ -517,10 +546,11 @@ export type AppSettingsSelectScalar = {
   lookbackWeeks?: boolean
   lookbackMonths?: boolean
   lookbackYears?: boolean
+  baselineMetric?: boolean
   updatedAt?: boolean
 }
 
-export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "activeWorkspaceId" | "warrantyWarnDays" | "upcomingWindowDays" | "lookbackWeeks" | "lookbackMonths" | "lookbackYears" | "updatedAt", ExtArgs["result"]["appSettings"]>
+export type AppSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "locale" | "activeWorkspaceId" | "warrantyWarnDays" | "upcomingWindowDays" | "lookbackWeeks" | "lookbackMonths" | "lookbackYears" | "baselineMetric" | "updatedAt", ExtArgs["result"]["appSettings"]>
 
 export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AppSettings"
@@ -534,6 +564,7 @@ export type $AppSettingsPayload<ExtArgs extends runtime.Types.Extensions.Interna
     lookbackWeeks: number
     lookbackMonths: number
     lookbackYears: number
+    baselineMetric: $Enums.BaselineMetric
     updatedAt: Date
   }, ExtArgs["result"]["appSettings"]>
   composites: {}
@@ -966,6 +997,7 @@ export interface AppSettingsFieldRefs {
   readonly lookbackWeeks: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly lookbackMonths: Prisma.FieldRef<"AppSettings", 'Int'>
   readonly lookbackYears: Prisma.FieldRef<"AppSettings", 'Int'>
+  readonly baselineMetric: Prisma.FieldRef<"AppSettings", 'BaselineMetric'>
   readonly updatedAt: Prisma.FieldRef<"AppSettings", 'DateTime'>
 }
     

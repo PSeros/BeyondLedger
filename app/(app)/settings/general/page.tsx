@@ -44,6 +44,7 @@ export default async function Page() {
           lookbackWeeks={appSettings.lookbackWeeks}
           lookbackMonths={appSettings.lookbackMonths}
           lookbackYears={appSettings.lookbackYears}
+          baselineMetric={appSettings.baselineMetric}
         />
       </SettingsSection>
     </div>
