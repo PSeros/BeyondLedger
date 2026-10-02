@@ -9,14 +9,15 @@ import {getBudgetContributions, type BudgetContributions} from "@/features/budge
 import type {BudgetResolved} from "@/features/budget/db/budgets";
 
 // "View entries" button + modal listing the bills and contracts contributing to a budget this
-// period. Each row links to the entry's standalone detail page (a full navigation — route
+// period (the one containing the page's `anchor` month). Each row links to the entry's standalone detail page (a full navigation — route
 // interception is scoped to the expense segment, so it can't overlay a modal from /budget).
-// Contributions are fetched lazily when the modal first opens.
-export default function BudgetDetailModal({budget}: {budget: BudgetResolved}) {
+// Contributions are fetched lazily on open and refetched when the anchor month changes.
+export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResolved; anchor: string}) {
   const t = useTranslations("budget");
   const format = useFormatter();
   const [open, setOpen] = useState(false);
-  const [data, setData] = useState<BudgetContributions | null>(null);
+  const [loaded, setLoaded] = useState<{anchor: string; data: BudgetContributions} | null>(null);
+  const data = loaded?.anchor === anchor ? loaded.data : null;
   const [loading, setLoading] = useState(false);
 
   async function openModal() {
@@ -24,7 +25,7 @@ export default function BudgetDetailModal({budget}: {budget: BudgetResolved}) {
     if (!data && !loading) {
       setLoading(true);
       try {
-        setData(await getBudgetContributions(budget.id));
+        setLoaded({anchor, data: await getBudgetContributions(budget.id, anchor)});
       } finally {
         setLoading(false);
       }

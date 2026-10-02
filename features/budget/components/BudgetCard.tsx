@@ -15,7 +15,7 @@ import {budgetProgress} from "@/features/budget/progress";
 
 // One budget shown for its CURRENT period: the period label + window, target vs. actual vs.
 // remaining, a usage meter, member chips, edit/delete, and a per-period override control.
-export default function BudgetCard({budget, options}: { budget: BudgetResolved; options: BudgetMemberOptions }) {
+export default function BudgetCard({budget, options, anchor}: { budget: BudgetResolved; options: BudgetMemberOptions; anchor: string }) {
   const t = useTranslations("budget");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
@@ -91,7 +91,7 @@ export default function BudgetCard({budget, options}: { budget: BudgetResolved; 
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <BudgetDetailModal budget={budget}/>
+          <BudgetDetailModal budget={budget} anchor={anchor}/>
           <BudgetFormButton options={options} budget={budget}/>
           {/* redirectTo keeps us on /budget after delete (this is a list card, not a modal). */}
           <DeleteEntityButton id={budget.id} action={deleteBudget} label={t("entityLabel")} redirectTo="/budget"/>
