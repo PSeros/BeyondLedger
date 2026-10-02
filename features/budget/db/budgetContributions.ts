@@ -10,13 +10,13 @@ import {
 } from "@/features/budget/period";
 import {
   activeDomains,
-  billsWithMatchingItem,
   contractWhereSmart,
   facetSelectionFromMembers,
   getSelectorTotals,
   hasAnySelector,
   normalizeAllSelected,
   windowFilters,
+  variableItemWhere,
   type FacetSelection,
 } from "@/features/budget/db/budgetSmartMatch";
 
@@ -29,18 +29,23 @@ import {
 // global AND-NOT; a fully-included selector is treated as unconstrained. A bill is listed when it
 // holds a matching line (variable is item-level); a contract when it matches directly. Shares its
 // `where` builders with computeActuals so the list can't drift from the number.
+//
+// Granularity follows what matched: a bill is listed whole when the match is bill-level (supplier,
+// supplier category, tag on the bill) and every line counts; otherwise its matching items are
+// listed individually (item category, tag on the item, or only some lines count).
 
 export type BudgetContributions = {
   bills: {id: number; date: string; supplierName: string; total: number}[];
+  items: {id: number; billId: number; name: string; date: string; supplierName: string; total: number}[];
   contracts: {id: number; name: string; supplierName: string; amount: number}[];
 };
 
 export async function getBudgetContributions(budgetId: number, anchor?: string): Promise<BudgetContributions> {
   const budget = await client.budget.findUnique({where: {id: budgetId}, include: {members: true}});
-  if (!budget) return {bills: [], contracts: []};
+  if (!budget) return {bills: [], items: [], contracts: []};
 
   const raw: FacetSelection = facetSelectionFromMembers(budget.members);
-  if (!hasAnySelector(raw)) return {bills: [], contracts: []};
+  if (!hasAnySelector(raw)) return {bills: [], items: [], contracts: []};
   const totals = await getSelectorTotals();
   const sel = normalizeAllSelected(raw, totals);
 
@@ -59,14 +64,50 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
 
   const {variable, contract} = activeDomains(sel);
 
-  const bills = variable
-    ? await client.bill.findMany({
-        where: billsWithMatchingItem(sel, dateInWindow, budget.workspaceId),
-        select: {id: true, date: true, totalAmount: true, supplier: {select: {name: true}}},
-        orderBy: {date: "desc"},
-        take: 100,
+  const matchedItems = variable
+    ? await client.item.findMany({
+        where: variableItemWhere(sel, dateInWindow, budget.workspaceId),
+        select: {
+          id: true,
+          name: true,
+          totalPrice: true,
+          bill: {
+            select: {
+              id: true,
+              date: true,
+              supplier: {select: {name: true}},
+              _count: {select: {items: true}},
+              tags: {where: {tagId: {in: sel.include.tagIds}}, select: {tagId: true}},
+            },
+          },
+        },
+        orderBy: [{bill: {date: "desc"}}, {billId: "desc"}, {id: "asc"}],
+        take: 500,
       })
     : [];
+
+  const byBill = new Map<number, typeof matchedItems>();
+  for (const item of matchedItems) {
+    const group = byBill.get(item.bill.id);
+    if (group) group.push(item);
+    else byBill.set(item.bill.id, [item]);
+  }
+
+  const bills: BudgetContributions["bills"] = [];
+  const items: BudgetContributions["items"] = [];
+  for (const group of byBill.values()) {
+    const bill = group[0].bill;
+    const lineLevel = sel.include.itemCategoryIds.length > 0 || (sel.include.tagIds.length > 0 && bill.tags.length === 0);
+    const date = bill.date.toISOString();
+    const supplierName = bill.supplier.name;
+    if (!lineLevel && group.length === bill._count.items) {
+      bills.push({id: bill.id, date, supplierName, total: group.reduce((sum, item) => sum + Number(item.totalPrice), 0)});
+    } else {
+      for (const item of group) {
+        items.push({id: item.id, billId: bill.id, name: item.name, date, supplierName, total: Number(item.totalPrice)});
+      }
+    }
+  }
 
   const contracts = contract
     ? await client.contract.findMany({
@@ -85,7 +126,8 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
     : [];
 
   return {
-    bills: bills.map((bill) => ({id: bill.id, date: bill.date.toISOString(), supplierName: bill.supplier.name, total: Number(bill.totalAmount)})),
+    bills,
+    items,
     contracts: contracts
       .map((contract) => ({
         id: contract.id,

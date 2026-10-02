@@ -8,7 +8,7 @@ import {LuChevronRight, LuList} from "react-icons/lu";
 import {getBudgetContributions, type BudgetContributions} from "@/features/budget/db/budgetContributions";
 import type {BudgetResolved} from "@/features/budget/db/budgets";
 
-// "View entries" button + modal listing the bills and contracts contributing to a budget this
+// "View entries" button + modal listing the bills, items and contracts contributing to a budget this
 // period (the one containing the page's `anchor` month). Each row links to the entry's standalone detail page (a full navigation — route
 // interception is scoped to the expense segment, so it can't overlay a modal from /budget).
 // Contributions are fetched lazily on open and refetched when the anchor month changes.
@@ -32,7 +32,7 @@ export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResol
     }
   }
 
-  const isEmpty = data !== null && data.bills.length === 0 && data.contracts.length === 0;
+  const isEmpty = data !== null && data.bills.length === 0 && data.items.length === 0 && data.contracts.length === 0;
 
   return (
     <>
@@ -76,6 +76,33 @@ export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResol
                               </span>
                               <span className="flex shrink-0 items-center gap-1">
                                 <span className="text-sm font-semibold tabular-nums">{format.number(bill.total, "currency")}</span>
+                                <LuChevronRight className="size-4 text-muted"/>
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ) : null}
+
+                  {data.items.length > 0 ? (
+                    <section className="flex flex-col gap-2">
+                      <h3 className="text-foreground-500 text-xs font-medium uppercase tracking-wide">{t("itemsHeading")}</h3>
+                      <ul className="flex flex-col gap-1.5">
+                        {data.items.map((item) => (
+                          <li key={item.id}>
+                            <Link
+                              href={`/expense/variable/${item.billId}`}
+                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-default-200 px-3 py-2 hover:bg-surface-secondary"
+                            >
+                              <span className="min-w-0">
+                                <span className="block truncate text-sm font-medium">{item.name}</span>
+                                <span className="block truncate text-xs text-muted">
+                                  {item.supplierName} · {format.dateTime(new Date(item.date), {day: "numeric", month: "short", year: "numeric"})}
+                                </span>
+                              </span>
+                              <span className="flex shrink-0 items-center gap-1">
+                                <span className="text-sm font-semibold tabular-nums">{format.number(item.total, "currency")}</span>
                                 <LuChevronRight className="size-4 text-muted"/>
                               </span>
                             </Link>
