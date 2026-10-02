@@ -175,7 +175,7 @@ function contractExclusions(ex: FacetGroup): {NOT: {OR: object[]}} | null {
 
 // The item-level half of the variable predicate: the base item-category include, the tag include
 // (line OR bill — cascade), and every exclusion that can address a line. Carries no workspace/date
-// scoping, so it also drops straight into a `bill.items.some` (see billsWithMatchingItem).
+// scoping, so it also drops straight into a `bill.items.some`.
 export function itemFacetWhere(sel: FacetSelection): object {
   const {include, exclude} = sel;
   return {
@@ -203,11 +203,6 @@ export function billScopeWhere(sel: FacetSelection, dateInWindow: object | undef
 // an all-empty selection matches every line.
 export function variableItemWhere(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number): object {
   return {bill: billScopeWhere(sel, dateInWindow, workspaceId), ...itemFacetWhere(sel)};
-}
-
-// BILL `where` selecting bills that hold at least one contributing line.
-export function billsWithMatchingItem(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number): object {
-  return {...billScopeWhere(sel, dateInWindow, workspaceId), items: {some: itemFacetWhere(sel)}};
 }
 
 // CONTRACT `where`: base contract-category include (if any), AND-refined by the supplier /
