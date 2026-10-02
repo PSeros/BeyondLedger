@@ -3,6 +3,7 @@
 import {client} from "@/lib/prisma";
 import {
   computeContractContribution,
+  parseMonthAnchor,
   resolveActivePeriod,
   windowMonthsFor,
   type BudgetPeriodType,
@@ -20,7 +21,8 @@ import {
 } from "@/features/budget/db/budgetSmartMatch";
 
 // On-demand read (a server action, called when a budget's "View entries" modal opens) listing the
-// bills and contracts that contribute to a budget in its CURRENT period.
+// bills and contracts that contribute to a budget in the period containing `anchor` (the page's
+// `?at=YYYY-MM`; absent = the current month) — resolved exactly like the card's actual.
 //
 // MATCH MODEL: "smart selector" — included item/contract categories are an ORed base; included
 // supplier category, supplier and tag are ANDed refiners on both domains; excluded values are a
@@ -33,7 +35,7 @@ export type BudgetContributions = {
   contracts: {id: number; name: string; supplierName: string; amount: number}[];
 };
 
-export async function getBudgetContributions(budgetId: number): Promise<BudgetContributions> {
+export async function getBudgetContributions(budgetId: number, anchor?: string): Promise<BudgetContributions> {
   const budget = await client.budget.findUnique({where: {id: budgetId}, include: {members: true}});
   if (!budget) return {bills: [], contracts: []};
 
@@ -42,7 +44,7 @@ export async function getBudgetContributions(budgetId: number): Promise<BudgetCo
   const totals = await getSelectorTotals();
   const sel = normalizeAllSelected(raw, totals);
 
-  const now = new Date();
+  const now = parseMonthAnchor(anchor);
   const {start, end} = resolveActivePeriod(
     {
       periodType: budget.periodType as BudgetPeriodType,

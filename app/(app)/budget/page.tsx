@@ -8,7 +8,7 @@ import BudgetPeriodNavigator from "@/features/budget/components/BudgetPeriodNavi
 import BudgetSearchField from "@/features/budget/components/BudgetSearchField";
 import BudgetBarChart from "@/features/budget/components/BudgetBarChart";
 import {getBudgetCount, getBudgetMemberOptions, getBudgetsResolved} from "@/features/budget/db/budgets";
-import {BUDGET_PERIOD_TYPES, isBudgetActiveInMonth, parseMonthAnchor} from "@/features/budget/period";
+import {BUDGET_PERIOD_TYPES, isBudgetActiveInMonth, monthKey, parseMonthAnchor} from "@/features/budget/period";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 // The Budget page: user-defined budgets (name + period + target + members), each showing target
@@ -78,7 +78,7 @@ export default async function BudgetPage({searchParams}: {searchParams: Promise<
             <BudgetBarChart budgets={filtered}/>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
               {filtered.map((budget) => (
-                <BudgetCard key={budget.id} budget={budget} options={options}/>
+                <BudgetCard key={budget.id} budget={budget} options={options} anchor={monthKey(anchor)}/>
               ))}
             </div>
           </div>
