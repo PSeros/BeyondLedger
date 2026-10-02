@@ -14,7 +14,7 @@ model IncomeSource {
 
 model Income {
   id          Int            @id @default(autoincrement())
-  name        String         @unique
+  name        String
   source      IncomeSource   @relation(fields: [sourceId], references: [id])
   sourceId    Int
   category    IncomeCategory @relation(fields: [categoryId], references: [id])
