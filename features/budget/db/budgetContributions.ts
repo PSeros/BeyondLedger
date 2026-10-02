@@ -126,8 +126,9 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
     : [];
 
   return {
-    bills,
-    items,
+    // Each section lists its largest amounts first.
+    bills: bills.sort((a, b) => b.total - a.total),
+    items: items.sort((a, b) => b.total - a.total),
     contracts: contracts
       .map((contract) => ({
         id: contract.id,
@@ -146,6 +147,7 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
           now,
         ),
       }))
-      .filter((contract) => contract.amount > 0),
+      .filter((contract) => contract.amount > 0)
+      .sort((a, b) => b.amount - a.amount),
   };
 }
