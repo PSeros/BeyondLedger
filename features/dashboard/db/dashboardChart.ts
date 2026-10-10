@@ -15,6 +15,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
+import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard cash-flow charts (Phase 12): one combined EXPENSE stream (variable bills + fixed
@@ -34,28 +35,11 @@ function projectRecurring(
   today: Date,
   projectionHorizon: Date,
 ): void {
-  const monthsBetween = 12 / record.frequencyValue;
-  const stop = record.endDate && record.endDate < projectionHorizon ? record.endDate : projectionHorizon;
-
-  let step = 0;
-  let occurrence = utcDate(
-    record.startDate.getUTCFullYear(),
-    record.startDate.getUTCMonth(),
-    record.startDate.getUTCDate(),
-  );
-
-  while (occurrence <= stop) {
+  forEachOccurrence(record, record.startDate, addDays(projectionHorizon, 1), (occurrence) => {
     const key = dateKey(occurrence);
     const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
     target.set(key, (target.get(key) ?? 0) + record.amount);
-
-    step += 1;
-    occurrence = utcDate(
-      record.startDate.getUTCFullYear(),
-      record.startDate.getUTCMonth() + step * monthsBetween,
-      record.startDate.getUTCDate(),
-    );
-  }
+  });
 }
 
 // `offset` (period navigator's ?co) shifts the anchor back/forward by N of each granularity's own

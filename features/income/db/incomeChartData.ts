@@ -11,6 +11,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
+import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 import type {IncomeFixedChartData, IncomeVariableChartData} from "@/features/income/types";
 
@@ -100,28 +101,16 @@ export async function getFixedIncomeChartData(
     }
 
     const amount = Number(income.totalAmount);
-    const monthsBetween = 12 / income.frequency.value;
-    const stop = income.endDate && income.endDate < projectionHorizon ? income.endDate : projectionHorizon;
-
-    let step = 0;
-    let occurrence = utcDate(
-      income.startDate.getUTCFullYear(),
-      income.startDate.getUTCMonth(),
-      income.startDate.getUTCDate(),
+    forEachOccurrence(
+      {startDate: income.startDate, endDate: income.endDate, frequencyValue: income.frequency.value},
+      income.startDate,
+      addDays(projectionHorizon, 1),
+      (occurrence) => {
+        const key = dateKey(occurrence);
+        const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
+        target.set(key, (target.get(key) ?? 0) + amount);
+      },
     );
-
-    while (occurrence <= stop) {
-      const key = dateKey(occurrence);
-      const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
-      target.set(key, (target.get(key) ?? 0) + amount);
-
-      step += 1;
-      occurrence = utcDate(
-        income.startDate.getUTCFullYear(),
-        income.startDate.getUTCMonth() + step * monthsBetween,
-        income.startDate.getUTCDate(),
-      );
-    }
   }
 
   const dataStart = earliestDay(totalsByDay);

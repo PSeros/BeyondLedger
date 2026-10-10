@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
 import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 import {
+  addDays,
   addMonths,
   buildMonthView,
   buildYearView,
@@ -9,6 +10,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
+import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 import type {ContractChartData} from "@/features/expense/fixed/types";
 
@@ -35,40 +37,29 @@ export async function getFixedExpenseChartData(
   const totalsByDay = new Map<string, number>();
   const upcomingTotalsByDay = new Map<string, number>();
 
-  // Contracts have no per-occurrence record (unlike Bill's `date`) — only a recurring
-  // amount + frequency. Project the billing dates from startDate/frequency/endDate so
-  // they can feed the same cumulative-sum machinery as the Bill chart. Only frequencies
-  // whose `value` (occurrences/year) evenly divides 12 are supported by this projection.
-  // Occurrences past today go into `upcomingTotalsByDay` instead, to drive the chart's
-  // "upcoming" forecast line.
+  // Contracts have no per-occurrence record (unlike Bill's `date`) — only a recurring amount +
+  // frequency. Project the billing dates so they feed the same cumulative-sum machinery as the Bill
+  // chart; occurrences past today go into `upcomingTotalsByDay` to drive the "upcoming" line.
   for (const contract of contracts) {
     if (determineStatus(contract) !== "Active") {
       continue;
     }
 
     const amount = Number(contract.totalAmount);
-    const monthsBetween = 12 / contract.frequency.value;
-    const stop = contract.endDate && contract.endDate < projectionHorizon ? contract.endDate : projectionHorizon;
-
-    let step = 0;
-    let occurrence = utcDate(
-      contract.startDate.getUTCFullYear(),
-      contract.startDate.getUTCMonth(),
-      contract.startDate.getUTCDate(),
+    forEachOccurrence(
+      {
+        startDate: contract.startDate,
+        endDate: contract.endDate,
+        frequencyValue: contract.frequency.value,
+      },
+      contract.startDate,
+      addDays(projectionHorizon, 1),
+      (occurrence) => {
+        const key = dateKey(occurrence);
+        const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
+        target.set(key, (target.get(key) ?? 0) + amount);
+      },
     );
-
-    while (occurrence <= stop) {
-      const key = dateKey(occurrence);
-      const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
-      target.set(key, (target.get(key) ?? 0) + amount);
-
-      step += 1;
-      occurrence = utcDate(
-        contract.startDate.getUTCFullYear(),
-        contract.startDate.getUTCMonth() + step * monthsBetween,
-        contract.startDate.getUTCDate(),
-      );
-    }
   }
 
   // Horizon = the first projected billing date of the contracts that actually feed this chart, so a

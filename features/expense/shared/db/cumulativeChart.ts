@@ -150,37 +150,6 @@ export function chartWindow(granularity: Granularity, offset: number, today: Dat
   return {start, end: utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1)};
 }
 
-// How many occurrences of a recurring record (billed every 12/frequencyValue months from startDate)
-// land in [start, end), clamped to the record's own lifetime (never past endDate). Fast-forwards to
-// the window rather than stepping from a possibly years-old startDate.
-export function countOccurrences(
-  record: {startDate: Date; endDate: Date | null; frequencyValue: number},
-  start: Date,
-  end: Date,
-): number {
-  const monthsBetween = 12 / record.frequencyValue;
-  const stop = record.endDate && record.endDate < end ? record.endDate : end;
-  let step = 0;
-  const at = () =>
-    utcDate(
-      record.startDate.getUTCFullYear(),
-      record.startDate.getUTCMonth() + step * monthsBetween,
-      record.startDate.getUTCDate(),
-    );
-  let occurrence = at();
-  while (occurrence < start) {
-    step += 1;
-    occurrence = at();
-  }
-  let count = 0;
-  while (occurrence < stop) {
-    count += 1;
-    step += 1;
-    occurrence = at();
-  }
-  return count;
-}
-
 /**
  * The earliest day present across one or more day-total maps — i.e. the realized data horizon of the
  * streams those maps were built from, used to stop a Ø baseline reaching back before any data

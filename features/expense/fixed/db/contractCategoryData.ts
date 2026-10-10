@@ -1,6 +1,7 @@
 import {client} from "@/lib/prisma";
 import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
-import {countOccurrences, type DateWindow} from "@/features/expense/shared/db/cumulativeChart";
+import type {DateWindow} from "@/features/expense/shared/db/cumulativeChart";
+import {countOccurrences} from "@/features/expense/shared/db/recurrence";
 import type {DonutSlice} from "@/features/dashboard/lib/donut";
 
 // Fixed costs actually incurred within [start, end), grouped by contract category, for the dashboard

@@ -14,6 +14,7 @@ import {
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {getDataStart} from "@/features/expense/shared/db/dataHorizon";
+import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard KPI row (Phase 12): total money IN (income), OUT (expense = variable bills + fixed
@@ -37,44 +38,17 @@ export type DashboardKpis = {
 };
 
 // Adds a recurring record's projected occurrences (amount at each billing date) into `map`, but only
-// those landing in [rangeStart, rangeEnd). Fast-forwards to the window rather than stepping from a
-// possibly years-old startDate. Only frequencies whose value evenly divides 12 are projected.
+// those landing in [rangeStart, rangeEnd).
 function projectRecurringInto(
   map: Map<string, number>,
   record: {startDate: Date; endDate: Date | null; amount: number; frequencyValue: number},
   rangeStart: Date,
   rangeEnd: Date,
 ): void {
-  const monthsBetween = 12 / record.frequencyValue;
-  const stop = record.endDate && record.endDate < rangeEnd ? record.endDate : rangeEnd;
-
-  let step = 0;
-  let occurrence = utcDate(
-    record.startDate.getUTCFullYear(),
-    record.startDate.getUTCMonth(),
-    record.startDate.getUTCDate(),
-  );
-
-  // Advance to the first occurrence on/after the window start.
-  while (occurrence < rangeStart) {
-    step += 1;
-    occurrence = utcDate(
-      record.startDate.getUTCFullYear(),
-      record.startDate.getUTCMonth() + step * monthsBetween,
-      record.startDate.getUTCDate(),
-    );
-  }
-
-  while (occurrence < stop) {
+  forEachOccurrence(record, rangeStart, rangeEnd, (occurrence) => {
     const key = dateKey(occurrence);
     map.set(key, (map.get(key) ?? 0) + record.amount);
-    step += 1;
-    occurrence = utcDate(
-      record.startDate.getUTCFullYear(),
-      record.startDate.getUTCMonth() + step * monthsBetween,
-      record.startDate.getUTCDate(),
-    );
-  }
+  });
 }
 
 // The user's lookback for the granularity on screen.
