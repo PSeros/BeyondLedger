@@ -9,7 +9,7 @@ import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard"
 import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
-import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
+import {parseChartMode, parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
 import {getAppSettings} from "@/features/settings/db/appSettings";
 
 type FixedIncomePageProps = {
@@ -20,6 +20,7 @@ type FixedIncomePageProps = {
     frequencyId?: string;
     tags?: string;
     co?: string;
+  cm?: string;
   }>;
 };
 
@@ -70,7 +71,7 @@ export default async function FixedIncomePage({searchParams}: FixedIncomePagePro
           <div className="flex shrink-0 flex-col gap-4 lg:flex-row">
             <div className="w-full lg:w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <IncomeChartCard isRecurring={true} {...filters} offset={parseChartOffset(params.co)}/>
+                <IncomeChartCard isRecurring={true} {...filters} offset={parseChartOffset(params.co)} mode={parseChartMode(params.cm)}/>
               </Suspense>
             </div>
             {/* At lg+ the chart (left) sets the row height and the upcoming card overlays its own

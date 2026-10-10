@@ -8,6 +8,7 @@ import {
   buildYearView,
   dateKey,
   earliestDay,
+  type ChartMode,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {getBaseline} from "@/features/settings/db/appSettings";
@@ -28,6 +29,7 @@ type GetVariableExpenseChartDataInput = Omit<BillFilters, "dateFrom" | "dateTo">
 export async function getVariableExpenseChartData(
   filters: GetVariableExpenseChartDataInput = {},
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<BillChartData> {
   const [bills, baseline] = await Promise.all([
     client.bill.findMany({
@@ -54,18 +56,21 @@ export async function getVariableExpenseChartData(
     "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),

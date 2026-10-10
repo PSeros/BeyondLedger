@@ -17,6 +17,8 @@ import {
 } from "recharts";
 import PeriodNavigator from "@/components/PeriodNavigator";
 import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
+import {useChartMode} from "@/hooks/useChartMode";
+import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
 import type {BaselineMetric} from "@/features/settings/lookback";
 
 type Granularity = "1W" | "1M" | "1Y";
@@ -63,6 +65,8 @@ type ChartCardProps = {
   polarity?: "higherIsBetter" | "lowerIsBetter";
   /** Which statistic built `previous`, so the legend names it honestly. */
   baselineMetric?: BaselineMetric;
+  /** Which series shape the server built, so the toggle shows the active one. */
+  mode?: ChartMode;
 };
 
 export default function ChartCard({
@@ -70,9 +74,11 @@ export default function ChartCard({
   data,
   polarity = "higherIsBetter",
   baselineMetric = "MEAN",
+  mode = "cumulative",
 }: ChartCardProps = {}) {
   const format = useFormatter();
   const t = useTranslations("chart");
+  const chartMode = useChartMode();
   const source = data ?? chartData;
   const granularities = GRANULARITY_ORDER.filter((item) => source[item]);
 
@@ -92,7 +98,12 @@ export default function ChartCard({
 
   const {current, changePercent, hasBaseline} = useMemo(() => {
     const latest = [...points].reverse().find((point) => point.current !== null);
-    const current = latest?.current ?? 0;
+    // Cumulatively the last realized point IS the period total. Discretely it is just the last
+    // bucket, so add them up — the headline should keep meaning "this period".
+    const current =
+      mode === "discrete"
+        ? points.reduce((sum, point) => sum + (point.current ?? 0), 0)
+        : latest?.current ?? 0;
     // null previous = no baseline exists yet (every candidate period predates the first record), so
     // there is no percentage to show — distinct from a baseline that is genuinely 0.
     const previous = latest?.previous ?? null;
@@ -106,7 +117,7 @@ export default function ChartCard({
       changePercent,
       hasBaseline: previous !== null && previous !== 0,
     };
-  }, [points]);
+  }, [points, mode]);
 
   const isPositive = changePercent >= 0;
   const isGoodTrend = polarity === "higherIsBetter" ? isPositive : !isPositive;
@@ -151,7 +162,24 @@ export default function ChartCard({
 
         {/* ml-auto (not flex-1) below lg: auto width lets it wrap to its own row on very narrow
             screens rather than overflowing, and still sit right-aligned when it does. */}
-        <div className="ml-auto flex justify-end lg:ml-0 lg:flex-1">
+        <div className="ml-auto flex justify-end gap-2 lg:ml-0 lg:flex-1">
+          {data ? (
+            <ButtonGroup size="sm">
+              <Button
+                variant={chartMode.mode === "cumulative" ? "secondary" : "tertiary"}
+                onPress={() => chartMode.select("cumulative")}
+              >
+                {t("modeCumulative")}
+              </Button>
+              <Button
+                variant={chartMode.mode === "discrete" ? "secondary" : "tertiary"}
+                onPress={() => chartMode.select("discrete")}
+              >
+                {t("modeDiscrete")}
+              </Button>
+            </ButtonGroup>
+          ) : null}
+
           {granularities.length > 1 && (
             <ButtonGroup size="sm">
               {granularities.map((item) => (

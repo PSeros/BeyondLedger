@@ -9,7 +9,7 @@ import BillChartCard from "@/features/expense/variable/components/BillChartCard"
 import BillTopKCard from "@/features/expense/variable/components/BillTopKCard";
 import ExpenseEmptyState from "@/features/expense/shared/components/ExpenseEmptyState";
 import {getBillCount} from "@/features/expense/variable/db/billTableData";
-import {parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
+import {parseChartMode, parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 type VariablePageProps = {
@@ -22,6 +22,7 @@ type VariablePageProps = {
     dateFrom?: string;
     dateTo?: string;
     co?: string;
+  cm?: string;
   }>;
 };
 
@@ -83,7 +84,7 @@ export default async function VariablePage({searchParams}: VariablePageProps) {
           <div className="flex shrink-0 flex-col gap-4 lg:flex-row">
             <div className="w-full lg:w-3/5">
               <Suspense fallback={<Card className="h-56 animate-pulse"/>}>
-                <BillChartCard {...categoricalFilters} offset={parseChartOffset(params.co)}/>
+                <BillChartCard {...categoricalFilters} offset={parseChartOffset(params.co)} mode={parseChartMode(params.cm)}/>
               </Suspense>
             </div>
             <div className="w-full lg:w-2/5">

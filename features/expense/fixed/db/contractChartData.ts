@@ -8,6 +8,7 @@ import {
   buildYearView,
   dateKey,
   earliestDay,
+  type ChartMode,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
@@ -20,6 +21,7 @@ type GetFixedExpenseChartDataInput = Omit<ContractFilters, "status">;
 export async function getFixedExpenseChartData(
   filters: GetFixedExpenseChartDataInput = {},
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<ContractChartData> {
   const [contracts, baseline] = await Promise.all([
     client.contract.findMany({
@@ -72,6 +74,7 @@ export async function getFixedExpenseChartData(
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
       today,
@@ -79,6 +82,7 @@ export async function getFixedExpenseChartData(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,
       today,

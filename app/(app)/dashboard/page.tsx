@@ -15,7 +15,7 @@ import DashboardEmptyState from "@/features/dashboard/components/DashboardEmptyS
 import ContractUpcomingCard from "@/features/expense/fixed/components/ContractUpcomingCard";
 import IncomeUpcomingCard from "@/features/income/components/IncomeUpcomingCard";
 import DashboardPeriodToolbar from "@/features/dashboard/components/DashboardPeriodToolbar";
-import {parseChartOffset, parseGranularity} from "@/features/expense/shared/db/cumulativeChart";
+import {parseChartMode, parseChartOffset, parseGranularity} from "@/features/expense/shared/db/cumulativeChart";
 
 // The dashboard is a live view of DB state (active account, counts, budgets, projected occurrences)
 // with no searchParams to make it dynamic on its own — without this it would be prerendered once at
@@ -28,14 +28,15 @@ export const dynamic = "force-dynamic";
 // URL. Topbar auto-titles the route, so this page renders only content.
 export default async function DashboardPage({
   searchParams,
-}: {searchParams: Promise<{cg?: string; co?: string}>}) {
-  const [{cg, co}, activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
+}: {searchParams: Promise<{cg?: string; co?: string; cm?: string}>}) {
+  const [{cg, co, cm}, activeWorkspaceId, {warrantyWarnDays, upcomingWindowDays}] = await Promise.all([
     searchParams,
     getActiveWorkspaceId(),
     getAppSettings(),
   ]);
   const granularity = parseGranularity(cg);
   const chartOffset = parseChartOffset(co);
+  const chartMode = parseChartMode(cm);
 
   const [billCount, contractCount, fixedIncomeCount, variableIncomeCount, budgetCount] = await Promise.all([
     getBillCount(),
@@ -94,7 +95,12 @@ export default async function DashboardPage({
         {/* Hero: income & expense trend (under the KPIs, same width). */}
         <div className="col-span-2 row-span-3 lg:col-span-4 lg:row-span-3">
           <Suspense key={`chart-${granularity}-${chartOffset}`} fallback={tileFallback}>
-            <CashFlowCards workspaceId={activeWorkspaceId} granularity={granularity} offset={chartOffset}/>
+            <CashFlowCards
+              workspaceId={activeWorkspaceId}
+              granularity={granularity}
+              offset={chartOffset}
+              mode={chartMode}
+            />
           </Suspense>
         </div>
 

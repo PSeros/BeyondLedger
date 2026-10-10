@@ -9,6 +9,7 @@ import {
   buildYearView,
   dateKey,
   earliestDay,
+  type ChartMode,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
@@ -31,6 +32,7 @@ export type IncomeChartFilters = Omit<IncomeFilters, "status" | "dateFrom" | "da
 export async function getVariableIncomeChartData(
   filters: IncomeChartFilters = {},
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<IncomeVariableChartData> {
   const [incomes, baseline] = await Promise.all([
     client.income.findMany({
@@ -55,18 +57,21 @@ export async function getVariableIncomeChartData(
     "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      mode,
       dataStart,
       today,
     }),
@@ -79,6 +84,7 @@ export async function getVariableIncomeChartData(
 export async function getFixedIncomeChartData(
   filters: IncomeChartFilters = {},
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<IncomeFixedChartData> {
   const [incomes, baseline] = await Promise.all([
     client.income.findMany({
@@ -123,6 +129,7 @@ export async function getFixedIncomeChartData(
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
       today,
@@ -130,6 +137,7 @@ export async function getFixedIncomeChartData(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,
       today,

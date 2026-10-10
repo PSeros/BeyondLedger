@@ -11,6 +11,7 @@ import {
   buildWeekView,
   buildYearView,
   type ChartPoint,
+  type ChartMode,
   type Granularity,
   dateKey,
   earliestDay,
@@ -75,6 +76,7 @@ function buildViews(
   offset: number,
   baseline: Baseline,
   projectionHorizon: Date,
+  mode: ChartMode,
 ): DashboardChartData {
   const week = streamFor("1W", oneOff, recurring, today, projectionHorizon);
   const month = streamFor("1M", oneOff, recurring, today, projectionHorizon);
@@ -84,12 +86,14 @@ function buildViews(
     "1W": buildWeekView(week.totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      mode,
       dataStart: week.dataStart,
       today,
     }),
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
       today,
@@ -97,6 +101,7 @@ function buildViews(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,
       today,
@@ -107,6 +112,7 @@ function buildViews(
 export async function getDashboardExpenseChartData(
   workspaceId?: number | null,
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const [bills, contracts, baseline] = await Promise.all([
@@ -133,12 +139,14 @@ export async function getDashboardExpenseChartData(
     offset,
     baseline,
     projectionHorizon,
+    mode,
   );
 }
 
 export async function getDashboardIncomeChartData(
   workspaceId?: number | null,
   offset = 0,
+  mode: ChartMode = "cumulative",
 ): Promise<DashboardChartData> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const [variableIncome, fixedIncome, baseline] = await Promise.all([
@@ -171,5 +179,6 @@ export async function getDashboardIncomeChartData(
     offset,
     baseline,
     projectionHorizon,
+    mode,
   );
 }
