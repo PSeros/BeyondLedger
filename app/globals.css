@@ -46,6 +46,18 @@
     --font-sans: var(--font-inter);
 }
 
+@layer components {
+    /* The checkbox square is a form field too, but HeroUI styles it with bg-field + the field shadow
+       and NO border — so wherever it sits on a field-colored surface (and in dark mode, where that
+       shadow is transparent), an unchecked box disappears. Give it the same border as the inputs:
+       0px wide in light mode, where the shadow already does the job. HeroUI's own selected /
+       indeterminate rules are more specific, so a checked box keeps its borderless accent fill. */
+    .checkbox__control {
+        border-width: var(--border-width-field);
+        border-color: var(--color-field-border);
+    }
+}
+
 @layer utilities {
     .scrollbar-hide {
         scrollbar-width: none;
@@ -68,7 +80,14 @@
     --danger-foreground: oklch(99.11% 0 0);
     --default: oklch(27.40% 0.0015 253.83);
     --default-foreground: oklch(99.11% 0 0);
-    --field-background: oklch(21.03% 0.0030 253.83);
+    /* HeroUI's dark theme leaves form fields with nothing to stand out against: --field-border is
+       transparent at 0px, --field-shadow is a transparent inset (light mode gets a real drop shadow
+       there) and --field-background is the SAME lightness as --surface/--overlay, so an input inside
+       a card or modal is literally the color of its container. Here they are recessed instead —
+       darker than any surface, still lighter than the page background — and carry a 1px border. */
+    --field-background: oklch(16.80% 0.0030 253.83);
+    --field-border: oklch(31.00% 0.0020 253.83);
+    --field-border-width: 1px;
     --field-foreground: oklch(99.11% 0.0015 253.83);
     --field-placeholder: oklch(70.50% 0.0030 253.83);
     --focus: oklch(62.04% 0.1950 253.83);
