@@ -4,7 +4,7 @@ import {useMemo, useState} from "react";
 import type {Key} from "react-aria-components";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button, ButtonGroup, Label, ListBox, Modal, Select} from "@heroui/react";
+import {Button, ButtonGroup, Checkbox, Label, ListBox, Modal, Select} from "@heroui/react";
 import {LuPencil, LuPlus} from "react-icons/lu";
 import {labelClass, TextInputField} from "@/features/expense/shared/components/FormFields";
 import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
@@ -71,6 +71,10 @@ export default function BudgetFormButton({
   const [selection, setSelection] = useState<Selection>(() => initialSelection(budget));
   const [periodType, setPeriodType] = useState<BudgetPeriodType>(budget?.periodType ?? "MONTHLY");
   const [anchorMonth, setAnchorMonth] = useState<string>(budget?.anchorMonth ? String(budget.anchorMonth) : "1");
+  // A catch-all budget replaces the selectors; pegging the target to income replaces the amount.
+  // Both are posted as hidden inputs (see below) so the native <form action> carries them.
+  const [isInverse, setIsInverse] = useState(budget?.isInverse ?? false);
+  const [targetFromIncome, setTargetFromIncome] = useState(budget?.targetFromIncome ?? false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -126,6 +130,8 @@ export default function BudgetFormButton({
     setSelection(initialSelection(budget));
     setPeriodType(budget?.periodType ?? "MONTHLY");
     setAnchorMonth(budget?.anchorMonth ? String(budget.anchorMonth) : "1");
+    setIsInverse(budget?.isInverse ?? false);
+    setTargetFromIncome(budget?.targetFromIncome ?? false);
     setError(null);
     setOpen(true);
   }
@@ -180,16 +186,20 @@ export default function BudgetFormButton({
               <form action={action} className="flex flex-col gap-5">
                 <input type="hidden" name="periodType" value={periodType}/>
                 {periodType === "MONTH_OF_YEAR" ? <input type="hidden" name="anchorMonth" value={anchorMonth}/> : null}
+                {isInverse ? <input type="hidden" name="isInverse" value="1"/> : null}
+                {isInverse && targetFromIncome ? <input type="hidden" name="targetFromIncome" value="1"/> : null}
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
                   <TextInputField label={t("nameLabel")} name="name" defaultValue={budget?.name ?? ""} isRequired/>
-                  <TextInputField
-                    label={t("targetLabel")}
-                    name="amount"
-                    type="number"
-                    defaultValue={budget ? String(budget.amount) : ""}
-                    isRequired
-                  />
+                  {targetFromIncome ? null : (
+                    <TextInputField
+                      label={t("targetLabel")}
+                      name="amount"
+                      type="number"
+                      defaultValue={budget ? String(budget.amount) : ""}
+                      isRequired
+                    />
+                  )}
 
                   <WorkspaceSelectField
                     workspaces={options.workspaces}
@@ -261,36 +271,67 @@ export default function BudgetFormButton({
                   ) : null}
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className={labelClass}>{t("membersLabel")}</span>
-                  <p className="text-xs text-muted">{t("membersHint")}</p>
+                <div className="flex flex-col gap-3 rounded-field border border-field-border bg-field p-3 shadow-field">
+                  <Checkbox isSelected={isInverse} onChange={setIsInverse}>
+                    <Checkbox.Control>
+                      <Checkbox.Indicator/>
+                    </Checkbox.Control>
+                    <Checkbox.Content>
+                      <span className="text-sm text-foreground">{t("inverseLabel")}</span>
+                      <p className="text-xs text-muted">{t("inverseHint")}</p>
+                    </Checkbox.Content>
+                  </Checkbox>
+
+                  {/* Only offered for a catch-all budget, where "whatever came in" is the natural cap. */}
+                  {isInverse ? (
+                    <Checkbox isSelected={targetFromIncome} onChange={setTargetFromIncome} className="ml-6">
+                      <Checkbox.Control>
+                        <Checkbox.Indicator/>
+                      </Checkbox.Control>
+                      <Checkbox.Content>
+                        <span className="text-sm text-foreground">{t("targetFromIncomeLabel")}</span>
+                        <p className="text-xs text-muted">{t("targetFromIncomeHint")}</p>
+                      </Checkbox.Content>
+                    </Checkbox>
+                  ) : null}
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  {SELECTORS.map(({key}) => (
-                    <MultiSelectField
-                      key={key}
-                      label={selectorLabels[key]}
-                      options={selectorOptions[key]}
-                      value={selection[key]}
-                      onChange={(next) => setSelection((s) => ({...s, [key]: next}))}
-                      placeholder={t("selectPlaceholder")}
-                      summary={summarize}
-                    />
-                  ))}
-                </div>
+                {/* A catch-all budget is defined by having NO selectors, so the pickers go away
+                    entirely (createBudget/updateBudget drop any that were posted anyway). */}
+                {isInverse ? null : (
+                  <>
+                    <div className="flex flex-col gap-1">
+                      <span className={labelClass}>{t("membersLabel")}</span>
+                      <p className="text-xs text-muted">{t("membersHint")}</p>
+                    </div>
 
-                {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                      {SELECTORS.map(({key}) => (
+                        <MultiSelectField
+                          key={key}
+                          label={selectorLabels[key]}
+                          options={selectorOptions[key]}
+                          value={selection[key]}
+                          onChange={(next) => setSelection((s) => ({...s, [key]: next}))}
+                          placeholder={t("selectPlaceholder")}
+                          summary={summarize}
+                        />
+                      ))}
+                    </div>
 
-                {/* Picked ids mirrored into hidden inputs for FormData, one name per sign. */}
-                {SELECTORS.flatMap(({key, field}) => [
-                  ...selection[key].included.map((id) => (
-                    <input key={`${key}-in-${id}`} type="hidden" name={`member${field}`} value={id}/>
-                  )),
-                  ...selection[key].excluded.map((id) => (
-                    <input key={`${key}-ex-${id}`} type="hidden" name={`exclude${field}`} value={id}/>
-                  )),
-                ])}
+                    {totalSelected === 0 ? <p className="text-xs text-muted">{t("noMembers")}</p> : null}
+
+                    {/* Picked ids mirrored into hidden inputs for FormData, one name per sign. */}
+                    {SELECTORS.flatMap(({key, field}) => [
+                      ...selection[key].included.map((id) => (
+                        <input key={`${key}-in-${id}`} type="hidden" name={`member${field}`} value={id}/>
+                      )),
+                      ...selection[key].excluded.map((id) => (
+                        <input key={`${key}-ex-${id}`} type="hidden" name={`exclude${field}`} value={id}/>
+                      )),
+                    ])}
+                  </>
+                )}
 
                 {error ? <p className="text-danger text-sm">{error}</p> : null}
 

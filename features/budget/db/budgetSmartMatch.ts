@@ -220,21 +220,22 @@ export function contractWhereSmart(sel: FacetSelection, contractOverlap: object,
   };
 }
 
-const CONTRACT_SELECT = {
+export const CONTRACT_SELECT = {
   startDate: true,
   endDate: true,
   totalAmount: true,
   frequency: {select: {value: true, isRecurring: true}},
 } as const;
 
-type ContractRow = {
+export type ContractRow = {
   startDate: Date;
   endDate: Date | null;
   totalAmount: unknown;
   frequency: {value: number; isRecurring: boolean};
 };
 
-function sumContracts(rows: ContractRow[], start: Date | null, end: Date | null, windowMonths: number, now: Date): number {
+// Exported for budgetInverse.ts, which sums the contracts NO other budget claims.
+export function sumContracts(rows: ContractRow[], start: Date | null, end: Date | null, windowMonths: number, now: Date): number {
   return rows.reduce(
     (sum, c) =>
       sum +

@@ -312,10 +312,10 @@ export type IncomeOrderByWithRelationInput = {
 
 export type IncomeWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  name?: string
   AND?: Prisma.IncomeWhereInput | Prisma.IncomeWhereInput[]
   OR?: Prisma.IncomeWhereInput[]
   NOT?: Prisma.IncomeWhereInput | Prisma.IncomeWhereInput[]
+  name?: Prisma.StringFilter<"Income"> | string
   sourceId?: Prisma.IntFilter<"Income"> | number
   categoryId?: Prisma.IntFilter<"Income"> | number
   totalAmount?: Prisma.DecimalFilter<"Income"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -330,7 +330,7 @@ export type IncomeWhereUniqueInput = Prisma.AtLeast<{
   frequency?: Prisma.XOR<Prisma.FrequencyScalarRelationFilter, Prisma.FrequencyWhereInput>
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   tags?: Prisma.EntryTagListRelationFilter
-}, "id" | "name">
+}, "id">
 
 export type IncomeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

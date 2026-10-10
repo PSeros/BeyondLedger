@@ -246,3 +246,102 @@ export function computeContractContribution(
   const activeFraction = windowDays > 0 ? Math.min(1, overlapDays / windowDays) : 0;
   return totalAmount * (windowMonths / periodMonths) * activeFraction;
 }
+
+export type Window = {start: Date | null; end: Date | null}; // [start, end), null = unbounded
+
+// Intersect two half-open windows; null on either side means unbounded. Returns null when they
+// don't overlap.
+export function intersectWindows(a: Window, b: Window): Window | null {
+  const start = a.start == null ? b.start : b.start == null ? a.start : a.start > b.start ? a.start : b.start;
+  const end = a.end == null ? b.end : b.end == null ? a.end : a.end < b.end ? a.end : b.end;
+  if (start != null && end != null && start >= end) return null;
+  return {start, end};
+}
+
+// When does a budget CLAIM its selectors, as seen from another budget's window (`within`)?
+//
+// A claim is what an inverse/catch-all budget has to subtract (see budgetInverse.ts), and it is
+// time-scoped: MONTHLY / QUARTERLY / YEARLY instances tile time completely and OPEN never ends, so
+// those claim everywhere — returned as `null`, meaning "unbounded, no date filter needed". The two
+// bounded types return concrete windows, already intersected with `within`: RANGE its own span,
+// MONTH_OF_YEAR its month in each year `within` covers. An empty array means the budget claims
+// nothing inside `within` at all (a vacation range in a different month, December in a June window).
+//
+// The one deliberate inaccuracy: MONTH_OF_YEAR against an UNBOUNDED `within` (an OPEN inverse
+// budget) has no year list to enumerate, so it is treated as claiming always. An all-time budget
+// therefore reads an annual claimer as permanent — it under-counts that one combination rather
+// than enumerating every year that ever had data.
+// The budget's own period instances overlapping `window`, each as the FRACTION of that instance
+// that lies inside it. Distributing a budget's target over a foreign window is exactly this sum:
+// a monthly 600 € budget seen from a year is twelve full instances (12 × 600), seen from one month
+// is one full instance (600) and seen from an 8-day range is 0.26 of one (158). A yearly budget
+// seen from a month is the 31/365 slice of a single instance. The bounded types stay honest the
+// same way: a December-only budget contributes nothing to a July window, and a one-off range only
+// the part of itself that falls inside.
+//
+// OPEN has no instances to distribute, and neither has an unbounded window to distribute them into,
+// so both return nothing.
+export function periodInstancesWithin(input: PeriodInput, window: Window): number[] {
+  if (window.start == null || window.end == null || input.periodType === "OPEN") return [];
+
+  const fractions: number[] = [];
+  const add = (instanceStart: Date, instanceEnd: Date) => {
+    const overlap = intersectWindows({start: instanceStart, end: instanceEnd}, window);
+    const span = daysBetween(instanceStart, instanceEnd);
+    if (!overlap?.start || !overlap.end || span <= 0) return;
+    fractions.push(daysBetween(overlap.start, overlap.end) / span);
+  };
+
+  if (input.periodType === "RANGE") {
+    const {start, end} = resolveActivePeriod(input);
+    if (start && end) add(start, end);
+    return fractions;
+  }
+
+  if (input.periodType === "MONTH_OF_YEAR") {
+    const month = input.anchorMonth && input.anchorMonth >= 1 && input.anchorMonth <= 12 ? input.anchorMonth : 1;
+    const lastYear = new Date(window.end.getTime() - 1).getUTCFullYear();
+    for (let year = window.start.getUTCFullYear(); year <= lastYear; year++) {
+      add(new Date(Date.UTC(year, month - 1, 1)), new Date(Date.UTC(year, month, 1)));
+    }
+    return fractions;
+  }
+
+  // MONTHLY / QUARTERLY / YEARLY: walk the calendar instances, starting from the one containing
+  // `window.start` (aligned to its own boundary, so a mid-month window still measures whole months).
+  const step = input.periodType === "MONTHLY" ? 1 : input.periodType === "QUARTERLY" ? 3 : 12;
+  const year = window.start.getUTCFullYear();
+  const month = Math.floor(window.start.getUTCMonth() / step) * step;
+  for (let cursor = new Date(Date.UTC(year, month, 1)); cursor < window.end; cursor = addUTCMonths(cursor, step)) {
+    add(cursor, addUTCMonths(cursor, step));
+  }
+  return fractions;
+}
+
+export function claimWindowsWithin(input: PeriodInput, within: Window): Window[] | null {
+  switch (input.periodType) {
+    case "RANGE": {
+      const {start, end} = resolveActivePeriod(input);
+      const overlap = intersectWindows({start, end}, within);
+      return overlap ? [overlap] : [];
+    }
+    case "MONTH_OF_YEAR": {
+      if (within.start == null || within.end == null) return null;
+      const month = input.anchorMonth && input.anchorMonth >= 1 && input.anchorMonth <= 12 ? input.anchorMonth : 1;
+      const firstYear = within.start.getUTCFullYear();
+      // `end` is exclusive, so a window ending exactly at Jan 1 doesn't reach into that year.
+      const lastYear = new Date(within.end.getTime() - 1).getUTCFullYear();
+      const windows: Window[] = [];
+      for (let year = firstYear; year <= lastYear; year++) {
+        const overlap = intersectWindows(
+          {start: new Date(Date.UTC(year, month - 1, 1)), end: new Date(Date.UTC(year, month, 1))},
+          within,
+        );
+        if (overlap) windows.push(overlap);
+      }
+      return windows;
+    }
+    default: // MONTHLY, QUARTERLY, YEARLY, OPEN — always claiming
+      return null;
+  }
+}

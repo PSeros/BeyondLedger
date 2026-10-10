@@ -50,6 +50,8 @@ export type BudgetMinAggregateOutputType = {
   endDate: Date | null
   createdAt: Date | null
   workspaceId: number | null
+  isInverse: boolean | null
+  targetFromIncome: boolean | null
 }
 
 export type BudgetMaxAggregateOutputType = {
@@ -62,6 +64,8 @@ export type BudgetMaxAggregateOutputType = {
   endDate: Date | null
   createdAt: Date | null
   workspaceId: number | null
+  isInverse: boolean | null
+  targetFromIncome: boolean | null
 }
 
 export type BudgetCountAggregateOutputType = {
@@ -74,6 +78,8 @@ export type BudgetCountAggregateOutputType = {
   endDate: number
   createdAt: number
   workspaceId: number
+  isInverse: number
+  targetFromIncome: number
   _all: number
 }
 
@@ -102,6 +108,8 @@ export type BudgetMinAggregateInputType = {
   endDate?: true
   createdAt?: true
   workspaceId?: true
+  isInverse?: true
+  targetFromIncome?: true
 }
 
 export type BudgetMaxAggregateInputType = {
@@ -114,6 +122,8 @@ export type BudgetMaxAggregateInputType = {
   endDate?: true
   createdAt?: true
   workspaceId?: true
+  isInverse?: true
+  targetFromIncome?: true
 }
 
 export type BudgetCountAggregateInputType = {
@@ -126,6 +136,8 @@ export type BudgetCountAggregateInputType = {
   endDate?: true
   createdAt?: true
   workspaceId?: true
+  isInverse?: true
+  targetFromIncome?: true
   _all?: true
 }
 
@@ -225,6 +237,8 @@ export type BudgetGroupByOutputType = {
   endDate: Date | null
   createdAt: Date
   workspaceId: number
+  isInverse: boolean
+  targetFromIncome: boolean
   _count: BudgetCountAggregateOutputType | null
   _avg: BudgetAvgAggregateOutputType | null
   _sum: BudgetSumAggregateOutputType | null
@@ -260,6 +274,8 @@ export type BudgetWhereInput = {
   endDate?: Prisma.DateTimeNullableFilter<"Budget"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Budget"> | Date | string
   workspaceId?: Prisma.IntFilter<"Budget"> | number
+  isInverse?: Prisma.BoolFilter<"Budget"> | boolean
+  targetFromIncome?: Prisma.BoolFilter<"Budget"> | boolean
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   members?: Prisma.BudgetMemberListRelationFilter
   overrides?: Prisma.BudgetOverrideListRelationFilter
@@ -275,6 +291,8 @@ export type BudgetOrderByWithRelationInput = {
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  isInverse?: Prisma.SortOrder
+  targetFromIncome?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   members?: Prisma.BudgetMemberOrderByRelationAggregateInput
   overrides?: Prisma.BudgetOverrideOrderByRelationAggregateInput
@@ -293,6 +311,8 @@ export type BudgetWhereUniqueInput = Prisma.AtLeast<{
   endDate?: Prisma.DateTimeNullableFilter<"Budget"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Budget"> | Date | string
   workspaceId?: Prisma.IntFilter<"Budget"> | number
+  isInverse?: Prisma.BoolFilter<"Budget"> | boolean
+  targetFromIncome?: Prisma.BoolFilter<"Budget"> | boolean
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   members?: Prisma.BudgetMemberListRelationFilter
   overrides?: Prisma.BudgetOverrideListRelationFilter
@@ -308,6 +328,8 @@ export type BudgetOrderByWithAggregationInput = {
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  isInverse?: Prisma.SortOrder
+  targetFromIncome?: Prisma.SortOrder
   _count?: Prisma.BudgetCountOrderByAggregateInput
   _avg?: Prisma.BudgetAvgOrderByAggregateInput
   _max?: Prisma.BudgetMaxOrderByAggregateInput
@@ -328,6 +350,8 @@ export type BudgetScalarWhereWithAggregatesInput = {
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Budget"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Budget"> | Date | string
   workspaceId?: Prisma.IntWithAggregatesFilter<"Budget"> | number
+  isInverse?: Prisma.BoolWithAggregatesFilter<"Budget"> | boolean
+  targetFromIncome?: Prisma.BoolWithAggregatesFilter<"Budget"> | boolean
 }
 
 export type BudgetCreateInput = {
@@ -338,6 +362,8 @@ export type BudgetCreateInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace: Prisma.WorkspaceCreateNestedOneWithoutBudgetsInput
   members?: Prisma.BudgetMemberCreateNestedManyWithoutBudgetInput
   overrides?: Prisma.BudgetOverrideCreateNestedManyWithoutBudgetInput
@@ -353,6 +379,8 @@ export type BudgetUncheckedCreateInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   workspaceId: number
+  isInverse?: boolean
+  targetFromIncome?: boolean
   members?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutBudgetInput
   overrides?: Prisma.BudgetOverrideUncheckedCreateNestedManyWithoutBudgetInput
 }
@@ -365,6 +393,8 @@ export type BudgetUpdateInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBudgetsNestedInput
   members?: Prisma.BudgetMemberUpdateManyWithoutBudgetNestedInput
   overrides?: Prisma.BudgetOverrideUpdateManyWithoutBudgetNestedInput
@@ -380,6 +410,8 @@ export type BudgetUncheckedUpdateInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   members?: Prisma.BudgetMemberUncheckedUpdateManyWithoutBudgetNestedInput
   overrides?: Prisma.BudgetOverrideUncheckedUpdateManyWithoutBudgetNestedInput
 }
@@ -394,6 +426,8 @@ export type BudgetCreateManyInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   workspaceId: number
+  isInverse?: boolean
+  targetFromIncome?: boolean
 }
 
 export type BudgetUpdateManyMutationInput = {
@@ -404,6 +438,8 @@ export type BudgetUpdateManyMutationInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type BudgetUncheckedUpdateManyInput = {
@@ -416,6 +452,8 @@ export type BudgetUncheckedUpdateManyInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type BudgetCountOrderByAggregateInput = {
@@ -428,6 +466,8 @@ export type BudgetCountOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  isInverse?: Prisma.SortOrder
+  targetFromIncome?: Prisma.SortOrder
 }
 
 export type BudgetAvgOrderByAggregateInput = {
@@ -447,6 +487,8 @@ export type BudgetMaxOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  isInverse?: Prisma.SortOrder
+  targetFromIncome?: Prisma.SortOrder
 }
 
 export type BudgetMinOrderByAggregateInput = {
@@ -459,6 +501,8 @@ export type BudgetMinOrderByAggregateInput = {
   endDate?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
+  isInverse?: Prisma.SortOrder
+  targetFromIncome?: Prisma.SortOrder
 }
 
 export type BudgetSumOrderByAggregateInput = {
@@ -513,6 +557,10 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -601,6 +649,8 @@ export type BudgetCreateWithoutMembersInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace: Prisma.WorkspaceCreateNestedOneWithoutBudgetsInput
   overrides?: Prisma.BudgetOverrideCreateNestedManyWithoutBudgetInput
 }
@@ -615,6 +665,8 @@ export type BudgetUncheckedCreateWithoutMembersInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   workspaceId: number
+  isInverse?: boolean
+  targetFromIncome?: boolean
   overrides?: Prisma.BudgetOverrideUncheckedCreateNestedManyWithoutBudgetInput
 }
 
@@ -642,6 +694,8 @@ export type BudgetUpdateWithoutMembersInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBudgetsNestedInput
   overrides?: Prisma.BudgetOverrideUpdateManyWithoutBudgetNestedInput
 }
@@ -656,6 +710,8 @@ export type BudgetUncheckedUpdateWithoutMembersInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   overrides?: Prisma.BudgetOverrideUncheckedUpdateManyWithoutBudgetNestedInput
 }
 
@@ -667,6 +723,8 @@ export type BudgetCreateWithoutOverridesInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace: Prisma.WorkspaceCreateNestedOneWithoutBudgetsInput
   members?: Prisma.BudgetMemberCreateNestedManyWithoutBudgetInput
 }
@@ -681,6 +739,8 @@ export type BudgetUncheckedCreateWithoutOverridesInput = {
   endDate?: Date | string | null
   createdAt?: Date | string
   workspaceId: number
+  isInverse?: boolean
+  targetFromIncome?: boolean
   members?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutBudgetInput
 }
 
@@ -708,6 +768,8 @@ export type BudgetUpdateWithoutOverridesInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutBudgetsNestedInput
   members?: Prisma.BudgetMemberUpdateManyWithoutBudgetNestedInput
 }
@@ -722,6 +784,8 @@ export type BudgetUncheckedUpdateWithoutOverridesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspaceId?: Prisma.IntFieldUpdateOperationsInput | number
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   members?: Prisma.BudgetMemberUncheckedUpdateManyWithoutBudgetNestedInput
 }
 
@@ -733,6 +797,8 @@ export type BudgetCreateWithoutWorkspaceInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
   members?: Prisma.BudgetMemberCreateNestedManyWithoutBudgetInput
   overrides?: Prisma.BudgetOverrideCreateNestedManyWithoutBudgetInput
 }
@@ -746,6 +812,8 @@ export type BudgetUncheckedCreateWithoutWorkspaceInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
   members?: Prisma.BudgetMemberUncheckedCreateNestedManyWithoutBudgetInput
   overrides?: Prisma.BudgetOverrideUncheckedCreateNestedManyWithoutBudgetInput
 }
@@ -788,6 +856,8 @@ export type BudgetScalarWhereInput = {
   endDate?: Prisma.DateTimeNullableFilter<"Budget"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Budget"> | Date | string
   workspaceId?: Prisma.IntFilter<"Budget"> | number
+  isInverse?: Prisma.BoolFilter<"Budget"> | boolean
+  targetFromIncome?: Prisma.BoolFilter<"Budget"> | boolean
 }
 
 export type BudgetCreateManyWorkspaceInput = {
@@ -799,6 +869,8 @@ export type BudgetCreateManyWorkspaceInput = {
   startDate?: Date | string | null
   endDate?: Date | string | null
   createdAt?: Date | string
+  isInverse?: boolean
+  targetFromIncome?: boolean
 }
 
 export type BudgetUpdateWithoutWorkspaceInput = {
@@ -809,6 +881,8 @@ export type BudgetUpdateWithoutWorkspaceInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   members?: Prisma.BudgetMemberUpdateManyWithoutBudgetNestedInput
   overrides?: Prisma.BudgetOverrideUpdateManyWithoutBudgetNestedInput
 }
@@ -822,6 +896,8 @@ export type BudgetUncheckedUpdateWithoutWorkspaceInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
   members?: Prisma.BudgetMemberUncheckedUpdateManyWithoutBudgetNestedInput
   overrides?: Prisma.BudgetOverrideUncheckedUpdateManyWithoutBudgetNestedInput
 }
@@ -835,6 +911,8 @@ export type BudgetUncheckedUpdateManyWithoutWorkspaceInput = {
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isInverse?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetFromIncome?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -887,6 +965,8 @@ export type BudgetSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   endDate?: boolean
   createdAt?: boolean
   workspaceId?: boolean
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Budget$membersArgs<ExtArgs>
   overrides?: boolean | Prisma.Budget$overridesArgs<ExtArgs>
@@ -903,6 +983,8 @@ export type BudgetSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   endDate?: boolean
   createdAt?: boolean
   workspaceId?: boolean
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["budget"]>
 
@@ -916,6 +998,8 @@ export type BudgetSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   endDate?: boolean
   createdAt?: boolean
   workspaceId?: boolean
+  isInverse?: boolean
+  targetFromIncome?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["budget"]>
 
@@ -929,9 +1013,11 @@ export type BudgetSelectScalar = {
   endDate?: boolean
   createdAt?: boolean
   workspaceId?: boolean
+  isInverse?: boolean
+  targetFromIncome?: boolean
 }
 
-export type BudgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "amount" | "periodType" | "anchorMonth" | "startDate" | "endDate" | "createdAt" | "workspaceId", ExtArgs["result"]["budget"]>
+export type BudgetOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "amount" | "periodType" | "anchorMonth" | "startDate" | "endDate" | "createdAt" | "workspaceId" | "isInverse" | "targetFromIncome", ExtArgs["result"]["budget"]>
 export type BudgetInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Budget$membersArgs<ExtArgs>
@@ -962,6 +1048,8 @@ export type $BudgetPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     endDate: Date | null
     createdAt: Date
     workspaceId: number
+    isInverse: boolean
+    targetFromIncome: boolean
   }, ExtArgs["result"]["budget"]>
   composites: {}
 }
@@ -1397,6 +1485,8 @@ export interface BudgetFieldRefs {
   readonly endDate: Prisma.FieldRef<"Budget", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Budget", 'DateTime'>
   readonly workspaceId: Prisma.FieldRef<"Budget", 'Int'>
+  readonly isInverse: Prisma.FieldRef<"Budget", 'Boolean'>
+  readonly targetFromIncome: Prisma.FieldRef<"Budget", 'Boolean'>
 }
     
 

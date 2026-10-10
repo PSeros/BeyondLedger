@@ -4,7 +4,7 @@ import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import {Button, Card, Chip, Input, Label, TextField} from "@heroui/react";
-import {LuCalendarRange, LuArrowDownUp} from "react-icons/lu";
+import {LuCalendarRange, LuArrowDownUp, LuWallet} from "react-icons/lu";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import TagChip from "@/components/TagChip";
 import BudgetDetailModal from "@/features/budget/components/BudgetDetailModal";
@@ -104,6 +104,21 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
             <p className="text-2xl font-bold tabular-nums">{format.number(budget.actual, "currency")}</p>
             <p className="flex items-center gap-1 text-xs text-muted">
               {t("ofTarget", {target: format.number(budget.target, "currency")})}
+              {/* A derived target moves with the period and with every other budget, so the card
+                  says so — and spells out the two halves it is made of. */}
+              {budget.derivedTarget ? (
+                <LuWallet
+                  className="size-3 shrink-0"
+                  aria-label={t("targetFromIncomeChip", {
+                    income: format.number(budget.derivedTarget.income, "currency"),
+                    allocated: format.number(budget.derivedTarget.allocated, "currency"),
+                  })}
+                  title={t("targetFromIncomeChip", {
+                    income: format.number(budget.derivedTarget.income, "currency"),
+                    allocated: format.number(budget.derivedTarget.allocated, "currency"),
+                  })}
+                />
+              ) : null}
               {/* Iconified "adjust this period's target" — keeps the card bottom button-free. */}
               <Button
                 type="button"
@@ -131,12 +146,18 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
           </Chip>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-default-200" role="meter" aria-valuenow={meterPct}
+        <div className="h-2 w-full overflow-hidden rounded-full bg-default" role="meter" aria-valuenow={meterPct}
              aria-valuemin={0} aria-valuemax={100}>
           <div className={`h-full rounded-full ${meterColor}`} style={{width: `${meterPct}%`}}/>
         </div>
 
-        {budget.members.length > 0 ? (
+        {budget.isInverse ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Chip variant="soft" color="accent" size="sm" title={t("inverseHint")}>
+              <Chip.Label>{t("inverseChip")}</Chip.Label>
+            </Chip>
+          </div>
+        ) : budget.members.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
             {budget.members.map((member) => {
               const key = `${member.type}-${member.id}`;
@@ -163,7 +184,7 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
         )}
 
         {editingOverride ? (
-          <div className="flex flex-col gap-2 rounded-(--radius) border border-default-200 p-3">
+          <div className="flex flex-col gap-2 rounded-field border border-field-border bg-field p-3 shadow-field">
             <TextField value={overrideValue} onChange={setOverrideValue} className="flex flex-col gap-1">
               <Label className="text-foreground-500 text-xs uppercase tracking-wide">{t("overrideLabel")}</Label>
               <Input type="number" step="any"/>

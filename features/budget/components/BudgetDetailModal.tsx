@@ -68,7 +68,7 @@ export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResol
                           <li key={bill.id}>
                             <Link
                               href={`/expense/variable/${bill.id}`}
-                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-default-200 px-3 py-2 hover:bg-surface-secondary"
+                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-border px-3 py-2 hover:bg-surface-secondary"
                             >
                               <span className="min-w-0">
                                 <span className="block truncate text-sm font-medium">{bill.supplierName}</span>
@@ -93,7 +93,7 @@ export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResol
                           <li key={item.id}>
                             <Link
                               href={`/expense/variable/${item.billId}`}
-                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-default-200 px-3 py-2 hover:bg-surface-secondary"
+                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-border px-3 py-2 hover:bg-surface-secondary"
                             >
                               <span className="min-w-0">
                                 <span className="block truncate text-sm font-medium">{item.name}</span>
@@ -120,7 +120,7 @@ export default function BudgetDetailModal({budget, anchor}: {budget: BudgetResol
                           <li key={contract.id}>
                             <Link
                               href={`/expense/fixed/${contract.id}`}
-                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-default-200 px-3 py-2 hover:bg-surface-secondary"
+                              className="flex items-center justify-between gap-3 rounded-(--radius) border border-border px-3 py-2 hover:bg-surface-secondary"
                             >
                               <span className="min-w-0">
                                 <span className="block truncate text-sm font-medium">{contract.name}</span>
