@@ -6,6 +6,7 @@ import InsightsSummary from "@/features/insights/components/InsightsSummary";
 import InsightsStats from "@/features/insights/components/InsightsStats";
 import InsightsTimeChart, {type TimePoint} from "@/features/insights/components/InsightsTimeChart";
 import InsightsBreakdown, {type BreakdownPanel} from "@/features/insights/components/InsightsBreakdown";
+import InsightsTable from "@/features/insights/components/InsightsTable";
 import {breakdown, bucketTotals, chartUnitFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {parseInsightsQuery} from "@/features/insights/params";
@@ -70,6 +71,9 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
             <InsightsTimeChart points={points} unit={chartUnit} series={[...series]}/>
             <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
             <InsightsBreakdown panels={panels}/>
+            <Suspense>
+              <InsightsTable activeWorkspaceId={workspaceId}/>
+            </Suspense>
           </div>
         )}
       </div>

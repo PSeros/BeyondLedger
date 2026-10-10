@@ -491,7 +491,20 @@
     "byTag": "Tag",
     "other": "Other",
     "untagged": "No tag",
-    "noBreakdown": "Nothing to break down."
+    "noBreakdown": "Nothing to break down.",
+    "tableTitle": "Entries",
+    "kindLabel": "Type",
+    "lineCount": "{count, plural, one {# line} other {# lines}}",
+    "kind": {
+      "item": "Line item",
+      "bill": "Bill",
+      "contractPayment": "Contract payment",
+      "incomePayment": "Income"
+    },
+    "level": {
+      "item": "Line items",
+      "bill": "Bills"
+    }
   },
   "tags": {
     "title": "Tags",

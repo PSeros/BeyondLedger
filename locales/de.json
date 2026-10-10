@@ -491,7 +491,20 @@
     "byTag": "Tag",
     "other": "Sonstige",
     "untagged": "Ohne Tag",
-    "noBreakdown": "Nichts aufzuschlüsseln."
+    "noBreakdown": "Nichts aufzuschlüsseln.",
+    "tableTitle": "Einträge",
+    "kindLabel": "Art",
+    "lineCount": "{count, plural, one {# Position} other {# Positionen}}",
+    "kind": {
+      "item": "Position",
+      "bill": "Beleg",
+      "contractPayment": "Vertragszahlung",
+      "incomePayment": "Einnahme"
+    },
+    "level": {
+      "item": "Positionen",
+      "bill": "Belege"
+    }
   },
   "tags": {
     "title": "Tags",

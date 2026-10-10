@@ -32,6 +32,7 @@ export type InsightsRow = {
   category: string;
   tags: string[]; // a bill's tags cascade onto its lines
   amount: number;
+  href: string; // detail page
 };
 
 const TAGS = {select: {tag: {select: {name: true}}}} as const;
@@ -97,6 +98,7 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
     category: item.category.name,
     tags: tagNames(item.tags, item.bill.tags),
     amount: Number(item.totalPrice),
+    href: `/expense/variable/${item.bill.id}`,
   }));
 
   const paid = realizedBounds(window);
@@ -115,6 +117,7 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
         category: c.category.name,
         tags: tagNames(c.tags),
         amount: Number(c.totalAmount),
+        href: `/expense/fixed/${c.id}`,
       });
     });
   }
@@ -168,6 +171,7 @@ async function incomeRows(query: InsightsQuery, tags: SignedIds, window: Resolve
         category: income.category.name,
         tags: tagNames(income.tags),
         amount: Number(income.totalAmount),
+        href: `/income/${income.frequency.isRecurring ? "fixed" : "variable"}/${income.id}`,
       });
     });
   }
