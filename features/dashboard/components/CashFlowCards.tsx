@@ -3,7 +3,7 @@ import {
   getDashboardIncomeChartData,
 } from "@/features/dashboard/db/dashboardChart";
 import CashFlowChart from "@/features/dashboard/components/CashFlowChart";
-import type {Granularity} from "@/features/expense/shared/db/cumulativeChart";
+import type {ChartMode, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard cash-flow (Phase 12): fetches the combined income & expense streams and hands them to one
@@ -13,10 +13,11 @@ export default async function CashFlowCards({
   workspaceId,
   granularity,
   offset = 0,
-}: {workspaceId?: number | null; granularity: Granularity; offset?: number}) {
+  mode = "cumulative",
+}: {workspaceId?: number | null; granularity: Granularity; offset?: number; mode?: ChartMode}) {
   const [income, expense, baseline] = await Promise.all([
-    getDashboardIncomeChartData(workspaceId, offset),
-    getDashboardExpenseChartData(workspaceId, offset),
+    getDashboardIncomeChartData(workspaceId, offset, mode),
+    getDashboardExpenseChartData(workspaceId, offset, mode),
     getBaseline(),
   ]);
 
@@ -26,6 +27,7 @@ export default async function CashFlowCards({
       expense={expense}
       granularity={granularity}
       baselineMetric={baseline.metric}
+      mode={mode}
     />
   );
 }

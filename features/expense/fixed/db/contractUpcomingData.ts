@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
 import {buildContractWhere, type ContractFilters} from "@/features/expense/fixed/db/contractWhere";
 import {addDays, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {nextOccurrence} from "@/features/expense/shared/db/recurrence";
 import type {ContractUpcomingRow} from "@/features/expense/fixed/types";
 
 // Upcoming card restricts to Active contracts by nature, so status is not applicable here.
@@ -29,30 +30,17 @@ export async function getUpcomingFixedExpenses({
       continue;
     }
 
-    const monthsBetween = 12 / contract.frequency.value;
-
-    let step = 0;
-    let occurrence = utcDate(
-      contract.startDate.getUTCFullYear(),
-      contract.startDate.getUTCMonth(),
-      contract.startDate.getUTCDate(),
+    // First projected billing date on/after today; null once the contract's endDate has passed.
+    const occurrence = nextOccurrence(
+      {
+        startDate: contract.startDate,
+        endDate: contract.endDate,
+        frequency: contract.frequency,
+      },
+      today,
     );
 
-    // Advance to the first projected billing date on/after today.
-    while (occurrence < today) {
-      step += 1;
-      occurrence = utcDate(
-        contract.startDate.getUTCFullYear(),
-        contract.startDate.getUTCMonth() + step * monthsBetween,
-        contract.startDate.getUTCDate(),
-      );
-    }
-
-    if (occurrence > horizon) {
-      continue;
-    }
-
-    if (contract.endDate && occurrence > contract.endDate) {
+    if (!occurrence || occurrence > horizon) {
       continue;
     }
 

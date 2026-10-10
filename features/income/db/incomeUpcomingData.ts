@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {determineStatus} from "@/lib/status";
 import {buildIncomeWhere, type IncomeFilters} from "@/features/income/db/incomeWhere";
 import {addDays, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {nextOccurrence} from "@/features/expense/shared/db/recurrence";
 import type {IncomeUpcomingRow} from "@/features/income/types";
 
 // The fixed (recurring) tab's second card: the next projected payout per Active recurring income
@@ -30,29 +31,12 @@ export async function getUpcomingFixedIncome({
       continue;
     }
 
-    const monthsBetween = 12 / income.frequency.value;
-
-    let step = 0;
-    let occurrence = utcDate(
-      income.startDate.getUTCFullYear(),
-      income.startDate.getUTCMonth(),
-      income.startDate.getUTCDate(),
+    const occurrence = nextOccurrence(
+      {startDate: income.startDate, endDate: income.endDate, frequency: income.frequency},
+      today,
     );
 
-    while (occurrence < today) {
-      step += 1;
-      occurrence = utcDate(
-        income.startDate.getUTCFullYear(),
-        income.startDate.getUTCMonth() + step * monthsBetween,
-        income.startDate.getUTCDate(),
-      );
-    }
-
-    if (occurrence > horizon) {
-      continue;
-    }
-
-    if (income.endDate && occurrence > income.endDate) {
+    if (!occurrence || occurrence > horizon) {
       continue;
     }
 

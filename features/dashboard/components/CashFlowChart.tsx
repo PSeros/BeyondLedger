@@ -6,6 +6,8 @@ import {Card} from "@heroui/react";
 import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
 import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 import type {BaselineMetric} from "@/features/settings/lookback";
+import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
+import ChartModeToggle from "@/components/ChartModeToggle";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
@@ -32,7 +34,13 @@ export default function CashFlowChart({
   expense,
   granularity,
   baselineMetric = "MEAN",
-}: {income: SeriesData; expense: SeriesData; granularity: Granularity; baselineMetric?: BaselineMetric}) {
+}: {
+  income: SeriesData;
+  expense: SeriesData;
+  granularity: Granularity;
+  baselineMetric?: BaselineMetric;
+  mode?: ChartMode;
+}) {
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
@@ -68,6 +76,9 @@ export default function CashFlowChart({
           <span className="size-2.5 rounded-full" style={{background: EXPENSE_COLOR}}/>
           {t("kpiExpenses")}
         </span>
+
+        {/* Same ?cm param as every other chart, so the shape stays in sync across the app. */}
+        <ChartModeToggle className="ml-auto"/>
       </Card.Header>
 
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">

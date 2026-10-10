@@ -28,7 +28,15 @@ export type Lookback = {weeks: number; months: number; years: number};
 /** The full Ø-baseline preference: how far back to sample, and how to reduce those samples. */
 export type Baseline = {lookback: Lookback; metric: BaselineMetric};
 
-/** Shared tail options for the three cumulative view builders. */
+/**
+ * Which shape the series takes. "cumulative" is a running total across the period (how much has
+ * left the account so far); "discrete" gives each bucket its own sum — a day for 1W/1M, a month for
+ * 1Y. Discrete has to be built here rather than differenced on the client: that works for `current`
+ * but not for the Ø line, since the median of differences is not the difference of medians.
+ */
+export type ChartMode = "cumulative" | "discrete";
+
+/** Shared tail options for the three view builders. */
 type ViewOptions = {
   /** Ceiling on how many preceding periods to sample; the data horizon may cut it shorter. */
   lookback: number;
@@ -42,6 +50,8 @@ type ViewOptions = {
   dataStart: Date | null;
   /** The realized/forecast boundary. Defaults to the view's own anchor. */
   today?: Date;
+  /** Running total (default) or each bucket on its own. */
+  mode?: ChartMode;
 };
 
 // Parse the ?cg param into a chart granularity. Anything unrecognized falls back to the monthly view.
@@ -58,6 +68,11 @@ export function dateKey(date: Date): string {
 export function parseChartOffset(value: string | null | undefined): number {
   const parsed = Number(value);
   return Number.isInteger(parsed) ? parsed : 0;
+}
+
+// Parse the ?cm param into a chart mode. Anything unrecognized falls back to the cumulative view.
+export function parseChartMode(value: string | null | undefined): ChartMode {
+  return value === "sum" ? "discrete" : "cumulative";
 }
 
 export function utcDate(year: number, month: number, day: number): Date {
@@ -150,37 +165,6 @@ export function chartWindow(granularity: Granularity, offset: number, today: Dat
   return {start, end: utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth() + 1, 1)};
 }
 
-// How many occurrences of a recurring record (billed every 12/frequencyValue months from startDate)
-// land in [start, end), clamped to the record's own lifetime (never past endDate). Fast-forwards to
-// the window rather than stepping from a possibly years-old startDate.
-export function countOccurrences(
-  record: {startDate: Date; endDate: Date | null; frequencyValue: number},
-  start: Date,
-  end: Date,
-): number {
-  const monthsBetween = 12 / record.frequencyValue;
-  const stop = record.endDate && record.endDate < end ? record.endDate : end;
-  let step = 0;
-  const at = () =>
-    utcDate(
-      record.startDate.getUTCFullYear(),
-      record.startDate.getUTCMonth() + step * monthsBetween,
-      record.startDate.getUTCDate(),
-    );
-  let occurrence = at();
-  while (occurrence < start) {
-    step += 1;
-    occurrence = at();
-  }
-  let count = 0;
-  while (occurrence < stop) {
-    count += 1;
-    step += 1;
-    occurrence = at();
-  }
-  return count;
-}
-
 /**
  * The earliest day present across one or more day-total maps — i.e. the realized data horizon of the
  * streams those maps were built from, used to stop a Ø baseline reaching back before any data
@@ -220,20 +204,26 @@ export function sumRange(totalsByDay: Map<string, number>, start: Date, days: nu
 export function buildWeekView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, today = anchor}: ViewOptions,
+  {lookback, metric, dataStart, today = anchor, mode = "cumulative"}: ViewOptions,
 ): ChartPoint[] {
   const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
   const weekStart = addDays(anchor, -anchorIndex);
 
+  // Cumulative reads days 1..index; discrete reads only the one day at `index`.
+  const bucket = (start: Date, index: number) =>
+    mode === "discrete"
+      ? totalsByDay.get(dateKey(addDays(start, index))) ?? 0
+      : sumRange(totalsByDay, start, index + 1);
+
   return WEEKDAY_LABELS.map((label, index) => {
     const dayDate = addDays(weekStart, index);
-    const current = dayDate <= today ? sumRange(totalsByDay, weekStart, index + 1) : null;
+    const current = dayDate <= today ? bucket(weekStart, index) : null;
 
     const historical: number[] = [];
     for (let w = 1; w <= lookback; w++) {
       const pastWeekStart = addDays(weekStart, -7 * w);
       if (!hasData(addDays(pastWeekStart, 7), dataStart)) continue;
-      historical.push(sumRange(totalsByDay, pastWeekStart, index + 1));
+      historical.push(bucket(pastWeekStart, index));
     }
 
     return {label, current, previous: baselineOf(historical, metric)};
@@ -256,35 +246,50 @@ export function buildWeekView(
 export function buildMonthView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const month = anchor.getUTCMonth();
   const monthStart = utcDate(year, month, 1);
   const nextMonthStart = utcDate(year, month + 1, 1);
   const monthLength = daysInMonth(year, month);
+  const discrete = mode === "discrete";
 
   // How many days of the anchor's month are realized as of `today`: the whole month once today is
   // past it, none while today is before it, else today's day-of-month.
   const realizedDay = today >= nextMonthStart ? monthLength : today < monthStart ? 0 : today.getUTCDate();
   const cumulativeAtBoundary = sumRange(totalsByDay, monthStart, realizedDay);
 
+  // Cumulative reads days 1..day; discrete reads only day `day` itself.
+  const bucket = (map: Map<string, number>, start: Date, day: number) =>
+    discrete ? map.get(dateKey(addDays(start, day - 1))) ?? 0 : sumRange(map, start, day);
+
   return Array.from({length: 31}, (_, i) => {
     const day = i + 1;
-    const current = day <= realizedDay ? sumRange(totalsByDay, monthStart, day) : null;
+    const current = day <= realizedDay ? bucket(totalsByDay, monthStart, day) : null;
 
     const historical: number[] = [];
     for (let m = 1; m <= lookback; m++) {
       const pastMonthStart = utcDate(year, month - m, 1);
       if (!hasData(utcDate(year, month - m + 1, 1), dataStart)) continue;
       const pastMonthLength = daysInMonth(pastMonthStart.getUTCFullYear(), pastMonthStart.getUTCMonth());
-      historical.push(sumRange(totalsByDay, pastMonthStart, Math.min(day, pastMonthLength)));
+      // Cumulatively, a shorter month holds its final total past its own length so the Ø line has no
+      // gap. Discretely there is no such day to report, so that month simply doesn't vote on it.
+      if (discrete && day > pastMonthLength) continue;
+      historical.push(bucket(totalsByDay, pastMonthStart, Math.min(day, pastMonthLength)));
     }
 
     let upcoming: number | null | undefined;
     if (futureTotalsByDay) {
       if (day > monthLength || day < realizedDay) {
         upcoming = null;
+      } else if (discrete) {
+        // Anchor on the boundary day with `current`'s own value, so the dashed segment starts exactly
+        // where the realized line ends instead of jumping to that day's projected total.
+        upcoming =
+          day === realizedDay
+            ? bucket(totalsByDay, monthStart, day)
+            : bucket(futureTotalsByDay, monthStart, day);
       } else if (day === realizedDay) {
         upcoming = cumulativeAtBoundary;
       } else {
@@ -305,11 +310,12 @@ export function buildMonthView(
 export function buildYearView(
   totalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, futureTotalsByDay, today = anchor}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
   const year = anchor.getUTCFullYear();
   const yearStart = utcDate(year, 0, 1);
   const nextYearStart = utcDate(year + 1, 0, 1);
+  const discrete = mode === "discrete";
 
   // The realized region within the anchor's year: whole year once today is past it (boundary = next
   // year's start), nothing while today is before it, else through the end of today.
@@ -317,32 +323,41 @@ export function buildYearView(
   const boundary = today >= nextYearStart ? nextYearStart : today < yearStart ? yearStart : addDays(today, 1);
   const cumulativeAtBoundary = sumRange(totalsByDay, yearStart, daysBetween(yearStart, boundary));
 
+  // The 1Y bucket is a whole month. `endExclusive` lets the in-progress month stop at today.
+  const bucket = (map: Map<string, number>, bucketYear: number, month: number, endExclusive: Date) => {
+    const start = utcDate(bucketYear, month, 1);
+    return discrete
+      ? sumRange(map, start, daysBetween(start, endExclusive))
+      : sumRange(map, utcDate(bucketYear, 0, 1), daysBetween(utcDate(bucketYear, 0, 1), endExclusive));
+  };
+
   return MONTH_LABELS.map((label, month) => {
+    const monthEnd = utcDate(year, month + 1, 1);
     const current =
       month <= realizedMonth
-        ? sumRange(
-            totalsByDay,
-            yearStart,
-            daysBetween(yearStart, month === realizedMonth ? boundary : utcDate(year, month + 1, 1)),
-          )
+        ? bucket(totalsByDay, year, month, month === realizedMonth ? boundary : monthEnd)
         : null;
 
     const historical: number[] = [];
     for (let y = 1; y <= lookback; y++) {
-      const pastYearStart = utcDate(year - y, 0, 1);
       if (!hasData(utcDate(year - y + 1, 0, 1), dataStart)) continue;
-      const pastMonthEnd = utcDate(year - y, month + 1, 1);
-      historical.push(sumRange(totalsByDay, pastYearStart, daysBetween(pastYearStart, pastMonthEnd)));
+      historical.push(bucket(totalsByDay, year - y, month, utcDate(year - y, month + 1, 1)));
     }
 
     let upcoming: number | null | undefined;
     if (futureTotalsByDay) {
       if (month < realizedMonth) {
         upcoming = null;
+      } else if (discrete) {
+        // Anchor on the boundary month with `current`'s own value (the part of it already realized),
+        // so the dashed segment picks up exactly where the realized line stops.
+        upcoming =
+          month === realizedMonth
+            ? bucket(totalsByDay, year, month, boundary)
+            : bucket(futureTotalsByDay, year, month, monthEnd);
       } else if (month === realizedMonth) {
         upcoming = cumulativeAtBoundary;
       } else {
-        const monthEnd = utcDate(year, month + 1, 1);
         upcoming = cumulativeAtBoundary + sumRange(futureTotalsByDay, boundary, daysBetween(boundary, monthEnd));
       }
     }
