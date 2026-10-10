@@ -11,14 +11,16 @@ import {addDays, addMonths, daysBetween, type Granularity, utcDate} from "@/feat
 export type RecurringRecord = {
   startDate: Date;
   endDate: Date | null;
-  /** Frequency.value — occurrences per year. */
-  frequencyValue: number;
+  /** The record's Frequency: `value` is occurrences per year, `isRecurring` false = a single date. */
+  frequency: {value: number; isRecurring: boolean};
 };
 
 const DAYS_PER_YEAR = 365.25;
 
-function recurs(frequencyValue: number): boolean {
-  return Number.isFinite(frequencyValue) && frequencyValue >= 1;
+// A non-recurring frequency (One-time) has value 1, which the old `12 / value` loops read as
+// "every 12 months" and silently repeated annually. It is a single date.
+function recurs(frequency: {value: number; isRecurring: boolean}): boolean {
+  return frequency.isRecurring && Number.isFinite(frequency.value) && frequency.value >= 1;
 }
 
 // Whole-month intervals step calendar months so the day-of-month is preserved (and clamped on short
@@ -36,7 +38,7 @@ function atMidnight(date: Date): Date {
 /** Occurrence number `step` (0 = the start date itself) of a record recurring `frequencyValue`/year. */
 export function occurrenceAt(startDate: Date, frequencyValue: number, step: number): Date {
   const start = atMidnight(startDate);
-  if (!recurs(frequencyValue) || step === 0) return start;
+  if (step === 0 || !Number.isFinite(frequencyValue) || frequencyValue < 1) return start;
   const {months, days} = interval(frequencyValue);
   return months > 0 ? addMonths(start, step * months) : addDays(start, step * days);
 }
@@ -72,23 +74,24 @@ export function forEachOccurrence(
   const start = atMidnight(record.startDate);
   const stop = hardStop(record, toExclusive);
 
-  if (!recurs(record.frequencyValue)) {
+  if (!recurs(record.frequency)) {
     if (start >= from && start < stop) onOccurrence(start);
     return;
   }
 
-  let step = estimateStep(start, from, record.frequencyValue);
-  while (step > 0 && occurrenceAt(start, record.frequencyValue, step - 1) >= from) step -= 1;
+  const value = record.frequency.value;
+  let step = estimateStep(start, from, value);
+  while (step > 0 && occurrenceAt(start, value, step - 1) >= from) step -= 1;
 
-  let occurrence = occurrenceAt(start, record.frequencyValue, step);
+  let occurrence = occurrenceAt(start, value, step);
   while (occurrence < from) {
     step += 1;
-    occurrence = occurrenceAt(start, record.frequencyValue, step);
+    occurrence = occurrenceAt(start, value, step);
   }
   while (occurrence < stop) {
     onOccurrence(occurrence);
     step += 1;
-    occurrence = occurrenceAt(start, record.frequencyValue, step);
+    occurrence = occurrenceAt(start, value, step);
   }
 }
 

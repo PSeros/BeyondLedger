@@ -11,7 +11,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
+import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 import type {IncomeFixedChartData, IncomeVariableChartData} from "@/features/income/types";
 
@@ -92,42 +92,46 @@ export async function getFixedIncomeChartData(
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   const projectionHorizon = utcDate(today.getUTCFullYear(), 11, 31);
 
-  const totalsByDay = new Map<string, number>();
-  const upcomingTotalsByDay = new Map<string, number>();
+  const active = incomes.filter((income) => determineStatus(income) === "Active");
 
-  for (const income of incomes) {
-    if (determineStatus(income) !== "Active") {
-      continue;
+  // Per granularity: fitsGranularity drops a payout whose interval is longer than the view's period
+  // (a yearly bonus hits 1 month in 12, which leaves the Ø line describing no real month).
+  const streamFor = (granularity: "1M" | "1Y") => {
+    const totalsByDay = new Map<string, number>();
+    const upcomingTotalsByDay = new Map<string, number>();
+    for (const income of active) {
+      if (!fitsGranularity(income.frequency, granularity)) continue;
+      const amount = Number(income.totalAmount);
+      forEachOccurrence(
+        {startDate: income.startDate, endDate: income.endDate, frequency: income.frequency},
+        income.startDate,
+        addDays(projectionHorizon, 1),
+        (occurrence) => {
+          const key = dateKey(occurrence);
+          const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
+          target.set(key, (target.get(key) ?? 0) + amount);
+        },
+      );
     }
+    return {totalsByDay, upcomingTotalsByDay, dataStart: earliestDay(totalsByDay)};
+  };
 
-    const amount = Number(income.totalAmount);
-    forEachOccurrence(
-      {startDate: income.startDate, endDate: income.endDate, frequencyValue: income.frequency.value},
-      income.startDate,
-      addDays(projectionHorizon, 1),
-      (occurrence) => {
-        const key = dateKey(occurrence);
-        const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
-        target.set(key, (target.get(key) ?? 0) + amount);
-      },
-    );
-  }
-
-  const dataStart = earliestDay(totalsByDay);
+  const month = streamFor("1M");
+  const year = streamFor("1Y");
 
   return {
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+    "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: month.dataStart,
+      futureTotalsByDay: month.upcomingTotalsByDay,
       today,
     }),
-    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
+    "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: year.dataStart,
+      futureTotalsByDay: year.upcomingTotalsByDay,
       today,
     }),
   };

@@ -11,11 +11,12 @@ import {
   buildWeekView,
   buildYearView,
   type ChartPoint,
+  type Granularity,
   dateKey,
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
+import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard cash-flow charts (Phase 12): one combined EXPENSE stream (variable bills + fixed
@@ -26,57 +27,82 @@ import {getBaseline} from "@/features/settings/db/appSettings";
 
 export type DashboardChartData = Partial<Record<"1W" | "1M" | "1Y", ChartPoint[]>>;
 
-// Projects a recurring record's occurrences into the past (totalsByDay) / future (upcomingTotalsByDay)
-// maps, mirroring contractChartData/incomeChartData. Splits on `today`.
-function projectRecurring(
-  totalsByDay: Map<string, number>,
-  upcomingTotalsByDay: Map<string, number>,
-  record: {startDate: Date; endDate: Date | null; amount: number; frequencyValue: number},
+// One stream, as it exists for ONE granularity: every one-off at its real date, plus only those
+// recurring records whose interval fits that granularity's period (see fitsGranularity). Built per
+// granularity because a monthly rent in a weekly view hits ~1 week in 4 — that bimodality is what
+// left the dashboard's weekly Ø describing no real week.
+type OneOff = {date: Date; amount: number};
+type Recurring = {
+  startDate: Date;
+  endDate: Date | null;
+  amount: number;
+  frequency: {value: number; isRecurring: boolean};
+};
+
+function streamFor(
+  granularity: Granularity,
+  oneOff: OneOff[],
+  recurring: Recurring[],
   today: Date,
   projectionHorizon: Date,
-): void {
-  forEachOccurrence(record, record.startDate, addDays(projectionHorizon, 1), (occurrence) => {
-    const key = dateKey(occurrence);
-    const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
-    target.set(key, (target.get(key) ?? 0) + record.amount);
-  });
+): {totalsByDay: Map<string, number>; upcomingTotalsByDay: Map<string, number>; dataStart: Date | null} {
+  const totalsByDay = new Map<string, number>();
+  const upcomingTotalsByDay = new Map<string, number>();
+
+  for (const row of oneOff) {
+    const key = dateKey(row.date);
+    totalsByDay.set(key, (totalsByDay.get(key) ?? 0) + row.amount);
+  }
+  for (const row of recurring) {
+    if (!fitsGranularity(row.frequency, granularity)) continue;
+    forEachOccurrence(row, row.startDate, addDays(projectionHorizon, 1), (occurrence) => {
+      const key = dateKey(occurrence);
+      const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
+      target.set(key, (target.get(key) ?? 0) + row.amount);
+    });
+  }
+
+  return {totalsByDay, upcomingTotalsByDay, dataStart: earliestDay(totalsByDay)};
 }
 
 // `offset` (period navigator's ?co) shifts the anchor back/forward by N of each granularity's own
 // unit; `today` stays the realized/forecast boundary so past periods fill and future ones forecast.
 // `baseline` is the user's Ø setting and `dataStart` the horizon that truncates it.
 function buildViews(
-  totalsByDay: Map<string, number>,
-  upcomingTotalsByDay: Map<string, number>,
+  oneOff: OneOff[],
+  recurring: Recurring[],
   today: Date,
   offset: number,
   baseline: Baseline,
-  dataStart: Date | null,
+  projectionHorizon: Date,
 ): DashboardChartData {
+  const week = streamFor("1W", oneOff, recurring, today, projectionHorizon);
+  const month = streamFor("1M", oneOff, recurring, today, projectionHorizon);
+  const year = streamFor("1Y", oneOff, recurring, today, projectionHorizon);
+
   return {
-    "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
+    "1W": buildWeekView(week.totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
-      dataStart,
+      dataStart: week.dataStart,
       today,
     }),
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+    "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: month.dataStart,
+      futureTotalsByDay: month.upcomingTotalsByDay,
       today,
     }),
-    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
+    "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: year.dataStart,
+      futureTotalsByDay: year.upcomingTotalsByDay,
       today,
     }),
   };
 }
-
 
 export async function getDashboardExpenseChartData(
   workspaceId?: number | null,
@@ -93,30 +119,21 @@ export async function getDashboardExpenseChartData(
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   const projectionHorizon = utcDate(today.getUTCFullYear(), 11, 31);
 
-  const totalsByDay = new Map<string, number>();
-  const upcomingTotalsByDay = new Map<string, number>();
-
-  for (const bill of bills) {
-    const key = dateKey(bill.date);
-    totalsByDay.set(key, (totalsByDay.get(key) ?? 0) + Number(bill.totalAmount));
-  }
-  for (const contract of contracts) {
-    if (determineStatus(contract) !== "Active") continue;
-    projectRecurring(
-      totalsByDay,
-      upcomingTotalsByDay,
-      {
+  return buildViews(
+    bills.map((bill) => ({date: bill.date, amount: Number(bill.totalAmount)})),
+    contracts
+      .filter((contract) => determineStatus(contract) === "Active")
+      .map((contract) => ({
         startDate: contract.startDate,
         endDate: contract.endDate,
         amount: Number(contract.totalAmount),
-        frequencyValue: contract.frequency.value,
-      },
-      today,
-      projectionHorizon,
-    );
-  }
-
-  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, baseline, earliestDay(totalsByDay));
+        frequency: contract.frequency,
+      })),
+    today,
+    offset,
+    baseline,
+    projectionHorizon,
+  );
 }
 
 export async function getDashboardIncomeChartData(
@@ -140,28 +157,19 @@ export async function getDashboardIncomeChartData(
   const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
   const projectionHorizon = utcDate(today.getUTCFullYear(), 11, 31);
 
-  const totalsByDay = new Map<string, number>();
-  const upcomingTotalsByDay = new Map<string, number>();
-
-  for (const income of variableIncome) {
-    const key = dateKey(income.startDate);
-    totalsByDay.set(key, (totalsByDay.get(key) ?? 0) + Number(income.totalAmount));
-  }
-  for (const income of fixedIncome) {
-    if (determineStatus(income) !== "Active") continue;
-    projectRecurring(
-      totalsByDay,
-      upcomingTotalsByDay,
-      {
+  return buildViews(
+    variableIncome.map((income) => ({date: income.startDate, amount: Number(income.totalAmount)})),
+    fixedIncome
+      .filter((income) => determineStatus(income) === "Active")
+      .map((income) => ({
         startDate: income.startDate,
         endDate: income.endDate,
         amount: Number(income.totalAmount),
-        frequencyValue: income.frequency.value,
-      },
-      today,
-      projectionHorizon,
-    );
-  }
-
-  return buildViews(totalsByDay, upcomingTotalsByDay, today, offset, baseline, earliestDay(totalsByDay));
+        frequency: income.frequency,
+      })),
+    today,
+    offset,
+    baseline,
+    projectionHorizon,
+  );
 }

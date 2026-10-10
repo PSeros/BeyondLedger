@@ -23,7 +23,7 @@ export async function getContractCategorySpend(
         startDate: true,
         endDate: true,
         category: {select: {name: true}},
-        frequency: {select: {value: true}},
+        frequency: {select: {value: true, isRecurring: true}},
       },
     }),
     client.contract.findMany({
@@ -48,7 +48,7 @@ export async function getContractCategorySpend(
 
   for (const contract of recurring) {
     const occurrences = countOccurrences(
-      {startDate: contract.startDate, endDate: contract.endDate, frequencyValue: contract.frequency.value},
+      {startDate: contract.startDate, endDate: contract.endDate, frequency: contract.frequency},
       window.start,
       window.end,
     );

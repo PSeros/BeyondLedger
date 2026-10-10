@@ -10,7 +10,7 @@ import {
   earliestDay,
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
-import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
+import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 import type {ContractChartData} from "@/features/expense/fixed/types";
 
@@ -34,51 +34,53 @@ export async function getFixedExpenseChartData(
   // Far enough out to cover the 1Y view's Dec 31 — 1M only ever needs through this month's end.
   const projectionHorizon = utcDate(today.getUTCFullYear(), 11, 31);
 
-  const totalsByDay = new Map<string, number>();
-  const upcomingTotalsByDay = new Map<string, number>();
+  const active = contracts.filter((contract) => determineStatus(contract) === "Active");
 
   // Contracts have no per-occurrence record (unlike Bill's `date`) — only a recurring amount +
   // frequency. Project the billing dates so they feed the same cumulative-sum machinery as the Bill
   // chart; occurrences past today go into `upcomingTotalsByDay` to drive the "upcoming" line.
-  for (const contract of contracts) {
-    if (determineStatus(contract) !== "Active") {
-      continue;
+  //
+  // Built per granularity because fitsGranularity excludes a contract whose interval is longer than
+  // the view's period — a quarterly contract hits 1 month in 3, which makes the Ø line describe no
+  // real month. Such a contract shows up in 1Y instead.
+  const streamFor = (granularity: "1M" | "1Y") => {
+    const totalsByDay = new Map<string, number>();
+    const upcomingTotalsByDay = new Map<string, number>();
+    for (const contract of active) {
+      if (!fitsGranularity(contract.frequency, granularity)) continue;
+      const amount = Number(contract.totalAmount);
+      forEachOccurrence(
+        {startDate: contract.startDate, endDate: contract.endDate, frequency: contract.frequency},
+        contract.startDate,
+        addDays(projectionHorizon, 1),
+        (occurrence) => {
+          const key = dateKey(occurrence);
+          const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
+          target.set(key, (target.get(key) ?? 0) + amount);
+        },
+      );
     }
+    // Horizon = the first projected billing date of the contracts that actually feed this view, so a
+    // rent contract running since 2019 legitimately extends the baseline back that far.
+    return {totalsByDay, upcomingTotalsByDay, dataStart: earliestDay(totalsByDay)};
+  };
 
-    const amount = Number(contract.totalAmount);
-    forEachOccurrence(
-      {
-        startDate: contract.startDate,
-        endDate: contract.endDate,
-        frequencyValue: contract.frequency.value,
-      },
-      contract.startDate,
-      addDays(projectionHorizon, 1),
-      (occurrence) => {
-        const key = dateKey(occurrence);
-        const target = occurrence <= today ? totalsByDay : upcomingTotalsByDay;
-        target.set(key, (target.get(key) ?? 0) + amount);
-      },
-    );
-  }
-
-  // Horizon = the first projected billing date of the contracts that actually feed this chart, so a
-  // rent contract running since 2019 legitimately extends the baseline back that far.
-  const dataStart = earliestDay(totalsByDay);
+  const month = streamFor("1M");
+  const year = streamFor("1Y");
 
   return {
-    "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
+    "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: month.dataStart,
+      futureTotalsByDay: month.upcomingTotalsByDay,
       today,
     }),
-    "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
+    "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
-      dataStart,
-      futureTotalsByDay: upcomingTotalsByDay,
+      dataStart: year.dataStart,
+      futureTotalsByDay: year.upcomingTotalsByDay,
       today,
     }),
   };

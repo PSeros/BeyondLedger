@@ -14,7 +14,7 @@ import {
   utcDate,
 } from "@/features/expense/shared/db/cumulativeChart";
 import {getDataStart} from "@/features/expense/shared/db/dataHorizon";
-import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
+import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard KPI row (Phase 12): total money IN (income), OUT (expense = variable bills + fixed
@@ -41,7 +41,12 @@ export type DashboardKpis = {
 // those landing in [rangeStart, rangeEnd).
 function projectRecurringInto(
   map: Map<string, number>,
-  record: {startDate: Date; endDate: Date | null; amount: number; frequencyValue: number},
+  record: {
+    startDate: Date;
+    endDate: Date | null;
+    amount: number;
+    frequency: {value: number; isRecurring: boolean};
+  },
   rangeStart: Date,
   rangeEnd: Date,
 ): void {
@@ -73,8 +78,8 @@ export async function getPeriodKpis(
   // of empty periods — the exact problem this whole mechanism exists to avoid.
   const [baseline, expenseStart, incomeStart] = await Promise.all([
     getBaseline(),
-    getDataStart(workspaceId, ["bills", "contracts"]),
-    getDataStart(workspaceId, ["income"]),
+    getDataStart(workspaceId, ["bills", "contracts"], granularity),
+    getDataStart(workspaceId, ["income"], granularity),
   ]);
 
   // The selected period, plus the configured number of windows immediately before it (same unit).
@@ -124,14 +129,15 @@ export async function getPeriodKpis(
     const key = dateKey(contract.startDate);
     expenseMap.set(key, (expenseMap.get(key) ?? 0) + Number(contract.totalAmount));
   }
-  for (const contract of recurringContracts) {
+  // Same fit rule as the charts, so a chip never compares against a period the record cannot reach.
+  for (const contract of recurringContracts.filter((c) => fitsGranularity(c.frequency, granularity))) {
     projectRecurringInto(
       expenseMap,
       {
         startDate: contract.startDate,
         endDate: contract.endDate,
         amount: Number(contract.totalAmount),
-        frequencyValue: contract.frequency.value,
+        frequency: contract.frequency,
       },
       spanStart,
       spanEnd,
@@ -143,14 +149,14 @@ export async function getPeriodKpis(
     const key = dateKey(income.startDate);
     incomeMap.set(key, (incomeMap.get(key) ?? 0) + Number(income.totalAmount));
   }
-  for (const income of fixedIncome) {
+  for (const income of fixedIncome.filter((i) => fitsGranularity(i.frequency, granularity))) {
     projectRecurringInto(
       incomeMap,
       {
         startDate: income.startDate,
         endDate: income.endDate,
         amount: Number(income.totalAmount),
-        frequencyValue: income.frequency.value,
+        frequency: income.frequency,
       },
       spanStart,
       spanEnd,

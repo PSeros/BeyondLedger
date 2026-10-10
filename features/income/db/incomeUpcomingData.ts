@@ -32,7 +32,7 @@ export async function getUpcomingFixedIncome({
     }
 
     const occurrence = nextOccurrence(
-      {startDate: income.startDate, endDate: income.endDate, frequencyValue: income.frequency.value},
+      {startDate: income.startDate, endDate: income.endDate, frequency: income.frequency},
       today,
     );
 

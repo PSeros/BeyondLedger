@@ -2,7 +2,8 @@ import {client} from "@/lib/prisma";
 import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
 import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
-import {utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {type Granularity, utcDate} from "@/features/expense/shared/db/cumulativeChart";
+import {periodsPerYear} from "@/features/expense/shared/db/recurrence";
 
 // The user's data horizon: the earliest date at which a stream holds any record. Every rolling Ø
 // baseline is clipped to this, so an install that is three weeks old is not averaged against five
@@ -27,19 +28,39 @@ export type HorizonStream = "bills" | "contracts" | "income";
 export async function getDataStart(
   workspaceId: number | null | undefined,
   streams: HorizonStream[],
+  granularity?: Granularity,
 ): Promise<Date | null> {
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const wanted = new Set(streams);
+
+  // fitsGranularity as a Prisma predicate: when a granularity is given, a recurring record only
+  // extends the horizon if it recurs at least once per period, because only then does the view
+  // actually draw it. Without this, 1W would report a 2019 horizon off a monthly rent it no longer
+  // plots and hand the Ø line a span with nothing in it.
+  const fits = granularity
+    ? {
+        OR: [
+          {frequency: {isRecurring: false}},
+          {frequency: {value: {gte: periodsPerYear(granularity)}}},
+        ],
+      }
+    : {};
 
   const [bills, contracts, income] = await Promise.all([
     wanted.has("bills")
       ? client.bill.aggregate({where: buildBillWhere(wsFilter), _min: {date: true}})
       : null,
     wanted.has("contracts")
-      ? client.contract.aggregate({where: buildContractWhere(wsFilter), _min: {startDate: true}})
+      ? client.contract.aggregate({
+          where: {AND: [buildContractWhere(wsFilter), fits]},
+          _min: {startDate: true},
+        })
       : null,
     wanted.has("income")
-      ? client.income.aggregate({where: buildIncomeWhere(wsFilter), _min: {startDate: true}})
+      ? client.income.aggregate({
+          where: {AND: [buildIncomeWhere(wsFilter), fits]},
+          _min: {startDate: true},
+        })
       : null,
   ]);
 

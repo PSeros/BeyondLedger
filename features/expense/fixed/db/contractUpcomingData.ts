@@ -35,7 +35,7 @@ export async function getUpcomingFixedExpenses({
       {
         startDate: contract.startDate,
         endDate: contract.endDate,
-        frequencyValue: contract.frequency.value,
+        frequency: contract.frequency,
       },
       today,
     );
