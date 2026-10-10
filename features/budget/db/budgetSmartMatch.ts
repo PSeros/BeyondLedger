@@ -191,8 +191,9 @@ export function itemFacetWhere(sel: FacetSelection): object {
 // refiners. Supplier exclusions are NOT applied here — they ride along in itemFacetWhere, so a bill
 // only loses the lines they hit rather than being dropped whole. (Same outcome for a supplier-level
 // exclusion, but it keeps one code path.)
-export function billScopeWhere(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number): Record<string, unknown> {
-  const where: Record<string, unknown> = {workspaceId};
+// A null workspaceId (Insights' "All accounts") drops the account scope.
+export function billScopeWhere(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number | null): Record<string, unknown> {
+  const where: Record<string, unknown> = workspaceId != null ? {workspaceId} : {};
   if (dateInWindow) where.date = dateInWindow;
   if (sel.include.supplierIds.length) where.supplierId = {in: sel.include.supplierIds};
   if (sel.include.supplierCategoryIds.length) where.supplier = {categoryId: {in: sel.include.supplierCategoryIds}};
@@ -201,16 +202,16 @@ export function billScopeWhere(sel: FacetSelection, dateInWindow: object | undef
 
 // ITEM `where` for the variable domain — always item-granular. Empty facets impose no constraint, so
 // an all-empty selection matches every line.
-export function variableItemWhere(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number): object {
+export function variableItemWhere(sel: FacetSelection, dateInWindow: object | undefined, workspaceId: number | null): object {
   return {bill: billScopeWhere(sel, dateInWindow, workspaceId), ...itemFacetWhere(sel)};
 }
 
 // CONTRACT `where`: base contract-category include (if any), AND-refined by the supplier /
 // supplier-category / tag includes, minus everything the exclusions catch.
-export function contractWhereSmart(sel: FacetSelection, contractOverlap: object, workspaceId: number): object {
+export function contractWhereSmart(sel: FacetSelection, contractOverlap: object, workspaceId: number | null): object {
   const {include, exclude} = sel;
   return {
-    workspaceId,
+    ...(workspaceId != null ? {workspaceId} : {}),
     ...contractOverlap,
     ...(include.contractCategoryIds.length ? {categoryId: {in: include.contractCategoryIds}} : {}),
     ...(include.supplierIds.length ? {supplierId: {in: include.supplierIds}} : {}),

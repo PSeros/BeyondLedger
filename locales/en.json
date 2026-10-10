@@ -4,6 +4,7 @@
     "income": "Income",
     "expense": "Expense",
     "budget": "Budget",
+    "insights": "Insights",
     "settings": "Settings",
     "unknownRoute": "{pathname} not in NavigationProvider",
     "collapseSidebar": "Collapse sidebar",
@@ -438,6 +439,23 @@
     "targetFromIncomeLabel": "Target = what's left of this period's income",
     "targetFromIncomeHint": "This period's income minus what the other budgets of this account already allocate — the money still free to spend.",
     "targetFromIncomeChip": "{income} income − {allocated} allocated by other budgets"
+  },
+  "insights": {
+    "domainExpense": "Expenses",
+    "domainIncome": "Income",
+    "domainBoth": "Both",
+    "net": "Net",
+    "windowLabel": "Time window",
+    "windowLast": "Last {days} days",
+    "windowCustomDays": "Last N days",
+    "windowDaysLabel": "Number of days",
+    "windowRange": "Date range",
+    "windowPickRange": "Pick dates",
+    "groupIncomeCategories": "Income categories",
+    "groupIncomeSources": "Income sources",
+    "filtersHint": "Click a value once to include it, twice to exclude it. Article and contract categories decide what counts; the other selectors narrow it down. Tags apply to both expenses and income.",
+    "entryCount": "{count, plural, one {# entry} other {# entries}}",
+    "noResults": "Nothing matches these filters in this time window."
   },
   "tags": {
     "title": "Tags",

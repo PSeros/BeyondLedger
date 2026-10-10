@@ -1,6 +1,7 @@
 import {IconType} from "react-icons";
 import {
   LuChartBar,
+  LuChartNoAxesCombined,
   LuPiggyBank,
   LuSettings2,
   LuTrendingDown,
@@ -10,7 +11,7 @@ import {
 // `key` indexes into the `nav` message namespace (locales/*.json) — labels are translated at
 // render time in Sidebar/Topbar, so this config stays locale-agnostic.
 export type Route = {
-  key: "dashboard" | "income" | "expense" | "budget" | "settings";
+  key: "dashboard" | "income" | "expense" | "budget" | "insights" | "settings";
   basePath: string;
   href: string;
   icon: IconType;
@@ -21,6 +22,7 @@ export const routes: Route[] = [
   {key: "income", basePath: "/income", href: "/income/fixed", icon: LuTrendingUp},
   {key: "expense", basePath: "/expense", href: "/expense/fixed", icon: LuTrendingDown},
   {key: "budget", basePath: "/budget", href: "/budget", icon: LuPiggyBank},
+  {key: "insights", basePath: "/insights", href: "/insights", icon: LuChartNoAxesCombined},
   {key: "settings", basePath: "/settings", href: "/settings/general", icon: LuSettings2},
 ];
 

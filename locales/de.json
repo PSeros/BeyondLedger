@@ -4,6 +4,7 @@
     "income": "Einnahmen",
     "expense": "Ausgaben",
     "budget": "Budget",
+    "insights": "Einblicke",
     "settings": "Einstellungen",
     "unknownRoute": "{pathname} nicht im NavigationProvider",
     "collapseSidebar": "Seitenleiste einklappen",
@@ -438,6 +439,23 @@
     "targetFromIncomeLabel": "Ziel = was von den Einnahmen übrig bleibt",
     "targetFromIncomeHint": "Einnahmen dieses Zeitraums minus das, was die anderen Budgets dieses Kontos schon verplanen — das noch frei verfügbare Geld.",
     "targetFromIncomeChip": "{income} Einnahmen − {allocated} von anderen Budgets verplant"
+  },
+  "insights": {
+    "domainExpense": "Ausgaben",
+    "domainIncome": "Einnahmen",
+    "domainBoth": "Beides",
+    "net": "Saldo",
+    "windowLabel": "Zeitraum",
+    "windowLast": "Letzte {days} Tage",
+    "windowCustomDays": "Letzte N Tage",
+    "windowDaysLabel": "Anzahl Tage",
+    "windowRange": "Datumsbereich",
+    "windowPickRange": "Daten wählen",
+    "groupIncomeCategories": "Einnahmekategorien",
+    "groupIncomeSources": "Einnahmequellen",
+    "filtersHint": "Einmal klicken schließt einen Wert ein, zweimal schließt ihn aus. Artikel- und Vertragskategorien bestimmen, was zählt; die übrigen Filter grenzen weiter ein. Tags gelten für Ausgaben und Einnahmen.",
+    "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
+    "noResults": "Für diese Filter gibt es in diesem Zeitraum keine Einträge."
   },
   "tags": {
     "title": "Tags",
