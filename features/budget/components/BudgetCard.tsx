@@ -136,7 +136,7 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
           </Chip>
         </div>
 
-        <div className="h-2 w-full overflow-hidden rounded-full bg-default-200" role="meter" aria-valuenow={meterPct}
+        <div className="h-2 w-full overflow-hidden rounded-full bg-default" role="meter" aria-valuenow={meterPct}
              aria-valuemin={0} aria-valuemax={100}>
           <div className={`h-full rounded-full ${meterColor}`} style={{width: `${meterPct}%`}}/>
         </div>
@@ -174,7 +174,7 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
         )}
 
         {editingOverride ? (
-          <div className="flex flex-col gap-2 rounded-(--radius) border border-default-200 p-3">
+          <div className="flex flex-col gap-2 rounded-field border border-field-border bg-field p-3 shadow-field">
             <TextField value={overrideValue} onChange={setOverrideValue} className="flex flex-col gap-1">
               <Label className="text-foreground-500 text-xs uppercase tracking-wide">{t("overrideLabel")}</Label>
               <Input type="number" step="any"/>

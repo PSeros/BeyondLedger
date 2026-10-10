@@ -271,7 +271,7 @@ export default function BudgetFormButton({
                   ) : null}
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-(--radius) border border-default-200 p-3">
+                <div className="flex flex-col gap-3 rounded-field border border-field-border bg-field p-3 shadow-field">
                   <Checkbox isSelected={isInverse} onChange={setIsInverse}>
                     <Checkbox.Control>
                       <Checkbox.Indicator/>
