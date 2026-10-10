@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import PeriodNavigator from "@/components/PeriodNavigator";
 import {useChartPeriodOffset} from "@/hooks/useChartPeriodOffset";
-import {useChartMode} from "@/hooks/useChartMode";
+import ChartModeToggle from "@/components/ChartModeToggle";
 import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
 import type {BaselineMetric} from "@/features/settings/lookback";
 
@@ -78,7 +78,6 @@ export default function ChartCard({
 }: ChartCardProps = {}) {
   const format = useFormatter();
   const t = useTranslations("chart");
-  const chartMode = useChartMode();
   const source = data ?? chartData;
   const granularities = GRANULARITY_ORDER.filter((item) => source[item]);
 
@@ -163,22 +162,7 @@ export default function ChartCard({
         {/* ml-auto (not flex-1) below lg: auto width lets it wrap to its own row on very narrow
             screens rather than overflowing, and still sit right-aligned when it does. */}
         <div className="ml-auto flex justify-end gap-2 lg:ml-0 lg:flex-1">
-          {data ? (
-            <ButtonGroup size="sm">
-              <Button
-                variant={chartMode.mode === "cumulative" ? "secondary" : "tertiary"}
-                onPress={() => chartMode.select("cumulative")}
-              >
-                {t("modeCumulative")}
-              </Button>
-              <Button
-                variant={chartMode.mode === "discrete" ? "secondary" : "tertiary"}
-                onPress={() => chartMode.select("discrete")}
-              >
-                {t("modeDiscrete")}
-              </Button>
-            </ButtonGroup>
-          ) : null}
+          {data ? <ChartModeToggle/> : null}
 
           {granularities.length > 1 && (
             <ButtonGroup size="sm">

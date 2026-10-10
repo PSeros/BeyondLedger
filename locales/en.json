@@ -85,8 +85,8 @@
   "chart": {
     "average": "Ø",
     "median": "Median",
-    "modeCumulative": "Cumulative",
-    "modeDiscrete": "Per interval",
+    "showCumulative": "Show cumulative",
+    "showDiscrete": "Show per interval",
     "current": "Current",
     "upcoming": "Upcoming"
   },

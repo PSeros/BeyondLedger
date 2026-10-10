@@ -2,12 +2,12 @@
 
 import {useMemo} from "react";
 import {useFormatter, useTranslations} from "next-intl";
-import {Button, ButtonGroup, Card} from "@heroui/react";
+import {Card} from "@heroui/react";
 import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
 import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 import type {BaselineMetric} from "@/features/settings/lookback";
 import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
-import {useChartMode} from "@/hooks/useChartMode";
+import ChartModeToggle from "@/components/ChartModeToggle";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
@@ -44,7 +44,6 @@ export default function CashFlowChart({
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
-  const chartMode = useChartMode();
   const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
   const points = useMemo<MergedPoint[]>(() => {
@@ -79,20 +78,7 @@ export default function CashFlowChart({
         </span>
 
         {/* Same ?cm param as every other chart, so the shape stays in sync across the app. */}
-        <ButtonGroup size="sm" className="ml-auto">
-          <Button
-            variant={chartMode.mode === "cumulative" ? "secondary" : "tertiary"}
-            onPress={() => chartMode.select("cumulative")}
-          >
-            {tChart("modeCumulative")}
-          </Button>
-          <Button
-            variant={chartMode.mode === "discrete" ? "secondary" : "tertiary"}
-            onPress={() => chartMode.select("discrete")}
-          >
-            {tChart("modeDiscrete")}
-          </Button>
-        </ButtonGroup>
+        <ChartModeToggle className="ml-auto"/>
       </Card.Header>
 
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">

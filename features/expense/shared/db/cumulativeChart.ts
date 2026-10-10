@@ -284,8 +284,12 @@ export function buildMonthView(
       if (day > monthLength || day < realizedDay) {
         upcoming = null;
       } else if (discrete) {
-        // No boundary anchoring: that exists only to join two cumulative segments.
-        upcoming = bucket(futureTotalsByDay, monthStart, day);
+        // Anchor on the boundary day with `current`'s own value, so the dashed segment starts exactly
+        // where the realized line ends instead of jumping to that day's projected total.
+        upcoming =
+          day === realizedDay
+            ? bucket(totalsByDay, monthStart, day)
+            : bucket(futureTotalsByDay, monthStart, day);
       } else if (day === realizedDay) {
         upcoming = cumulativeAtBoundary;
       } else {
@@ -345,8 +349,12 @@ export function buildYearView(
       if (month < realizedMonth) {
         upcoming = null;
       } else if (discrete) {
-        // No boundary anchoring: that exists only to join two cumulative segments.
-        upcoming = bucket(futureTotalsByDay, year, month, monthEnd);
+        // Anchor on the boundary month with `current`'s own value (the part of it already realized),
+        // so the dashed segment picks up exactly where the realized line stops.
+        upcoming =
+          month === realizedMonth
+            ? bucket(totalsByDay, year, month, boundary)
+            : bucket(futureTotalsByDay, year, month, monthEnd);
       } else if (month === realizedMonth) {
         upcoming = cumulativeAtBoundary;
       } else {
