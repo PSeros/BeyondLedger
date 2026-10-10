@@ -5,6 +5,7 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {LuChevronDown} from "react-icons/lu";
 import DataTable from "@/components/DataTable";
 import {
   TABLE_LEVELS,
@@ -18,7 +19,8 @@ const LIMIT = 40;
 // URL keys that only shape the stats/charts, so changing them must not refetch the table.
 const DISPLAY_ONLY_KEYS = ["u", "st", "by"];
 
-// The matching entries, paged and sorted on the server. Level and sort are table-only state.
+// The matching entries, paged and sorted on the server. Collapsed by default and only fetched once
+// opened. Level and sort are table-only state.
 export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
   const t = useTranslations("insights");
   const tFields = useTranslations("fields");
@@ -32,6 +34,7 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
     return params.toString();
   }, [searchParams]);
 
+  const [isOpen, setIsOpen] = useState(false);
   const [level, setLevel] = useState<TableLevel>("bill");
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({column: "date", direction: "descending"});
   const [rows, setRows] = useState<InsightsTableRow[]>([]);
@@ -67,8 +70,8 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
   }, [filterString, level, sortBy, sortDir]);
 
   useEffect(() => {
-    fetchRows(0, "replace");
-  }, [fetchRows, activeWorkspaceId]);
+    if (isOpen) fetchRows(0, "replace");
+  }, [isOpen, fetchRows, activeWorkspaceId]);
 
   const handleLoadMore = useCallback(() => {
     if (nextOffset === null || isLoadingMoreRef.current) return;
@@ -111,36 +114,41 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
   return (
     <Card className="flex flex-col gap-3 p-4">
       <Card.Header className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <div>
+        <Button variant="ghost" size="sm" onPress={() => setIsOpen((open) => !open)} aria-expanded={isOpen} className="-ms-2">
+          <LuChevronDown className={`size-4 transition-transform ${isOpen ? "" : "-rotate-90"}`}/>
           <Card.Title>{t("tableTitle")}</Card.Title>
-          <Card.Description>{t("entryCount", {count: total})}</Card.Description>
-        </div>
-        <ButtonGroup size="sm">
-          {TABLE_LEVELS.map((value) => (
-            <Button key={value} variant={level === value ? "secondary" : "tertiary"} onPress={() => setLevel(value)}>
-              {t(`level.${value}`)}
-            </Button>
-          ))}
-        </ButtonGroup>
+          {isOpen ? <span className="text-sm font-normal text-muted">{t("entryCount", {count: total})}</span> : null}
+        </Button>
+        {isOpen ? (
+          <ButtonGroup size="sm">
+            {TABLE_LEVELS.map((value) => (
+              <Button key={value} variant={level === value ? "secondary" : "tertiary"} onPress={() => setLevel(value)}>
+                {t(`level.${value}`)}
+              </Button>
+            ))}
+          </ButtonGroup>
+        ) : null}
       </Card.Header>
-      <Card.Content>
-        <DataTable
-          ariaLabel={t("tableTitle")}
-          columns={columns}
-          rows={tableRows}
-          scroll="page"
-          manualSorting
-          sortDescriptor={sortDescriptor}
-          onSortChange={setSortDescriptor}
-          hasMore={nextOffset !== null}
-          isLoadingMore={isLoadingMore}
-          onLoadMore={handleLoadMore}
-          onRowAction={(id) => {
-            const href = hrefByKey.get(String(id));
-            if (href) router.push(href);
-          }}
-        />
-      </Card.Content>
+      {isOpen ? (
+        <Card.Content>
+          <DataTable
+            ariaLabel={t("tableTitle")}
+            columns={columns}
+            rows={tableRows}
+            scroll="page"
+            manualSorting
+            sortDescriptor={sortDescriptor}
+            onSortChange={setSortDescriptor}
+            hasMore={nextOffset !== null}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={handleLoadMore}
+            onRowAction={(id) => {
+              const href = hrefByKey.get(String(id));
+              if (href) router.push(href);
+            }}
+          />
+        </Card.Content>
+      ) : null}
     </Card>
   );
 }
