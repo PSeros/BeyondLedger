@@ -2036,7 +2036,9 @@ export const BudgetScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   createdAt: 'createdAt',
-  workspaceId: 'workspaceId'
+  workspaceId: 'workspaceId',
+  isInverse: 'isInverse',
+  targetFromIncome: 'targetFromIncome'
 } as const
 
 export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]

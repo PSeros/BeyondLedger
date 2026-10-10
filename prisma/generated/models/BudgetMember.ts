@@ -512,10 +512,6 @@ export type BudgetMemberUncheckedUpdateManyWithoutBudgetNestedInput = {
   deleteMany?: Prisma.BudgetMemberScalarWhereInput | Prisma.BudgetMemberScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BudgetMemberCreateNestedManyWithoutSupplierCategoryInput = {
   create?: Prisma.XOR<Prisma.BudgetMemberCreateWithoutSupplierCategoryInput, Prisma.BudgetMemberUncheckedCreateWithoutSupplierCategoryInput> | Prisma.BudgetMemberCreateWithoutSupplierCategoryInput[] | Prisma.BudgetMemberUncheckedCreateWithoutSupplierCategoryInput[]
   connectOrCreate?: Prisma.BudgetMemberCreateOrConnectWithoutSupplierCategoryInput | Prisma.BudgetMemberCreateOrConnectWithoutSupplierCategoryInput[]

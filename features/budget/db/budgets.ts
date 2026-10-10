@@ -6,6 +6,8 @@ import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
+import {computeInverseTotal, type ClaimSource} from "@/features/budget/db/budgetInverse";
+import {getIncomeStreams, incomeInWindow} from "@/features/budget/db/budgetIncomeTarget";
 import {facetSelectionFromMembers, getSelectorTotals} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
@@ -29,6 +31,10 @@ export type BudgetView = {
   anchorMonth: number | null;
   startDate: string | null; // ISO
   endDate: string | null; // ISO
+  // Catch-all budget: no members, counts whatever no other budget of this account claims.
+  isInverse: boolean;
+  // Target = the income of the budget's own window, not `amount`.
+  targetFromIncome: boolean;
   workspaceId: number;
   workspace: WorkspaceOption;
   members: BudgetMemberView[];
@@ -121,6 +127,8 @@ export async function getBudgets(workspaceId?: number | null): Promise<BudgetVie
       anchorMonth: budget.anchorMonth,
       startDate: budget.startDate ? budget.startDate.toISOString() : null,
       endDate: budget.endDate ? budget.endDate.toISOString() : null,
+      isInverse: budget.isInverse,
+      targetFromIncome: budget.targetFromIncome,
       workspaceId: budget.workspaceId,
       workspace: {id: budget.workspace.id, name: budget.workspace.name, color: budget.workspace.color},
       members,
@@ -136,30 +144,59 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
   const budgets = await getBudgets(workspaceId);
   // Selector totals (fetched once) let the matcher treat "every value selected" as no constraint.
   const totals = await getSelectorTotals();
+  // Income streams only matter to budgets pegged to income — skip the query when none is.
+  const incomeStreams = budgets.some((budget) => budget.targetFromIncome)
+    ? await getIncomeStreams(workspaceId)
+    : [];
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
+
+  // An inverse budget subtracts what the OTHER budgets of its own account claim. `budgets` already
+  // holds them (the list is either scoped to one account or holds them all), so no extra query.
+  const claimSources: ClaimSource[] = budgets.map((budget) => ({
+    periodType: budget.periodType,
+    anchorMonth: budget.anchorMonth,
+    startDate: budget.startDate,
+    endDate: budget.endDate,
+    memberIds: budget.memberIds,
+    isInverse: budget.isInverse,
+  }));
+
   const actuals = await Promise.all(
-    budgets.map((budget, index) =>
-      computeActuals(
-        budget.memberIds,
-        periods[index].start,
-        periods[index].end,
-        budget.workspaceId,
-        windowMonthsFor(budget.periodType, periods[index].start, periods[index].end),
-        now,
-        totals,
-      ),
-    ),
+    budgets.map((budget, index) => {
+      const {start, end} = periods[index];
+      const windowMonths = windowMonthsFor(budget.periodType, start, end);
+      if (budget.isInverse) {
+        const others = claimSources.filter(
+          (_, otherIndex) => budgets[otherIndex].workspaceId === budget.workspaceId && otherIndex !== index,
+        );
+        return computeInverseTotal(others, {start, end}, budget.workspaceId, windowMonths, now, totals);
+      }
+      return computeActuals(budget.memberIds, start, end, budget.workspaceId, windowMonths, now, totals);
+    }),
   );
 
   return budgets.map((budget, index) => {
     const period = periods[index];
     const override = budget.overrides.find((o) => o.periodKey === period.key);
+    // Precedence: an explicit per-period override always wins — it is a number the user typed for
+    // this very window. Otherwise income-pegged budgets derive their target, the rest use `amount`.
+    const target = override
+      ? override.amount
+      : budget.targetFromIncome
+        ? incomeInWindow(
+            incomeStreams,
+            budget.workspaceId,
+            {start: period.start, end: period.end},
+            windowMonthsFor(budget.periodType, period.start, period.end),
+            now,
+          )
+        : budget.amount;
     return {
       ...budget,
       periodKey: period.key,
       windowStart: period.start ? period.start.toISOString() : null,
       windowEnd: period.end ? period.end.toISOString() : null,
-      target: override ? override.amount : budget.amount,
+      target,
       actual: actuals[index],
     };
   });

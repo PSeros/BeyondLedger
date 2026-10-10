@@ -27,6 +27,14 @@ model Budget {
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId Int
 
+  // A catch-all ("inverse") budget: it carries NO members and instead claims every expense in its
+  // window that no OTHER budget of the same account claims. See budgetInverse.ts.
+  isInverse Boolean @default(false)
+
+  // Target = the income arriving in this budget's own window, instead of `amount` (which is then
+  // ignored). Inverse budgets only, by UI; the column itself is type-agnostic.
+  targetFromIncome Boolean @default(false)
+
   members   BudgetMember[]
   overrides BudgetOverride[]
 

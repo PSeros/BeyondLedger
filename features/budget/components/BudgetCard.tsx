@@ -4,7 +4,7 @@ import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
 import {Button, Card, Chip, Input, Label, TextField} from "@heroui/react";
-import {LuCalendarRange, LuArrowDownUp} from "react-icons/lu";
+import {LuCalendarRange, LuArrowDownUp, LuWallet} from "react-icons/lu";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import TagChip from "@/components/TagChip";
 import BudgetDetailModal from "@/features/budget/components/BudgetDetailModal";
@@ -104,6 +104,11 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
             <p className="text-2xl font-bold tabular-nums">{format.number(budget.actual, "currency")}</p>
             <p className="flex items-center gap-1 text-xs text-muted">
               {t("ofTarget", {target: format.number(budget.target, "currency")})}
+              {/* An income-pegged target moves with the period, so the card says so rather than
+                  looking like a number someone typed. */}
+              {budget.targetFromIncome ? (
+                <LuWallet className="size-3 shrink-0" aria-label={t("targetFromIncomeChip")} title={t("targetFromIncomeChip")}/>
+              ) : null}
               {/* Iconified "adjust this period's target" — keeps the card bottom button-free. */}
               <Button
                 type="button"
@@ -136,7 +141,13 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
           <div className={`h-full rounded-full ${meterColor}`} style={{width: `${meterPct}%`}}/>
         </div>
 
-        {budget.members.length > 0 ? (
+        {budget.isInverse ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Chip variant="soft" color="accent" size="sm" title={t("inverseHint")}>
+              <Chip.Label>{t("inverseChip")}</Chip.Label>
+            </Chip>
+          </div>
+        ) : budget.members.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
             {budget.members.map((member) => {
               const key = `${member.type}-${member.id}`;

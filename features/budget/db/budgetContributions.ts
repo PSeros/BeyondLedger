@@ -8,9 +8,11 @@ import {
   windowMonthsFor,
   type BudgetPeriodType,
 } from "@/features/budget/period";
+import {buildClaims, inverseWheres, type ClaimSource} from "@/features/budget/db/budgetInverse";
 import {
   activeDomains,
   contractWhereSmart,
+  EMPTY_FACET_GROUP,
   facetSelectionFromMembers,
   getSelectorTotals,
   hasAnySelector,
@@ -40,12 +42,36 @@ export type BudgetContributions = {
   contracts: {id: number; name: string; supplierName: string; amount: number}[];
 };
 
+// The other budgets of the same account, as claim sources for an inverse budget. Inverse budgets
+// never claim, so they are filtered out in the query itself.
+async function getClaimSources(excludeBudgetId: number, workspaceId: number): Promise<ClaimSource[]> {
+  const others = await client.budget.findMany({
+    where: {workspaceId, isInverse: false, id: {not: excludeBudgetId}},
+    include: {members: true},
+  });
+
+  return others.map((other) => ({
+    periodType: other.periodType as BudgetPeriodType,
+    anchorMonth: other.anchorMonth,
+    startDate: other.startDate,
+    endDate: other.endDate,
+    memberIds: facetSelectionFromMembers(other.members),
+    isInverse: false,
+  }));
+}
+
 export async function getBudgetContributions(budgetId: number, anchor?: string): Promise<BudgetContributions> {
   const budget = await client.budget.findUnique({where: {id: budgetId}, include: {members: true}});
   if (!budget) return {bills: [], items: [], contracts: []};
 
-  const raw: FacetSelection = facetSelectionFromMembers(budget.members);
-  if (!hasAnySelector(raw)) return {bills: [], items: [], contracts: []};
+  // An inverse budget carries no selectors: it lists the remainder. Running it on an EMPTY selection
+  // is what makes the rest of this function work unchanged — activeDomains() puts both domains in
+  // scope and the granularity rules below stay at their bill-level default — while the two `where`
+  // predicates come from budgetInverse instead.
+  const raw: FacetSelection = budget.isInverse
+    ? {include: EMPTY_FACET_GROUP, exclude: EMPTY_FACET_GROUP}
+    : facetSelectionFromMembers(budget.members);
+  if (!budget.isInverse && !hasAnySelector(raw)) return {bills: [], items: [], contracts: []};
   const totals = await getSelectorTotals();
   const sel = normalizeAllSelected(raw, totals);
 
@@ -64,9 +90,17 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
 
   const {variable, contract} = activeDomains(sel);
 
+  const inverse = budget.isInverse
+    ? inverseWheres(
+        buildClaims(await getClaimSources(budget.id, budget.workspaceId), {start, end}, budget.workspaceId, totals),
+        {start, end},
+        budget.workspaceId,
+      )
+    : null;
+
   const matchedItems = variable
     ? await client.item.findMany({
-        where: variableItemWhere(sel, dateInWindow, budget.workspaceId),
+        where: inverse ? inverse.itemWhere : variableItemWhere(sel, dateInWindow, budget.workspaceId),
         select: {
           id: true,
           name: true,
@@ -111,7 +145,7 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
 
   const contracts = contract
     ? await client.contract.findMany({
-        where: contractWhereSmart(sel, contractOverlap, budget.workspaceId),
+        where: inverse ? inverse.contractWhere : contractWhereSmart(sel, contractOverlap, budget.workspaceId),
         select: {
           id: true,
           name: true,

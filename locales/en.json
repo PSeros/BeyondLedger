@@ -431,7 +431,13 @@
     "chartTarget": "Target",
     "chartRemaining": "Remaining",
     "chartOverspend": "Over budget",
-    "chartUtilization": "Budget used"
+    "chartUtilization": "Budget used",
+    "inverseLabel": "Catch-all budget",
+    "inverseHint": "No selectors: it counts every expense in its period that no other budget of this account claims.",
+    "inverseChip": "Everything else",
+    "targetFromIncomeLabel": "Target = this period's income",
+    "targetFromIncomeHint": "Instead of a fixed amount. Income whose cycle is longer than the period counts a prorated slice.",
+    "targetFromIncomeChip": "Target follows this period's income"
   },
   "tags": {
     "title": "Tags",

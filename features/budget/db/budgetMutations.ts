@@ -26,13 +26,22 @@ async function cleanName(name: FormDataEntryValue | null): Promise<string> {
   return trimmed;
 }
 
-async function cleanAmount(raw: FormDataEntryValue | null): Promise<number> {
+// The stored target. A budget pegged to its period's income doesn't have one — the column is
+// non-null, so it keeps a 0 that nothing reads (see getBudgetsResolved) — and the field is hidden in
+// the form, so an empty value must not fail validation there.
+async function cleanAmount(raw: FormDataEntryValue | null, targetFromIncome: boolean): Promise<number> {
+  if (targetFromIncome) return 0;
   const amount = Number(raw);
   if (!Number.isFinite(amount) || amount <= 0) {
     const t = await getTranslations("errors");
     throw new Error(t("invalidAmount"));
   }
   return amount;
+}
+
+// Checkbox-style flags: the form mirrors them into a hidden input that only exists when set.
+function parseFlag(raw: FormDataEntryValue | null): boolean {
+  return raw === "1";
 }
 
 async function cleanPositiveId(id: number): Promise<number> {
@@ -116,16 +125,25 @@ function parseMembers(formData: FormData): MemberCreate[] {
   );
 }
 
+// An inverse (catch-all) budget is defined by the absence of selectors, so any that were posted are
+// dropped — the two models would otherwise contradict each other. targetFromIncome is only offered
+// for inverse budgets in the form; it is stored as posted either way.
+function parseFlags(formData: FormData): {isInverse: boolean; targetFromIncome: boolean} {
+  const isInverse = parseFlag(formData.get("isInverse"));
+  return {isInverse, targetFromIncome: isInverse && parseFlag(formData.get("targetFromIncome"))};
+}
+
 export async function createBudget(formData: FormData): Promise<void> {
   const name = await cleanName(formData.get("name"));
-  const amount = await cleanAmount(formData.get("amount"));
+  const flags = parseFlags(formData);
+  const amount = await cleanAmount(formData.get("amount"), flags.targetFromIncome);
   const periodType = parsePeriodType(formData.get("periodType"));
   const period = await parsePeriodFields(formData, periodType);
-  const members = parseMembers(formData);
+  const members = flags.isInverse ? [] : parseMembers(formData);
   const workspaceId = parseWorkspaceId(formData);
 
   await client.budget.create({
-    data: {name, amount, periodType, ...period, workspaceId, members: {create: members}},
+    data: {name, amount, periodType, ...period, ...flags, workspaceId, members: {create: members}},
   });
   revalidateBudget();
 }
@@ -133,17 +151,18 @@ export async function createBudget(formData: FormData): Promise<void> {
 export async function updateBudget(id: number, formData: FormData): Promise<void> {
   const budgetId = await cleanPositiveId(id);
   const name = await cleanName(formData.get("name"));
-  const amount = await cleanAmount(formData.get("amount"));
+  const flags = parseFlags(formData);
+  const amount = await cleanAmount(formData.get("amount"), flags.targetFromIncome);
   const periodType = parsePeriodType(formData.get("periodType"));
   const period = await parsePeriodFields(formData, periodType);
-  const members = parseMembers(formData);
+  const members = flags.isInverse ? [] : parseMembers(formData);
   const workspaceId = parseWorkspaceId(formData);
 
   await client.$transaction([
     client.budgetMember.deleteMany({where: {budgetId}}),
     client.budget.update({
       where: {id: budgetId},
-      data: {name, amount, periodType, ...period, workspaceId, members: {create: members}},
+      data: {name, amount, periodType, ...period, ...flags, workspaceId, members: {create: members}},
     }),
   ]);
   revalidateBudget();

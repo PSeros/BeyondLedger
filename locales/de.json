@@ -431,7 +431,13 @@
     "chartTarget": "Ziel",
     "chartRemaining": "Verbleibend",
     "chartOverspend": "Über Budget",
-    "chartUtilization": "Budget genutzt"
+    "chartUtilization": "Budget genutzt",
+    "inverseLabel": "Sammelbudget",
+    "inverseHint": "Ohne Auswahl: zählt jede Ausgabe im Zeitraum, die kein anderes Budget dieses Kontos beansprucht.",
+    "inverseChip": "Alles Übrige",
+    "targetFromIncomeLabel": "Ziel = Einnahmen dieses Zeitraums",
+    "targetFromIncomeHint": "Statt eines festen Betrags. Einnahmen mit längerem Zyklus als der Zeitraum zählen anteilig.",
+    "targetFromIncomeChip": "Ziel folgt den Einnahmen dieses Zeitraums"
   },
   "tags": {
     "title": "Tags",
