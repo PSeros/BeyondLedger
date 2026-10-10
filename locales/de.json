@@ -452,7 +452,36 @@
     "groupIncomeSources": "Einnahmequellen",
     "filtersHint": "Einmal klicken schließt einen Wert ein, zweimal schließt ihn aus. Artikel- und Vertragskategorien bestimmen, was zählt; die übrigen Filter grenzen weiter ein. Tags gelten für Ausgaben und Einnahmen.",
     "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
-    "noResults": "Für diese Filter gibt es in diesem Zeitraum keine Einträge."
+    "noResults": "Für diese Filter gibt es in diesem Zeitraum keine Einträge.",
+    "statsTitle": "Statistik",
+    "unitLabel": "Berechnet pro",
+    "pickStats": "Angezeigte Kennzahlen",
+    "noStatsPicked": "Keine Kennzahlen ausgewählt.",
+    "unit": {
+      "item": "Position",
+      "bill": "Beleg / Zahlung",
+      "day": "Tag",
+      "week": "Woche",
+      "month": "Monat"
+    },
+    "unitHint": {
+      "item": "Jede Belegposition, Vertrags- und Einnahmezahlung ist ein Wert.",
+      "bill": "Jeder Beleg (alle Positionen zusammen), jede Vertrags- und Einnahmezahlung ist ein Wert.",
+      "day": "Die Summe jedes Tages im Zeitraum ist ein Wert; Tage ohne Einträge zählen als 0.",
+      "week": "Die Summe jeder Woche (Mo–So) im Zeitraum ist ein Wert; leere Wochen zählen als 0.",
+      "month": "Die Summe jedes Monats im Zeitraum ist ein Wert; leere Monate zählen als 0."
+    },
+    "stat": {
+      "count": "Anzahl",
+      "sum": "Summe",
+      "mean": "Mittelwert",
+      "median": "Median",
+      "min": "Minimum",
+      "max": "Maximum",
+      "stdDev": "Standardabweichung",
+      "variance": "Varianz",
+      "p90": "90. Perzentil"
+    }
   },
   "tags": {
     "title": "Tags",

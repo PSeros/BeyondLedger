@@ -20,6 +20,16 @@ export type InsightsWindow = {
   to: string | null;
 };
 
+// What one stats sample is: a line item, a whole bill (contract/income payments are their own
+// samples in both), or the total of one day / week / month of the window (empty ones count as 0).
+export const STAT_UNITS = ["item", "bill", "day", "week", "month"] as const;
+export type StatUnit = (typeof STAT_UNITS)[number];
+export const DEFAULT_STAT_UNIT: StatUnit = "bill";
+
+export const STAT_KEYS = ["count", "sum", "mean", "median", "min", "max", "stdDev", "variance", "p90"] as const;
+export type StatKey = (typeof STAT_KEYS)[number];
+export const DEFAULT_STATS: StatKey[] = ["count", "sum", "mean", "median", "min", "max", "stdDev"];
+
 export type SignedIds = {include: number[]; exclude: number[]};
 
 export type IncomeSelection = {categoryIds: SignedIds; sourceIds: SignedIds};
@@ -27,6 +37,8 @@ export type IncomeSelection = {categoryIds: SignedIds; sourceIds: SignedIds};
 export type InsightsQuery = {
   domain: InsightsDomain;
   window: InsightsWindow;
+  unit: StatUnit;
+  stats: StatKey[];
   // Expense selectors; its tagIds also filter income.
   expense: FacetSelection;
   income: IncomeSelection;
@@ -95,8 +107,16 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
     exclude[field] = ids.exclude;
   }
 
+  const rawUnit = read(source, "u");
+  const unit = (STAT_UNITS as readonly string[]).includes(rawUnit ?? "") ? (rawUnit as StatUnit) : DEFAULT_STAT_UNIT;
+  const rawStats = read(source, "st");
+  const picked = STAT_KEYS.filter((key) => (rawStats ?? "").split(",").includes(key));
+  const stats = rawStats == null ? DEFAULT_STATS : picked;
+
   return {
     domain,
+    unit,
+    stats,
     window: {
       periodType,
       anchor: monthKey(anchor),

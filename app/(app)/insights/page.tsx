@@ -3,9 +3,10 @@ import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import InsightsControls, {type InsightsFilterOptions} from "@/features/insights/components/InsightsControls";
 import InsightsSummary from "@/features/insights/components/InsightsSummary";
+import InsightsStats from "@/features/insights/components/InsightsStats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {parseInsightsQuery} from "@/features/insights/params";
-import {resolveWindow} from "@/features/insights/window";
+import {realizedBounds, resolveWindow} from "@/features/insights/window";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
 async function getFilterOptions(): Promise<InsightsFilterOptions> {
@@ -33,6 +34,10 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     getTranslations("insights"),
   ]);
   const rows = await getInsightsRows(query, window, workspaceId);
+  // Time buckets run to today at most; all time starts at the first row.
+  const paid = realizedBounds(window);
+  const oldest = rows.at(-1);
+  const span = {start: window.start ?? (oldest ? new Date(`${oldest.date}T00:00:00Z`) : paid.end), end: paid.end};
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -44,7 +49,10 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
         {rows.length === 0 ? (
           <p className="text-muted py-16 text-center text-sm">{t("noResults")}</p>
         ) : (
-          <InsightsSummary rows={rows} domain={query.domain}/>
+          <div className="flex flex-col gap-4">
+            <InsightsSummary rows={rows} domain={query.domain}/>
+            <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
+          </div>
         )}
       </div>
     </div>
