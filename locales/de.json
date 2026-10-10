@@ -513,7 +513,11 @@
     "saveView": "Speichern",
     "renameView": "Umbenennen",
     "updateView": "„{name}“ mit aktuellen Einstellungen überschreiben",
-    "viewModified": "Seit dem Speichern geändert"
+    "viewModified": "Seit dem Speichern geändert",
+    "exportCsv": "CSV",
+    "csvDomain": "Bereich",
+    "csvLines": "Positionen",
+    "csvAmount": "Betrag"
   },
   "tags": {
     "title": "Tags",

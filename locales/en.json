@@ -513,7 +513,11 @@
     "saveView": "Save",
     "renameView": "Rename",
     "updateView": "Update “{name}” with current settings",
-    "viewModified": "Changed since saved"
+    "viewModified": "Changed since saved",
+    "exportCsv": "CSV",
+    "csvDomain": "Domain",
+    "csvLines": "Lines",
+    "csvAmount": "Amount"
   },
   "tags": {
     "title": "Tags",

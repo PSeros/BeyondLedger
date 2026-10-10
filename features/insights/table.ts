@@ -17,6 +17,7 @@ export type InsightsTableRow = {
   lineCount: number | null;
   counterparty: string;
   category: string; // a bill with mixed categories joins them
+  tags: string[];
   amount: number;
   href: string;
 };
@@ -34,6 +35,7 @@ export function toTableRows(rows: InsightsRow[], level: TableLevel): InsightsTab
     lineCount: null,
     counterparty: row.counterparty,
     category: row.category,
+    tags: row.tags,
     amount: row.amount,
     href: row.href,
   });
@@ -55,6 +57,7 @@ export function toTableRows(rows: InsightsRow[], level: TableLevel): InsightsTab
       lineCount: lines.length,
       counterparty: lines[0].counterparty,
       category: [...new Set(lines.map((line) => line.category))].sort().join(", "),
+      tags: [...new Set(lines.flatMap((line) => line.tags))].sort(),
       amount: lines.reduce((sum, line) => sum + line.amount, 0),
       href: lines[0].href,
     });

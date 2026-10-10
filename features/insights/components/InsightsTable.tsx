@@ -5,7 +5,7 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter, useSearchParams} from "next/navigation";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {LuChevronDown} from "react-icons/lu";
+import {LuChevronDown, LuDownload} from "react-icons/lu";
 import DataTable from "@/components/DataTable";
 import {
   TABLE_LEVELS,
@@ -46,6 +46,16 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
 
   const sortBy = String(sortDescriptor.column) as TableSortKey;
   const sortDir = sortDescriptor.direction === "descending" ? "desc" : "asc";
+
+  // Exactly the table's entries: same filters, level and sort. A Content-Disposition attachment, so
+  // assigning the URL downloads without leaving the page.
+  function exportCsv() {
+    const params = new URLSearchParams(filterString);
+    params.set("level", level);
+    params.set("sortBy", sortBy);
+    params.set("sortDir", sortDir);
+    window.location.assign(`/api/insights/export?${params.toString()}`);
+  }
 
   const fetchRows = useCallback(async (offset: number, mode: "replace" | "append") => {
     const current = ++requestId.current;
@@ -119,15 +129,21 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
           <Card.Title>{t("tableTitle")}</Card.Title>
           {isOpen ? <span className="text-sm font-normal text-muted">{t("entryCount", {count: total})}</span> : null}
         </Button>
-        {isOpen ? (
-          <ButtonGroup size="sm">
-            {TABLE_LEVELS.map((value) => (
-              <Button key={value} variant={level === value ? "secondary" : "tertiary"} onPress={() => setLevel(value)}>
-                {t(`level.${value}`)}
-              </Button>
-            ))}
-          </ButtonGroup>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {isOpen ? (
+            <ButtonGroup size="sm">
+              {TABLE_LEVELS.map((value) => (
+                <Button key={value} variant={level === value ? "secondary" : "tertiary"} onPress={() => setLevel(value)}>
+                  {t(`level.${value}`)}
+                </Button>
+              ))}
+            </ButtonGroup>
+          ) : null}
+          <Button size="sm" variant="tertiary" onPress={exportCsv}>
+            <LuDownload/>
+            {t("exportCsv")}
+          </Button>
+        </div>
       </Card.Header>
       {isOpen ? (
         <Card.Content>
