@@ -6,6 +6,8 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import {LuFilter} from "react-icons/lu";
 import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
 import InsightsWindowPicker from "@/features/insights/components/InsightsWindowPicker";
+import SavedViewsMenu from "@/features/insights/components/SavedViewsMenu";
+import type {SavedView} from "@/features/insights/db/views";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
 import {
   EXPENSE_PARAM_KEYS,
@@ -40,7 +42,7 @@ const fromTriState = ({included, excluded}: TriStateValue): SignedIds => ({
 
 // The Insights toolbar (domain toggle, window picker, filter toggle) plus the collapsible filter
 // panel under it. The panel's open state is UI-only; everything it edits lives in the URL.
-export default function InsightsControls({options}: {options: InsightsFilterOptions}) {
+export default function InsightsControls({options, views}: {options: InsightsFilterOptions; views: SavedView[]}) {
   const t = useTranslations("insights");
   const tBudget = useTranslations("budget");
   const tFilters = useTranslations("filters");
@@ -105,11 +107,14 @@ export default function InsightsControls({options}: {options: InsightsFilterOpti
           ))}
         </ButtonGroup>
         <InsightsWindowPicker window={query.window} onChange={update}/>
-        <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)} className="ml-auto">
-          <LuFilter/>
-          {tFilters("filter")}
-          {activeCount ? <span className="tabular-nums">({activeCount})</span> : null}
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <SavedViewsMenu views={views}/>
+          <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)}>
+            <LuFilter/>
+            {tFilters("filter")}
+            {activeCount ? <span className="tabular-nums">({activeCount})</span> : null}
+          </Button>
+        </div>
       </div>
 
       {isOpen ? (

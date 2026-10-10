@@ -9,6 +9,7 @@ import InsightsBreakdown, {type BreakdownPanel} from "@/features/insights/compon
 import InsightsTable from "@/features/insights/components/InsightsTable";
 import {breakdown, bucketTotals, chartUnitFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
+import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery} from "@/features/insights/params";
 import {realizedBounds, resolveWindow} from "@/features/insights/window";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
@@ -37,7 +38,7 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     getFilterOptions(),
     getTranslations("insights"),
   ]);
-  const rows = await getInsightsRows(query, window, workspaceId);
+  const [rows, views] = await Promise.all([getInsightsRows(query, window, workspaceId), getSavedViews(options)]);
   // Time buckets run to today at most; all time starts at the first row.
   const paid = realizedBounds(window);
   const oldest = rows.at(-1);
@@ -59,7 +60,7 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Suspense>
-        <InsightsControls options={options}/>
+        <InsightsControls options={options} views={views}/>
       </Suspense>
 
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">

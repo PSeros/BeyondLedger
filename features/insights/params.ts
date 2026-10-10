@@ -139,3 +139,62 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
     },
   };
 }
+
+// The canonical query string for a view: defaults omitted, the month anchor (?at) left out so the
+// view always opens on the current period.
+export function serializeViewQuery(query: InsightsQuery): string {
+  const params = new URLSearchParams();
+  const set = (key: string, value: string | null) => {
+    if (value) params.set(key, value);
+  };
+  set("dom", query.domain === "expense" ? null : query.domain);
+  set("p", query.window.periodType === "MONTHLY" ? null : query.window.periodType);
+  if (query.window.periodType === "MONTH_OF_YEAR") set("m", String(query.window.month));
+  if (query.window.periodType === "RANGE") {
+    set("from", query.window.from);
+    set("to", query.window.to);
+  }
+  for (const [field, key] of Object.entries(EXPENSE_PARAM_KEYS) as [keyof FacetGroup, string][]) {
+    set(key, serializeSignedIds({include: query.expense.include[field], exclude: query.expense.exclude[field]}));
+  }
+  set(INCOME_PARAM_KEYS.categoryIds, serializeSignedIds(query.income.categoryIds));
+  set(INCOME_PARAM_KEYS.sourceIds, serializeSignedIds(query.income.sourceIds));
+  set("u", query.unit === DEFAULT_STAT_UNIT ? null : query.unit);
+  const isDefaultStats = query.stats.length === DEFAULT_STATS.length && query.stats.every((key) => DEFAULT_STATS.includes(key));
+  if (!isDefaultStats) params.set("st", query.stats.join(","));
+  set("by", query.by === "category" ? null : query.by);
+  return params.toString();
+}
+
+export type ValidIds = {
+  itemCategoryIds: Set<number>;
+  contractCategoryIds: Set<number>;
+  supplierCategoryIds: Set<number>;
+  supplierIds: Set<number>;
+  tagIds: Set<number>;
+  incomeCategoryIds: Set<number>;
+  incomeSourceIds: Set<number>;
+};
+
+// Drops ids that no longer exist (a category deleted after a view was saved).
+export function dropUnknownIds(query: InsightsQuery, valid: ValidIds): InsightsQuery {
+  const keep = (ids: SignedIds, set: Set<number>): SignedIds => ({
+    include: ids.include.filter((id) => set.has(id)),
+    exclude: ids.exclude.filter((id) => set.has(id)),
+  });
+  const include = {...query.expense.include};
+  const exclude = {...query.expense.exclude};
+  for (const field of Object.keys(EXPENSE_PARAM_KEYS) as (keyof FacetGroup)[]) {
+    const kept = keep({include: include[field], exclude: exclude[field]}, valid[field]);
+    include[field] = kept.include;
+    exclude[field] = kept.exclude;
+  }
+  return {
+    ...query,
+    expense: {include, exclude},
+    income: {
+      categoryIds: keep(query.income.categoryIds, valid.incomeCategoryIds),
+      sourceIds: keep(query.income.sourceIds, valid.incomeSourceIds),
+    },
+  };
+}

@@ -504,7 +504,16 @@
     "level": {
       "item": "Line items",
       "bill": "Bills"
-    }
+    },
+    "views": "Views",
+    "savedViews": "Saved views",
+    "noViews": "No saved views yet.",
+    "viewName": "View name",
+    "viewNamePlaceholder": "Name this view…",
+    "saveView": "Save",
+    "renameView": "Rename",
+    "updateView": "Update “{name}” with current settings",
+    "viewModified": "Changed since saved"
   },
   "tags": {
     "title": "Tags",

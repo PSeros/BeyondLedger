@@ -1,0 +1,10 @@
+// A saved Insights view: a name plus the page's own query string (filters, period type, domain, stats
+// unit, …). The month anchor (?at) is not stored, so a monthly view always opens on the current
+// month. Not tied to an account — the active account applies on top, like everywhere else.
+model InsightsView {
+  id        Int      @id @default(autoincrement())
+  name      String
+  query     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

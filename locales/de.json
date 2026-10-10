@@ -504,7 +504,16 @@
     "level": {
       "item": "Positionen",
       "bill": "Belege"
-    }
+    },
+    "views": "Ansichten",
+    "savedViews": "Gespeicherte Ansichten",
+    "noViews": "Noch keine gespeicherten Ansichten.",
+    "viewName": "Name der Ansicht",
+    "viewNamePlaceholder": "Ansicht benennen…",
+    "saveView": "Speichern",
+    "renameView": "Umbenennen",
+    "updateView": "„{name}“ mit aktuellen Einstellungen überschreiben",
+    "viewModified": "Seit dem Speichern geändert"
   },
   "tags": {
     "title": "Tags",
