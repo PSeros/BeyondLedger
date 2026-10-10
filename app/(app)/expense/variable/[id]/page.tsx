@@ -1,8 +1,8 @@
 import {getTranslations} from "next-intl/server";
-import Link from "next/link";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
-import {LuArrowLeft, LuReceipt} from "react-icons/lu";
+import {LuReceipt} from "react-icons/lu";
+import BackLink from "@/components/BackLink";
 import CategoryChip from "@/components/CategoryChip";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
 import BillDetail from "@/features/expense/variable/components/BillDetail";
@@ -37,13 +37,7 @@ export default async function BillPage({params, searchParams}: BillPageProps) {
   return (
     <div className="h-full min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
-        <Link
-          href="/expense/variable"
-          className="text-foreground-500 hover:text-foreground inline-flex w-fit items-center gap-2 text-sm"
-        >
-          <LuArrowLeft/>
-          {t("backToVariableExpenses")}
-        </Link>
+        <BackLink fallbackHref="/expense/variable" fallbackLabel={t("backToVariableExpenses")}/>
 
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
           <div className="flex items-start gap-3">
