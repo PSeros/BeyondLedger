@@ -46,7 +46,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/lib/generated/prisma
+# generated Prisma client — `prisma generate` rewrites it on every install, dev run and deploy, so
+# committing it means the production checkout is permanently dirty and `git pull --ff-only` aborts
+# as soon as a pushed commit touches the same files. (This entry used to name the old output path.)
+/prisma/generated
 
 # claude code / agent tooling
 .claude/

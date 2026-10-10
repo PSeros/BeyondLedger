@@ -49,6 +49,11 @@ function update_script() {
   cd /opt/beyondledger || exit
   # Build with the app still RUNNING, then restart at the very end. If any step fails, the current
   # version keeps serving instead of leaving a stopped service behind.
+  # `npx prisma generate` below rewrites prisma/generated in place. It used to be committed, so an
+  # install from that era carries local modifications there that abort a fast-forward pull — and the
+  # pull that untracks the directory can't delete modified files either. Restore them first; once the
+  # untracking commit has landed the path is gone and this is a no-op.
+  git checkout -- prisma/generated 2>/dev/null || true
   $STD git pull --ff-only
   $STD npm ci
   $STD npx prisma generate
