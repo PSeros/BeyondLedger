@@ -104,10 +104,20 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
             <p className="text-2xl font-bold tabular-nums">{format.number(budget.actual, "currency")}</p>
             <p className="flex items-center gap-1 text-xs text-muted">
               {t("ofTarget", {target: format.number(budget.target, "currency")})}
-              {/* An income-pegged target moves with the period, so the card says so rather than
-                  looking like a number someone typed. */}
-              {budget.targetFromIncome ? (
-                <LuWallet className="size-3 shrink-0" aria-label={t("targetFromIncomeChip")} title={t("targetFromIncomeChip")}/>
+              {/* A derived target moves with the period and with every other budget, so the card
+                  says so — and spells out the two halves it is made of. */}
+              {budget.derivedTarget ? (
+                <LuWallet
+                  className="size-3 shrink-0"
+                  aria-label={t("targetFromIncomeChip", {
+                    income: format.number(budget.derivedTarget.income, "currency"),
+                    allocated: format.number(budget.derivedTarget.allocated, "currency"),
+                  })}
+                  title={t("targetFromIncomeChip", {
+                    income: format.number(budget.derivedTarget.income, "currency"),
+                    allocated: format.number(budget.derivedTarget.allocated, "currency"),
+                  })}
+                />
               ) : null}
               {/* Iconified "adjust this period's target" — keeps the card bottom button-free. */}
               <Button

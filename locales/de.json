@@ -435,9 +435,9 @@
     "inverseLabel": "Sammelbudget",
     "inverseHint": "Ohne Auswahl: zählt jede Ausgabe im Zeitraum, die kein anderes Budget dieses Kontos beansprucht.",
     "inverseChip": "Alles Übrige",
-    "targetFromIncomeLabel": "Ziel = Einnahmen dieses Zeitraums",
-    "targetFromIncomeHint": "Statt eines festen Betrags. Einnahmen mit längerem Zyklus als der Zeitraum zählen anteilig.",
-    "targetFromIncomeChip": "Ziel folgt den Einnahmen dieses Zeitraums"
+    "targetFromIncomeLabel": "Ziel = was von den Einnahmen übrig bleibt",
+    "targetFromIncomeHint": "Einnahmen dieses Zeitraums minus das, was die anderen Budgets dieses Kontos schon verplanen — das noch frei verfügbare Geld.",
+    "targetFromIncomeChip": "{income} Einnahmen − {allocated} von anderen Budgets verplant"
   },
   "tags": {
     "title": "Tags",

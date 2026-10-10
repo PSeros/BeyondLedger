@@ -7,8 +7,8 @@ import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
 import {computeInverseTotal, type ClaimSource} from "@/features/budget/db/budgetInverse";
-import {getIncomeStreams, incomeInWindow} from "@/features/budget/db/budgetIncomeTarget";
-import {facetSelectionFromMembers, getSelectorTotals} from "@/features/budget/db/budgetSmartMatch";
+import {allocatedInWindow, getIncomeStreams, incomeInWindow, type Allocation} from "@/features/budget/db/budgetIncomeTarget";
+import {facetSelectionFromMembers, getSelectorTotals, hasAnySelector} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
 // Read side for the Budget page. Each budget carries its members, period config, and per-instance
@@ -50,6 +50,9 @@ export type BudgetResolved = BudgetView & {
   windowEnd: string | null;
   target: number;
   actual: number;
+  // Only for a targetFromIncome budget: the two halves its target is made of, so the card can show
+  // where the number came from.
+  derivedTarget?: {income: number; allocated: number};
 };
 
 export type BudgetMemberOptions = {
@@ -175,29 +178,57 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
     }),
   );
 
+  // Pass one: every target that stands on its own. An override is a number the user typed for this
+  // exact window, so it always wins; otherwise it's the budget's own amount. Income-pegged budgets
+  // are filled in afterwards, because they are defined in terms of these.
+  const ownTargets = budgets.map((budget, index) => {
+    const override = budget.overrides.find((o) => o.periodKey === periods[index].key);
+    return override ? override.amount : budget.amount;
+  });
+
   return budgets.map((budget, index) => {
     const period = periods[index];
-    const override = budget.overrides.find((o) => o.periodKey === period.key);
-    // Precedence: an explicit per-period override always wins — it is a number the user typed for
-    // this very window. Otherwise income-pegged budgets derive their target, the rest use `amount`.
-    const target = override
-      ? override.amount
-      : budget.targetFromIncome
-        ? incomeInWindow(
-            incomeStreams,
-            budget.workspaceId,
-            {start: period.start, end: period.end},
-            windowMonthsFor(budget.periodType, period.start, period.end),
-            now,
-          )
-        : budget.amount;
+    const window = {start: period.start, end: period.end};
+    const hasOverride = budget.overrides.some((o) => o.periodKey === period.key);
+    // Pass two: the remainder. Income arriving in this window minus what the other budgets of this
+    // account allocate out of it — only inverse budgets can ask for this, so it never recurses.
+    const derived =
+      budget.targetFromIncome && !hasOverride
+        ? {
+            income: incomeInWindow(
+              incomeStreams,
+              budget.workspaceId,
+              window,
+              windowMonthsFor(budget.periodType, period.start, period.end),
+              now,
+            ),
+            allocated: allocatedInWindow(
+              budgets.flatMap((other, otherIndex): Allocation[] =>
+                other.workspaceId !== budget.workspaceId || otherIndex === index
+                  ? []
+                  : [{
+                      periodType: other.periodType,
+                      anchorMonth: other.anchorMonth,
+                      startDate: other.startDate,
+                      endDate: other.endDate,
+                      target: ownTargets[otherIndex],
+                      isInverse: other.isInverse,
+                      claimsAnything: hasAnySelector(other.memberIds),
+                    }],
+              ),
+              window,
+            ),
+          }
+        : null;
+
     return {
       ...budget,
       periodKey: period.key,
       windowStart: period.start ? period.start.toISOString() : null,
       windowEnd: period.end ? period.end.toISOString() : null,
-      target,
+      target: derived ? derived.income - derived.allocated : ownTargets[index],
       actual: actuals[index],
+      ...(derived ? {derivedTarget: derived} : {}),
     };
   });
 }
