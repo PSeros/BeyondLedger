@@ -1,15 +1,17 @@
 "use client";
 
-import {useEffect, useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
-import {Button, Input, ListBox, Popover, RangeCalendar, Select} from "@heroui/react";
+import {Button, ListBox, Popover, RangeCalendar, Select} from "@heroui/react";
 import {parseDate} from "@internationalized/date";
 import {LuCalendarRange} from "react-icons/lu";
-import {MAX_WINDOW_DAYS, WINDOW_PRESETS, type InsightsWindow, type WindowPreset} from "@/features/insights/params";
+import PeriodNavigator from "@/components/PeriodNavigator";
+import {BUDGET_PERIOD_TYPES, monthKey, parseMonthAnchor, type BudgetPeriodType} from "@/features/budget/period";
+import type {InsightsWindow} from "@/features/insights/params";
+import {resolveWindow, stepAnchor} from "@/features/insights/window";
 
-// Rolling window preset (?w), plus a day count (?d) for "last N days" or an inline range calendar
-// (?from/?to) for a fixed range. The calendar sits inside a Popover rather than a DateRangePicker so
-// only one overlay is involved.
+// Budget-style period picker: a period type (?p) plus a ‹ › navigator stepping the month anchor (?at)
+// by one period. MONTH_OF_YEAR adds a month select (?m); RANGE an inline range calendar (?from/?to);
+// OPEN is all time.
 export default function InsightsWindowPicker({
   window,
   onChange,
@@ -18,37 +20,38 @@ export default function InsightsWindowPicker({
   onChange: (patch: Record<string, string | null>) => void;
 }) {
   const t = useTranslations("insights");
+  const tBudget = useTranslations("budget");
   const format = useFormatter();
-  const [daysDraft, setDaysDraft] = useState(String(window.days));
-  useEffect(() => {
-    setDaysDraft(String(window.days));
-  }, [window.days]);
 
-  const labels: Record<WindowPreset, string> = {
-    "7": t("windowLast", {days: 7}),
-    "30": t("windowLast", {days: 30}),
-    "90": t("windowLast", {days: 90}),
-    "365": t("windowLast", {days: 365}),
-    days: t("windowCustomDays"),
-    range: t("windowRange"),
+  const typeLabels: Record<BudgetPeriodType, string> = {
+    MONTHLY: tBudget("periodMonthly"),
+    QUARTERLY: tBudget("periodQuarterly"),
+    YEARLY: tBudget("periodYearly"),
+    MONTH_OF_YEAR: t("periodMonthOfYear"),
+    RANGE: tBudget("periodRange"),
+    OPEN: tBudget("allTime"),
   };
 
-  function selectPreset(preset: WindowPreset) {
-    onChange({
-      w: preset === "30" ? null : preset,
-      d: preset === "days" ? String(window.days) : null,
-      from: preset === "range" ? window.from : null,
-      to: preset === "range" ? window.to : null,
-    });
-  }
+  const anchor = parseMonthAnchor(window.anchor);
+  const year = anchor.getUTCFullYear();
+  const monthName = (month: number) => format.dateTime(new Date(Date.UTC(2000, month - 1, 1)), {month: "long", timeZone: "UTC"});
 
-  function commitDays() {
-    const n = Math.round(Number(daysDraft));
-    if (!Number.isFinite(n) || n < 1) {
-      setDaysDraft(String(window.days));
-      return;
-    }
-    onChange({d: String(Math.min(n, MAX_WINDOW_DAYS))});
+  const resolved = resolveWindow(window);
+  const now = new Date();
+  const isCurrent = resolved.start != null && resolved.end != null && resolved.start <= now && now < resolved.end;
+
+  const navigatorLabel = {
+    MONTHLY: format.dateTime(anchor, {month: "long", year: "numeric", timeZone: "UTC"}),
+    QUARTERLY: tBudget("quarterLabel", {quarter: Math.floor(anchor.getUTCMonth() / 3) + 1, year}),
+    YEARLY: String(year),
+    MONTH_OF_YEAR: String(year),
+    RANGE: "",
+    OPEN: "",
+  }[window.periodType];
+
+  function step(delta: -1 | 1) {
+    const next = stepAnchor(window, delta);
+    onChange({at: next === monthKey(now) ? null : next});
   }
 
   const range = window.from && window.to ? {start: parseDate(window.from), end: parseDate(window.to)} : null;
@@ -60,9 +63,9 @@ export default function InsightsWindowPicker({
     <div className="flex flex-wrap items-center gap-2">
       <Select
         aria-label={t("windowLabel")}
-        value={window.preset}
-        onChange={(key) => key != null && selectPreset(String(key) as WindowPreset)}
-        className="w-44"
+        value={window.periodType}
+        onChange={(key) => key != null && onChange({p: key === "MONTHLY" ? null : String(key), at: null, m: null})}
+        className="w-52"
       >
         <Select.Trigger>
           <Select.Value/>
@@ -70,30 +73,43 @@ export default function InsightsWindowPicker({
         </Select.Trigger>
         <Select.Popover>
           <ListBox>
-            {WINDOW_PRESETS.map((preset) => (
-              <ListBox.Item key={preset} id={preset} textValue={labels[preset]}>
-                {labels[preset]}
+            {BUDGET_PERIOD_TYPES.map((type) => (
+              <ListBox.Item key={type} id={type} textValue={typeLabels[type]}>
+                {typeLabels[type]}
               </ListBox.Item>
             ))}
           </ListBox>
         </Select.Popover>
       </Select>
 
-      {window.preset === "days" ? (
-        <Input
-          aria-label={t("windowDaysLabel")}
-          type="number"
-          min={1}
-          max={MAX_WINDOW_DAYS}
-          value={daysDraft}
-          onChange={(event) => setDaysDraft(event.target.value)}
-          onBlur={commitDays}
-          onKeyDown={(event) => event.key === "Enter" && commitDays()}
-          className="w-24"
-        />
+      {window.periodType === "MONTH_OF_YEAR" ? (
+        <Select
+          aria-label={tBudget("anchorMonthLabel")}
+          value={String(window.month)}
+          onChange={(key) => key != null && onChange({m: String(key)})}
+          className="w-36"
+        >
+          <Select.Trigger>
+            <Select.Value/>
+            <Select.Indicator/>
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {Array.from({length: 12}, (_, i) => i + 1).map((month) => (
+                <ListBox.Item key={month} id={String(month)} textValue={monthName(month)}>
+                  {monthName(month)}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       ) : null}
 
-      {window.preset === "range" ? (
+      {navigatorLabel ? (
+        <PeriodNavigator label={navigatorLabel} isCurrent={isCurrent} onStep={step} onReset={() => onChange({at: null})}/>
+      ) : null}
+
+      {window.periodType === "RANGE" ? (
         <Popover>
           <Button variant="tertiary" size="sm">
             <LuCalendarRange/>
@@ -102,7 +118,7 @@ export default function InsightsWindowPicker({
           <Popover.Content>
             <Popover.Dialog className="p-2">
               <RangeCalendar
-                aria-label={t("windowRange")}
+                aria-label={tBudget("periodRange")}
                 value={range}
                 onChange={(next) => next && onChange({from: next.start.toString(), to: next.end.toString()})}
               >

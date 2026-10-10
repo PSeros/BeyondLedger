@@ -1,5 +1,6 @@
 // Type-only: budgetSmartMatch imports Prisma, and this module is also loaded on the client.
 import type {FacetGroup, FacetSelection} from "@/features/budget/db/budgetSmartMatch";
+import {BUDGET_PERIOD_TYPES, monthKey, parseMonthAnchor, type BudgetPeriodType} from "@/features/budget/period";
 
 // The Insights page state, all of it in the URL (shared by the page, the table/export API routes and,
 // later, saved views). Neutral module: no "use client", so Server Components get real values.
@@ -9,10 +10,15 @@ import type {FacetGroup, FacetSelection} from "@/features/budget/db/budgetSmartM
 export const INSIGHTS_DOMAINS = ["expense", "income", "both"] as const;
 export type InsightsDomain = (typeof INSIGHTS_DOMAINS)[number];
 
-export const WINDOW_PRESETS = ["7", "30", "90", "365", "days", "range"] as const;
-export type WindowPreset = (typeof WINDOW_PRESETS)[number];
-
-export type InsightsWindow = {preset: WindowPreset; days: number; from: string | null; to: string | null};
+// The time window mirrors budget periods: a period type (?p) resolved against a month anchor (?at,
+// stepped by the navigator), a month for MONTH_OF_YEAR (?m) and inclusive dates for RANGE (?from/?to).
+export type InsightsWindow = {
+  periodType: BudgetPeriodType;
+  anchor: string; // YYYY-MM
+  month: number; // 1–12, MONTH_OF_YEAR only
+  from: string | null;
+  to: string | null;
+};
 
 export type SignedIds = {include: number[]; exclude: number[]};
 
@@ -25,9 +31,6 @@ export type InsightsQuery = {
   expense: FacetSelection;
   income: IncomeSelection;
 };
-
-export const DEFAULT_WINDOW_DAYS = 30;
-export const MAX_WINDOW_DAYS = 3660;
 
 // URL key per selector. Tags (`t`) are shared by both domains.
 export const EXPENSE_PARAM_KEYS: Record<keyof FacetGroup, string> = {
@@ -75,10 +78,11 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
   const rawDomain = read(source, "dom");
   const domain = (INSIGHTS_DOMAINS as readonly string[]).includes(rawDomain ?? "") ? (rawDomain as InsightsDomain) : "expense";
 
-  const rawPreset = read(source, "w");
-  const preset = (WINDOW_PRESETS as readonly string[]).includes(rawPreset ?? "") ? (rawPreset as WindowPreset) : "30";
-  const rawDays = Number(read(source, "d"));
-  const days = Number.isInteger(rawDays) && rawDays >= 1 ? Math.min(rawDays, MAX_WINDOW_DAYS) : DEFAULT_WINDOW_DAYS;
+  const rawType = read(source, "p");
+  const periodType = (BUDGET_PERIOD_TYPES as string[]).includes(rawType ?? "") ? (rawType as BudgetPeriodType) : "MONTHLY";
+  const anchor = parseMonthAnchor(read(source, "at"));
+  const rawMonth = Number(read(source, "m"));
+  const month = Number.isInteger(rawMonth) && rawMonth >= 1 && rawMonth <= 12 ? rawMonth : anchor.getUTCMonth() + 1;
   const from = read(source, "from");
   const to = read(source, "to");
 
@@ -93,7 +97,13 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
 
   return {
     domain,
-    window: {preset, days, from: isIsoDate(from) ? from : null, to: isIsoDate(to) ? to : null},
+    window: {
+      periodType,
+      anchor: monthKey(anchor),
+      month,
+      from: isIsoDate(from) ? from : null,
+      to: isIsoDate(to) ? to : null,
+    },
     expense: {include, exclude},
     income: {
       categoryIds: parseSignedIds(read(source, INCOME_PARAM_KEYS.categoryIds)),

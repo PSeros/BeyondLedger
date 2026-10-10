@@ -4,7 +4,6 @@ import {useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button, ButtonGroup, Card} from "@heroui/react";
 import {LuFilter} from "react-icons/lu";
-import PageToolbar from "@/components/PageToolbar";
 import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
 import InsightsWindowPicker from "@/features/insights/components/InsightsWindowPicker";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
@@ -92,29 +91,26 @@ export default function InsightsControls({options}: {options: InsightsFilterOpti
 
   return (
     <div className="flex flex-col gap-3">
-      <PageToolbar
-        left={
-          <ButtonGroup size="sm">
-            {INSIGHTS_DOMAINS.map((domain) => (
-              <Button
-                key={domain}
-                variant={query.domain === domain ? "secondary" : "tertiary"}
-                onPress={() => update({dom: domain === "expense" ? null : domain})}
-              >
-                {domainLabels[domain]}
-              </Button>
-            ))}
-          </ButtonGroup>
-        }
-        center={<InsightsWindowPicker window={query.window} onChange={update}/>}
-        right={
-          <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)}>
-            <LuFilter/>
-            {tFilters("filter")}
-            {activeCount ? <span className="tabular-nums">({activeCount})</span> : null}
-          </Button>
-        }
-      />
+      {/* Not PageToolbar: its equal thirds are too narrow for the period controls. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <ButtonGroup size="sm">
+          {INSIGHTS_DOMAINS.map((domain) => (
+            <Button
+              key={domain}
+              variant={query.domain === domain ? "secondary" : "tertiary"}
+              onPress={() => update({dom: domain === "expense" ? null : domain})}
+            >
+              {domainLabels[domain]}
+            </Button>
+          ))}
+        </ButtonGroup>
+        <InsightsWindowPicker window={query.window} onChange={update}/>
+        <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)} className="ml-auto">
+          <LuFilter/>
+          {tFilters("filter")}
+          {activeCount ? <span className="tabular-nums">({activeCount})</span> : null}
+        </Button>
+      </div>
 
       {isOpen ? (
         <Card className="flex flex-col gap-4 p-4">

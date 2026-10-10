@@ -1,27 +1,32 @@
 import {addDays, utcDate} from "@/features/expense/shared/db/cumulativeChart";
-import {DEFAULT_WINDOW_DAYS, MAX_WINDOW_DAYS, type InsightsWindow} from "@/features/insights/params";
+import {parseMonthAnchor, resolveActivePeriod} from "@/features/budget/period";
+import type {InsightsWindow} from "@/features/insights/params";
 
-export type ResolvedWindow = {start: Date; end: Date}; // [start, end), UTC midnights
+export type ResolvedWindow = {start: Date | null; end: Date | null}; // [start, end), null = unbounded
 
-// Rolling presets end with today (inclusive): "last 7 days" = today and the 6 before it. A range is
-// inclusive on both ends; an incomplete or inverted one falls back to the default rolling window.
-export function resolveWindow(window: InsightsWindow, now: Date = new Date()): ResolvedWindow {
-  const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  const end = addDays(today, 1);
-  const lastDays = (days: number): ResolvedWindow => ({start: addDays(end, -days), end});
+// Resolved exactly like a budget period containing the anchor month.
+export function resolveWindow(window: InsightsWindow): ResolvedWindow {
+  const {start, end} = resolveActivePeriod(
+    {periodType: window.periodType, anchorMonth: window.month, startDate: window.from, endDate: window.to},
+    parseMonthAnchor(window.anchor),
+  );
+  return {start, end};
+}
 
-  switch (window.preset) {
-    case "days":
-      return lastDays(window.days);
-    case "range": {
-      if (!window.from || !window.to) return lastDays(DEFAULT_WINDOW_DAYS);
-      const start = new Date(`${window.from}T00:00:00Z`);
-      const rangeEnd = addDays(new Date(`${window.to}T00:00:00Z`), 1);
-      if (rangeEnd <= start) return lastDays(DEFAULT_WINDOW_DAYS);
-      const capped = addDays(start, MAX_WINDOW_DAYS);
-      return {start, end: rangeEnd < capped ? rangeEnd : capped};
-    }
-    default:
-      return lastDays(Number(window.preset));
-  }
+// Contracts and income only count payments that already happened: the window is capped at today.
+export function realizedBounds(window: ResolvedWindow, now: Date = new Date()): {start: Date; end: Date} {
+  const tomorrow = addDays(utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()), 1);
+  return {
+    start: window.start ?? new Date(0),
+    end: window.end && window.end < tomorrow ? window.end : tomorrow,
+  };
+}
+
+// Step the anchor by one period; RANGE and OPEN don't step.
+export function stepAnchor(window: InsightsWindow, delta: -1 | 1): string | null {
+  const months = {MONTHLY: 1, QUARTERLY: 3, YEARLY: 12, MONTH_OF_YEAR: 12, RANGE: 0, OPEN: 0}[window.periodType];
+  if (!months) return null;
+  const anchor = parseMonthAnchor(window.anchor);
+  const next = utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth() + delta * months, 1);
+  return `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, "0")}`;
 }

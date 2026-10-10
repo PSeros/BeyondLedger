@@ -11,12 +11,12 @@ import {
 import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {dateKey} from "@/features/expense/shared/db/cumulativeChart";
 import type {InsightsQuery, SignedIds} from "@/features/insights/params";
-import type {ResolvedWindow} from "@/features/insights/window";
+import {realizedBounds, type ResolvedWindow} from "@/features/insights/window";
 
 // The normalized rows every Insights view (stats, charts, table, export) is built from. Expenses use
 // the budget matcher, so a filter set matches exactly what a budget with the same selectors would.
 // Contracts and income are expanded into their actual payments inside the window (no amortizing):
-// a yearly contract shows up once in a 365-day window and not at all in a 7-day one.
+// a yearly contract shows up once in a year and only in the month it is paid. Nothing past today.
 
 export type InsightsRowKind = "item" | "contractPayment" | "incomePayment";
 
@@ -92,8 +92,9 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
     amount: Number(item.totalPrice),
   }));
 
+  const paid = realizedBounds(window);
   for (const c of contracts) {
-    forEachOccurrence(c, window.start, window.end, (date) => {
+    forEachOccurrence(c, paid.start, paid.end, (date) => {
       const day = dateKey(date);
       rows.push({
         key: `c${c.id}-${day}`,
@@ -142,8 +143,9 @@ async function incomeRows(query: InsightsQuery, tags: SignedIds, window: Resolve
   });
 
   const rows: InsightsRow[] = [];
+  const paid = realizedBounds(window);
   for (const income of incomes) {
-    forEachOccurrence(income, window.start, window.end, (date) => {
+    forEachOccurrence(income, paid.start, paid.end, (date) => {
       const day = dateKey(date);
       rows.push({
         key: `n${income.id}-${day}`,
