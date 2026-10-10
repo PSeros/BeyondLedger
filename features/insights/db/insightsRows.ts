@@ -30,8 +30,12 @@ export type InsightsRow = {
   label: string;
   counterparty: string; // supplier or income source
   category: string;
+  tags: string[]; // a bill's tags cascade onto its lines
   amount: number;
 };
+
+const TAGS = {select: {tag: {select: {name: true}}}} as const;
+const tagNames = (...lists: {tag: {name: string}}[][]): string[] => [...new Set(lists.flat().map((entry) => entry.tag.name))];
 
 function signedWhere(field: string, ids: SignedIds): object[] {
   return [
@@ -58,7 +62,8 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
           name: true,
           totalPrice: true,
           category: {select: {name: true}},
-          bill: {select: {id: true, date: true, supplier: {select: {name: true}}}},
+          tags: TAGS,
+          bill: {select: {id: true, date: true, supplier: {select: {name: true}}, tags: TAGS}},
         },
       })
       : [],
@@ -74,6 +79,7 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
           frequency: {select: {value: true, isRecurring: true}},
           category: {select: {name: true}},
           supplier: {select: {name: true}},
+          tags: TAGS,
         },
       })
       : [],
@@ -89,6 +95,7 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
     label: item.name,
     counterparty: item.bill.supplier.name,
     category: item.category.name,
+    tags: tagNames(item.tags, item.bill.tags),
     amount: Number(item.totalPrice),
   }));
 
@@ -106,6 +113,7 @@ async function expenseRows(sel: FacetSelection, window: ResolvedWindow, workspac
         label: c.name,
         counterparty: c.supplier.name,
         category: c.category.name,
+        tags: tagNames(c.tags),
         amount: Number(c.totalAmount),
       });
     });
@@ -139,6 +147,7 @@ async function incomeRows(query: InsightsQuery, tags: SignedIds, window: Resolve
       frequency: {select: {value: true, isRecurring: true}},
       category: {select: {name: true}},
       source: {select: {name: true}},
+      tags: TAGS,
     },
   });
 
@@ -157,6 +166,7 @@ async function incomeRows(query: InsightsQuery, tags: SignedIds, window: Resolve
         label: income.name,
         counterparty: income.source.name,
         category: income.category.name,
+        tags: tagNames(income.tags),
         amount: Number(income.totalAmount),
       });
     });

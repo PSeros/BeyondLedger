@@ -462,7 +462,8 @@
       "bill": "Beleg / Zahlung",
       "day": "Tag",
       "week": "Woche",
-      "month": "Monat"
+      "month": "Monat",
+      "year": "Jahr"
     },
     "unitHint": {
       "item": "Jede Belegposition, Vertrags- und Einnahmezahlung ist ein Wert.",
@@ -481,7 +482,16 @@
       "stdDev": "Standardabweichung",
       "variance": "Varianz",
       "p90": "90. Perzentil"
-    }
+    },
+    "timeChartTitle": "Summe pro {unit}",
+    "weekLabel": "KW {week}",
+    "breakdownTitle": "Aufschlüsselung",
+    "byCategory": "Kategorie",
+    "byCounterparty": "Lieferant / Quelle",
+    "byTag": "Tag",
+    "other": "Sonstige",
+    "untagged": "Ohne Tag",
+    "noBreakdown": "Nichts aufzuschlüsseln."
   },
   "tags": {
     "title": "Tags",

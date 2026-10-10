@@ -30,6 +30,9 @@ export const STAT_KEYS = ["count", "sum", "mean", "median", "min", "max", "stdDe
 export type StatKey = (typeof STAT_KEYS)[number];
 export const DEFAULT_STATS: StatKey[] = ["count", "sum", "mean", "median", "min", "max", "stdDev"];
 
+export const BREAKDOWN_DIMENSIONS = ["category", "counterparty", "tag"] as const;
+export type BreakdownDimension = (typeof BREAKDOWN_DIMENSIONS)[number];
+
 export type SignedIds = {include: number[]; exclude: number[]};
 
 export type IncomeSelection = {categoryIds: SignedIds; sourceIds: SignedIds};
@@ -39,6 +42,7 @@ export type InsightsQuery = {
   window: InsightsWindow;
   unit: StatUnit;
   stats: StatKey[];
+  by: BreakdownDimension;
   // Expense selectors; its tagIds also filter income.
   expense: FacetSelection;
   income: IncomeSelection;
@@ -113,10 +117,14 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
   const picked = STAT_KEYS.filter((key) => (rawStats ?? "").split(",").includes(key));
   const stats = rawStats == null ? DEFAULT_STATS : picked;
 
+  const rawBy = read(source, "by");
+  const by = (BREAKDOWN_DIMENSIONS as readonly string[]).includes(rawBy ?? "") ? (rawBy as BreakdownDimension) : "category";
+
   return {
     domain,
     unit,
     stats,
+    by,
     window: {
       periodType,
       anchor: monthKey(anchor),

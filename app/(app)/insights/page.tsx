@@ -4,6 +4,9 @@ import {client} from "@/lib/prisma";
 import InsightsControls, {type InsightsFilterOptions} from "@/features/insights/components/InsightsControls";
 import InsightsSummary from "@/features/insights/components/InsightsSummary";
 import InsightsStats from "@/features/insights/components/InsightsStats";
+import InsightsTimeChart, {type TimePoint} from "@/features/insights/components/InsightsTimeChart";
+import InsightsBreakdown, {type BreakdownPanel} from "@/features/insights/components/InsightsBreakdown";
+import {breakdown, bucketTotals, chartUnitFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {parseInsightsQuery} from "@/features/insights/params";
 import {realizedBounds, resolveWindow} from "@/features/insights/window";
@@ -39,6 +42,19 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
   const oldest = rows.at(-1);
   const span = {start: window.start ?? (oldest ? new Date(`${oldest.date}T00:00:00Z`) : paid.end), end: paid.end};
 
+  const series = (["expense", "income"] as const).filter((domain) =>
+    domain === "expense" ? query.domain !== "income" : query.domain !== "expense");
+  const chartUnit = chartUnitFor(span);
+  const totals = series.map((domain) => bucketTotals(rows.filter((row) => row.domain === domain), chartUnit, span));
+  const points: TimePoint[] = [...(totals[0]?.keys() ?? [])].map((key) => ({
+    key,
+    ...Object.fromEntries(series.map((domain, i) => [domain, totals[i].get(key) ?? 0])),
+  }));
+  const panels: BreakdownPanel[] = series.map((domain) => ({
+    key: domain,
+    rows: breakdown(rows.filter((row) => row.domain === domain), query.by),
+  }));
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <Suspense>
@@ -51,7 +67,9 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
         ) : (
           <div className="flex flex-col gap-4">
             <InsightsSummary rows={rows} domain={query.domain}/>
+            <InsightsTimeChart points={points} unit={chartUnit} series={[...series]}/>
             <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
+            <InsightsBreakdown panels={panels}/>
           </div>
         )}
       </div>

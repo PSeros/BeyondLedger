@@ -462,7 +462,8 @@
       "bill": "Bill / payment",
       "day": "Day",
       "week": "Week",
-      "month": "Month"
+      "month": "Month",
+      "year": "Year"
     },
     "unitHint": {
       "item": "Each bill line, contract payment and income payment is one value.",
@@ -481,7 +482,16 @@
       "stdDev": "Standard deviation",
       "variance": "Variance",
       "p90": "90th percentile"
-    }
+    },
+    "timeChartTitle": "Total per {unit}",
+    "weekLabel": "W{week}",
+    "breakdownTitle": "Breakdown",
+    "byCategory": "Category",
+    "byCounterparty": "Supplier / source",
+    "byTag": "Tag",
+    "other": "Other",
+    "untagged": "No tag",
+    "noBreakdown": "Nothing to break down."
   },
   "tags": {
     "title": "Tags",
