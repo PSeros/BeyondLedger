@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import {SIDEBAR_COLLAPSED_COOKIE} from "@/lib/sidebar";
 import Topbar from "@/components/Topbar";
 import MobileNavDrawer from "@/components/MobileNavDrawer";
+import NavHistoryTracker from "@/components/NavHistoryTracker";
 import {getWorkspaces} from "@/features/workspaces/db/workspaces";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 
@@ -23,6 +24,9 @@ export default async function AppLayout({
 
   return (
     <div className="flex h-full min-h-0 overflow-hidden">
+      {/* Renders nothing — records the route trail that BackLink on a detail page navigates back along. */}
+      <NavHistoryTracker/>
+
       {/* The rail is hidden below lg in pure CSS (MobileNavDrawer takes over there) rather than by a
           JS breakpoint check, so the SSR HTML is identical at every width — no flash, no hydration
           mismatch, and the collapsed cookie keeps driving the w-16/w-50 width unchanged. */}

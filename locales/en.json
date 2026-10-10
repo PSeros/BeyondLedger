@@ -339,6 +339,7 @@
     }
   },
   "detail": {
+    "back": "Back",
     "backToFixedExpenses": "Back to fixed expenses",
     "backToVariableExpenses": "Back to variable expenses",
     "backToFixedIncome": "Back to fixed income",
