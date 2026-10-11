@@ -2,11 +2,15 @@
 
 import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
-import {Button, ButtonGroup, Card} from "@heroui/react";
+import {Button, ButtonGroup, Card, ListBox, Select} from "@heroui/react";
 import type {BoxStats} from "@/features/insights/stats";
 import {seriesColor} from "@/features/insights/colors";
+import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
 
-export type BoxPanel = {key: "expense" | "income"; boxes: BoxStats[]};
+export const BOX_GROUPINGS = ["weekday", "category", "counterparty", "tag"] as const;
+export type BoxGrouping = (typeof BOX_GROUPINGS)[number];
+
+export type BoxPanel = {key: "expense" | "income"; groups: Record<BoxGrouping, BoxStats[]>};
 
 // Nice axis ticks from 0 to just past `max`.
 function ticksFor(max: number): number[] {
@@ -17,83 +21,170 @@ function ticksFor(max: number): number[] {
   return Array.from({length: Math.ceil(max / step) + 1}, (_, i) => i * step);
 }
 
-// Spread of single amounts per group, as horizontal box-and-whisker rows on one shared axis: box =
-// middle half (Q1–Q3), bar = median, whiskers = the rest within 1.5 × IQR, dots = outliers.
+// One box-plot card: a dropdown picks the grouping (weekday daily totals, or single amounts per
+// category / counterparty / tag), with vertical boxes on a shared axis. Box = middle half (Q1–Q3),
+// bar = median, whiskers = the rest within 1.5 × IQR, dots = outliers. Hover or focus a column for
+// the exact numbers. All groupings arrive precomputed, so switching never refetches.
 export default function InsightsBoxPlot({panels}: {panels: BoxPanel[]}) {
   const t = useTranslations("insights");
   const format = useFormatter();
+  const [grouping, setGrouping] = useState<BoxGrouping>("weekday");
   const [shown, setShown] = useState(0);
+  const [hovered, setHovered] = useState<number | null>(null);
   const panel = panels[Math.min(shown, panels.length - 1)];
-
-  const max = Math.max(0, ...panel.boxes.flatMap((box) => [box.max, ...box.outliers]));
-  const ticks = ticksFor(max);
-  const top = ticks[ticks.length - 1] || 1;
-  const x = (value: number) => `${(Math.max(0, value) / top) * 100}%`;
-  const money = (value: number) => format.number(value, "currency");
+  const boxes = panel.groups[grouping];
   const color = seriesColor(panel.key, panels.length);
+
+  const labels: Record<BoxGrouping, string> = {
+    weekday: t("boxByWeekday"),
+    category: t("byCategory"),
+    counterparty: t("byCounterparty"),
+    tag: t("byTag"),
+  };
+
+  const ticks = ticksFor(Math.max(0, ...boxes.flatMap((box) => [box.max, ...box.outliers])));
+  const top = ticks[ticks.length - 1] || 1;
+  const y = (value: number) => `${(Math.max(0, value) / top) * 100}%`;
+  const span = (from: number, to: number) => `calc(${y(to)} - ${y(from)})`;
+  const money = (value: number) => format.number(value, "currency");
+  const active = hovered != null ? boxes[hovered] : null;
 
   return (
     <Card className="flex h-full min-h-0 flex-col gap-3 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0">
           <p className="text-sm">{t("boxTitle")}</p>
-          <p className="text-xs text-muted">{t("boxHint")}</p>
+          <p className="text-xs text-muted">{t(grouping === "weekday" ? "boxHintWeekday" : "boxHint")}</p>
         </div>
-        {panels.length > 1 ? (
-          <ButtonGroup size="sm">
-            {panels.map((p, i) => (
-              <Button key={p.key} variant={i === shown ? "secondary" : "tertiary"} onPress={() => setShown(i)}>
-                {t(p.key === "expense" ? "domainExpense" : "domainIncome")}
-              </Button>
-            ))}
-          </ButtonGroup>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {panels.length > 1 ? (
+            <ButtonGroup size="sm">
+              {panels.map((p, i) => (
+                <Button key={p.key} variant={i === shown ? "secondary" : "tertiary"} onPress={() => setShown(i)}>
+                  {t(p.key === "expense" ? "domainExpense" : "domainIncome")}
+                </Button>
+              ))}
+            </ButtonGroup>
+          ) : null}
+          <Select
+            aria-label={t("boxGrouping")}
+            value={grouping}
+            onChange={(key) => key != null && setGrouping(String(key) as BoxGrouping)}
+            className="w-44"
+          >
+            <Select.Trigger>
+              <Select.Value/>
+              <Select.Indicator/>
+            </Select.Trigger>
+            <Select.Popover>
+              <ListBox>
+                {BOX_GROUPINGS.map((key) => (
+                  <ListBox.Item key={key} id={key} textValue={labels[key]}>
+                    {labels[key]}
+                    <ListBox.ItemIndicator/>
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
+          </Select>
+        </div>
       </div>
 
-      {panel.boxes.length === 0 ? (
+      {boxes.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted">{t("noBreakdown")}</p>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col justify-evenly">
-          {panel.boxes.map((box) => (
-            <div
-              key={box.label}
-              className="group flex items-center gap-3 rounded-md py-1 hover:bg-[var(--default)]/40"
-              title={t("boxTooltip", {n: box.n, min: money(box.min), q1: money(box.q1), median: money(box.median), q3: money(box.q3), max: money(box.max)})}
-            >
-              <span className="w-28 shrink-0 truncate text-sm">{box.label}</span>
-              <div className="relative h-6 min-w-0 flex-1">
-                <div className="absolute top-1/2 h-px bg-[var(--muted)]" style={{left: x(box.min), width: `calc(${x(box.max)} - ${x(box.min)})`}}/>
-                <div className="absolute top-1.5 h-3 w-px bg-[var(--muted)]" style={{left: x(box.min)}}/>
-                <div className="absolute top-1.5 h-3 w-px bg-[var(--muted)]" style={{left: x(box.max)}}/>
-                <div
-                  className="absolute inset-y-0.5 rounded"
-                  style={{
-                    left: x(box.q1),
-                    width: `max(2px, calc(${x(box.q3)} - ${x(box.q1)}))`,
-                    background: `color-mix(in oklab, ${color} 55%, transparent)`,
-                  }}
-                />
-                <div className="absolute inset-y-0 w-0.5 rounded bg-[var(--foreground)]" style={{left: x(box.median)}}/>
-                {box.outliers.map((value, i) => (
-                  <div
-                    key={i}
-                    className="absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                    style={{left: x(value), background: color}}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-          <div className="flex gap-3">
-            <span className="w-28 shrink-0"/>
-            <div className="relative h-4 min-w-0 flex-1 border-t border-[var(--border)]">
-              {ticks.map((tick, i) => (
+        <div className="flex min-h-0 flex-1 gap-2">
+          {/* y-axis */}
+          <div className="relative w-10 shrink-0 pb-6">
+            <div className="relative h-full">
+              {ticks.map((tick) => (
                 <span
                   key={tick}
-                  className={`absolute top-0.5 text-[0.7rem] text-muted tabular-nums ${i === 0 ? "" : i === ticks.length - 1 ? "-translate-x-full" : "-translate-x-1/2"}`}
-                  style={{left: x(tick)}}
+                  className="absolute right-0 translate-y-1/2 text-[0.7rem] text-muted tabular-nums"
+                  style={{bottom: y(tick)}}
                 >
                   {format.number(tick, "integer")}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative flex min-w-0 flex-1 flex-col">
+            <div className="relative min-h-0 flex-1">
+              {ticks.map((tick) => (
+                <div key={tick} className="absolute inset-x-0 h-px bg-[var(--border)] opacity-60" style={{bottom: y(tick)}}/>
+              ))}
+              <div className="absolute inset-0 flex">
+                {boxes.map((box, i) => (
+                  <div
+                    key={box.label}
+                    tabIndex={0}
+                    aria-label={`${box.label}: ${t("stat.median")} ${money(box.median)}`}
+                    onMouseEnter={() => setHovered(i)}
+                    onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setHovered(i)}
+                    onBlur={() => setHovered(null)}
+                    className={`relative h-full min-w-0 flex-1 rounded-md outline-none transition-colors ${hovered === i ? "bg-[var(--default)]/50" : ""}`}
+                  >
+                    <div className="absolute left-1/2 w-px -translate-x-1/2 bg-[var(--muted)]" style={{bottom: y(box.min), height: span(box.min, box.max)}}/>
+                    <div className="absolute left-1/2 h-px w-3 -translate-x-1/2 bg-[var(--muted)]" style={{bottom: y(box.min)}}/>
+                    <div className="absolute left-1/2 h-px w-3 -translate-x-1/2 bg-[var(--muted)]" style={{bottom: y(box.max)}}/>
+                    <div
+                      className="absolute left-1/2 w-[min(60%,2rem)] -translate-x-1/2 rounded"
+                      style={{
+                        bottom: y(box.q1),
+                        height: `max(2px, ${span(box.q1, box.q3)})`,
+                        background: `color-mix(in oklab, ${color} 55%, transparent)`,
+                      }}
+                    />
+                    <div className="absolute left-1/2 h-0.5 w-[min(60%,2rem)] -translate-x-1/2 rounded bg-[var(--foreground)]" style={{bottom: y(box.median)}}/>
+                    {box.outliers.map((value, j) => (
+                      <div
+                        key={j}
+                        className="absolute left-1/2 size-1.5 -translate-x-1/2 translate-y-1/2 rounded-full"
+                        style={{bottom: y(value), background: color}}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {active && hovered != null ? (
+                // Beside the hovered column, never over it: right of it in the left half, left of it
+                // in the right half.
+                <div
+                  className={`pointer-events-none absolute top-0 z-10 w-max px-3 py-2 text-xs ${
+                    hovered < boxes.length / 2 ? "ms-1" : "-ms-1 -translate-x-full"
+                  }`}
+                  style={{
+                    ...tooltipStyle,
+                    left: `${((hovered < boxes.length / 2 ? hovered + 1 : hovered) / boxes.length) * 100}%`,
+                  }}
+                >
+                  <p className="mb-1 text-sm font-semibold">{active.label}</p>
+                  <dl className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 tabular-nums">
+                    <dt className="text-muted">{t("stat.max")}</dt><dd className="text-end">{money(active.max)}</dd>
+                    <dt className="text-muted">Q3</dt><dd className="text-end">{money(active.q3)}</dd>
+                    <dt className="text-muted">{t("stat.median")}</dt><dd className="text-end font-semibold">{money(active.median)}</dd>
+                    <dt className="text-muted">Q1</dt><dd className="text-end">{money(active.q1)}</dd>
+                    <dt className="text-muted">{t("stat.min")}</dt><dd className="text-end">{money(active.min)}</dd>
+                    <dt className="text-muted">{t("stat.mean")}</dt><dd className="text-end">{money(active.mean)}</dd>
+                    {active.outOf != null ? (
+                      <><dt className="text-muted">{t("boxActiveDays")}</dt><dd className="text-end">{t("boxOutOf", {n: active.n, of: active.outOf})}</dd></>
+                    ) : (
+                      <><dt className="text-muted">{t("stat.count")}</dt><dd className="text-end">{format.number(active.n)}</dd></>
+                    )}
+                    {active.outliers.length ? (
+                      <><dt className="text-muted">{t("boxOutliers")}</dt><dd className="text-end">{format.number(active.outliers.length)}</dd></>
+                    ) : null}
+                  </dl>
+                </div>
+              ) : null}
+            </div>
+            <div className="flex h-6 shrink-0 items-end">
+              {boxes.map((box) => (
+                <span key={box.label} title={box.label} className="min-w-0 flex-1 truncate px-0.5 text-center text-xs text-muted">
+                  {box.label}
                 </span>
               ))}
             </div>

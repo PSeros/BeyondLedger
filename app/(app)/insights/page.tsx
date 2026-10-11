@@ -7,10 +7,9 @@ import InsightsStats from "@/features/insights/components/InsightsStats";
 import InsightsTimeChart, {type TimePoint} from "@/features/insights/components/InsightsTimeChart";
 import InsightsDonut, {type DonutPanel} from "@/features/insights/components/InsightsDonut";
 import InsightsBoxPlot, {type BoxPanel} from "@/features/insights/components/InsightsBoxPlot";
-import InsightsScatter from "@/features/insights/components/InsightsScatter";
-import InsightsMiniBars, {type MiniBarPoint} from "@/features/insights/components/InsightsMiniBars";
+import InsightsKde from "@/features/insights/components/InsightsKde";
 import InsightsTable from "@/features/insights/components/InsightsTable";
-import {boxStats, breakdown, bucketTotals, chartUnitFor, histogram, samplesFor, weekdayAverages} from "@/features/insights/stats";
+import {boxesByGroup, boxesByWeekday, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samplesFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery} from "@/features/insights/params";
@@ -62,26 +61,21 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     ...Object.fromEntries(series.map((domain, i) => [domain, totals[i].get(key) ?? 0])),
   }));
   const donutPanels: DonutPanel[] = series.map((domain) => ({key: domain, rows: breakdown(of(domain), query.by, 6)}));
-  const boxPanels: BoxPanel[] = series.map((domain) => ({key: domain, boxes: boxStats(of(domain), query.by)}));
-  const scatter = series.map((domain) => ({
-    key: domain,
-    points: of(domain).map((row) => ({x: Date.parse(`${row.date}T00:00:00Z`), y: row.amount, label: row.label, counterparty: row.counterparty})),
-  }));
-
   const weekdayNames = Array.from({length: 7}, (_, i) =>
     new Intl.DateTimeFormat(locale, {weekday: "short", timeZone: "UTC"}).format(new Date(Date.UTC(2024, 0, 1 + i))));
-  const weekdays = series.map((domain) => weekdayAverages(of(domain), span));
-  const weekdayPoints: MiniBarPoint[] = weekdayNames.map((label, i) => ({
-    label,
-    ...Object.fromEntries(series.map((domain, s) => [domain, weekdays[s][i]])),
+  const boxPanels: BoxPanel[] = series.map((domain) => ({
+    key: domain,
+    groups: {
+      weekday: boxesByWeekday(of(domain), span, weekdayNames),
+      category: boxesByGroup(of(domain), "category"),
+      counterparty: boxesByGroup(of(domain), "counterparty"),
+      tag: boxesByGroup(of(domain), "tag"),
+    },
   }));
 
-  const bins = histogram(series.map((domain) => samplesFor(of(domain), query.unit, span)));
-  const money = new Intl.NumberFormat(locale, {maximumFractionDigits: 0});
-  const histogramPoints: MiniBarPoint[] = bins.map((bin) => ({
-    label: `${money.format(bin.from)}–${money.format(bin.to)}`,
-    ...Object.fromEntries(series.map((domain, s) => [domain, bin.counts[s]])),
-  }));
+  const unitSamples = series.map((domain) => samplesFor(of(domain), query.unit, span));
+  const density = kde(unitSamples);
+  const medians = unitSamples.map((samples) => computeStats(samples).median);
 
   return (
     // Below lg the toolbar wraps to several rows, so the whole page scrolls instead of pinning it.
@@ -106,26 +100,14 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
               <div className="col-span-2 row-span-4 lg:col-span-2">
                 <InsightsDonut panels={donutPanels}/>
               </div>
-              <div className="col-span-2 row-span-4 lg:col-span-3">
+              <div className="col-span-2 row-span-4 lg:col-span-4">
                 <InsightsBoxPlot panels={boxPanels}/>
-              </div>
-              <div className="col-span-2 row-span-4 lg:col-span-3">
-                <InsightsScatter series={scatter} start={span.start.getTime()} end={span.end.getTime()}/>
               </div>
               <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-4">
                 <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
               </div>
-              <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-4">
-                <InsightsMiniBars title={t("weekdayTitle")} hint={t("weekdayHint")} points={weekdayPoints} series={[...series]} valueKind="currency"/>
-              </div>
-              <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-4">
-                <InsightsMiniBars
-                  title={t("histogramTitle")}
-                  hint={t("histogramHint", {unit: t(`unit.${query.unit}`)})}
-                  points={histogramPoints}
-                  series={[...series]}
-                  valueKind="count"
-                />
+              <div className="col-span-2 row-span-3 lg:col-span-6">
+                <InsightsKde points={density} series={[...series]} medians={medians} unitLabel={t(`unit.${query.unit}`)}/>
               </div>
             </div>
             <Suspense>
