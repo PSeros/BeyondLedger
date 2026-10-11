@@ -105,16 +105,18 @@ export default function BudgetCard({budget, options, anchor}: { budget: BudgetRe
             <p className="flex items-center gap-1 text-xs text-muted">
               {t("ofTarget", {target: format.number(budget.target, "currency")})}
               {/* A derived target moves with the period and with every other budget, so the card
-                  says so — and spells out the two halves it is made of. */}
+                  says so — and spells out the parts it is made of. */}
               {budget.derivedTarget ? (
                 <LuWallet
                   className="size-3 shrink-0"
                   aria-label={t("targetFromIncomeChip", {
                     income: format.number(budget.derivedTarget.income, "currency"),
+                    saved: format.number(budget.derivedTarget.saved, "currency"),
                     allocated: format.number(budget.derivedTarget.allocated, "currency"),
                   })}
                   title={t("targetFromIncomeChip", {
                     income: format.number(budget.derivedTarget.income, "currency"),
+                    saved: format.number(budget.derivedTarget.saved, "currency"),
                     allocated: format.number(budget.derivedTarget.allocated, "currency"),
                   })}
                 />

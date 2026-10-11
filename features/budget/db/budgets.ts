@@ -7,7 +7,13 @@ import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {DEFAULT_WORKSPACE_ID} from "@/features/workspaces/workspaceFormData";
 import {computeActuals, type BudgetMemberIds} from "@/features/budget/db/budgetActuals";
 import {computeInverseTotal, type ClaimSource} from "@/features/budget/db/budgetInverse";
-import {allocatedInWindow, getIncomeStreams, incomeInWindow, type Allocation} from "@/features/budget/db/budgetIncomeTarget";
+import {
+  allocatedInWindow,
+  getIncomeStreams,
+  getSavingStreams,
+  streamsInWindow,
+  type Allocation,
+} from "@/features/budget/db/budgetIncomeTarget";
 import {facetSelectionFromMembers, getSelectorTotals, hasAnySelector} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
 
@@ -52,7 +58,7 @@ export type BudgetResolved = BudgetView & {
   actual: number;
   // Only for a targetFromIncome budget: the two halves its target is made of, so the card can show
   // where the number came from.
-  derivedTarget?: {income: number; allocated: number};
+  derivedTarget?: {income: number; saved: number; allocated: number};
 };
 
 export type BudgetMemberOptions = {
@@ -147,10 +153,10 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
   const budgets = await getBudgets(workspaceId);
   // Selector totals (fetched once) let the matcher treat "every value selected" as no constraint.
   const totals = await getSelectorTotals();
-  // Income streams only matter to budgets pegged to income — skip the query when none is.
-  const incomeStreams = budgets.some((budget) => budget.targetFromIncome)
-    ? await getIncomeStreams(workspaceId)
-    : [];
+  // Income + saving streams only matter to budgets pegged to income — skip the queries when none is.
+  const [incomeStreams, savingStreams] = budgets.some((budget) => budget.targetFromIncome)
+    ? await Promise.all([getIncomeStreams(workspaceId), getSavingStreams(workspaceId)])
+    : [[], []];
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
 
   // An inverse budget subtracts what the OTHER budgets of its own account claim. `budgets` already
@@ -190,18 +196,14 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
     const period = periods[index];
     const window = {start: period.start, end: period.end};
     const hasOverride = budget.overrides.some((o) => o.periodKey === period.key);
-    // Pass two: the remainder. Income arriving in this window minus what the other budgets of this
-    // account allocate out of it — only inverse budgets can ask for this, so it never recurses.
+    const windowMonths = windowMonthsFor(budget.periodType, period.start, period.end);
+    // Pass two: the remainder. Income arriving in this window minus savings minus what the other
+    // budgets of this account allocate out of it — only inverse budgets can ask for this.
     const derived =
       budget.targetFromIncome && !hasOverride
         ? {
-            income: incomeInWindow(
-              incomeStreams,
-              budget.workspaceId,
-              window,
-              windowMonthsFor(budget.periodType, period.start, period.end),
-              now,
-            ),
+            income: streamsInWindow(incomeStreams, budget.workspaceId, window, windowMonths, now),
+            saved: streamsInWindow(savingStreams, budget.workspaceId, window, windowMonths, now),
             allocated: allocatedInWindow(
               budgets.flatMap((other, otherIndex): Allocation[] =>
                 other.workspaceId !== budget.workspaceId || otherIndex === index
@@ -226,7 +228,7 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
       periodKey: period.key,
       windowStart: period.start ? period.start.toISOString() : null,
       windowEnd: period.end ? period.end.toISOString() : null,
-      target: derived ? derived.income - derived.allocated : ownTargets[index],
+      target: derived ? derived.income - derived.saved - derived.allocated : ownTargets[index],
       actual: actuals[index],
       ...(derived ? {derivedTarget: derived} : {}),
     };

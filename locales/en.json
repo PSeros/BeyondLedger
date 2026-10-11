@@ -449,8 +449,8 @@
     "inverseHint": "No selectors: it counts every expense in its period that no other budget of this account claims.",
     "inverseChip": "Everything else",
     "targetFromIncomeLabel": "Target = what's left of this period's income",
-    "targetFromIncomeHint": "This period's income minus what the other budgets of this account already allocate — the money still free to spend.",
-    "targetFromIncomeChip": "{income} income − {allocated} allocated by other budgets"
+    "targetFromIncomeHint": "This period's income minus what you save and what the other budgets of this account already allocate — the money still free to spend.",
+    "targetFromIncomeChip": "{income} income − {saved} saved − {allocated} allocated by other budgets"
   },
   "insights": {
     "domainExpense": "Expenses",

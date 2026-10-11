@@ -487,6 +487,17 @@ async function main() {
   const contractCatId = (name: string) => lookups.contractCategories.find((c) => c.name === name)!.id;
 
   const budgetYear = new Date().getUTCFullYear();
+  // Catch-all: what's left of the shared account's income after savings and the budgets below.
+  await prisma.budget.create({
+    data: {
+      name: "Frei verfügbar",
+      amount: 0,
+      periodType: "MONTHLY",
+      workspaceId: sharedWorkspaceId,
+      isInverse: true,
+      targetFromIncome: true,
+    },
+  });
   await prisma.budget.create({
     data: {
       name: "Lebensmittel & Haushalt",

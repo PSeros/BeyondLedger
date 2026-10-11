@@ -449,8 +449,8 @@
     "inverseHint": "Ohne Auswahl: zählt jede Ausgabe im Zeitraum, die kein anderes Budget dieses Kontos beansprucht.",
     "inverseChip": "Alles Übrige",
     "targetFromIncomeLabel": "Ziel = was von den Einnahmen übrig bleibt",
-    "targetFromIncomeHint": "Einnahmen dieses Zeitraums minus das, was die anderen Budgets dieses Kontos schon verplanen — das noch frei verfügbare Geld.",
-    "targetFromIncomeChip": "{income} Einnahmen − {allocated} von anderen Budgets verplant"
+    "targetFromIncomeHint": "Einnahmen dieses Zeitraums minus das, was du sparst und was die anderen Budgets dieses Kontos schon verplanen — das noch frei verfügbare Geld.",
+    "targetFromIncomeChip": "{income} Einnahmen − {saved} gespart − {allocated} von anderen Budgets verplant"
   },
   "insights": {
     "domainExpense": "Ausgaben",
