@@ -4,7 +4,8 @@ import {useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button, Popover} from "@heroui/react";
 import {LuHandCoins} from "react-icons/lu";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
+import {forgetLocation} from "@/lib/navHistory";
 import CreatableSelect from "@/features/expense/shared/components/CreatableSelect";
 import {createSavingTarget} from "@/features/settings/db/referenceDataMutations";
 import {convertContractToSaving} from "@/features/saving/db/convertContract";
@@ -13,6 +14,7 @@ import type {FilterOption} from "@/features/expense/shared/db/expenseFormOptions
 // On a contract's detail: "this is really a savings plan" → move it (with history, tags, files) to /saving.
 export default function ConvertToSavingButton({contractId, targets}: {contractId: number; targets: FilterOption[]}) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations("saving");
   const tFields = useTranslations("fields");
   const tForms = useTranslations("forms");
@@ -29,7 +31,9 @@ export default function ConvertToSavingButton({contractId, targets}: {contractId
     try {
       const saving = await convertContractToSaving(contractId, Number(targetId));
       setOpen(false);
-      router.push(`/saving/entry/${saving.id}`);
+      // The contract is gone: replace its history entry so Back skips it instead of hitting a 404.
+      forgetLocation(pathname);
+      router.replace(`/saving/entry/${saving.id}`);
       router.refresh();
     } catch {
       setError(tErrors("couldNotSave"));
