@@ -47,33 +47,30 @@ export default async function InsightsStats({
   }
 
   return (
-    <Card className="flex flex-col gap-3 p-4">
+    <Card className="flex h-full min-h-0 flex-col gap-2 p-4">
       <Card.Header className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <div>
-          <Card.Title>{t("statsTitle")}</Card.Title>
-          <Card.Description>{t(`unitHint.${unit}`)}</Card.Description>
-        </div>
+        <p className="text-sm" title={t(`unitHint.${unit}`)}>{t("statsTitle")}</p>
         <InsightsStatsControls/>
       </Card.Header>
-      <Card.Content className="overflow-x-auto">
+      <Card.Content className="min-h-0 flex-1 overflow-auto">
         {stats.length === 0 ? (
           <p className="text-sm text-muted">{t("noStatsPicked")}</p>
         ) : (
           <table className="w-full text-sm tabular-nums">
             <thead>
               <tr className="text-muted">
-                <th className="py-1.5 text-start font-medium"/>
+                <th className="py-1 text-start font-medium"/>
                 {columns.map((column) => (
-                  <th key={column.key} className="py-1.5 text-end font-medium">{column.title}</th>
+                  <th key={column.key} className="py-1 text-end font-medium">{column.title}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {stats.map((key) => (
                 <tr key={key} className="border-t border-[var(--border)]">
-                  <th scope="row" className="py-1.5 text-start font-normal text-muted">{t(`stat.${key}`)}</th>
+                  <th scope="row" className="py-1 text-start font-normal text-muted">{t(`stat.${key}`)}</th>
                   {columns.map((column) => (
-                    <td key={column.key} className="py-1.5 text-end">{display(key, column.values[key])}</td>
+                    <td key={column.key} className="py-1 text-end">{display(key, column.values[key])}</td>
                   ))}
                 </tr>
               ))}

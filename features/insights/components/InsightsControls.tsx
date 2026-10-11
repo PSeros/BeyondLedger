@@ -3,9 +3,9 @@
 import {useState} from "react";
 import {useTranslations} from "next-intl";
 import {Button, ButtonGroup, Card} from "@heroui/react";
-import {LuFilter} from "react-icons/lu";
+import {LuFilter, LuX} from "react-icons/lu";
 import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
-import InsightsWindowPicker from "@/features/insights/components/InsightsWindowPicker";
+import InsightsPeriodPicker from "@/features/insights/components/InsightsPeriodPicker";
 import SavedViewsMenu from "@/features/insights/components/SavedViewsMenu";
 import type {SavedView} from "@/features/insights/db/views";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
@@ -40,8 +40,9 @@ const fromTriState = ({included, excluded}: TriStateValue): SignedIds => ({
   exclude: excluded.map(Number),
 });
 
-// The Insights toolbar (domain toggle, window picker, filter toggle) plus the collapsible filter
-// panel under it. The panel's open state is UI-only; everything it edits lives in the URL.
+// The Insights toolbar (domain toggle, period picker, views, filter toggle), the active filters as
+// removable chips, and the collapsible filter panel. The panel's open state is UI-only; everything it
+// edits lives in the URL.
 export default function InsightsControls({options, views}: {options: InsightsFilterOptions; views: SavedView[]}) {
   const t = useTranslations("insights");
   const tBudget = useTranslations("budget");
@@ -87,6 +88,19 @@ export default function InsightsControls({options, views}: {options: InsightsFil
     return parts.length ? parts.join(", ") : null;
   }
 
+  // One chip per picked value; ✕ drops just that value.
+  const chips = selectors.flatMap((selector) => {
+    const nameOf = (id: number) => selector.options.find((option) => option.id === id)?.name ?? `#${id}`;
+    const without = (id: number) => serializeSignedIds({
+      include: selector.ids.include.filter((other) => other !== id),
+      exclude: selector.ids.exclude.filter((other) => other !== id),
+    });
+    return [
+      ...selector.ids.include.map((id) => ({key: `${selector.param}+${id}`, sign: "+", group: selector.label, name: nameOf(id), param: selector.param, next: without(id)})),
+      ...selector.ids.exclude.map((id) => ({key: `${selector.param}-${id}`, sign: "−", group: selector.label, name: nameOf(id), param: selector.param, next: without(id)})),
+    ];
+  });
+
   function clearFilters() {
     update(Object.fromEntries([...Object.values(EXPENSE_PARAM_KEYS), ...Object.values(INCOME_PARAM_KEYS)].map((key) => [key, null])));
   }
@@ -106,7 +120,7 @@ export default function InsightsControls({options, views}: {options: InsightsFil
             </Button>
           ))}
         </ButtonGroup>
-        <InsightsWindowPicker window={query.window} onChange={update}/>
+        <InsightsPeriodPicker window={query.window} onChange={update}/>
         <div className="ml-auto flex items-center gap-2">
           <SavedViewsMenu views={views}/>
           <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)} aria-label={tFilters("filter")}>
@@ -116,6 +130,30 @@ export default function InsightsControls({options, views}: {options: InsightsFil
           </Button>
         </div>
       </div>
+
+      {chips.length ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {chips.map((chip) => (
+            <span
+              key={chip.key}
+              title={chip.group}
+              className="flex items-center gap-1 rounded-full bg-[var(--default)] py-0.5 ps-2.5 pe-1 text-xs"
+            >
+              <span className={`font-semibold ${chip.sign === "+" ? "text-success" : "text-danger"}`}>{chip.sign}</span>
+              <span className={chip.sign === "−" ? "line-through decoration-[var(--muted)]" : ""}>{chip.name}</span>
+              <button
+                type="button"
+                aria-label={t("removeFilter", {name: chip.name})}
+                onClick={() => update({[chip.param]: chip.next})}
+                className="flex size-5 items-center justify-center rounded-full text-muted hover:bg-[var(--surface)] hover:text-foreground"
+              >
+                <LuX className="size-3"/>
+              </button>
+            </span>
+          ))}
+          <Button variant="ghost" size="sm" onPress={clearFilters}>{tFilters("clear")}</Button>
+        </div>
+      ) : null}
 
       {isOpen ? (
         <Card className="flex flex-col gap-4 p-4">

@@ -143,3 +143,73 @@ export function breakdown(rows: InsightsRow[], by: "category" | "counterparty" |
     isUntagged: key === UNTAGGED,
   }));
 }
+
+export type BoxStats = {label: string; n: number; min: number; q1: number; median: number; q3: number; max: number; outliers: number[]};
+
+// Box-and-whisker per group (Tukey: whiskers reach the furthest value within 1.5 × IQR, the rest are
+// outliers). Only positive amounts — a refund line has no place on a spending distribution. The
+// `groups` biggest by total are kept, so the box plot lines up with the donut.
+export function boxStats(rows: InsightsRow[], by: "category" | "counterparty" | "tag", groups = 6): BoxStats[] {
+  const samples = new Map<string, number[]>();
+  for (const row of rows) {
+    if (row.amount <= 0) continue;
+    const keys = by === "tag" ? (row.tags.length ? row.tags : []) : [by === "category" ? row.category : row.counterparty];
+    for (const key of keys) samples.set(key, [...(samples.get(key) ?? []), row.amount]);
+  }
+  return [...samples.entries()]
+    .sort((a, b) => b[1].reduce((s, v) => s + v, 0) - a[1].reduce((s, v) => s + v, 0))
+    .slice(0, groups)
+    .map(([label, values]) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      const q1 = quantile(sorted, 0.25);
+      const q3 = quantile(sorted, 0.75);
+      const fence = 1.5 * (q3 - q1);
+      const inside = sorted.filter((v) => v >= q1 - fence && v <= q3 + fence);
+      return {
+        label,
+        n: sorted.length,
+        min: inside[0] ?? sorted[0],
+        q1,
+        median: quantile(sorted, 0.5),
+        q3,
+        max: inside[inside.length - 1] ?? sorted[sorted.length - 1],
+        outliers: sorted.filter((v) => v < q1 - fence || v > q3 + fence),
+      };
+    });
+}
+
+// Average total per weekday (Mon … Sun) across the span; weekdays without entries count as 0.
+export function weekdayAverages(rows: InsightsRow[], span: {start: Date; end: Date}): number[] {
+  const occurrences = Array(7).fill(0);
+  for (let day = span.start; day < span.end; day = addDays(day, 1)) occurrences[(day.getUTCDay() + 6) % 7] += 1;
+  const totals = Array(7).fill(0);
+  for (const row of rows) totals[(new Date(`${row.date}T00:00:00Z`).getUTCDay() + 6) % 7] += row.amount;
+  return totals.map((total, i) => (occurrences[i] ? total / occurrences[i] : 0));
+}
+
+// A "nice" bin width (1, 2, 2.5 or 5 × 10^k) giving about `target` bins.
+function niceStep(range: number, target: number): number {
+  const raw = range / target;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const factor = [1, 2, 2.5, 5, 10].find((f) => f * magnitude >= raw) ?? 10;
+  return factor * magnitude;
+}
+
+export type HistogramBin = {from: number; to: number; counts: number[]};
+
+// Shared bins for one or more sample sets (expense / income), so grouped bars line up.
+export function histogram(sets: number[][], target = 12): HistogramBin[] {
+  const all = sets.flat();
+  if (!all.length) return [];
+  const min = Math.min(0, ...all);
+  const max = Math.max(...all);
+  if (max <= min) return [{from: min, to: min, counts: sets.map((set) => set.length)}];
+  const step = niceStep(max - min, target);
+  const start = Math.floor(min / step) * step;
+  const count = Math.max(1, Math.ceil((max - start) / step + 1e-9));
+  const bins: HistogramBin[] = Array.from({length: count}, (_, i) => ({from: start + i * step, to: start + (i + 1) * step, counts: sets.map(() => 0)}));
+  sets.forEach((set, s) => {
+    for (const value of set) bins[Math.min(count - 1, Math.floor((value - start) / step))].counts[s] += 1;
+  });
+  return bins;
+}

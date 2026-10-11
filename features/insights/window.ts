@@ -30,3 +30,24 @@ export function stepAnchor(window: InsightsWindow, delta: -1 | 1): string | null
   const next = utcDate(anchor.getUTCFullYear(), anchor.getUTCMonth() + delta * months, 1);
   return `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, "0")}`;
 }
+
+// The same stretch of the previous period, for "vs. previous" deltas: one period back, cut to as much
+// of it as has elapsed of the current one (Oct 1–11 compares with Sep 1–11). A range compares with
+// the equally long range right before it; all time has nothing to compare with.
+export function previousSpan(window: InsightsWindow, span: {start: Date; end: Date}): {start: Date; end: Date} | null {
+  const current = resolveWindow(window);
+  if (current.start == null) return null;
+  const elapsed = span.end.getTime() - current.start.getTime();
+  if (elapsed <= 0) return null;
+  if (window.periodType === "RANGE") {
+    const length = (current.end?.getTime() ?? span.end.getTime()) - current.start.getTime();
+    const start = new Date(current.start.getTime() - length);
+    return {start, end: new Date(start.getTime() + Math.min(elapsed, length))};
+  }
+  const prevAnchor = stepAnchor(window, -1);
+  if (!prevAnchor) return null;
+  const previous = resolveWindow({...window, anchor: prevAnchor});
+  if (previous.start == null || previous.end == null) return null;
+  const end = new Date(Math.min(previous.start.getTime() + elapsed, previous.end.getTime()));
+  return {start: previous.start, end};
+}
