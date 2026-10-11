@@ -50,13 +50,6 @@ export default async function SurplusPage() {
           </div>
           <SurplusMoveButton options={options}/>
         </div>
-        {surplus ? (
-          <p className="text-sm text-muted">
-            {t("surplusFormula", {date: format.dateTime(new Date(`${surplus.start}T00:00:00Z`), {dateStyle: "medium", timeZone: "UTC"})})}
-            {" · "}
-            <Link href="/settings/general#start" className="text-[var(--accent)] hover:underline">{t("changeStart")}</Link>
-          </p>
-        ) : null}
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Stat label={t("balance")} value={format.number(surplus?.balance ?? 0, "currency")}/>

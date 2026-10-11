@@ -635,8 +635,6 @@
     "history": "Verlauf",
     "plans": "Sparpläne",
     "noPlan": "Noch kein Sparplan für diesen Topf.",
-    "surplusFormula": "Einnahmen − Ausgaben − Gespartes seit {date}",
-    "changeStart": "Startdatum ändern",
     "avgMonth": "Ø pro Monat",
     "bestMonth": "Bester Monat",
     "worstMonth": "Schlechtester Monat",

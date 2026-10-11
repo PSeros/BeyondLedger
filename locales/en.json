@@ -635,8 +635,6 @@
     "history": "History",
     "plans": "Savings plans",
     "noPlan": "No savings plan for this pot yet.",
-    "surplusFormula": "Income − expenses − savings since {date}",
-    "changeStart": "Change start date",
     "avgMonth": "Ø per month",
     "bestMonth": "Best month",
     "worstMonth": "Worst month",
