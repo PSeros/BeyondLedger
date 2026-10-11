@@ -17,7 +17,7 @@ import {
 
 const LIMIT = 40;
 // URL keys that only shape the stats/charts, so changing them must not refetch the table.
-const DISPLAY_ONLY_KEYS = ["u", "st", "by"];
+const DISPLAY_ONLY_KEYS = ["u", "by"];
 
 // The matching entries, paged and sorted on the server. Collapsed by default and only fetched once
 // opened. Level and sort are table-only state.

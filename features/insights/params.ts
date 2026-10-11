@@ -28,7 +28,6 @@ export const DEFAULT_STAT_UNIT: StatUnit = "bill";
 
 export const STAT_KEYS = ["count", "sum", "mean", "median", "min", "max", "stdDev", "variance", "p90"] as const;
 export type StatKey = (typeof STAT_KEYS)[number];
-export const DEFAULT_STATS: StatKey[] = ["count", "sum", "mean", "median", "min", "max", "stdDev"];
 
 export const BREAKDOWN_DIMENSIONS = ["weekday", "category", "counterparty", "tag"] as const;
 export type BreakdownDimension = (typeof BREAKDOWN_DIMENSIONS)[number];
@@ -41,7 +40,6 @@ export type InsightsQuery = {
   domain: InsightsDomain;
   window: InsightsWindow;
   unit: StatUnit;
-  stats: StatKey[];
   by: BreakdownDimension;
   // Expense selectors; its tagIds also filter income.
   expense: FacetSelection;
@@ -113,9 +111,6 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
 
   const rawUnit = read(source, "u");
   const unit = (STAT_UNITS as readonly string[]).includes(rawUnit ?? "") ? (rawUnit as StatUnit) : DEFAULT_STAT_UNIT;
-  const rawStats = read(source, "st");
-  const picked = STAT_KEYS.filter((key) => (rawStats ?? "").split(",").includes(key));
-  const stats = rawStats == null ? DEFAULT_STATS : picked;
 
   const rawBy = read(source, "by");
   const by = (BREAKDOWN_DIMENSIONS as readonly string[]).includes(rawBy ?? "") ? (rawBy as BreakdownDimension) : "category";
@@ -123,7 +118,6 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
   return {
     domain,
     unit,
-    stats,
     by,
     window: {
       periodType,
@@ -160,8 +154,6 @@ export function serializeViewQuery(query: InsightsQuery): string {
   set(INCOME_PARAM_KEYS.categoryIds, serializeSignedIds(query.income.categoryIds));
   set(INCOME_PARAM_KEYS.sourceIds, serializeSignedIds(query.income.sourceIds));
   set("u", query.unit === DEFAULT_STAT_UNIT ? null : query.unit);
-  const isDefaultStats = query.stats.length === DEFAULT_STATS.length && query.stats.every((key) => DEFAULT_STATS.includes(key));
-  if (!isDefaultStats) params.set("st", query.stats.join(","));
   set("by", query.by === "category" ? null : query.by);
   return params.toString();
 }

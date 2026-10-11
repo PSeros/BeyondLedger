@@ -453,10 +453,7 @@
     "filtersHint": "Click a value once to include it, twice to exclude it. Article and contract categories decide what counts; the other selectors narrow it down. Tags apply to both expenses and income.",
     "entryCount": "{count, plural, one {# entry} other {# entries}}",
     "noResults": "Nothing matches these filters in this time window.",
-    "statsTitle": "Statistics",
     "unitLabel": "Values per",
-    "pickStats": "Shown statistics",
-    "noStatsPicked": "No statistics selected.",
     "unit": {
       "item": "Line item",
       "bill": "Bill / payment",
@@ -465,23 +462,13 @@
       "month": "Month",
       "year": "Year"
     },
-    "unitHint": {
-      "item": "Each bill line, contract payment and income payment is one value.",
-      "bill": "Each bill (all its lines together), contract payment and income payment is one value.",
-      "day": "The total of each day in the period is one value; days without entries count as 0.",
-      "week": "The total of each week (Mon–Sun) in the period is one value; empty weeks count as 0.",
-      "month": "The total of each month in the period is one value; empty months count as 0."
-    },
     "stat": {
       "count": "Count",
       "sum": "Sum",
       "mean": "Mean",
       "median": "Median",
       "min": "Minimum",
-      "max": "Maximum",
-      "stdDev": "Standard deviation",
-      "variance": "Variance",
-      "p90": "90th percentile"
+      "max": "Maximum"
     },
     "timeChartTitle": "Total per {unit}",
     "weekLabel": "W{week}",

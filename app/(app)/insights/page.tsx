@@ -3,7 +3,6 @@ import {getTranslations} from "next-intl/server";
 import {client} from "@/lib/prisma";
 import InsightsControls, {type InsightsFilterOptions} from "@/features/insights/components/InsightsControls";
 import InsightsKpis from "@/features/insights/components/InsightsKpis";
-import InsightsStats from "@/features/insights/components/InsightsStats";
 import InsightsTimeChart, {type TimePoint} from "@/features/insights/components/InsightsTimeChart";
 import InsightsDonut, {type DonutPanel} from "@/features/insights/components/InsightsDonut";
 import InsightsBoxPlot, {type BoxPanel} from "@/features/insights/components/InsightsBoxPlot";
@@ -99,13 +98,10 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
               <div className="col-span-2 row-span-4 lg:col-span-2">
                 <InsightsDonut panels={donutPanels} groupLabel={groupLabel}/>
               </div>
-              <div className="col-span-2 row-span-4 lg:col-span-4">
+              <div className="col-span-2 row-span-4 lg:col-span-3">
                 <InsightsBoxPlot panels={boxPanels} title={t("boxTitle", {group: groupLabel})} hint={boxHint}/>
               </div>
-              <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-4">
-                <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
-              </div>
-              <div className="col-span-2 row-span-3 lg:col-span-6">
+              <div className="col-span-2 row-span-3 lg:col-span-3 lg:row-span-4">
                 <InsightsKde points={density} series={[...series]} medians={medians} unitLabel={unitLabel}/>
               </div>
             </div>
