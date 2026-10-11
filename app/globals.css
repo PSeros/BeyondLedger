@@ -58,6 +58,17 @@
     }
 }
 
+/* No visible scrollbars anywhere; areas still scroll by wheel, touch and keyboard. Unlayered on purpose,
+   so it also beats component styles that draw their own scrollbar (e.g. the table scroll container). */
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
 @layer utilities {
     .scrollbar-hide {
         scrollbar-width: none;

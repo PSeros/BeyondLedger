@@ -73,7 +73,7 @@ export default async function SavingPage() {
           </Card>
 
           {/* One row: cards share the width while they fit, then the row scrolls sideways. */}
-          <div className="flex shrink-0 snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
+          <div className="flex shrink-0 snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
             {surplus ? <SurplusCard surplus={surplus} options={options}/> : null}
             {pots.map((pot) => <PotCard key={pot.id} pot={pot} options={options}/>)}
           </div>
