@@ -487,10 +487,6 @@
       "contractPayment": "Contract payment",
       "incomePayment": "Income"
     },
-    "level": {
-      "item": "Line items",
-      "bill": "Bills"
-    },
     "views": "Views",
     "savedViews": "Saved views",
     "noViews": "No saved views yet.",
@@ -528,7 +524,11 @@
       "tag": "tag"
     },
     "boxHintUnit": "One value per {unit} · box = middle half, bar = median, dots = outliers",
-    "boxHintDays": "Daily totals, on days with entries · box = middle half, bar = median, dots = outliers"
+    "boxHintDays": "Daily totals, on days with entries · box = middle half, bar = median, dots = outliers",
+    "periodStart": "{unit} (start)",
+    "csvEntries": "Entries",
+    "periodLabel": "Period",
+    "periodCount": "{count, plural, one {# period} other {# periods}}"
   },
   "tags": {
     "title": "Tags",
