@@ -454,7 +454,7 @@
     "entryCount": "{count, plural, one {# Eintrag} other {# Einträge}}",
     "noResults": "Für diese Filter gibt es in diesem Zeitraum keine Einträge.",
     "statsTitle": "Statistik",
-    "unitLabel": "Berechnet pro",
+    "unitLabel": "Werte pro",
     "pickStats": "Angezeigte Kennzahlen",
     "noStatsPicked": "Keine Kennzahlen ausgewählt.",
     "unit": {
@@ -523,19 +523,25 @@
     "kpiPer": "{stat} pro {unit}",
     "kpiCount": "Anzahl ({unit})",
     "vsPrevious": "Vorperiode: {value}",
-    "shareTitle": "Anteile",
-    "boxTitle": "Streuung",
-    "boxHint": "Einzelbeträge je Gruppe · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer",
-    "boxGrouping": "Gruppierung",
+    "shareTitle": "Anteile nach {group}",
+    "boxTitle": "Streuung nach {group}",
     "boxByWeekday": "Wochentag",
-    "boxHintWeekday": "Tagessummen je Wochentag, an Tagen mit Einträgen · Box = mittlere Hälfte, Strich = Median",
     "boxOutliers": "Ausreißer",
     "kdeTitle": "Verteilung",
     "kdeHint": "Wie häufig welche Beträge vorkommen (pro {unit}); die Linie markiert den Median",
     "kdeBelow": "{share} der Werte liegen darunter oder gleich",
     "kdeTooFew": "Zu wenige Werte für eine Verteilung.",
     "boxActiveDays": "Tage mit Einträgen",
-    "boxOutOf": "{n} von {of}"
+    "boxOutOf": "{n} von {of}",
+    "groupLabel": "Gruppiert nach",
+    "group": {
+      "weekday": "Wochentag",
+      "category": "Kategorie",
+      "counterparty": "Lieferant / Quelle",
+      "tag": "Tag"
+    },
+    "boxHintUnit": "Ein Wert pro {unit} · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer",
+    "boxHintDays": "Tagessummen, an Tagen mit Einträgen · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer"
   },
   "tags": {
     "title": "Tags",

@@ -2,12 +2,12 @@
 
 import type {Key, Selection} from "react-aria-components";
 import {useTranslations} from "next-intl";
-import {Button, ListBox, Popover, Select} from "@heroui/react";
+import {Button, ListBox, Popover} from "@heroui/react";
 import {LuListChecks} from "react-icons/lu";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
-import {DEFAULT_STAT_UNIT, DEFAULT_STATS, STAT_KEYS, STAT_UNITS, type StatKey, type StatUnit} from "@/features/insights/params";
+import {DEFAULT_STATS, STAT_KEYS, type StatKey} from "@/features/insights/params";
 
-// Unit (?u) and visible stats (?st) for the stats card.
+// Which statistics the stats card shows (?st). The unit is page-wide (InsightsAnalysisBar).
 export default function InsightsStatsControls() {
   const t = useTranslations("insights");
   const {query, update} = useInsightsParams();
@@ -20,26 +20,6 @@ export default function InsightsStatsControls() {
 
   return (
     <div className="flex items-center gap-2">
-      <Select
-        aria-label={t("unitLabel")}
-        value={query.unit}
-        onChange={(key) => key != null && update({u: key === DEFAULT_STAT_UNIT ? null : String(key)})}
-        className="w-48"
-      >
-        <Select.Trigger>
-          <Select.Value/>
-          <Select.Indicator/>
-        </Select.Trigger>
-        <Select.Popover>
-          <ListBox>
-            {STAT_UNITS.map((unit: StatUnit) => (
-              <ListBox.Item key={unit} id={unit} textValue={t(`unit.${unit}`)}>
-                {t(`unit.${unit}`)}
-              </ListBox.Item>
-            ))}
-          </ListBox>
-        </Select.Popover>
-      </Select>
       <Popover>
         <Button size="sm" variant="tertiary" isIconOnly aria-label={t("pickStats")}>
           <LuListChecks/>

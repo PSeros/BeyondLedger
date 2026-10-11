@@ -6,6 +6,7 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import {LuFilter, LuX} from "react-icons/lu";
 import MultiSelectField, {type TriStateValue} from "@/features/budget/components/MultiSelectField";
 import InsightsPeriodPicker from "@/features/insights/components/InsightsPeriodPicker";
+import InsightsAnalysisBar from "@/features/insights/components/InsightsAnalysisBar";
 import SavedViewsMenu from "@/features/insights/components/SavedViewsMenu";
 import type {SavedView} from "@/features/insights/db/views";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
@@ -130,6 +131,8 @@ export default function InsightsControls({options, views}: {options: InsightsFil
           </Button>
         </div>
       </div>
+
+      <InsightsAnalysisBar/>
 
       {chips.length ? (
         <div className="flex flex-wrap items-center gap-1.5">

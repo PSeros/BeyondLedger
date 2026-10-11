@@ -454,7 +454,7 @@
     "entryCount": "{count, plural, one {# entry} other {# entries}}",
     "noResults": "Nothing matches these filters in this time window.",
     "statsTitle": "Statistics",
-    "unitLabel": "Calculated per",
+    "unitLabel": "Values per",
     "pickStats": "Shown statistics",
     "noStatsPicked": "No statistics selected.",
     "unit": {
@@ -523,19 +523,25 @@
     "kpiPer": "{stat} per {unit}",
     "kpiCount": "Count ({unit})",
     "vsPrevious": "Previous period: {value}",
-    "shareTitle": "Share",
-    "boxTitle": "Spread",
-    "boxHint": "Single amounts per group · box = middle half, bar = median, dots = outliers",
-    "boxGrouping": "Grouping",
+    "shareTitle": "Share by {group}",
+    "boxTitle": "Spread by {group}",
     "boxByWeekday": "Weekday",
-    "boxHintWeekday": "Daily totals per weekday, on days with entries · box = middle half, bar = median",
     "boxOutliers": "Outliers",
     "kdeTitle": "Distribution",
     "kdeHint": "How common each amount is (per {unit}); the line marks the median",
     "kdeBelow": "{share} of values at or below",
     "kdeTooFew": "Too few values for a distribution.",
     "boxActiveDays": "Days with entries",
-    "boxOutOf": "{n} of {of}"
+    "boxOutOf": "{n} of {of}",
+    "groupLabel": "Grouped by",
+    "group": {
+      "weekday": "weekday",
+      "category": "category",
+      "counterparty": "supplier / source",
+      "tag": "tag"
+    },
+    "boxHintUnit": "One value per {unit} · box = middle half, bar = median, dots = outliers",
+    "boxHintDays": "Daily totals, on days with entries · box = middle half, bar = median, dots = outliers"
   },
   "tags": {
     "title": "Tags",

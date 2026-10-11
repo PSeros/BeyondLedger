@@ -1,6 +1,6 @@
 import {addDays, dateKey, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import type {InsightsRow} from "@/features/insights/db/insightsRows";
-import type {StatKey, StatUnit} from "@/features/insights/params";
+import type {BreakdownDimension, StatKey, StatUnit} from "@/features/insights/params";
 
 // Pure stats over Insights rows. Calculated in TS because SQLite has no stddev/percentiles, and the
 // row counts here are personal-finance sized.
@@ -108,39 +108,45 @@ export type BreakdownRow = {label: string; amount: number; count: number; isOthe
 const UNTAGGED = "\u0000untagged";
 const OTHER = "\u0000other";
 
-// Totals per category / counterparty / tag, biggest first, folded to `max` bars plus "Other". An
-// entry with several tags counts once per tag, so tag bars can sum to more than the total. Groups
-// netting to ≤ 0 (bottle-deposit returns) have no share to draw and are dropped.
-export function breakdown(rows: InsightsRow[], by: "category" | "counterparty" | "tag", max = 10): BreakdownRow[] {
-  const groups = new Map<string, {amount: number; count: number}>();
-  const add = (key: string, amount: number) => {
-    const group = groups.get(key) ?? {amount: 0, count: 0};
-    group.amount += amount;
-    group.count += 1;
-    groups.set(key, group);
-  };
+const weekdayOf = (row: InsightsRow) => (new Date(`${row.date}T00:00:00Z`).getUTCDay() + 6) % 7; // Mon = 0
+
+// The group key(s) of a row. An entry with several tags belongs to each of them.
+function groupKeys(row: InsightsRow, by: BreakdownDimension, weekdayNames: string[]): string[] {
+  if (by === "weekday") return [weekdayNames[weekdayOf(row)]];
+  if (by === "tag") return row.tags.length ? row.tags : [UNTAGGED];
+  return [by === "category" ? row.category : row.counterparty];
+}
+
+function groupRows(rows: InsightsRow[], by: BreakdownDimension, weekdayNames: string[]): Map<string, InsightsRow[]> {
+  const groups = new Map<string, InsightsRow[]>();
   for (const row of rows) {
-    if (by === "tag") {
-      if (row.tags.length === 0) add(UNTAGGED, row.amount);
-      else for (const tag of row.tags) add(tag, row.amount);
-    } else {
-      add(by === "category" ? row.category : row.counterparty, row.amount);
-    }
+    for (const key of groupKeys(row, by, weekdayNames)) groups.set(key, [...(groups.get(key) ?? []), row]);
   }
-  const sorted = [...groups.entries()]
-    .filter(([, group]) => group.amount > 0)
-    .sort((a, b) => b[1].amount - a[1].amount);
-  const kept = sorted.length > max + 1 ? sorted.slice(0, max) : sorted;
-  const rest = sorted.slice(kept.length);
+  return groups;
+}
+
+const sumOf = (rows: InsightsRow[]) => rows.reduce((sum, row) => sum + row.amount, 0);
+
+// Totals per group, biggest first (weekdays in calendar order), folded to `max` plus "Other". Tag
+// totals can sum to more than the total (several tags per entry). Groups netting to ≤ 0 (bottle-
+// deposit returns) have no share to draw and are dropped.
+export function breakdown(rows: InsightsRow[], by: BreakdownDimension, weekdayNames: string[], max = 10): BreakdownRow[] {
+  const groups = [...groupRows(rows, by, weekdayNames).entries()]
+    .map(([key, list]) => ({key, amount: sumOf(list), count: list.length}))
+    .filter((group) => group.amount > 0);
+  if (by === "weekday") groups.sort((a, b) => weekdayNames.indexOf(a.key) - weekdayNames.indexOf(b.key));
+  else groups.sort((a, b) => b.amount - a.amount);
+  const kept = by === "weekday" || groups.length <= max + 1 ? groups : groups.slice(0, max);
+  const rest = groups.slice(kept.length);
   if (rest.length) {
-    kept.push([OTHER, rest.reduce((acc, [, group]) => ({amount: acc.amount + group.amount, count: acc.count + group.count}), {amount: 0, count: 0})]);
+    kept.push({key: OTHER, amount: rest.reduce((s, g) => s + g.amount, 0), count: rest.reduce((s, g) => s + g.count, 0)});
   }
-  return kept.map(([key, group]) => ({
-    label: key === UNTAGGED || key === OTHER ? "" : key,
+  return kept.map((group) => ({
+    label: group.key === UNTAGGED || group.key === OTHER ? "" : group.key,
     amount: group.amount,
     count: group.count,
-    isOther: key === OTHER,
-    isUntagged: key === UNTAGGED,
+    isOther: group.key === OTHER,
+    isUntagged: group.key === UNTAGGED,
   }));
 }
 
@@ -178,32 +184,45 @@ export function boxFrom(label: string, values: number[]): BoxStats {
   };
 }
 
-// Single positive amounts per category / counterparty / tag, the `groups` biggest by total. A refund
-// line has no place on a spending distribution.
-export function boxesByGroup(rows: InsightsRow[], by: "category" | "counterparty" | "tag", groups = 8): BoxStats[] {
-  const samples = new Map<string, number[]>();
-  for (const row of rows) {
-    if (row.amount <= 0) continue;
-    const keys = by === "tag" ? row.tags : [by === "category" ? row.category : row.counterparty];
-    for (const key of keys) samples.set(key, [...(samples.get(key) ?? []), row.amount]);
-  }
-  return [...samples.entries()]
-    .sort((a, b) => b[1].reduce((s, v) => s + v, 0) - a[1].reduce((s, v) => s + v, 0))
-    .slice(0, groups)
-    .map(([label, values]) => boxFrom(label, values));
+// The box samples of one group, in the page's stats unit: line amounts, bill totals, or the totals
+// of the days / weeks / months that HAVE entries for this group (with sparse spending the empty ones
+// would pin every median to 0). Only positive values — refunds have no place on a spend spread.
+function groupSamples(rows: InsightsRow[], unit: StatUnit, span: {start: Date; end: Date}): number[] {
+  const samples = unit === "item" || unit === "bill" ? samplesFor(rows, unit, span) : [...bucketTotals(rows, unit, span).values()];
+  return samples.filter((value) => value > 0);
 }
 
-// Daily totals per weekday (Mon … Sun), over the days that HAVE entries — with sparse spending the
-// empty days would pin every median to 0. `outOf` keeps how many such weekdays the span has.
-export function boxesByWeekday(rows: InsightsRow[], span: {start: Date; end: Date}, names: string[]): BoxStats[] {
-  const perWeekday: number[][] = Array.from({length: 7}, () => []);
-  const days = Array(7).fill(0);
-  for (const [day, total] of bucketTotals(rows, "day", span)) {
-    const weekday = (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7;
-    days[weekday] += 1;
-    if (total !== 0) perWeekday[weekday].push(total);
+// One box per group (the `groups` biggest by total; weekdays in calendar order). Week / month units
+// make no sense inside a weekday, so weekdays then fall back to daily totals; `outOf` keeps how many
+// of that weekday the span has.
+export function boxesFor(
+  rows: InsightsRow[],
+  by: BreakdownDimension,
+  unit: StatUnit,
+  span: {start: Date; end: Date},
+  weekdayNames: string[],
+  groups = 8,
+): BoxStats[] {
+  const grouped = [...groupRows(rows, by, weekdayNames).entries()].filter(([key]) => key !== UNTAGGED);
+  if (by === "weekday") {
+    const weekdayUnit: StatUnit = unit === "week" || unit === "month" ? "day" : unit;
+    const daysPerWeekday = Array(7).fill(0);
+    for (let day = span.start; day < span.end; day = addDays(day, 1)) daysPerWeekday[(day.getUTCDay() + 6) % 7] += 1;
+    return grouped
+      .sort((a, b) => weekdayNames.indexOf(a[0]) - weekdayNames.indexOf(b[0]))
+      .map(([key, list]) => ({values: groupSamples(list, weekdayUnit, span), key}))
+      .filter(({values}) => values.length)
+      .map(({key, values}) => ({
+        ...boxFrom(key, values),
+        ...(weekdayUnit === "day" ? {outOf: daysPerWeekday[weekdayNames.indexOf(key)]} : {}),
+      }));
   }
-  return perWeekday.flatMap((values, i) => (values.length ? [{...boxFrom(names[i], values), outOf: days[i]}] : []));
+  return grouped
+    .sort((a, b) => sumOf(b[1]) - sumOf(a[1]))
+    .slice(0, groups)
+    .map(([key, list]) => ({key, values: groupSamples(list, unit, span)}))
+    .filter(({values}) => values.length)
+    .map(({key, values}) => boxFrom(key, values));
 }
 
 export type KdePoint = {x: number; densities: number[]; below: number[]}; // below = share of values ≤ x

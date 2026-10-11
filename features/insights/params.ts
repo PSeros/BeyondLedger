@@ -30,7 +30,7 @@ export const STAT_KEYS = ["count", "sum", "mean", "median", "min", "max", "stdDe
 export type StatKey = (typeof STAT_KEYS)[number];
 export const DEFAULT_STATS: StatKey[] = ["count", "sum", "mean", "median", "min", "max", "stdDev"];
 
-export const BREAKDOWN_DIMENSIONS = ["category", "counterparty", "tag"] as const;
+export const BREAKDOWN_DIMENSIONS = ["weekday", "category", "counterparty", "tag"] as const;
 export type BreakdownDimension = (typeof BREAKDOWN_DIMENSIONS)[number];
 
 export type SignedIds = {include: number[]; exclude: number[]};

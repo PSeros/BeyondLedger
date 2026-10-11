@@ -9,7 +9,7 @@ import InsightsDonut, {type DonutPanel} from "@/features/insights/components/Ins
 import InsightsBoxPlot, {type BoxPanel} from "@/features/insights/components/InsightsBoxPlot";
 import InsightsKde from "@/features/insights/components/InsightsKde";
 import InsightsTable from "@/features/insights/components/InsightsTable";
-import {boxesByGroup, boxesByWeekday, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samplesFor} from "@/features/insights/stats";
+import {boxesFor, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samplesFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery} from "@/features/insights/params";
@@ -60,18 +60,17 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     key,
     ...Object.fromEntries(series.map((domain, i) => [domain, totals[i].get(key) ?? 0])),
   }));
-  const donutPanels: DonutPanel[] = series.map((domain) => ({key: domain, rows: breakdown(of(domain), query.by, 6)}));
   const weekdayNames = Array.from({length: 7}, (_, i) =>
     new Intl.DateTimeFormat(locale, {weekday: "short", timeZone: "UTC"}).format(new Date(Date.UTC(2024, 0, 1 + i))));
+  const donutPanels: DonutPanel[] = series.map((domain) => ({key: domain, rows: breakdown(of(domain), query.by, weekdayNames, 6)}));
   const boxPanels: BoxPanel[] = series.map((domain) => ({
     key: domain,
-    groups: {
-      weekday: boxesByWeekday(of(domain), span, weekdayNames),
-      category: boxesByGroup(of(domain), "category"),
-      counterparty: boxesByGroup(of(domain), "counterparty"),
-      tag: boxesByGroup(of(domain), "tag"),
-    },
+    boxes: boxesFor(of(domain), query.by, query.unit, span, weekdayNames),
   }));
+  const groupLabel = t(`group.${query.by}`);
+  const unitLabel = t(`unit.${query.unit}`);
+  const weekdayFallsBack = query.by === "weekday" && (query.unit === "week" || query.unit === "month");
+  const boxHint = t(weekdayFallsBack || (query.by === "weekday" && query.unit === "day") ? "boxHintDays" : "boxHintUnit", {unit: unitLabel});
 
   const unitSamples = series.map((domain) => samplesFor(of(domain), query.unit, span));
   const density = kde(unitSamples);
@@ -98,16 +97,16 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
                 <InsightsTimeChart points={points} unit={chartUnit} series={[...series]}/>
               </div>
               <div className="col-span-2 row-span-4 lg:col-span-2">
-                <InsightsDonut panels={donutPanels}/>
+                <InsightsDonut panels={donutPanels} groupLabel={groupLabel}/>
               </div>
               <div className="col-span-2 row-span-4 lg:col-span-4">
-                <InsightsBoxPlot panels={boxPanels}/>
+                <InsightsBoxPlot panels={boxPanels} title={t("boxTitle", {group: groupLabel})} hint={boxHint}/>
               </div>
               <div className="col-span-2 row-span-3 lg:col-span-2 lg:row-span-4">
                 <InsightsStats rows={rows} domain={query.domain} unit={query.unit} stats={query.stats} span={span}/>
               </div>
               <div className="col-span-2 row-span-3 lg:col-span-6">
-                <InsightsKde points={density} series={[...series]} medians={medians} unitLabel={t(`unit.${query.unit}`)}/>
+                <InsightsKde points={density} series={[...series]} medians={medians} unitLabel={unitLabel}/>
               </div>
             </div>
             <Suspense>

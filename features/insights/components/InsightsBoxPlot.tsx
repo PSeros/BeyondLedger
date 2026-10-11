@@ -2,15 +2,12 @@
 
 import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
-import {Button, ButtonGroup, Card, ListBox, Select} from "@heroui/react";
+import {Button, ButtonGroup, Card} from "@heroui/react";
 import type {BoxStats} from "@/features/insights/stats";
 import {seriesColor} from "@/features/insights/colors";
 import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
 
-export const BOX_GROUPINGS = ["weekday", "category", "counterparty", "tag"] as const;
-export type BoxGrouping = (typeof BOX_GROUPINGS)[number];
-
-export type BoxPanel = {key: "expense" | "income"; groups: Record<BoxGrouping, BoxStats[]>};
+export type BoxPanel = {key: "expense" | "income"; boxes: BoxStats[]};
 
 // Nice axis ticks from 0 to just past `max`.
 function ticksFor(max: number): number[] {
@@ -21,26 +18,17 @@ function ticksFor(max: number): number[] {
   return Array.from({length: Math.ceil(max / step) + 1}, (_, i) => i * step);
 }
 
-// One box-plot card: a dropdown picks the grouping (weekday daily totals, or single amounts per
-// category / counterparty / tag), with vertical boxes on a shared axis. Box = middle half (Q1–Q3),
-// bar = median, whiskers = the rest within 1.5 × IQR, dots = outliers. Hover or focus a column for
-// the exact numbers. All groupings arrive precomputed, so switching never refetches.
-export default function InsightsBoxPlot({panels}: {panels: BoxPanel[]}) {
+// Spread of the values (page-wide unit) per group (page-wide grouping, shared with the share card), as
+// vertical boxes on one axis. Box = middle half (Q1–Q3), bar = median, whiskers = the rest within
+// 1.5 × IQR, dots = outliers. Hover or focus a column for the exact numbers.
+export default function InsightsBoxPlot({panels, title, hint}: {panels: BoxPanel[]; title: string; hint: string}) {
   const t = useTranslations("insights");
   const format = useFormatter();
-  const [grouping, setGrouping] = useState<BoxGrouping>("weekday");
   const [shown, setShown] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const panel = panels[Math.min(shown, panels.length - 1)];
-  const boxes = panel.groups[grouping];
+  const boxes = panel.boxes;
   const color = seriesColor(panel.key, panels.length);
-
-  const labels: Record<BoxGrouping, string> = {
-    weekday: t("boxByWeekday"),
-    category: t("byCategory"),
-    counterparty: t("byCounterparty"),
-    tag: t("byTag"),
-  };
 
   const ticks = ticksFor(Math.max(0, ...boxes.flatMap((box) => [box.max, ...box.outliers])));
   const top = ticks[ticks.length - 1] || 1;
@@ -53,8 +41,8 @@ export default function InsightsBoxPlot({panels}: {panels: BoxPanel[]}) {
     <Card className="flex h-full min-h-0 flex-col gap-3 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm">{t("boxTitle")}</p>
-          <p className="text-xs text-muted">{t(grouping === "weekday" ? "boxHintWeekday" : "boxHint")}</p>
+          <p className="text-sm">{title}</p>
+          <p className="text-xs text-muted">{hint}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {panels.length > 1 ? (
@@ -66,27 +54,6 @@ export default function InsightsBoxPlot({panels}: {panels: BoxPanel[]}) {
               ))}
             </ButtonGroup>
           ) : null}
-          <Select
-            aria-label={t("boxGrouping")}
-            value={grouping}
-            onChange={(key) => key != null && setGrouping(String(key) as BoxGrouping)}
-            className="w-44"
-          >
-            <Select.Trigger>
-              <Select.Value/>
-              <Select.Indicator/>
-            </Select.Trigger>
-            <Select.Popover>
-              <ListBox>
-                {BOX_GROUPINGS.map((key) => (
-                  <ListBox.Item key={key} id={key} textValue={labels[key]}>
-                    {labels[key]}
-                    <ListBox.ItemIndicator/>
-                  </ListBox.Item>
-                ))}
-              </ListBox>
-            </Select.Popover>
-          </Select>
         </div>
       </div>
 
