@@ -15,6 +15,7 @@ export default async function ContractUpcomingCard({withinDays = 30, ...filters}
       rows={rows}
       windowDays={withinDays}
       basePath="/expense/fixed"
+      tone="danger"
     />
   );
 }
