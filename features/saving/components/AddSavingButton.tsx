@@ -12,13 +12,15 @@ type AddSavingButtonProps = {
   // Toolbar usage (default): icon-only + the ButtonGroup separator. Empty-state usage passes
   // showLabel to render a full labelled primary CTA instead ("Add saving").
   showLabel?: boolean;
+  // Only button in its group (the Sparen toolbar has no filter): no leading separator.
+  isFirst?: boolean;
 };
 
 // The Add button in the saving toolbar's ButtonGroup, opening the Add modal. `buttonProps` carries
 // the `__button_group_child` marker ButtonGroup injects into its direct children — forward it to the
 // real Button so it keeps its group styling. Controlled overlay (local open state), not an
 // intercepted route: Add has no entity id, and interception routes corrupt the dev manifest here.
-export default function AddSavingButton({options, showLabel = false, ...buttonProps}: AddSavingButtonProps) {
+export default function AddSavingButton({options, showLabel = false, isFirst = false, ...buttonProps}: AddSavingButtonProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
 
@@ -29,7 +31,7 @@ export default function AddSavingButton({options, showLabel = false, ...buttonPr
         {...(showLabel ? {variant: "primary" as const} : {"aria-label": t("common.add")})}
         onPress={() => setOpen(true)}
       >
-        {showLabel ? null : <ButtonGroup.Separator/>}
+        {showLabel || isFirst ? null : <ButtonGroup.Separator/>}
         <LuPlus/>
         {showLabel ? t("saving.addSaving") : null}
       </Button>

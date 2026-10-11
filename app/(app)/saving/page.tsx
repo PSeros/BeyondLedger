@@ -1,5 +1,5 @@
 import {getFormatter, getTranslations} from "next-intl/server";
-import {Card} from "@heroui/react";
+import {ButtonGroup, Card} from "@heroui/react";
 import PageToolbar from "@/components/PageToolbar";
 import AddSavingButton from "@/features/saving/components/AddSavingButton";
 import SavingEmptyState from "@/features/saving/components/SavingEmptyState";
@@ -41,7 +41,11 @@ export default async function SavingPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <PageToolbar left={null} center={null} right={<AddSavingButton options={options} showLabel/>}/>
+      <PageToolbar
+        left={null}
+        center={null}
+        right={<ButtonGroup size="md" variant="tertiary"><AddSavingButton options={options} isFirst/></ButtonGroup>}
+      />
       {isEmpty ? (
         <div className="mt-4 flex min-h-0 flex-1 flex-col">
           <SavingEmptyState options={options}/>
