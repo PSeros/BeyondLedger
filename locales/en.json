@@ -10,7 +10,8 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "openMenu": "Open menu",
-    "menu": "Navigation"
+    "menu": "Navigation",
+    "saving": "Savings"
   },
   "dashboard": {
     "warrantyTitle": "Warranties expiring ({days} days)",
@@ -123,19 +124,23 @@
     "unitPrice": "Unit €",
     "total": "Total",
     "billingsPerYear": "Billings per year",
-    "monthsWarranty": "{count} months warranty"
+    "monthsWarranty": "{count} months warranty",
+    "target": "Target"
   },
   "tables": {
     "variableExpenses": "Variable expenses",
     "fixedExpenses": "Fixed expenses",
     "income": "Income",
     "fixedIncome": "Fixed income",
-    "variableIncome": "Variable income"
+    "variableIncome": "Variable income",
+    "fixedSaving": "Savings plans",
+    "variableSaving": "One-off savings"
   },
   "charts": {
     "expense": "Expense",
     "fixedExpense": "Fixed Expense",
-    "income": "Income"
+    "income": "Income",
+    "saving": "Savings"
   },
   "theme": {
     "selection": "Theme selection",
@@ -161,7 +166,8 @@
     "expense": "Search expense",
     "income": "Search income",
     "budget": "Search budgets",
-    "placeholder": "Search..."
+    "placeholder": "Search...",
+    "saving": "Search savings"
   },
   "forms": {
     "select": "Select…",
@@ -179,7 +185,8 @@
     "newContractCategory": "New contract category",
     "newIncomeSource": "New income source",
     "newIncomeCategory": "New income category",
-    "expenseType": "Expense type"
+    "expenseType": "Expense type",
+    "newSavingTarget": "New savings target"
   },
   "expense": {
     "addExpense": "Add expense",
@@ -212,7 +219,7 @@
     "integrationsHeading": "Integrations",
     "integrationsHeadingDescription": "Publish app state to other systems on your network.",
     "refDataHeading": "Reference data",
-    "refDataDescription": "The suppliers, categories, income sources, and billing frequencies your expenses and income draw from. Add or tidy them here, or create them on the fly from the Add form. A row still in use can't be deleted.",
+    "refDataDescription": "The suppliers, categories, income sources, savings targets, and billing frequencies your entries draw from. Add or tidy them here, or create them on the fly from the Add form. A row still in use can't be deleted.",
     "suppliers": "Suppliers",
     "supplierCategories": "Supplier categories",
     "itemCategories": "Item categories",
@@ -348,7 +355,9 @@
     "backToVariableExpenses": "Back to variable expenses",
     "backToFixedIncome": "Back to fixed income",
     "backToVariableIncome": "Back to variable income",
-    "docNumber": "Doc. {number}"
+    "docNumber": "Doc. {number}",
+    "backToFixedSaving": "Back to savings plans",
+    "backToVariableSaving": "Back to one-off savings"
   },
   "attachments": {
     "title": "Attachments",
@@ -573,5 +582,18 @@
     "monthlyFixedTitle": "Fixed costs by category",
     "other": "Other",
     "total": "Total"
+  },
+  "saving": {
+    "addSaving": "Add saving",
+    "addSavingSubtitle": "Record money set aside — the frequency decides plan or one-off",
+    "emptyFixedTitle": "No savings plans yet",
+    "emptyVariableTitle": "No one-off savings yet",
+    "emptyFixedText": "Add a savings plan that moves money aside on a schedule, e.g. into an ETF or a vacation fund.",
+    "emptyVariableText": "Add a one-off deposit, or a withdrawal when you use your savings.",
+    "direction": "Direction",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "withdrawFrom": "Withdraw from {target}",
+    "paidInTitle": "Paid in per target"
   }
 }
