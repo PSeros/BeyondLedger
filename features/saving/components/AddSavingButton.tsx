@@ -2,36 +2,30 @@
 
 import {useState} from "react";
 import {useTranslations} from "next-intl";
-import {Button, ButtonGroup, Modal} from "@heroui/react";
+import {Button, Modal} from "@heroui/react";
 import {LuPlus} from "react-icons/lu";
 import SavingAddForm, {type SavingPreset} from "@/features/saving/components/SavingAddForm";
 import type {SavingFormOptions} from "@/features/saving/db/savingFormOptions";
 
 type AddSavingButtonProps = {
   options: SavingFormOptions;
-  // Toolbar usage (default): icon-only + the ButtonGroup separator. Empty-state usage passes
-  // showLabel to render a full labelled primary CTA instead ("Add saving").
+  // Toolbar usage (default): an icon-only button. Empty-state usage passes showLabel to render a
+  // full labelled primary CTA instead ("Add saving").
   showLabel?: boolean;
-  // Only button in its group (the Sparen toolbar has no filter): no leading separator.
-  isFirst?: boolean;
 };
 
-// The Add button in the saving toolbar's ButtonGroup, opening the Add modal. `buttonProps` carries
-// the `__button_group_child` marker ButtonGroup injects into its direct children — forward it to the
-// real Button so it keeps its group styling. Controlled overlay (local open state), not an
-// intercepted route: Add has no entity id, and interception routes corrupt the dev manifest here.
-export default function AddSavingButton({options, showLabel = false, isFirst = false, ...buttonProps}: AddSavingButtonProps) {
+// Opens the Add modal. Controlled overlay (local open state), not an intercepted route: Add has no
+// entity id, and interception routes corrupt the dev manifest here.
+export default function AddSavingButton({options, showLabel = false}: AddSavingButtonProps) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <Button
-        {...buttonProps}
-        {...(showLabel ? {variant: "primary" as const} : {"aria-label": t("common.add")})}
+        {...(showLabel ? {variant: "primary" as const} : {isIconOnly: true, variant: "tertiary" as const, "aria-label": t("common.add")})}
         onPress={() => setOpen(true)}
       >
-        {showLabel || isFirst ? null : <ButtonGroup.Separator/>}
         <LuPlus/>
         {showLabel ? t("saving.addSaving") : null}
       </Button>
