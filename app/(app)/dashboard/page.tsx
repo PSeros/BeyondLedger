@@ -5,6 +5,7 @@ import {getBillCount} from "@/features/expense/variable/db/billTableData";
 import {getContractCount} from "@/features/expense/fixed/db/contractTableData";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
 import {getBudgetCount} from "@/features/budget/db/budgets";
+import {getSavingCount} from "@/features/saving/db/savingTableData";
 import WarrantyAlertCard from "@/features/dashboard/components/WarrantyAlertCard";
 import DashboardKpis from "@/features/dashboard/components/DashboardKpis";
 import CashFlowCards from "@/features/dashboard/components/CashFlowCards";
@@ -38,15 +39,16 @@ export default async function DashboardPage({
   const chartOffset = parseChartOffset(co);
   const chartMode = parseChartMode(cm);
 
-  const [billCount, contractCount, fixedIncomeCount, variableIncomeCount, budgetCount] = await Promise.all([
+  const counts = await Promise.all([
     getBillCount(),
     getContractCount(),
     getIncomeCount(true),
     getIncomeCount(false),
+    getSavingCount(true),
+    getSavingCount(false),
     getBudgetCount(),
   ]);
-  const isEmpty =
-    billCount + contractCount + fixedIncomeCount + variableIncomeCount + budgetCount === 0;
+  const isEmpty = counts.every((count) => count === 0);
 
   if (isEmpty) {
     return (

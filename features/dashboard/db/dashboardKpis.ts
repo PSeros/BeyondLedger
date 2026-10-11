@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
 import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
+import {buildSavingWhere} from "@/features/saving/db/savingWhere";
 import {
   addDays,
   type Baseline,
@@ -18,7 +19,7 @@ import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/r
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard KPI row (Phase 12): total money IN (income), OUT (expense = variable bills + fixed
-// contracts) and NET for the period selected in the dashboard toolbar vs. the average of the
+// contracts), SAVED (#7 — set aside, not spent) and NET (income − expense − saved) for the period selected in the dashboard toolbar vs. the average of the
 // preceding periods of the same granularity, so StatCard shows how this week/month/year compares to
 // the recent trend. How far back and with which statistic come from the same AppSettings baseline
 // the chart Ø lines read, so the two genuinely mirror each other. KPIs report REALIZED money
@@ -34,6 +35,7 @@ export type KpiPair = {current: number; previous: number | null};
 export type DashboardKpis = {
   income: KpiPair;
   expense: KpiPair;
+  saved: KpiPair;
   net: KpiPair;
 };
 
@@ -76,10 +78,11 @@ export async function getPeriodKpis(
   // Per stream, not shared: a rent contract running since 2019 legitimately extends the EXPENSE
   // horizon back that far, and folding that into income would dilute the income baseline with years
   // of empty periods — the exact problem this whole mechanism exists to avoid.
-  const [baseline, expenseStart, incomeStart] = await Promise.all([
+  const [baseline, expenseStart, incomeStart, savingStart] = await Promise.all([
     getBaseline(),
     getDataStart(workspaceId, ["bills", "contracts"], granularity),
     getDataStart(workspaceId, ["income"], granularity),
+    getDataStart(workspaceId, ["savings"], granularity),
   ]);
 
   // The selected period, plus the configured number of windows immediately before it (same unit).
@@ -93,7 +96,7 @@ export async function getPeriodKpis(
 
   const wsFilter = workspaceId != null ? {workspaceId} : {};
 
-  const [bills, recurringContracts, oneTimeContracts, variableIncome, fixedIncome] = await Promise.all([
+  const [bills, recurringContracts, oneTimeContracts, variableIncome, fixedIncome, oneTimeSavings, savingPlans] = await Promise.all([
     client.bill.findMany({
       where: {AND: [buildBillWhere(wsFilter), {date: {gte: spanStart, lt: spanEnd}}]},
       select: {date: true, totalAmount: true},
@@ -116,6 +119,16 @@ export async function getPeriodKpis(
     }),
     client.income.findMany({
       where: buildIncomeWhere({...wsFilter, isRecurring: true}),
+      include: {frequency: true},
+    }),
+    client.saving.findMany({
+      where: {
+        AND: [buildSavingWhere({...wsFilter, isRecurring: false}), {startDate: {gte: spanStart, lt: spanEnd}}],
+      },
+      select: {startDate: true, totalAmount: true},
+    }),
+    client.saving.findMany({
+      where: buildSavingWhere({...wsFilter, isRecurring: true}),
       include: {frequency: true},
     }),
   ]);
@@ -144,24 +157,28 @@ export async function getPeriodKpis(
     );
   }
 
-  const incomeMap = new Map<string, number>();
-  for (const income of variableIncome) {
-    const key = dateKey(income.startDate);
-    incomeMap.set(key, (incomeMap.get(key) ?? 0) + Number(income.totalAmount));
-  }
-  for (const income of fixedIncome.filter((i) => fitsGranularity(i.frequency, granularity))) {
-    projectRecurringInto(
-      incomeMap,
-      {
-        startDate: income.startDate,
-        endDate: income.endDate,
-        amount: Number(income.totalAmount),
-        frequency: income.frequency,
-      },
-      spanStart,
-      spanEnd,
-    );
-  }
+  // Income and savings share a shape: dated one-offs plus recurring rows projected into the span.
+  const streamMap = (
+    oneOffs: {startDate: Date; totalAmount: unknown}[],
+    recurring: {startDate: Date; endDate: Date | null; totalAmount: unknown; frequency: {value: number; isRecurring: boolean}}[],
+  ) => {
+    const map = new Map<string, number>();
+    for (const row of oneOffs) {
+      const key = dateKey(row.startDate);
+      map.set(key, (map.get(key) ?? 0) + Number(row.totalAmount));
+    }
+    for (const row of recurring.filter((r) => fitsGranularity(r.frequency, granularity))) {
+      projectRecurringInto(
+        map,
+        {startDate: row.startDate, endDate: row.endDate, amount: Number(row.totalAmount), frequency: row.frequency},
+        spanStart,
+        spanEnd,
+      );
+    }
+    return map;
+  };
+  const incomeMap = streamMap(variableIncome, fixedIncome);
+  const savingMap = streamMap(oneTimeSavings, savingPlans);
 
   // Pace-to-date: compare the REALIZED slice of the selected period (day 1 → today) against the same
   // first-N-days slice of each prior period. This keeps the % honest all period long — a mid-period
@@ -186,13 +203,15 @@ export async function getPeriodKpis(
 
   const expense = pair(expenseMap, expenseStart);
   const income = pair(incomeMap, incomeStart);
+  const saved = pair(savingMap, savingStart);
   const net: KpiPair = {
-    current: income.current - expense.current,
-    // Net's baseline needs both halves; if either side has no history yet there is no honest net to
-    // compare against.
+    current: income.current - expense.current - saved.current,
+    // Net's baseline needs income + expense history; no savings history simply means nothing saved.
     previous:
-      income.previous === null || expense.previous === null ? null : income.previous - expense.previous,
+      income.previous === null || expense.previous === null
+        ? null
+        : income.previous - expense.previous - (saved.previous ?? 0),
   };
 
-  return {income, expense, net};
+  return {income, expense, saved, net};
 }

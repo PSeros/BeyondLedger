@@ -24,7 +24,8 @@
     "remaining": "{amount} left",
     "emptyTitle": "Nothing to show yet",
     "emptyText": "Add your first income, expense or budget and your dashboard will come to life.",
-    "emptyCta": "Add an expense"
+    "emptyCta": "Add an expense",
+    "kpiSaved": "Saved"
   },
   "common": {
     "noData": "No data",

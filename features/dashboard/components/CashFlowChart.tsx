@@ -11,32 +11,30 @@ import ChartModeToggle from "@/components/ChartModeToggle";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
-const INCOME_COLOR = "var(--success)";
-const EXPENSE_COLOR = "var(--danger)";
+type SeriesKey = "income" | "expense" | "saving";
 
-type MergedPoint = {
-  label: string;
-  income: number | null;
-  incomeUpcoming?: number | null;
-  incomePrevious: number | null;
-  expense: number | null;
-  expenseUpcoming?: number | null;
-  expensePrevious: number | null;
-};
+const SERIES: {key: SeriesKey; color: string; label: "kpiIncome" | "kpiExpenses" | "kpiSaved"}[] = [
+  {key: "income", color: "var(--success)", label: "kpiIncome"},
+  {key: "expense", color: "var(--danger)", label: "kpiExpenses"},
+  {key: "saving", color: "var(--accent)", label: "kpiSaved"},
+];
 
-// Dashboard cash-flow (Phase 12, revised): income (green) and expense (red) on one shared axis, so
-// the gap between the two lines reads as the month's/year's net at a glance. Dashed continuations
-// are each stream's projected (upcoming) portion; the faint dotted lines are each stream's rolling
-// baseline (average pace of the prior periods) so you can read this period against the norm. Income &
-// expense views share label sets per granularity (same buildWeek/Month/YearView), so they zip by index.
+type MergedPoint = {label: string} & Partial<Record<`${SeriesKey}${"" | "Upcoming" | "Previous"}`, number | null>>;
+
+// Dashboard cash-flow (Phase 12, revised): income (green), expense (red) and savings (accent, only when
+// the account has any) on one shared axis, so the gaps read as the period's net at a glance. Dashed
+// continuations are each stream's projected (upcoming) portion; the faint dotted lines are each
+// stream's rolling baseline. All views share label sets per granularity, so they zip by index.
 export default function CashFlowChart({
   income,
   expense,
+  saving,
   granularity,
   baselineMetric = "MEAN",
 }: {
   income: SeriesData;
   expense: SeriesData;
+  saving: SeriesData;
   granularity: Granularity;
   baselineMetric?: BaselineMetric;
   mode?: ChartMode;
@@ -46,36 +44,39 @@ export default function CashFlowChart({
   const tChart = useTranslations("chart");
   const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
-  const points = useMemo<MergedPoint[]>(() => {
-    const inc = income[granularity] ?? [];
-    const exp = expense[granularity] ?? [];
-    const length = Math.max(inc.length, exp.length);
-    return Array.from({length}, (_, i) => ({
-      label: inc[i]?.label ?? exp[i]?.label ?? "",
-      income: inc[i]?.current ?? null,
-      incomeUpcoming: inc[i]?.upcoming,
-      incomePrevious: inc[i]?.previous ?? null,
-      expense: exp[i]?.current ?? null,
-      expenseUpcoming: exp[i]?.upcoming,
-      expensePrevious: exp[i]?.previous ?? null,
-    }));
-  }, [income, expense, granularity]);
+  const {points, series} = useMemo(() => {
+    const data: Record<SeriesKey, ChartPoint[]> = {
+      income: income[granularity] ?? [],
+      expense: expense[granularity] ?? [],
+      saving: saving[granularity] ?? [],
+    };
+    const length = Math.max(...SERIES.map(({key}) => data[key].length));
+    const merged: MergedPoint[] = Array.from({length}, (_, i) => {
+      const point: MergedPoint = {label: SERIES.map(({key}) => data[key][i]?.label).find(Boolean) ?? ""};
+      for (const {key} of SERIES) {
+        point[key] = data[key][i]?.current ?? null;
+        point[`${key}Upcoming`] = data[key][i]?.upcoming;
+        point[`${key}Previous`] = data[key][i]?.previous ?? null;
+      }
+      return point;
+    });
+    // No savings at all → no flat zero line cluttering the chart.
+    const hasSaving = data.saving.some((p) => p.current || p.upcoming || p.previous);
+    return {points: merged, series: SERIES.filter(({key}) => key !== "saving" || hasSaving)};
+  }, [income, expense, saving, granularity]);
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
       {/* Header is a color legend only: the period unit + navigator live in the dashboard toolbar, and
-          the money totals now live in the KPI cards (dropped here to avoid mirroring them). This just
-          names which line is which. */}
+          the money totals live in the KPI cards. */}
       <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1">
         <p className="text-sm">{t("cashFlowTitle")}</p>
-        <span className="flex items-center gap-1.5 text-sm text-muted">
-          <span className="size-2.5 rounded-full" style={{background: INCOME_COLOR}}/>
-          {t("kpiIncome")}
-        </span>
-        <span className="flex items-center gap-1.5 text-sm text-muted">
-          <span className="size-2.5 rounded-full" style={{background: EXPENSE_COLOR}}/>
-          {t("kpiExpenses")}
-        </span>
+        {series.map(({key, color, label}) => (
+          <span key={key} className="flex items-center gap-1.5 text-sm text-muted">
+            <span className="size-2.5 rounded-full" style={{background: color}}/>
+            {t(label)}
+          </span>
+        ))}
 
         {/* Same ?cm param as every other chart, so the shape stays in sync across the app. */}
         <ChartModeToggle className="ml-auto"/>
@@ -84,70 +85,45 @@ export default function CashFlowChart({
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">
         <div className="min-h-[12rem] flex-1">
           <LineChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
-            {/* Rolling baselines first, so they sit behind the solid current lines: each stream's
-                average pace over the prior periods, drawn faint + dotted in its own hue. */}
-            <Line
-              type="monotone"
-              dataKey="incomePrevious"
-              name={`${t("kpiIncome")} ${baselineLabel}`}
-              stroke={INCOME_COLOR}
-              strokeOpacity={0.45}
-              strokeDasharray="2 3"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{r: 4}}
-            />
-            <Line
-              type="monotone"
-              dataKey="expensePrevious"
-              name={`${t("kpiExpenses")} ${baselineLabel}`}
-              stroke={EXPENSE_COLOR}
-              strokeOpacity={0.45}
-              strokeDasharray="2 3"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{r: 4}}
-            />
-            <Line
-              type="monotone"
-              dataKey="income"
-              name={t("kpiIncome")}
-              stroke={INCOME_COLOR}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-            />
-            <Line
-              type="monotone"
-              dataKey="incomeUpcoming"
-              name={tChart("upcoming")}
-              stroke={INCOME_COLOR}
-              strokeDasharray="5 5"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-              connectNulls={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="expense"
-              name={t("kpiExpenses")}
-              stroke={EXPENSE_COLOR}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-            />
-            <Line
-              type="monotone"
-              dataKey="expenseUpcoming"
-              name={tChart("upcoming")}
-              stroke={EXPENSE_COLOR}
-              strokeDasharray="5 5"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-              connectNulls={false}
-            />
+            {/* Rolling baselines first, so they sit behind the solid current lines. */}
+            {series.map(({key, color, label}) => (
+              <Line
+                key={`${key}Previous`}
+                type="monotone"
+                dataKey={`${key}Previous`}
+                name={`${t(label)} ${baselineLabel}`}
+                stroke={color}
+                strokeOpacity={0.45}
+                strokeDasharray="2 3"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{r: 4}}
+              />
+            ))}
+            {series.flatMap(({key, color, label}) => [
+              <Line
+                key={key}
+                type="monotone"
+                dataKey={key}
+                name={t(label)}
+                stroke={color}
+                strokeWidth={3}
+                dot={false}
+                activeDot={{r: 5}}
+              />,
+              <Line
+                key={`${key}Upcoming`}
+                type="monotone"
+                dataKey={`${key}Upcoming`}
+                name={tChart("upcoming")}
+                stroke={color}
+                strokeDasharray="5 5"
+                strokeWidth={3}
+                dot={false}
+                activeDot={{r: 5}}
+                connectNulls={false}
+              />,
+            ])}
 
             <XAxis
               dataKey="label"

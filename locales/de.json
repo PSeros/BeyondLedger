@@ -24,7 +24,8 @@
     "remaining": "{amount} übrig",
     "emptyTitle": "Noch nichts zu zeigen",
     "emptyText": "Füge deine erste Einnahme, Ausgabe oder dein erstes Budget hinzu, und dein Dashboard erwacht zum Leben.",
-    "emptyCta": "Ausgabe hinzufügen"
+    "emptyCta": "Ausgabe hinzufügen",
+    "kpiSaved": "Gespart"
   },
   "common": {
     "noData": "Keine Daten",

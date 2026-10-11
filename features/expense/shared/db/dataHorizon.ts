@@ -2,6 +2,7 @@ import {client} from "@/lib/prisma";
 import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
 import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
+import {buildSavingWhere} from "@/features/saving/db/savingWhere";
 import {type Granularity, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import {periodsPerYear} from "@/features/expense/shared/db/recurrence";
 
@@ -15,7 +16,7 @@ import {periodsPerYear} from "@/features/expense/shared/db/recurrence";
 //
 // SERVER-ONLY (imports the Prisma client). Cheap — plain _min aggregates over indexed columns.
 
-export type HorizonStream = "bills" | "contracts" | "income";
+export type HorizonStream = "bills" | "contracts" | "income" | "savings";
 
 /**
  * Earliest record date across `streams`, normalized to UTC midnight so it compares cleanly against
@@ -46,7 +47,7 @@ export async function getDataStart(
       }
     : {};
 
-  const [bills, contracts, income] = await Promise.all([
+  const [bills, contracts, income, savings] = await Promise.all([
     wanted.has("bills")
       ? client.bill.aggregate({where: buildBillWhere(wsFilter), _min: {date: true}})
       : null,
@@ -62,9 +63,20 @@ export async function getDataStart(
           _min: {startDate: true},
         })
       : null,
+    wanted.has("savings")
+      ? client.saving.aggregate({
+          where: {AND: [buildSavingWhere(wsFilter), fits]},
+          _min: {startDate: true},
+        })
+      : null,
   ]);
 
-  const candidates = [bills?._min.date, contracts?._min.startDate, income?._min.startDate].filter(
+  const candidates = [
+    bills?._min.date,
+    contracts?._min.startDate,
+    income?._min.startDate,
+    savings?._min.startDate,
+  ].filter(
     (date): date is Date => date != null,
   );
   if (!candidates.length) return null;
