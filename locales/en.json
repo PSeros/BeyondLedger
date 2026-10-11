@@ -456,7 +456,7 @@
   "insights": {
     "domainExpense": "Expenses",
     "domainIncome": "Income",
-    "domainBoth": "Both",
+    "domainBoth": "All",
     "net": "Net",
     "windowLabel": "Time window",
     "periodMonthOfYear": "Specific month",
@@ -498,7 +498,8 @@
       "item": "Line item",
       "bill": "Bill",
       "contractPayment": "Contract payment",
-      "incomePayment": "Income"
+      "incomePayment": "Income",
+      "savingPayment": "Saving"
     },
     "views": "Views",
     "savedViews": "Saved views",
@@ -541,7 +542,10 @@
     "periodStart": "{unit} (start)",
     "csvEntries": "Entries",
     "periodLabel": "Period",
-    "periodCount": "{count, plural, one {# period} other {# periods}}"
+    "periodCount": "{count, plural, one {# period} other {# periods}}",
+    "domainSaving": "Savings",
+    "saved": "Saved",
+    "groupSavingTargets": "Savings targets"
   },
   "tags": {
     "title": "Tags",

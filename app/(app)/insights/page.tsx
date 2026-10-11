@@ -11,13 +11,13 @@ import InsightsTable from "@/features/insights/components/InsightsTable";
 import {boxesFor, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samplesFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
-import {parseInsightsQuery} from "@/features/insights/params";
+import {parseInsightsQuery, seriesOf, type InsightsSeries} from "@/features/insights/params";
 import {previousSpan, resolveWindow, spanFor} from "@/features/insights/window";
 import {getActiveWorkspaceId, getLocale} from "@/features/settings/db/appSettings";
 
 async function getFilterOptions(): Promise<InsightsFilterOptions> {
   const byName = {select: {id: true, name: true}, orderBy: {name: "asc"}} as const;
-  const [itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources] = await Promise.all([
+  const [itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources, savingTargets] = await Promise.all([
     client.itemCategory.findMany(byName),
     client.contractCategory.findMany(byName),
     client.supplierCategory.findMany(byName),
@@ -25,11 +25,12 @@ async function getFilterOptions(): Promise<InsightsFilterOptions> {
     client.tag.findMany(byName),
     client.incomeCategory.findMany(byName),
     client.incomeSource.findMany(byName),
+    client.savingTarget.findMany(byName),
   ]);
-  return {itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources};
+  return {itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources, savingTargets};
 }
 
-// Insights: free-form analysis of expenses and income over a budget-style period. All state is in the URL
+// Insights: free-form analysis of expenses, income and savings over a budget-style period. All state is in the URL
 // (see features/insights/params.ts); the rows come from the budget matcher plus payment expansion.
 export default async function InsightsPage({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
   const query = parseInsightsQuery(await searchParams);
@@ -43,9 +44,8 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
   const [rows, views] = await Promise.all([getInsightsRows(query, window, workspaceId), getSavedViews(options)]);
   const span = spanFor(window, rows);
 
-  const series = (["expense", "income"] as const).filter((domain) =>
-    domain === "expense" ? query.domain !== "income" : query.domain !== "expense");
-  const of = (domain: "expense" | "income") => rows.filter((row) => row.domain === domain);
+  const series = seriesOf(query.domain);
+  const of = (domain: InsightsSeries) => rows.filter((row) => row.domain === domain);
 
   const before = previousSpan(query.window, span);
   const previousRows = before ? await getInsightsRows(query, before, workspaceId) : null;
@@ -86,7 +86,8 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
           <div className="flex flex-col gap-4 pb-8">
             {/* Bento like the dashboard: a fixed row grid, tiles fill their cells (h-full). */}
             <div className="grid grid-flow-row-dense auto-rows-[6rem] grid-cols-2 gap-4 lg:grid-cols-6">
-              <div className="col-span-2 row-span-2 lg:col-span-6 lg:row-span-1">
+              {/* Five tiles when every series is shown: 2+2+1 on phones, 3+2 at lg, one row from xl. */}
+              <div className={`col-span-2 lg:col-span-6 ${query.domain === "both" ? "row-span-3 lg:row-span-2 xl:row-span-1" : "row-span-2 lg:row-span-1"}`}>
                 <InsightsKpis rows={rows} previousRows={previousRows} domain={query.domain} unit={query.unit} span={span} previousSpan={before}/>
               </div>
               <div className="col-span-2 row-span-4 lg:col-span-4">

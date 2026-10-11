@@ -7,8 +7,15 @@ import {BUDGET_PERIOD_TYPES, monthKey, parseMonthAnchor, type BudgetPeriodType} 
 //
 // Signed id lists: `?ic=3,-7` includes item category 3 and excludes 7 — the budget tri-state, flat.
 
-export const INSIGHTS_DOMAINS = ["expense", "income", "both"] as const;
+// "both" (kept as the URL value so saved views survive) shows every series side by side.
+export const INSIGHTS_DOMAINS = ["expense", "income", "saving", "both"] as const;
 export type InsightsDomain = (typeof INSIGHTS_DOMAINS)[number];
+
+export const INSIGHTS_SERIES = ["expense", "income", "saving"] as const;
+export type InsightsSeries = (typeof INSIGHTS_SERIES)[number];
+
+export const seriesOf = (domain: InsightsDomain): InsightsSeries[] =>
+  domain === "both" ? [...INSIGHTS_SERIES] : [domain];
 
 // The time window mirrors budget periods: a period type (?p) resolved against a month anchor (?at,
 // stepped by the navigator), a month for MONTH_OF_YEAR (?m) and inclusive dates for RANGE (?from/?to).
@@ -36,17 +43,20 @@ export type SignedIds = {include: number[]; exclude: number[]};
 
 export type IncomeSelection = {categoryIds: SignedIds; sourceIds: SignedIds};
 
+export type SavingSelection = {targetIds: SignedIds};
+
 export type InsightsQuery = {
   domain: InsightsDomain;
   window: InsightsWindow;
   unit: StatUnit;
   by: BreakdownDimension;
-  // Expense selectors; its tagIds also filter income.
+  // Expense selectors; its tagIds also filter income and savings.
   expense: FacetSelection;
   income: IncomeSelection;
+  saving: SavingSelection;
 };
 
-// URL key per selector. Tags (`t`) are shared by both domains.
+// URL key per selector. Tags (`t`) are shared by every domain.
 export const EXPENSE_PARAM_KEYS: Record<keyof FacetGroup, string> = {
   itemCategoryIds: "ic",
   contractCategoryIds: "cc",
@@ -57,6 +67,9 @@ export const EXPENSE_PARAM_KEYS: Record<keyof FacetGroup, string> = {
 export const INCOME_PARAM_KEYS: Record<keyof IncomeSelection, string> = {
   categoryIds: "inc",
   sourceIds: "src",
+};
+export const SAVING_PARAM_KEYS: Record<keyof SavingSelection, string> = {
+  targetIds: "tg",
 };
 
 type ParamSource = URLSearchParams | Record<string, string | string[] | undefined>;
@@ -131,6 +144,9 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
       categoryIds: parseSignedIds(read(source, INCOME_PARAM_KEYS.categoryIds)),
       sourceIds: parseSignedIds(read(source, INCOME_PARAM_KEYS.sourceIds)),
     },
+    saving: {
+      targetIds: parseSignedIds(read(source, SAVING_PARAM_KEYS.targetIds)),
+    },
   };
 }
 
@@ -153,6 +169,7 @@ export function serializeViewQuery(query: InsightsQuery): string {
   }
   set(INCOME_PARAM_KEYS.categoryIds, serializeSignedIds(query.income.categoryIds));
   set(INCOME_PARAM_KEYS.sourceIds, serializeSignedIds(query.income.sourceIds));
+  set(SAVING_PARAM_KEYS.targetIds, serializeSignedIds(query.saving.targetIds));
   set("u", query.unit === DEFAULT_STAT_UNIT ? null : query.unit);
   set("by", query.by === "category" ? null : query.by);
   return params.toString();
@@ -166,6 +183,7 @@ export type ValidIds = {
   tagIds: Set<number>;
   incomeCategoryIds: Set<number>;
   incomeSourceIds: Set<number>;
+  savingTargetIds: Set<number>;
 };
 
 // Drops ids that no longer exist (a category deleted after a view was saved).
@@ -187,6 +205,9 @@ export function dropUnknownIds(query: InsightsQuery, valid: ValidIds): InsightsQ
     income: {
       categoryIds: keep(query.income.categoryIds, valid.incomeCategoryIds),
       sourceIds: keep(query.income.sourceIds, valid.incomeSourceIds),
+    },
+    saving: {
+      targetIds: keep(query.saving.targetIds, valid.savingTargetIds),
     },
   };
 }

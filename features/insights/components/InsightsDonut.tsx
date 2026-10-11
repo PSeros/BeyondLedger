@@ -6,8 +6,10 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import {Cell, Pie, PieChart, Tooltip} from "recharts";
 import {OTHER_COLOR, PALETTE} from "@/features/dashboard/lib/donut";
 import type {BreakdownRow} from "@/features/insights/stats";
+import {SERIES_LABEL_KEYS} from "@/features/insights/colors";
+import type {InsightsSeries} from "@/features/insights/params";
 
-export type DonutPanel = {key: "expense" | "income"; rows: BreakdownRow[]};
+export type DonutPanel = {key: InsightsSeries; rows: BreakdownRow[]};
 
 export const tooltipStyle = {
   borderRadius: "var(--radius)",
@@ -38,7 +40,7 @@ export default function InsightsDonut({panels, groupLabel}: {panels: DonutPanel[
           <ButtonGroup size="sm">
             {panels.map((p, i) => (
               <Button key={p.key} variant={i === shown ? "secondary" : "tertiary"} onPress={() => setShown(i)}>
-                {t(p.key === "expense" ? "domainExpense" : "domainIncome")}
+                {t(SERIES_LABEL_KEYS[p.key])}
               </Button>
             ))}
           </ButtonGroup>

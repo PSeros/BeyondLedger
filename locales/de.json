@@ -456,7 +456,7 @@
   "insights": {
     "domainExpense": "Ausgaben",
     "domainIncome": "Einnahmen",
-    "domainBoth": "Beides",
+    "domainBoth": "Alle",
     "net": "Saldo",
     "windowLabel": "Zeitraum",
     "periodMonthOfYear": "Bestimmter Monat",
@@ -498,7 +498,8 @@
       "item": "Position",
       "bill": "Beleg",
       "contractPayment": "Vertragszahlung",
-      "incomePayment": "Einnahme"
+      "incomePayment": "Einnahme",
+      "savingPayment": "Sparbetrag"
     },
     "views": "Ansichten",
     "savedViews": "Gespeicherte Ansichten",
@@ -541,7 +542,10 @@
     "periodStart": "{unit} (Beginn)",
     "csvEntries": "Einträge",
     "periodLabel": "Zeitraum",
-    "periodCount": "{count, plural, one {# Zeitraum} other {# Zeiträume}}"
+    "periodCount": "{count, plural, one {# Zeitraum} other {# Zeiträume}}",
+    "domainSaving": "Sparen",
+    "saved": "Gespart",
+    "groupSavingTargets": "Sparziele"
   },
   "tags": {
     "title": "Tags",

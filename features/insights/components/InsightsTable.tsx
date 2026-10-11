@@ -11,6 +11,8 @@ import {addDays, isoWeek} from "@/features/expense/shared/db/cumulativeChart";
 import {monthKey} from "@/features/budget/period";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
 import type {InsightsTableResponse, InsightsTableRow, PeriodRow, TableSortKey} from "@/features/insights/table";
+import {INSIGHTS_SERIES, seriesOf, type InsightsSeries} from "@/features/insights/params";
+import {SERIES_LABEL_KEYS} from "@/features/insights/colors";
 
 const LIMIT = 40;
 // URL keys that only shape the charts, so changing them must not refetch the table. The unit (?u)
@@ -106,10 +108,12 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
     bill: t("kind.bill"),
     contractPayment: t("kind.contractPayment"),
     incomePayment: t("kind.incomePayment"),
+    savingPayment: t("kind.savingPayment"),
   };
   const money = (value: number, isIncome = false) => (
     <span className={`tabular-nums ${isIncome ? "text-success" : ""}`}>{format.number(value, "currency")}</span>
   );
+  const series = seriesOf(query.domain);
   const utc = (day: string) => new Date(`${day}T00:00:00Z`);
 
   function periodLabel(row: PeriodRow, periodUnit: "day" | "week" | "month"): string {
@@ -140,17 +144,14 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
     {id: "amount", name: tFields("total"), allowsSorting: true},
   ] as const;
 
-  const showExpense = query.domain !== "income";
-  const showIncome = query.domain !== "expense";
   const periodColumns = [
     {id: "date", name: t("periodLabel"), isRowHeader: true, allowsSorting: true},
     {id: "count", name: t("csvEntries"), allowsSorting: true},
-    ...(showExpense ? [{id: "expense", name: t("domainExpense"), allowsSorting: query.domain === "expense"}] : []),
-    ...(showIncome ? [{id: "income", name: t("domainIncome"), allowsSorting: query.domain === "income"}] : []),
+    ...series.map((key) => ({id: key, name: t(SERIES_LABEL_KEYS[key]), allowsSorting: series.length === 1})),
     ...(query.domain === "both" ? [{id: "amount", name: t("net"), allowsSorting: true}] : []),
   ];
   // Single-domain money columns sort by the row's `amount`, which is exactly that domain's total.
-  const periodSortColumn = (column: string) => (column === "expense" || column === "income" ? "amount" : column);
+  const periodSortColumn = (column: string) => ((INSIGHTS_SERIES as readonly string[]).includes(column) ? "amount" : column);
 
   const entries = data?.mode === "entries" ? data.rows : [];
   const periods = data?.mode === "periods" ? data.rows : [];
@@ -173,6 +174,7 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
     count: <span className={`tabular-nums ${row.count ? "" : "text-muted"}`}>{format.number(row.count)}</span>,
     expense: money(row.expense),
     income: money(row.income, true),
+    saving: money(row.saving),
     amount: money(row.amount),
   }));
 
@@ -215,11 +217,11 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
           ) : (
             <DataTable
               ariaLabel={t("tableTitle")}
-              columns={periodColumns as {id: "date" | "count" | "expense" | "income" | "amount"; name: string; isRowHeader?: boolean; allowsSorting?: boolean}[]}
+              columns={periodColumns as {id: "date" | "count" | InsightsSeries | "amount"; name: string; isRowHeader?: boolean; allowsSorting?: boolean}[]}
               rows={periodRows}
               scroll="page"
               manualSorting
-              sortDescriptor={{...sortDescriptor, column: sortDescriptor.column === "amount" && query.domain !== "both" ? (query.domain === "income" ? "income" : "expense") : sortDescriptor.column}}
+              sortDescriptor={{...sortDescriptor, column: sortDescriptor.column === "amount" && query.domain !== "both" ? query.domain : sortDescriptor.column}}
               onSortChange={(next) => setSortDescriptor({...next, column: periodSortColumn(String(next.column))})}
               hasMore={nextOffset !== null}
               isLoadingMore={isLoadingMore}

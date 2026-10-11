@@ -14,6 +14,7 @@ export function validIdsFrom(options: InsightsFilterOptions): ValidIds {
     tagIds: ids(options.tags),
     incomeCategoryIds: ids(options.incomeCategories),
     incomeSourceIds: ids(options.incomeSources),
+    savingTargetIds: ids(options.savingTargets),
   };
 }
 

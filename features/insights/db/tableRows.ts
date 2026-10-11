@@ -1,5 +1,5 @@
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
-import {parseInsightsQuery} from "@/features/insights/params";
+import {parseInsightsQuery, type InsightsSeries} from "@/features/insights/params";
 import {bucketTotals} from "@/features/insights/stats";
 import {resolveWindow, spanFor} from "@/features/insights/window";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
@@ -30,9 +30,10 @@ export async function loadTableRows(params: URLSearchParams): Promise<TableRows>
   }
 
   const span = spanFor(window, rows);
-  const of = (domain: "expense" | "income") => rows.filter((row) => row.domain === domain);
+  const totalsOf = (domain: InsightsSeries) => bucketTotals(rows.filter((row) => row.domain === domain), unit, span);
   // Counting = summing a 1 per row over the same buckets.
   const counts = bucketTotals(rows.map((row) => ({...row, amount: 1})), unit, span);
-  const periods = toPeriodRows(query.domain, bucketTotals(of("expense"), unit, span), bucketTotals(of("income"), unit, span), counts);
+  const totals = {expense: totalsOf("expense"), income: totalsOf("income"), saving: totalsOf("saving")};
+  const periods = toPeriodRows(query.domain, totals, counts);
   return {mode: "periods", unit, rows: sortPeriodRows(periods, sortBy, sortDir)};
 }
