@@ -29,9 +29,11 @@ function sortColumnToSortBy(column: string): IncomeTableSortBy {
 type IncomeDataTableProps = {
   isRecurring: boolean;
   activeWorkspaceId: number | null;
+  // yyyy-mm-dd: one-time income before the app-wide start is dimmed (listed, never counted).
+  startDate?: string | null;
 };
 
-export default function IncomeDataTable({isRecurring, activeWorkspaceId}: IncomeDataTableProps) {
+export default function IncomeDataTable({isRecurring, activeWorkspaceId, startDate = null}: IncomeDataTableProps) {
   const router = useRouter();
   const t = useTranslations();
   const format = useFormatter();
@@ -169,12 +171,14 @@ export default function IncomeDataTable({isRecurring, activeWorkspaceId}: Income
   }, [fetchRows, nextOffset]);
 
   const tableRows = rows.map(toTableRow);
+  const mutedRowIds = new Set(!isRecurring && startDate ? rows.filter((row) => row.date.slice(0, 10) < startDate).map((row) => row.id) : []);
 
   return (
     <DataTable
       ariaLabel={isRecurring ? t("tables.fixedIncome") : t("tables.variableIncome")}
       columns={isRecurring ? fixedColumns : variableColumns}
       rows={tableRows}
+      mutedRowIds={mutedRowIds}
       scroll="page"
       manualSorting
       sortDescriptor={sortDescriptor}

@@ -10,7 +10,7 @@ import IncomeDataTable from "@/features/income/components/IncomeDataTable";
 import IncomeEmptyState from "@/features/income/components/IncomeEmptyState";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
 import {parseChartMode, parseChartOffset} from "@/features/expense/shared/db/cumulativeChart";
-import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
+import {getActiveWorkspaceId, getAnalysisStart} from "@/features/settings/db/appSettings";
 
 type VariableIncomePageProps = {
   searchParams: Promise<{
@@ -45,7 +45,7 @@ function parseIds(value?: string): number[] | undefined {
 
 export default async function VariableIncomePage({searchParams}: VariableIncomePageProps) {
   const params = await searchParams;
-  const activeWorkspaceId = await getActiveWorkspaceId();
+  const [activeWorkspaceId, analysisStart] = await Promise.all([getActiveWorkspaceId(), getAnalysisStart()]);
   // Categorical filters apply to every section. The date range applies to the table + top-k only —
   // never the chart (see incomeChartData: it would starve the rolling-average baseline).
   const categoricalFilters = {
@@ -91,7 +91,7 @@ export default async function VariableIncomePage({searchParams}: VariableIncomeP
           </div>
           <div className="shrink-0">
             <Suspense>
-              <IncomeDataTable isRecurring={false} activeWorkspaceId={activeWorkspaceId}/>
+              <IncomeDataTable isRecurring={false} activeWorkspaceId={activeWorkspaceId} startDate={analysisStart ? analysisStart.toISOString().slice(0, 10) : null}/>
             </Suspense>
           </div>
         </div>

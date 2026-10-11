@@ -87,7 +87,7 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
 
         <Card className="p-4">
           <Card.Header className="pb-3"><Card.Title>{t("movements")}</Card.Title></Card.Header>
-          <MovementsTable movements={mine} pots={[{id: pot.id, name: pot.name, color: pot.color}]} showPot={false}/>
+          <MovementsTable movements={mine} pots={[{id: pot.id, name: pot.name, color: pot.color}]} showPot={false} startDate={overview.analysisStart}/>
         </Card>
       </div>
     </div>

@@ -75,7 +75,7 @@ export default async function SavingPage() {
 
           <Card className="shrink-0 p-4">
             <Card.Header className="pb-3"><Card.Title>{t("movements")}</Card.Title></Card.Header>
-            <MovementsTable movements={movements} pots={pots.map(({id, name, color}) => ({id, name, color}))}/>
+            <MovementsTable movements={movements} pots={pots.map(({id, name, color}) => ({id, name, color}))} startDate={overview.analysisStart}/>
           </Card>
         </div>
       )}

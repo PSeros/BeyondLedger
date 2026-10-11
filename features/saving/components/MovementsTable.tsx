@@ -14,7 +14,12 @@ type PotRef = {id: number; name: string; color: string};
 
 // Every booked movement (plan instalments, deposits, withdrawals), newest first, filterable by pot.
 // A row opens the saving it came from.
-export default function MovementsTable({movements, pots, showPot = true}: {movements: Movement[]; pots: PotRef[]; showPot?: boolean}) {
+export default function MovementsTable({movements, pots, showPot = true, startDate = null}: {
+  movements: Movement[];
+  pots: PotRef[];
+  showPot?: boolean;
+  startDate?: string | null; // movements before it are dimmed (the Überschuss doesn't count them)
+}) {
   const t = useTranslations("saving");
   const tFields = useTranslations("fields");
   const format = useFormatter();
@@ -79,6 +84,7 @@ export default function MovementsTable({movements, pots, showPot = true}: {movem
         columns={columns}
         rows={rows}
         manualSorting
+        mutedRowIds={new Set(startDate ? shown.filter((m) => m.date < startDate).map((m) => m.key) : [])}
         sortDescriptor={sort}
         onSortChange={setSort}
         scroll="page"

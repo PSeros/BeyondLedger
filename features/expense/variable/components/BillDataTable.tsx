@@ -21,7 +21,8 @@ function sortColumnToSortBy(column: string): BillTableSortBy {
   }
 }
 
-export default function BillDataTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
+// `startDate` (yyyy-mm-dd): bills before the app-wide start are dimmed — still listed, never counted.
+export default function BillDataTable({activeWorkspaceId, startDate = null}: {activeWorkspaceId: number | null; startDate?: string | null}) {
   const router = useRouter();
   const t = useTranslations();
   const format = useFormatter();
@@ -138,12 +139,14 @@ export default function BillDataTable({activeWorkspaceId}: {activeWorkspaceId: n
   }, [fetchRows, nextOffset]);
 
   const tableRows = rows.map(toTableRow);
+  const mutedRowIds = new Set(startDate ? rows.filter((bill) => bill.date.slice(0, 10) < startDate).map((bill) => bill.id) : []);
 
   return (
     <DataTable
       ariaLabel={t("tables.variableExpenses")}
       columns={columns}
       rows={tableRows}
+      mutedRowIds={mutedRowIds}
       scroll="page"
       manualSorting
       sortDescriptor={sortDescriptor}

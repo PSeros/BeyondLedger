@@ -50,6 +50,7 @@ export type SavingOverview = {
   pots: Pot[];
   movements: Movement[]; // newest first
   surplus: Surplus | null; // null = no data at all yet
+  analysisStart: string | null; // yyyy-mm-dd; movements before it are listed dimmed
 };
 
 const monthOf = (day: string) => day.slice(0, 7);
@@ -138,7 +139,7 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
     .filter((pot) => pot.plans.length > 0 || movements.some((m) => m.potId === pot.id));
 
   const surplus = surplusStart ? await getSurplus(ws, surplusStart, tomorrow, movements, months, index) : null;
-  return {months, pots, movements, surplus};
+  return {months, pots, movements, surplus, analysisStart: analysisStart ? dateKey(analysisStart) : null};
 }
 
 // Überschuss: income − expenses − saved per month, from `start` through today (the running month as
