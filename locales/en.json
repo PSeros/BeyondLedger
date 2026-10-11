@@ -464,7 +464,7 @@
     "domainExpense": "Expenses",
     "domainIncome": "Income",
     "domainBoth": "All",
-    "net": "Net",
+    "net": "Surplus",
     "windowLabel": "Time window",
     "periodMonthOfYear": "Specific month",
     "windowPickRange": "Pick dates",
@@ -476,7 +476,6 @@
     "unitLabel": "Values per",
     "unit": {
       "item": "Line item",
-      "bill": "Bill / payment",
       "day": "Day",
       "week": "Week",
       "month": "Month",
@@ -493,7 +492,6 @@
     "timeChartTitle": "Total per {unit}",
     "weekLabel": "W{week}",
     "byCategory": "Category",
-    "byCounterparty": "Supplier / source",
     "byTag": "Tag",
     "other": "Other",
     "untagged": "No tag",
@@ -541,7 +539,6 @@
     "group": {
       "weekday": "weekday",
       "category": "category",
-      "counterparty": "supplier / source",
       "tag": "tag"
     },
     "boxHintUnit": "One value per {unit} · box = middle half, bar = median, dots = outliers",
@@ -552,7 +549,25 @@
     "periodCount": "{count, plural, one {# period} other {# periods}}",
     "domainSaving": "Savings",
     "saved": "Saved",
-    "groupSavingTargets": "Savings targets"
+    "groupSavingTargets": "Savings targets",
+    "unitBill": {
+      "expense": "Bill",
+      "income": "Payment",
+      "saving": "Booking",
+      "both": "Bill / payment"
+    },
+    "byCounterpartyIn": {
+      "expense": "Supplier",
+      "income": "Source",
+      "both": "Supplier / source"
+    },
+    "groupCounterpartyIn": {
+      "expense": "supplier",
+      "income": "source",
+      "both": "supplier / source"
+    },
+    "byTarget": "Savings target",
+    "groupTarget": "savings target"
   },
   "tags": {
     "title": "Tags",

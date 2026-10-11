@@ -13,6 +13,7 @@ import {useInsightsParams} from "@/hooks/useInsightsParams";
 import type {InsightsTableResponse, InsightsTableRow, PeriodRow, TableSortKey} from "@/features/insights/table";
 import {INSIGHTS_SERIES, seriesOf, type InsightsSeries} from "@/features/insights/params";
 import {SERIES_LABEL_KEYS} from "@/features/insights/colors";
+import {dimensionKey} from "@/features/insights/labels";
 
 const LIMIT = 40;
 // URL keys that only shape the charts, so changing them must not refetch the table. The unit (?u)
@@ -138,7 +139,7 @@ export default function InsightsTable({activeWorkspaceId}: {activeWorkspaceId: n
   const entryColumns = [
     {id: "date", name: tFields("date"), allowsSorting: true},
     {id: "label", name: tFields("name"), isRowHeader: true, allowsSorting: true},
-    {id: "counterparty", name: t("byCounterparty"), allowsSorting: true},
+    {id: "counterparty", name: t(dimensionKey("counterparty", query.domain)), allowsSorting: true},
     {id: "category", name: tFields("category"), allowsSorting: true},
     {id: "kind", name: t("kindLabel"), allowsSorting: false},
     {id: "amount", name: tFields("total"), allowsSorting: true},

@@ -126,11 +126,15 @@ export function parseInsightsQuery(source: ParamSource): InsightsQuery {
   const unit = (STAT_UNITS as readonly string[]).includes(rawUnit ?? "") ? (rawUnit as StatUnit) : DEFAULT_STAT_UNIT;
 
   const rawBy = read(source, "by");
-  const by = (BREAKDOWN_DIMENSIONS as readonly string[]).includes(rawBy ?? "") ? (rawBy as BreakdownDimension) : "category";
+  const parsedBy = (BREAKDOWN_DIMENSIONS as readonly string[]).includes(rawBy ?? "") ? (rawBy as BreakdownDimension) : "category";
+  // Combinations a domain doesn't have fall back: line items only exist on bills, and a saving's
+  // counterparty is its pot, the same as its category.
+  const isPayments = domain === "income" || domain === "saving";
+  const by = domain === "saving" && parsedBy === "counterparty" ? "category" : parsedBy;
 
   return {
     domain,
-    unit,
+    unit: isPayments && unit === "item" ? DEFAULT_STAT_UNIT : unit,
     by,
     window: {
       periodType,

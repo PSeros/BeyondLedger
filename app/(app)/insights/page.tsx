@@ -12,6 +12,7 @@ import {boxesFor, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samp
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery, seriesOf, type InsightsSeries} from "@/features/insights/params";
+import {groupKey, unitKey} from "@/features/insights/labels";
 import {previousSpan, resolveWindow, spanFor} from "@/features/insights/window";
 import {getActiveWorkspaceId, getAnalysisStart, getLocale} from "@/features/settings/db/appSettings";
 
@@ -64,8 +65,8 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     key: domain,
     boxes: boxesFor(of(domain), query.by, query.unit, span, weekdayNames),
   }));
-  const groupLabel = t(`group.${query.by}`);
-  const unitLabel = t(`unit.${query.unit}`);
+  const groupLabel = t(groupKey(query.by, query.domain));
+  const unitLabel = t(unitKey(query.unit, query.domain));
   const weekdayFallsBack = query.by === "weekday" && (query.unit === "week" || query.unit === "month");
   const boxHint = t(weekdayFallsBack || (query.by === "weekday" && query.unit === "day") ? "boxHintDays" : "boxHintUnit", {unit: unitLabel});
 
@@ -87,8 +88,7 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
           <div className="flex flex-col gap-4 pb-8">
             {/* Bento like the dashboard: a fixed row grid, tiles fill their cells (h-full). */}
             <div className="grid grid-flow-row-dense auto-rows-[6rem] grid-cols-2 gap-4 lg:grid-cols-6">
-              {/* Five tiles when every series is shown: 2+2+1 on phones, 3+2 at lg, one row from xl. */}
-              <div className={`col-span-2 lg:col-span-6 ${query.domain === "both" ? "row-span-3 lg:row-span-2 xl:row-span-1" : "row-span-2 lg:row-span-1"}`}>
+              <div className="col-span-2 row-span-2 lg:col-span-6 lg:row-span-1">
                 <InsightsKpis rows={rows} previousRows={previousRows} domain={query.domain} unit={query.unit} span={span} previousSpan={before}/>
               </div>
               <div className="col-span-2 row-span-4 lg:col-span-4">

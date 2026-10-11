@@ -4,6 +4,7 @@ import {FiArrowDown, FiArrowUp} from "react-icons/fi";
 import type {InsightsRow} from "@/features/insights/db/insightsRows";
 import type {InsightsDomain, InsightsSeries, StatUnit} from "@/features/insights/params";
 import {computeStats, samplesFor} from "@/features/insights/stats";
+import {unitKey} from "@/features/insights/labels";
 
 type Tile = {
   key: string;
@@ -18,8 +19,8 @@ type Tile = {
 type Span = {start: Date; end: Date};
 
 // The headline strip, each tile with its change against the same stretch of the previous period.
-// One domain → sum / mean / median / count over the stats unit; all → expenses / income / saved /
-// net (income − expenses − saved) / savings rate ((income − expenses) / income: saving is not spending).
+// One domain → sum / mean / median / count over the stats unit; all → income / expenses / saved
+// (income − expenses) / savings rate (saved / income), as on the dashboard.
 export default async function InsightsKpis({rows, previousRows, domain, unit, span, previousSpan}: {
   rows: InsightsRow[];
   previousRows: InsightsRow[] | null;
@@ -38,23 +39,14 @@ export default async function InsightsKpis({rows, previousRows, domain, unit, sp
   if (domain === "both") {
     const exp = sumOf(rows, "expense") ?? 0;
     const inc = sumOf(rows, "income") ?? 0;
-    const sav = sumOf(rows, "saving") ?? 0;
     const pExp = sumOf(previousRows, "expense");
     const pInc = sumOf(previousRows, "income");
-    const pSav = sumOf(previousRows, "saving");
     const rate = (i: number | null, e: number | null) => (i != null && e != null && i > 0 ? (i - e) / i : null);
+    // Same four as the dashboard: Gespart is everything not spent (booked savings and Überschuss).
     tiles = [
-      {key: "exp", label: t("domainExpense"), value: exp, previous: pExp, kind: "currency", higherIsBetter: false},
       {key: "inc", label: t("domainIncome"), value: inc, previous: pInc, kind: "currency", higherIsBetter: true},
-      {key: "sav", label: t("saved"), value: sav, previous: pSav, kind: "currency", higherIsBetter: true},
-      {
-        key: "net",
-        label: t("net"),
-        value: inc - exp - sav,
-        previous: pInc != null && pExp != null ? pInc - pExp - (pSav ?? 0) : null,
-        kind: "currency",
-        higherIsBetter: true,
-      },
+      {key: "exp", label: t("domainExpense"), value: exp, previous: pExp, kind: "currency", higherIsBetter: false},
+      {key: "sav", label: t("saved"), value: inc - exp, previous: pInc != null && pExp != null ? pInc - pExp : null, kind: "currency", higherIsBetter: true},
       {key: "rate", label: t("savingsRate"), value: rate(inc, exp), previous: rate(pInc, pExp), kind: "percent", higherIsBetter: true},
     ];
   } else {
@@ -63,7 +55,7 @@ export default async function InsightsKpis({rows, previousRows, domain, unit, sp
     const now = computeStats(samplesFor(mine(rows), unit, span));
     const before = previousRows && previousSpan ? computeStats(samplesFor(mine(previousRows), unit, previousSpan)) : null;
     const better = d !== "expense";
-    const per = t(`unit.${unit}`);
+    const per = t(unitKey(unit, domain));
     tiles = [
       {key: "sum", label: t("stat.sum"), value: now.sum, previous: before?.sum ?? null, kind: "currency", higherIsBetter: better},
       {key: "mean", label: t("kpiPer", {stat: t("stat.mean"), unit: per}), value: now.mean, previous: before?.mean ?? null, kind: "currency", higherIsBetter: better},
@@ -80,7 +72,7 @@ export default async function InsightsKpis({rows, previousRows, domain, unit, sp
   };
 
   return (
-    <div className={`grid h-full grid-cols-2 gap-2 sm:gap-4 ${tiles.length > 4 ? "lg:grid-cols-3 xl:grid-cols-5" : "lg:grid-cols-4"}`}>
+    <div className="grid h-full grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
       {tiles.map((tile) => {
         const hasDelta = tile.value != null && tile.previous != null && tile.previous !== 0;
         // Percent-point change for a rate; relative change for everything else.

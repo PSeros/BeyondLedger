@@ -3,7 +3,8 @@
 import {useTranslations} from "next-intl";
 import {ListBox, Select} from "@heroui/react";
 import {useInsightsParams} from "@/hooks/useInsightsParams";
-import {BREAKDOWN_DIMENSIONS, DEFAULT_STAT_UNIT, STAT_UNITS} from "@/features/insights/params";
+import {DEFAULT_STAT_UNIT} from "@/features/insights/params";
+import {dimensionKey, dimensionsFor, unitKey, unitsFor} from "@/features/insights/labels";
 
 // An inline-labelled select. HeroUI's Select stacks its Label above the trigger, so the label here
 // is a plain span and the Select carries it as aria-label.
@@ -42,25 +43,19 @@ export default function InsightsAnalysisBar() {
   const t = useTranslations("insights");
   const {query, update} = useInsightsParams();
 
-  const dimensionLabels = {
-    weekday: t("boxByWeekday"),
-    category: t("byCategory"),
-    counterparty: t("byCounterparty"),
-    tag: t("byTag"),
-  } as const;
 
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
       <InlineSelect
         label={t("unitLabel")}
         value={query.unit}
-        options={STAT_UNITS.map((unit) => ({id: unit, name: t(`unit.${unit}`)}))}
+        options={unitsFor(query.domain).map((unit) => ({id: unit, name: t(unitKey(unit, query.domain))}))}
         onChange={(unit) => update({u: unit === DEFAULT_STAT_UNIT ? null : unit})}
       />
       <InlineSelect
         label={t("groupLabel")}
         value={query.by}
-        options={BREAKDOWN_DIMENSIONS.map((dimension) => ({id: dimension, name: dimensionLabels[dimension]}))}
+        options={dimensionsFor(query.domain).map((dimension) => ({id: dimension, name: t(dimensionKey(dimension, query.domain))}))}
         onChange={(by) => update({by: by === "category" ? null : by})}
       />
     </div>

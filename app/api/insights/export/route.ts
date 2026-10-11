@@ -4,6 +4,7 @@ import {loadTableRows} from "@/features/insights/db/tableRows";
 import {getLocale} from "@/features/settings/db/appSettings";
 import {parseInsightsQuery, seriesOf} from "@/features/insights/params";
 import {SERIES_LABEL_KEYS} from "@/features/insights/colors";
+import {dimensionKey} from "@/features/insights/labels";
 import type {InsightsTableRow, PeriodRow} from "@/features/insights/table";
 
 // CSV of exactly what the entry table lists (same filters, unit and sort): entries, or one row per
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       t("csvDomain"),
       tFields("name"),
       t("csvLines"),
-      t("byCounterparty"),
+      t(dimensionKey("counterparty", parseInsightsQuery(params).domain)),
       tFields("category"),
       t("byTag"),
       t("csvAmount"),

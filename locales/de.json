@@ -464,7 +464,7 @@
     "domainExpense": "Ausgaben",
     "domainIncome": "Einnahmen",
     "domainBoth": "Alle",
-    "net": "Saldo",
+    "net": "Überschuss",
     "windowLabel": "Zeitraum",
     "periodMonthOfYear": "Bestimmter Monat",
     "windowPickRange": "Daten wählen",
@@ -476,7 +476,6 @@
     "unitLabel": "Werte pro",
     "unit": {
       "item": "Position",
-      "bill": "Beleg / Zahlung",
       "day": "Tag",
       "week": "Woche",
       "month": "Monat",
@@ -493,7 +492,6 @@
     "timeChartTitle": "Summe pro {unit}",
     "weekLabel": "KW {week}",
     "byCategory": "Kategorie",
-    "byCounterparty": "Lieferant / Quelle",
     "byTag": "Tag",
     "other": "Sonstige",
     "untagged": "Ohne Tag",
@@ -541,7 +539,6 @@
     "group": {
       "weekday": "Wochentag",
       "category": "Kategorie",
-      "counterparty": "Lieferant / Quelle",
       "tag": "Tag"
     },
     "boxHintUnit": "Ein Wert pro {unit} · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer",
@@ -552,7 +549,25 @@
     "periodCount": "{count, plural, one {# Zeitraum} other {# Zeiträume}}",
     "domainSaving": "Sparen",
     "saved": "Gespart",
-    "groupSavingTargets": "Sparziele"
+    "groupSavingTargets": "Sparziele",
+    "unitBill": {
+      "expense": "Beleg",
+      "income": "Zahlung",
+      "saving": "Buchung",
+      "both": "Beleg / Zahlung"
+    },
+    "byCounterpartyIn": {
+      "expense": "Lieferant",
+      "income": "Quelle",
+      "both": "Lieferant / Quelle"
+    },
+    "groupCounterpartyIn": {
+      "expense": "Lieferant",
+      "income": "Quelle",
+      "both": "Lieferant / Quelle"
+    },
+    "byTarget": "Sparziel",
+    "groupTarget": "Sparziel"
   },
   "tags": {
     "title": "Tags",
