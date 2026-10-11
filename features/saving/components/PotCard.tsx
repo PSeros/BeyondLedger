@@ -9,11 +9,13 @@ import type {Pot, Surplus} from "@/features/saving/db/savingOverview";
 import type {SavingFormOptions} from "@/features/saving/db/savingFormOptions";
 
 const LAST_MONTHS = 12;
+// Cards grow to share the row but never shrink below this; past that the row scrolls.
+const CARD_SIZE = "min-w-56 flex-1 snap-start";
 
 export async function PotCard({pot, total, options}: {pot: Pot; total: number; options: SavingFormOptions}) {
   const format = await getFormatter();
   return (
-    <Card className="flex flex-col gap-3 p-4">
+    <Card className={`${CARD_SIZE} flex flex-col gap-3 p-4`}>
       <Link href={`/saving/${pot.id}`} className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
         <div className="flex items-center gap-2">
           <span className="size-2.5 shrink-0 rounded-full" style={{background: pot.color}}/>
@@ -26,9 +28,9 @@ export async function PotCard({pot, total, options}: {pot: Pot; total: number; o
         <Sparkline values={pot.series.slice(-LAST_MONTHS)} color={pot.color}/>
         <div className="flex min-h-9 flex-col gap-0.5 text-xs text-muted">
           {pot.plans.map((plan) => (
-            <span key={plan.savingId} className="flex items-center gap-1 truncate">
+            <span key={plan.savingId} className="flex min-w-0 items-center gap-1">
               <LuRepeat className="size-3 shrink-0"/>
-              {format.number(plan.amount, "currency")} · {plan.frequency} · {plan.name}
+              <span className="truncate">{format.number(plan.amount, "currency")} · {plan.frequency} · {plan.name}</span>
             </span>
           ))}
         </div>
@@ -43,7 +45,7 @@ export async function PotCard({pot, total, options}: {pot: Pot; total: number; o
 export async function SurplusCard({surplus, options}: {surplus: Surplus; options: SavingFormOptions}) {
   const [t, format] = await Promise.all([getTranslations("saving"), getFormatter()]);
   return (
-    <Card className="flex flex-col gap-3 border border-dashed border-[var(--border)] bg-transparent p-4">
+    <Card className={`${CARD_SIZE} flex flex-col gap-3 border border-dashed border-[var(--border)] bg-transparent p-4`}>
       <Link href="/saving/surplus" className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
         <div className="flex items-center gap-2">
           <SurplusDot/>

@@ -68,7 +68,8 @@ export default async function SavingPage() {
             <SavingGrowthChart months={months} series={series}/>
           </Card>
 
-          <div className="grid shrink-0 grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-4">
+          {/* One row: cards share the width while they fit, then the row scrolls sideways. */}
+          <div className="flex shrink-0 snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]">
             {surplus ? <SurplusCard surplus={surplus} options={options}/> : null}
             {pots.map((pot) => <PotCard key={pot.id} pot={pot} total={total} options={options}/>)}
           </div>
