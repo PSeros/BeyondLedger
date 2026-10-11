@@ -133,15 +133,12 @@
     "fixedExpenses": "Fixe Ausgaben",
     "income": "Einnahmen",
     "fixedIncome": "Fixe Einnahmen",
-    "variableIncome": "Variable Einnahmen",
-    "fixedSaving": "Sparpläne",
-    "variableSaving": "Einmalige Sparbeträge"
+    "variableIncome": "Variable Einnahmen"
   },
   "charts": {
     "expense": "Ausgaben",
     "fixedExpense": "Fixe Ausgaben",
-    "income": "Einnahmen",
-    "saving": "Sparen"
+    "income": "Einnahmen"
   },
   "theme": {
     "selection": "Design-Auswahl",
@@ -167,8 +164,7 @@
     "expense": "Ausgaben suchen",
     "income": "Einnahmen suchen",
     "budget": "Budgets suchen",
-    "placeholder": "Suchen...",
-    "saving": "Sparen durchsuchen"
+    "placeholder": "Suchen..."
   },
   "forms": {
     "select": "Auswählen…",
@@ -367,8 +363,7 @@
     "backToFixedIncome": "Zurück zu fixen Einnahmen",
     "backToVariableIncome": "Zurück zu variablen Einnahmen",
     "docNumber": "Beleg {number}",
-    "backToFixedSaving": "Zurück zu Sparplänen",
-    "backToVariableSaving": "Zurück zu einmaligen Sparbeträgen"
+    "backToPot": "Zurück zu {pot}"
   },
   "attachments": {
     "title": "Anhänge",
@@ -601,16 +596,58 @@
   "saving": {
     "addSaving": "Sparbetrag hinzufügen",
     "addSavingSubtitle": "Zurückgelegtes Geld erfassen — die Frequenz entscheidet Sparplan oder einmalig",
-    "emptyFixedTitle": "Noch keine Sparpläne",
-    "emptyVariableTitle": "Noch keine einmaligen Sparbeträge",
-    "emptyFixedText": "Füge einen Sparplan hinzu, der regelmäßig Geld zurücklegt, z. B. in ein ETF-Depot oder die Urlaubskasse.",
-    "emptyVariableText": "Füge eine einmalige Einzahlung hinzu – oder eine Entnahme, wenn du Erspartes verwendest.",
     "direction": "Richtung",
     "deposit": "Einzahlung",
     "withdraw": "Entnahme",
     "withdrawFrom": "Aus {target} entnehmen",
-    "paidInTitle": "Eingezahlt je Sparziel",
     "convert": "In Sparen umwandeln",
-    "convertConfirm": "Ist das eigentlich ein Sparplan? Nach Sparen verschieben – Zeitraum, Tags und Anhänge bleiben erhalten, Lieferant und Kategorie entfallen."
+    "convertConfirm": "Ist das eigentlich ein Sparplan? Nach Sparen verschieben – Zeitraum, Tags und Anhänge bleiben erhalten, Lieferant und Kategorie entfallen.",
+    "total": "Zurückgelegt gesamt",
+    "thisMonth": "{amount} diesen Monat",
+    "plansPerMonth": "Sparpläne",
+    "perMonth": "{amount} / Monat",
+    "net12": "Netto letzte 12 Monate",
+    "withdrawnIn": "Entnommen {year}",
+    "range": "Zeitraum",
+    "range12": "12 M",
+    "rangeAll": "Alles",
+    "surplus": "Überschuss",
+    "auto": "automatisch",
+    "move": "Umbuchen",
+    "moveTitle": "Aus Überschuss umbuchen",
+    "moveHint": "Wird als Einzahlung in den gewählten Topf gebucht; der Überschuss sinkt um denselben Betrag.",
+    "moveName": "Umbuchung aus Überschuss",
+    "planTitle": "Neuer Sparplan",
+    "plan": "Sparplan",
+    "depositInto": "In {target} einzahlen",
+    "movements": "Bewegungen",
+    "all": "Alle",
+    "kind": "Art",
+    "kindPlan": "Sparplan",
+    "kindIn": "Einzahlung",
+    "kindOut": "Entnahme",
+    "more": "Mehr anzeigen ({count})",
+    "backToPots": "Alle Töpfe",
+    "balance": "Stand",
+    "paidInTotal": "Eingezahlt",
+    "withdrawnTotal": "Entnommen",
+    "rate": "Sparrate",
+    "history": "Verlauf",
+    "plans": "Sparpläne",
+    "noPlan": "Noch kein Sparplan für diesen Topf.",
+    "surplusFormula": "Einnahmen − Ausgaben − Gespartes seit {date}",
+    "changeStart": "Startdatum ändern",
+    "avgMonth": "Ø pro Monat",
+    "bestMonth": "Bester Monat",
+    "worstMonth": "Schlechtester Monat",
+    "monthsTitle": "Monate",
+    "month": "Monat",
+    "colIncome": "Einnahmen",
+    "colExpense": "Ausgaben",
+    "colSaved": "Gespart",
+    "colLeft": "Übrig",
+    "soFar": "bis heute",
+    "emptyTitle": "Noch nichts gespart",
+    "emptyText": "Lege einen Sparplan oder eine erste Einzahlung an. Jedes Sparziel wird zu einem Topf, dem du beim Wachsen zusehen kannst."
   }
 }

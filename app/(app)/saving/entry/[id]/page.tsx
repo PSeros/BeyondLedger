@@ -1,7 +1,7 @@
 import {getTranslations} from "next-intl/server";
 import {notFound} from "next/navigation";
 import {Card} from "@heroui/react";
-import {LuRepeat} from "react-icons/lu";
+import {LuBanknote, LuRepeat} from "react-icons/lu";
 import BackLink from "@/components/BackLink";
 import CategoryChip from "@/components/CategoryChip";
 import DeleteEntityButton from "@/components/DeleteEntityButton";
@@ -12,14 +12,13 @@ import {getSavingById} from "@/features/saving/db/savingDetail";
 import {getSavingFormOptions} from "@/features/saving/db/savingFormOptions";
 import {deleteSaving} from "@/features/saving/db/savingMutations";
 
-type FixedSavingPageProps = {
+type SavingEntryPageProps = {
   params: Promise<{id: string}>;
   searchParams: Promise<{edit?: string}>;
 };
 
-// Standalone full page — rendered on a hard load / direct link to /saving/fixed/[id]. The
-// intercepted @modal/(.)[id] route renders the same detail as an overlay instead.
-export default async function FixedSavingDetailPage({params, searchParams}: FixedSavingPageProps) {
+// One booking (a plan, a deposit or a withdrawal): detail, edit, delete. Reached from a movement row.
+export default async function SavingEntryPage({params, searchParams}: SavingEntryPageProps) {
   const {id} = await params;
   const {edit} = await searchParams;
   const editing = edit != null;
@@ -37,12 +36,12 @@ export default async function FixedSavingDetailPage({params, searchParams}: Fixe
   return (
     <div className="h-full min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-5 py-6">
-        <BackLink fallbackHref="/saving/fixed" fallbackLabel={t("backToFixedSaving")}/>
+        <BackLink fallbackHref={`/saving/${saving.targetId}`} fallbackLabel={t("backToPot", {pot: saving.target})}/>
 
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between sm:gap-4">
           <div className="flex items-start gap-3">
             <span className="flex size-10 shrink-0 sm:size-11 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--accent)_14%,transparent)] text-[var(--accent)]">
-              <LuRepeat className="size-5"/>
+              {saving.isRecurring ? <LuRepeat className="size-5"/> : <LuBanknote className="size-5"/>}
             </span>
             <div className="min-w-0">
               <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{saving.name}</h1>
@@ -53,8 +52,8 @@ export default async function FixedSavingDetailPage({params, searchParams}: Fixe
           </div>
           {editing ? null : (
             <div className="flex items-center gap-2">
-              <DeleteEntityButton id={saving.id} action={deleteSaving} label={saving.name} redirectTo="/saving/fixed"/>
-              <EditLink id={saving.id} basePath="/saving/fixed"/>
+              <DeleteEntityButton id={saving.id} action={deleteSaving} label={saving.name} redirectTo={`/saving/${saving.targetId}`}/>
+              <EditLink id={saving.id} basePath="/saving/entry"/>
             </div>
           )}
         </div>

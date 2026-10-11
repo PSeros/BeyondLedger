@@ -224,7 +224,7 @@ async function savingRows(query: InsightsQuery, tags: SignedIds, window: Resolve
         category: saving.target.name,
         tags: tagNames(saving.tags),
         amount: Number(saving.totalAmount),
-        href: `/saving/${saving.frequency.isRecurring ? "fixed" : "variable"}/${saving.id}`,
+        href: `/saving/entry/${saving.id}`,
       });
     });
   }

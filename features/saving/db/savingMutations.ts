@@ -27,30 +27,21 @@ function parseSavingData(formData: FormData) {
   };
 }
 
-// Both tab lists (changing the frequency moves a row between tabs) plus the detail on both paths.
-// Savings feed the budget catch-all target, so the budget surfaces + MQTT are refreshed too.
-function revalidateSaving(id: number) {
-  revalidatePath("/saving/fixed");
-  revalidatePath("/saving/variable");
-  revalidatePath(`/saving/fixed/${id}`);
-  revalidatePath(`/saving/variable/${id}`);
-  revalidateSavingSurfaces();
-}
-
+// Every Sparen page (overview, pots, Überschuss, entries). Savings also feed the budget catch-all
+// target and the dashboard, so those + MQTT are refreshed too.
 function revalidateSavingSurfaces() {
+  revalidatePath("/saving", "layout");
   revalidatePath("/budget");
   revalidatePath("/dashboard");
   nudge("saving");
 }
 
-// Creates a new Saving; its frequency decides the tab.
+// Creates a new Saving (a recurring frequency makes it a plan).
 export async function createSaving(formData: FormData): Promise<void> {
   const tagIds = parseTagIds(formData);
   await client.saving.create({
     data: {...parseSavingData(formData), tags: {create: tagIds.map((tagId) => ({tagId}))}},
   });
-  revalidatePath("/saving/fixed");
-  revalidatePath("/saving/variable");
   revalidateSavingSurfaces();
 }
 
@@ -67,13 +58,11 @@ export async function updateSaving(id: number, formData: FormData): Promise<void
     }
   });
 
-  revalidateSaving(id);
+  revalidateSavingSurfaces();
 }
 
 // Deletes a Saving.
 export async function deleteSaving(id: number): Promise<void> {
   await client.saving.delete({where: {id}});
-  revalidatePath("/saving/fixed");
-  revalidatePath("/saving/variable");
   revalidateSavingSurfaces();
 }

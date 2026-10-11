@@ -47,6 +47,8 @@ export function SavingAddModal({options, preset, isOpen, onOpenChange}: {
   onOpenChange: (open: boolean) => void;
 }) {
   const t = useTranslations("saving");
+  const title = preset?.kind === "move" ? t("moveTitle") : preset?.kind === "plan" ? t("planTitle")
+    : preset?.direction === "withdraw" ? t("withdraw") : preset ? t("deposit") : t("addSaving");
   return (
     <Modal.Backdrop isOpen={isOpen} variant="blur" onOpenChange={onOpenChange}>
       <Modal.Container size="lg">
@@ -54,9 +56,9 @@ export function SavingAddModal({options, preset, isOpen, onOpenChange}: {
           <Modal.CloseTrigger/>
           <Modal.Header className="flex-row items-start gap-3">
             <div className="min-w-0 flex-1">
-              <Modal.Heading className="block truncate text-base font-semibold">{t("addSaving")}</Modal.Heading>
+              <Modal.Heading className="block truncate text-base font-semibold">{title}</Modal.Heading>
               <p className="mt-0.5 text-sm text-muted">
-                {t("addSavingSubtitle")}
+                {preset?.kind === "move" ? t("moveHint") : t("addSavingSubtitle")}
               </p>
             </div>
           </Modal.Header>

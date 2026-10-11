@@ -35,8 +35,7 @@ export async function convertContractToSaving(
   });
 
   revalidatePath("/expense/fixed");
-  revalidatePath("/saving/fixed");
-  revalidatePath("/saving/variable");
+  revalidatePath("/saving", "layout");
   revalidatePath("/budget");
   revalidatePath("/dashboard");
   nudge("contract");

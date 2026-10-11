@@ -133,15 +133,12 @@
     "fixedExpenses": "Fixed expenses",
     "income": "Income",
     "fixedIncome": "Fixed income",
-    "variableIncome": "Variable income",
-    "fixedSaving": "Savings plans",
-    "variableSaving": "One-off savings"
+    "variableIncome": "Variable income"
   },
   "charts": {
     "expense": "Expense",
     "fixedExpense": "Fixed Expense",
-    "income": "Income",
-    "saving": "Savings"
+    "income": "Income"
   },
   "theme": {
     "selection": "Theme selection",
@@ -167,8 +164,7 @@
     "expense": "Search expense",
     "income": "Search income",
     "budget": "Search budgets",
-    "placeholder": "Search...",
-    "saving": "Search savings"
+    "placeholder": "Search..."
   },
   "forms": {
     "select": "Select…",
@@ -351,7 +347,7 @@
     "savingTargets": "Savings targets",
     "start": {
       "heading": "Start date",
-      "headingDescription": "Where every calculation begins: dashboard, charts and Ø lines, Analyse, budgets and the Überschuss. Older entries stay in the lists.",
+      "headingDescription": "Where every calculation begins: dashboard, charts and Ø lines, Analyse, budgets and the surplus. Older entries stay in the lists.",
       "label": "Count from",
       "hint": "Entries before this date are ignored in all calculations.",
       "hintEmpty": "Empty: everything from the first entry counts.",
@@ -367,8 +363,7 @@
     "backToFixedIncome": "Back to fixed income",
     "backToVariableIncome": "Back to variable income",
     "docNumber": "Doc. {number}",
-    "backToFixedSaving": "Back to savings plans",
-    "backToVariableSaving": "Back to one-off savings"
+    "backToPot": "Back to {pot}"
   },
   "attachments": {
     "title": "Attachments",
@@ -601,16 +596,58 @@
   "saving": {
     "addSaving": "Add saving",
     "addSavingSubtitle": "Record money set aside — the frequency decides plan or one-off",
-    "emptyFixedTitle": "No savings plans yet",
-    "emptyVariableTitle": "No one-off savings yet",
-    "emptyFixedText": "Add a savings plan that moves money aside on a schedule, e.g. into an ETF or a vacation fund.",
-    "emptyVariableText": "Add a one-off deposit, or a withdrawal when you use your savings.",
     "direction": "Direction",
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawFrom": "Withdraw from {target}",
-    "paidInTitle": "Paid in per target",
     "convert": "Convert to saving",
-    "convertConfirm": "Is this really a savings plan? Move it to Savings, keeping its dates, tags and attachments. Supplier and category are dropped."
+    "convertConfirm": "Is this really a savings plan? Move it to Savings, keeping its dates, tags and attachments. Supplier and category are dropped.",
+    "total": "Set aside in total",
+    "thisMonth": "{amount} this month",
+    "plansPerMonth": "Savings plans",
+    "perMonth": "{amount} / month",
+    "net12": "Net last 12 months",
+    "withdrawnIn": "Withdrawn in {year}",
+    "range": "Time range",
+    "range12": "12 M",
+    "rangeAll": "All",
+    "surplus": "Surplus",
+    "auto": "automatic",
+    "move": "Move to pot",
+    "moveTitle": "Move from surplus",
+    "moveHint": "Booked as a deposit into the chosen pot; the surplus drops by the same amount.",
+    "moveName": "Moved from surplus",
+    "planTitle": "New savings plan",
+    "plan": "Savings plan",
+    "depositInto": "Deposit into {target}",
+    "movements": "Movements",
+    "all": "All",
+    "kind": "Type",
+    "kindPlan": "Savings plan",
+    "kindIn": "Deposit",
+    "kindOut": "Withdrawal",
+    "more": "Show more ({count})",
+    "backToPots": "All pots",
+    "balance": "Balance",
+    "paidInTotal": "Paid in",
+    "withdrawnTotal": "Withdrawn",
+    "rate": "Savings rate",
+    "history": "History",
+    "plans": "Savings plans",
+    "noPlan": "No savings plan for this pot yet.",
+    "surplusFormula": "Income − expenses − savings since {date}",
+    "changeStart": "Change start date",
+    "avgMonth": "Ø per month",
+    "bestMonth": "Best month",
+    "worstMonth": "Worst month",
+    "monthsTitle": "Months",
+    "month": "Month",
+    "colIncome": "Income",
+    "colExpense": "Expenses",
+    "colSaved": "Saved",
+    "colLeft": "Left over",
+    "soFar": "so far",
+    "emptyTitle": "No savings yet",
+    "emptyText": "Add a savings plan or a first deposit. Each savings target becomes a pot you can watch grow."
   }
 }

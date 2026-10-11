@@ -22,7 +22,7 @@ export const routes: Route[] = [
   {key: "dashboard", basePath: "/dashboard", href: "/dashboard", icon: LuChartBar},
   {key: "income", basePath: "/income", href: "/income/fixed", icon: LuTrendingUp},
   {key: "expense", basePath: "/expense", href: "/expense/fixed", icon: LuTrendingDown},
-  {key: "saving", basePath: "/saving", href: "/saving/fixed", icon: LuHandCoins},
+  {key: "saving", basePath: "/saving", href: "/saving", icon: LuHandCoins},
   {key: "budget", basePath: "/budget", href: "/budget", icon: LuPiggyBank},
   {key: "insights", basePath: "/insights", href: "/insights", icon: LuChartNoAxesCombined},
   {key: "settings", basePath: "/settings", href: "/settings/general", icon: LuSettings2},

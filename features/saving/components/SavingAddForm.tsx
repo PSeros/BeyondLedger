@@ -18,11 +18,12 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export type SavingPreset = {targetId: string; direction: SavingDirection};
+// Set by a pot's actions: which pot, which direction, and whether it books a one-off (default), a new
+// savings plan, or a move out of the Überschuss (a one-off deposit with a preset name).
+export type SavingPreset = {targetId?: string; direction: SavingDirection; kind?: "oneOff" | "plan" | "move"};
 
 type SavingAddFormProps = {
   options: SavingFormOptions;
-  // Set by the target card's Withdraw action: that target, a one-off, Withdraw selected.
   preset?: SavingPreset;
   onClose: () => void;
 };
@@ -54,8 +55,12 @@ export default function SavingAddForm({options, preset, onClose}: SavingAddFormP
 
   return (
     <form action={action} className="flex flex-col gap-5">
-      <SavingDirectionTabs defaultValue={preset?.direction}/>
-      <TextInputField label={t("name")} name="name" isRequired/>
+      {preset?.kind === "plan" || preset?.kind === "move" ? (
+        <input type="hidden" name="direction" value="deposit"/>
+      ) : (
+        <SavingDirectionTabs defaultValue={preset?.direction}/>
+      )}
+      <TextInputField label={t("name")} name="name" defaultValue={preset?.kind === "move" ? tSaving("moveName") : ""} isRequired/>
 
       <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
         <CreatableSelect
@@ -71,7 +76,7 @@ export default function SavingAddForm({options, preset, onClose}: SavingAddFormP
           label={t("frequency")}
           name="frequencyId"
           options={options.frequencies}
-          defaultValue={preset ? options.oneOffFrequencyId : undefined}
+          defaultValue={preset && preset.kind !== "plan" ? options.oneOffFrequencyId : undefined}
           isRequired
         />
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>

@@ -34,8 +34,7 @@ function revalidateLookupSurfaces(): void {
   revalidatePath("/expense/variable");
   revalidatePath("/income/fixed");
   revalidatePath("/income/variable");
-  revalidatePath("/saving/fixed");
-  revalidatePath("/saving/variable");
+  revalidatePath("/saving", "layout");
 }
 
 // Error messages are localized (the app's active locale comes from the AppSettings singleton, read

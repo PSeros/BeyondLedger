@@ -60,8 +60,7 @@ export async function uploadContractFile(contractId: number, formData: FormData)
   revalidatePath(`/expense/fixed/${contractId}`);
 }
 
-// Stores an uploaded document and attaches it to an existing Saving. A plan has no tab-specific path,
-// so both detail paths are revalidated.
+// Stores an uploaded document and attaches it to an existing Saving.
 export async function uploadSavingFile(savingId: number, formData: FormData): Promise<void> {
   const file = await readUpload(formData);
   const meta = await saveUploadedFile(file);
@@ -78,8 +77,7 @@ export async function uploadSavingFile(savingId: number, formData: FormData): Pr
     },
   });
 
-  revalidatePath(`/saving/fixed/${savingId}`);
-  revalidatePath(`/saving/variable/${savingId}`);
+  revalidatePath(`/saving/entry/${savingId}`);
 }
 
 // Deletes a single attachment: removes the bytes from disk (tolerating seed rows with no file)
@@ -105,7 +103,6 @@ export async function deleteFileAsset(id: number): Promise<void> {
     revalidatePath(`/expense/fixed/${file.contractId}`);
   }
   if (file.savingId != null) {
-    revalidatePath(`/saving/fixed/${file.savingId}`);
-    revalidatePath(`/saving/variable/${file.savingId}`);
+    revalidatePath(`/saving/entry/${file.savingId}`);
   }
 }

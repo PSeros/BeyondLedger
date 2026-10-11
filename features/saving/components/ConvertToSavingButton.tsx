@@ -29,7 +29,7 @@ export default function ConvertToSavingButton({contractId, targets}: {contractId
     try {
       const saving = await convertContractToSaving(contractId, Number(targetId));
       setOpen(false);
-      router.push(`/saving/${saving.isRecurring ? "fixed" : "variable"}/${saving.id}`);
+      router.push(`/saving/entry/${saving.id}`);
       router.refresh();
     } catch {
       setError(tErrors("couldNotSave"));

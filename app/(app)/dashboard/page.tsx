@@ -5,7 +5,7 @@ import {getBillCount} from "@/features/expense/variable/db/billTableData";
 import {getContractCount} from "@/features/expense/fixed/db/contractTableData";
 import {getIncomeCount} from "@/features/income/db/incomeTableData";
 import {getBudgetCount} from "@/features/budget/db/budgets";
-import {getSavingCount} from "@/features/saving/db/savingTableData";
+import {getSavingCount} from "@/features/saving/db/savingCount";
 import WarrantyAlertCard from "@/features/dashboard/components/WarrantyAlertCard";
 import DashboardKpis from "@/features/dashboard/components/DashboardKpis";
 import CashFlowCards from "@/features/dashboard/components/CashFlowCards";
@@ -44,8 +44,7 @@ export default async function DashboardPage({
     getContractCount(),
     getIncomeCount(true),
     getIncomeCount(false),
-    getSavingCount(true),
-    getSavingCount(false),
+    getSavingCount(),
     getBudgetCount(),
   ]);
   const isEmpty = counts.every((count) => count === 0);
