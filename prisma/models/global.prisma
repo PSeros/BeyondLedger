@@ -135,6 +135,9 @@ model Workspace {
   name      String   @unique
   color     String
   createdAt DateTime @default(now())
+  // What the account held when tracking began (from the app-wide start date): the Überschuss starts here
+  // instead of at 0. Not a flow, so no period counts it as income or saving. null = 0.
+  openingBalance Decimal?
 
   bills     Bill[]
   contracts Contract[]

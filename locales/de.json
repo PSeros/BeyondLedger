@@ -684,6 +684,7 @@
     "openingHint": "Geld, das schon vor Beginn der Erfassung im Topf lag. Zählt zum Topf, aber nicht als Sparen aus dem Einkommen dieses Zeitraums.",
     "openingBadge": "Anfangsbestand",
     "kindOpening": "Anfangsbestand",
-    "plusOpening": "+ {amount} Anfangsbestand"
+    "plusOpening": "+ {amount} Anfangsbestand",
+    "surplusOpeningHint": "Was das jeweilige Konto am Startdatum hatte. Der Überschuss beginnt dort statt bei 0. Es ist kein Einkommen und zählt in keinem Zeitraum."
   }
 }

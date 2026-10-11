@@ -684,6 +684,7 @@
     "openingHint": "Money that was already in this pot before you started tracking. Counts toward the pot, not as saving from this period's income.",
     "openingBadge": "Starting balance",
     "kindOpening": "Starting balance",
-    "plusOpening": "+ {amount} starting balance"
+    "plusOpening": "+ {amount} starting balance",
+    "surplusOpeningHint": "What each account held on the start date. The surplus starts from there instead of 0. It isn't income, so no period counts it."
   }
 }
