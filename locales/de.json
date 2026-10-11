@@ -4,7 +4,7 @@
     "income": "Einnahmen",
     "expense": "Ausgaben",
     "budget": "Budget",
-    "insights": "Einblicke",
+    "insights": "Analyse",
     "settings": "Einstellungen",
     "unknownRoute": "{pathname} nicht im NavigationProvider",
     "collapseSidebar": "Seitenleiste einklappen",
