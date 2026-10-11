@@ -3,123 +3,93 @@
 import {useMemo} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
-import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
-import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
-import type {BaselineMetric} from "@/features/settings/lookback";
-import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
+import {Area, ComposedChart, Line, Tooltip, XAxis, YAxis} from "recharts";
+import type {ChartMode, ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 import ChartModeToggle from "@/components/ChartModeToggle";
+import {AREA_TINT, STACK_TINT} from "@/components/chartTints";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
-type SeriesKey = "income" | "expense";
+const INCOME = "var(--success)";
+const EXPENSE = "var(--danger)";
+const SAVING = "var(--accent)";
 
-// Savings are left out on purpose: the Gespart KPI sits right above and the Sparen page charts them.
-const SERIES: {key: SeriesKey; color: string; label: "kpiIncome" | "kpiExpenses"}[] = [
-  {key: "income", color: "var(--success)", label: "kpiIncome"},
-  {key: "expense", color: "var(--danger)", label: "kpiExpenses"},
-];
+type Point = {
+  label: string;
+  income: number | null;
+  incomeUpcoming: number | null;
+  expense: number | null;
+  expenseUpcoming: number | null;
+  saving: number | null;
+  savingUpcoming: number | null;
+};
 
-type MergedPoint = {label: string} & Partial<Record<`${SeriesKey}${"" | "Upcoming" | "Previous"}`, number | null>>;
-
-// Dashboard cash-flow (Phase 12, revised): income (green) and expense (red) on one shared axis, so the
-// gap reads as the period's net at a glance. Dashed continuations are each stream's projected
-// (upcoming) portion; the faint dotted lines are each stream's rolling baseline. Both views share
-// label sets per granularity, so they zip by index.
-export default function CashFlowChart({
-  income,
-  expense,
-  granularity,
-  baselineMetric = "MEAN",
-}: {
+// Dashboard cash flow: where the income went. Expenses and savings are stacked; income is a line on
+// top, so the gap between the stack and the line is the Überschuss (and a stack above the line means
+// more went out than came in). Past today the same shapes continue lighter and dashed as the forecast.
+export default function CashFlowChart({income, expense, saving, granularity}: {
   income: SeriesData;
   expense: SeriesData;
+  saving: SeriesData;
   granularity: Granularity;
-  baselineMetric?: BaselineMetric;
   mode?: ChartMode;
 }) {
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
-  const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
-  const points = useMemo(() => {
-    const data: Record<SeriesKey, ChartPoint[]> = {
-      income: income[granularity] ?? [],
-      expense: expense[granularity] ?? [],
-    };
-    const length = Math.max(...SERIES.map(({key}) => data[key].length));
-    const merged: MergedPoint[] = Array.from({length}, (_, i) => {
-      const point: MergedPoint = {label: SERIES.map(({key}) => data[key][i]?.label).find(Boolean) ?? ""};
-      for (const {key} of SERIES) {
-        point[key] = data[key][i]?.current ?? null;
-        point[`${key}Upcoming`] = data[key][i]?.upcoming;
-        point[`${key}Previous`] = data[key][i]?.previous ?? null;
-      }
-      return point;
-    });
-    return merged;
-  }, [income, expense, granularity]);
-  const series = SERIES;
+  const points = useMemo<Point[]>(() => {
+    const inc = income[granularity] ?? [];
+    const exp = expense[granularity] ?? [];
+    const sav = saving[granularity] ?? [];
+    const length = Math.max(inc.length, exp.length, sav.length);
+    const value = (p?: ChartPoint) => p?.current ?? null;
+    const upcoming = (p?: ChartPoint) => p?.upcoming ?? null;
+    // An account without savings still needs a 0 saving band wherever expenses are drawn.
+    return Array.from({length}, (_, i) => ({
+      label: inc[i]?.label ?? exp[i]?.label ?? sav[i]?.label ?? "",
+      income: value(inc[i]),
+      incomeUpcoming: upcoming(inc[i]),
+      expense: value(exp[i]),
+      expenseUpcoming: upcoming(exp[i]),
+      saving: value(sav[i]) ?? (value(exp[i]) != null ? 0 : null),
+      savingUpcoming: upcoming(sav[i]) ?? (upcoming(exp[i]) != null ? 0 : null),
+    }));
+  }, [income, expense, saving, granularity]);
+
+  const legend = [
+    {key: "income", name: t("kpiIncome"), color: INCOME, line: true},
+    {key: "expense", name: t("kpiExpenses"), color: EXPENSE},
+    {key: "saving", name: t("chartSaving"), color: SAVING},
+  ];
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
-      {/* Header is a color legend only: the period unit + navigator live in the dashboard toolbar, and
-          the money totals live in the KPI cards. */}
       <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1">
         <p className="text-sm">{t("cashFlowTitle")}</p>
-        {series.map(({key, color, label}) => (
-          <span key={key} className="flex items-center gap-1.5 text-sm text-muted">
-            <span className="size-2.5 rounded-full" style={{background: color}}/>
-            {t(label)}
+        {legend.map((item) => (
+          <span key={item.key} className="flex items-center gap-1.5 text-sm text-muted">
+            {item.line
+              ? <span className="h-0.5 w-3 rounded-full" style={{background: item.color}}/>
+              : <span className="size-2.5 rounded-sm" style={{background: item.color, opacity: 0.7}}/>}
+            {item.name}
           </span>
         ))}
-
-        {/* Same ?cm param as every other chart, so the shape stays in sync across the app. */}
         <ChartModeToggle className="ml-auto"/>
       </Card.Header>
 
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">
         <div className="min-h-[12rem] flex-1">
-          <LineChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
-            {/* Rolling baselines first, so they sit behind the solid current lines. */}
-            {series.map(({key, color, label}) => (
-              <Line
-                key={`${key}Previous`}
-                type="monotone"
-                dataKey={`${key}Previous`}
-                name={`${t(label)} ${baselineLabel}`}
-                stroke={color}
-                strokeOpacity={0.45}
-                strokeDasharray="2 3"
-                strokeWidth={2}
-                dot={false}
-                activeDot={false}
-              />
-            ))}
-            {series.flatMap(({key, color, label}) => [
-              <Line
-                key={key}
-                type="monotone"
-                dataKey={key}
-                name={t(label)}
-                stroke={color}
-                strokeWidth={3}
-                dot={false}
-                activeDot={{r: 5}}
-              />,
-              <Line
-                key={`${key}Upcoming`}
-                type="monotone"
-                dataKey={`${key}Upcoming`}
-                name={tChart("upcoming")}
-                stroke={color}
-                strokeDasharray="5 5"
-                strokeWidth={3}
-                dot={false}
-                activeDot={{r: 5}}
-                connectNulls={false}
-              />,
-            ])}
+          <ComposedChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
+            {/* Realized: stacked expenses + savings. */}
+            <Area type="monotone" dataKey="expense" stackId="now" stroke={EXPENSE} strokeWidth={2} fill={EXPENSE} fillOpacity={STACK_TINT} isAnimationActive={false} activeDot={false}/>
+            <Area type="monotone" dataKey="saving" stackId="now" stroke={SAVING} strokeWidth={2} fill={SAVING} fillOpacity={STACK_TINT} isAnimationActive={false} activeDot={false}/>
+            {/* Forecast: the same stack, lighter and dashed. */}
+            <Area type="monotone" dataKey="expenseUpcoming" stackId="next" stroke={EXPENSE} strokeWidth={2} strokeDasharray="5 5" fill={EXPENSE} fillOpacity={AREA_TINT} isAnimationActive={false} activeDot={false} connectNulls={false}/>
+            <Area type="monotone" dataKey="savingUpcoming" stackId="next" stroke={SAVING} strokeWidth={2} strokeDasharray="5 5" fill={SAVING} fillOpacity={AREA_TINT} isAnimationActive={false} activeDot={false} connectNulls={false}/>
+            {/* Income on top: the gap down to the stack is what's left over. */}
+            <Line type="monotone" dataKey="income" stroke={INCOME} strokeWidth={3} dot={false} activeDot={{r: 5}} isAnimationActive={false}/>
+            <Line type="monotone" dataKey="incomeUpcoming" stroke={INCOME} strokeWidth={3} strokeDasharray="5 5" dot={false} activeDot={{r: 5}} connectNulls={false} isAnimationActive={false}/>
 
             <XAxis
               dataKey="label"
@@ -132,46 +102,49 @@ export default function CashFlowChart({
               tick={{fontSize: "0.75rem", fill: "var(--muted)"}}
             />
             <YAxis
-              domain={["dataMin - 80", "dataMax + 80"]}
               axisLine={false}
               tickLine={false}
               tickMargin={10}
               tickFormatter={(value) => format.number(Number(value), "integer")}
               tick={{fontSize: "0.875rem", fill: "var(--muted)"}}
             />
-            {/* One row per series: the actual value (or the forecast past today), Ø beside it. Where the
-                solid and dashed lines meet both carry a value; the actual one wins. */}
+            {/* Income, expenses, saved and what's left. Where realized and forecast meet, realized wins. */}
             <Tooltip
               cursor={{strokeDasharray: "3 3"}}
               content={({active, payload, label}) => {
                 if (!active || !payload?.length) return null;
-                const point = payload[0].payload as MergedPoint;
+                const p = payload[0].payload as Point;
+                const isForecast = p.income == null && p.expense == null;
+                const inc = p.income ?? p.incomeUpcoming;
+                const exp = p.expense ?? p.expenseUpcoming;
+                const sav = p.saving ?? p.savingUpcoming;
+                const left = inc != null && exp != null ? inc - exp - (sav ?? 0) : null;
+                const money = (v: number | null) => (v == null ? "–" : format.number(v, "currencyWhole"));
+                const rows = [
+                  {name: t("kpiIncome"), color: INCOME, value: inc},
+                  {name: t("kpiExpenses"), color: EXPENSE, value: exp},
+                  {name: t("chartSaving"), color: SAVING, value: sav},
+                ];
                 return (
-                  <div className="rounded-[var(--radius)] border border-[var(--default)] bg-[var(--surface)] px-3 py-2 text-xs shadow-lg">
-                    <p className="mb-1 font-semibold">{label}</p>
-                    {series.map(({key, color, label: name}) => {
-                      const value = point[key] ?? point[`${key}Upcoming`];
-                      const previous = point[`${key}Previous`];
-                      return (
-                        <p key={key} className="flex items-baseline justify-between gap-4">
-                          <span className="flex items-center gap-1.5">
-                            <span className="size-2 rounded-full" style={{background: color}}/>
-                            {t(name)}
-                          </span>
-                          <span className="tabular-nums">
-                            {value == null ? "–" : format.number(value, "currencyWhole")}
-                            {previous != null ? (
-                              <span className="ms-2 text-muted">{baselineLabel} {format.number(previous, "currencyWhole")}</span>
-                            ) : null}
-                          </span>
-                        </p>
-                      );
-                    })}
+                  <div className="min-w-44 rounded-[var(--radius)] border border-[var(--default)] bg-[var(--surface)] px-3 py-2 text-xs shadow-lg">
+                    <p className="mb-1 font-semibold">
+                      {label}{isForecast ? <span className="ms-1.5 font-normal text-muted">{tChart("upcoming")}</span> : null}
+                    </p>
+                    {rows.map((row) => (
+                      <p key={row.name} className="flex justify-between gap-4">
+                        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{background: row.color}}/>{row.name}</span>
+                        <span className="tabular-nums">{money(row.value)}</span>
+                      </p>
+                    ))}
+                    <p className="mt-1 flex justify-between gap-4 border-t border-[var(--default)] pt-1">
+                      <span>{t("leftOver")}</span>
+                      <span className={`tabular-nums ${left != null && left < 0 ? "text-danger" : ""}`}>{money(left)}</span>
+                    </p>
                   </div>
                 );
               }}
             />
-          </LineChart>
+          </ComposedChart>
         </div>
       </Card.Content>
     </Card>

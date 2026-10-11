@@ -2,7 +2,6 @@ import {client} from "@/lib/prisma";
 import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
 import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
-import {buildSavingWhere} from "@/features/saving/db/savingWhere";
 import {
   addDays,
   type Baseline,
@@ -19,7 +18,7 @@ import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/r
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard KPI row (Phase 12): total money IN (income), OUT (expense = variable bills + fixed
-// contracts), SAVED (#7 — set aside, not spent) and NET (income − expense − saved) for the period selected in the dashboard toolbar vs. the average of the
+// contracts), SAVED (income − expenses: everything not spent) and the SPARQUOTE (saved / income) for the period selected in the dashboard toolbar vs. the average of the
 // preceding periods of the same granularity, so StatCard shows how this week/month/year compares to
 // the recent trend. How far back and with which statistic come from the same AppSettings baseline
 // the chart Ø lines read, so the two genuinely mirror each other. KPIs report REALIZED money
@@ -35,8 +34,8 @@ export type KpiPair = {current: number; previous: number | null};
 export type DashboardKpis = {
   income: KpiPair;
   expense: KpiPair;
-  saved: KpiPair;
-  net: KpiPair;
+  saved: KpiPair; // income − expenses: everything not spent, booked savings and Überschuss alike
+  rate: {current: number | null; previous: number | null}; // Sparquote = saved / income
 };
 
 // Adds a recurring record's projected occurrences (amount at each billing date) into `map`, but only
@@ -78,11 +77,10 @@ export async function getPeriodKpis(
   // Per stream, not shared: a rent contract running since 2019 legitimately extends the EXPENSE
   // horizon back that far, and folding that into income would dilute the income baseline with years
   // of empty periods — the exact problem this whole mechanism exists to avoid.
-  const [baseline, expenseStart, incomeStart, savingStart] = await Promise.all([
+  const [baseline, expenseStart, incomeStart] = await Promise.all([
     getBaseline(),
     getDataStart(workspaceId, ["bills", "contracts"], granularity),
     getDataStart(workspaceId, ["income"], granularity),
-    getDataStart(workspaceId, ["savings"], granularity),
   ]);
 
   // The selected period, plus the configured number of windows immediately before it (same unit).
@@ -96,7 +94,7 @@ export async function getPeriodKpis(
 
   const wsFilter = workspaceId != null ? {workspaceId} : {};
 
-  const [bills, recurringContracts, oneTimeContracts, variableIncome, fixedIncome, oneTimeSavings, savingPlans] = await Promise.all([
+  const [bills, recurringContracts, oneTimeContracts, variableIncome, fixedIncome] = await Promise.all([
     client.bill.findMany({
       where: {AND: [buildBillWhere(wsFilter), {date: {gte: spanStart, lt: spanEnd}}]},
       select: {date: true, totalAmount: true},
@@ -119,16 +117,6 @@ export async function getPeriodKpis(
     }),
     client.income.findMany({
       where: buildIncomeWhere({...wsFilter, isRecurring: true}),
-      include: {frequency: true},
-    }),
-    client.saving.findMany({
-      where: {
-        AND: [buildSavingWhere({...wsFilter, isRecurring: false}), {startDate: {gte: spanStart, lt: spanEnd}}],
-      },
-      select: {startDate: true, totalAmount: true},
-    }),
-    client.saving.findMany({
-      where: buildSavingWhere({...wsFilter, isRecurring: true}),
       include: {frequency: true},
     }),
   ]);
@@ -178,11 +166,10 @@ export async function getPeriodKpis(
     return map;
   };
   const incomeMap = streamMap(variableIncome, fixedIncome);
-  const savingMap = streamMap(oneTimeSavings, savingPlans);
   // The app-wide calculation start: nothing before it counts, in the current period or the baseline.
   if (baseline.start) {
     const startKey = dateKey(baseline.start);
-    for (const map of [expenseMap, incomeMap, savingMap]) {
+    for (const map of [expenseMap, incomeMap]) {
       for (const key of map.keys()) if (key < startKey) map.delete(key);
     }
   }
@@ -210,15 +197,26 @@ export async function getPeriodKpis(
 
   const expense = pair(expenseMap, expenseStart);
   const income = pair(incomeMap, incomeStart);
-  const saved = pair(savingMap, savingStart);
-  const net: KpiPair = {
-    current: income.current - expense.current - saved.current,
-    // Net's baseline needs income + expense history; no savings history simply means nothing saved.
-    previous:
-      income.previous === null || expense.previous === null
-        ? null
-        : income.previous - expense.previous - (saved.previous ?? 0),
+
+  // Saved and the Sparquote are compared per prior window (the Ø of the differences, not the
+  // difference of the Øs), over windows where both income and expenses have data.
+  const bothStart = expenseStart && incomeStart ? (expenseStart > incomeStart ? expenseStart : incomeStart) : null;
+  const usable = priors.filter((w) => bothStart !== null && w.end > bothStart);
+  const sumIn = (map: Map<string, number>, w: {start: Date; end: Date}) =>
+    sumRange(map, w.start, Math.min(elapsed, daysBetween(w.start, w.end)));
+  const rateOf = (inc: number, exp: number) => (inc > 0 ? (inc - exp) / inc : null);
+
+  const saved: KpiPair = {
+    current: income.current - expense.current,
+    previous: baselineOf(usable.map((w) => sumIn(incomeMap, w) - sumIn(expenseMap, w)), baseline.metric),
+  };
+  const priorRates = usable
+    .map((w) => rateOf(sumIn(incomeMap, w), sumIn(expenseMap, w)))
+    .filter((r): r is number => r !== null);
+  const rate = {
+    current: rateOf(income.current, expense.current),
+    previous: priorRates.length ? baselineOf(priorRates, baseline.metric) : null,
   };
 
-  return {income, expense, saved, net};
+  return {income, expense, saved, rate};
 }

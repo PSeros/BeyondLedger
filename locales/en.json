@@ -17,7 +17,6 @@
     "warrantyTitle": "Warranties expiring ({days} days)",
     "kpiIncome": "Income",
     "kpiExpenses": "Expenses",
-    "kpiNet": "Net",
     "budgetStatusTitle": "Budget status",
     "cashFlowTitle": "Cash flow",
     "overBy": "{amount} over",
@@ -25,7 +24,10 @@
     "emptyTitle": "Nothing to show yet",
     "emptyText": "Add your first income, expense or budget and your dashboard will come to life.",
     "emptyCta": "Add an expense",
-    "kpiSaved": "Saved"
+    "kpiSaved": "Saved",
+    "kpiRate": "Savings rate",
+    "chartSaving": "Savings",
+    "leftOver": "Surplus"
   },
   "common": {
     "noData": "No data",

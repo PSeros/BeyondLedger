@@ -15,10 +15,13 @@ type StatCardProps = {
    */
   previousAmount: number | null;
   isHigherBetter?: boolean;
+  // "percent": values are ratios (0.42 = 42 %) and the chip shows the change in percentage points.
+  kind?: "currency" | "percent";
 };
 
-export default function StatCard({title, currentAmount, previousAmount, isHigherBetter = false}: StatCardProps) {
+export default function StatCard({title, currentAmount, previousAmount, isHigherBetter = false, kind = "currency"}: StatCardProps) {
   const format = useFormatter();
+  const isPercent = kind === "percent";
   const hasBaseline = previousAmount !== null;
   const change = hasBaseline ? currentAmount - previousAmount : 0;
   const isIncrease = change >= 0;
@@ -28,7 +31,8 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
   const color = !hasBaseline ? "default" : isBad ? "danger" : "success";
   // Percent change is only meaningful against a non-zero, finite baseline (a from-zero jump or a net
   // that crossed sign has no honest percentage) — fall back to a dash then.
-  const pctChange = hasBaseline && previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
+  const pctChange = isPercent && hasBaseline ? change * 100
+    : hasBaseline && previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
   const hasPct = Number.isFinite(pctChange);
 
   return (
@@ -45,11 +49,11 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
         {/* w-full + truncate so an unusually long amount ellipsizes instead of bleeding into the
             card's padding (the card clips, so it would otherwise sit flush against the border). */}
         <span className="w-full truncate text-sm font-bold tabular-nums sm:text-xl 2xl:text-2xl">
-          {format.number(currentAmount, "currencyWhole")}
+          {isPercent ? format.number(currentAmount, {style: "percent", maximumFractionDigits: 1}) : format.number(currentAmount, "currencyWhole")}
         </span>
         <Chip variant="soft" color={color} size="sm" className="h-fit">
           {hasBaseline ? isIncrease ? <FiArrowUp/> : <FiArrowDown/> : null}
-          <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}%` : "–"}</Chip.Label>
+          <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}${isPercent ? " pp" : "%"}` : "–"}</Chip.Label>
         </Chip>
       </Card.Content>
     </Card>

@@ -17,7 +17,6 @@
     "warrantyTitle": "Garantien laufen ab ({days} Tage)",
     "kpiIncome": "Einnahmen",
     "kpiExpenses": "Ausgaben",
-    "kpiNet": "Saldo",
     "budgetStatusTitle": "Budgetstatus",
     "cashFlowTitle": "Cashflow",
     "overBy": "{amount} über",
@@ -25,7 +24,10 @@
     "emptyTitle": "Noch nichts zu zeigen",
     "emptyText": "Füge deine erste Einnahme, Ausgabe oder dein erstes Budget hinzu, und dein Dashboard erwacht zum Leben.",
     "emptyCta": "Ausgabe hinzufügen",
-    "kpiSaved": "Gespart"
+    "kpiSaved": "Gespart",
+    "kpiRate": "Sparquote",
+    "chartSaving": "Sparen",
+    "leftOver": "Überschuss"
   },
   "common": {
     "noData": "Keine Daten",
