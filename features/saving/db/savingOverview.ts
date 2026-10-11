@@ -42,6 +42,7 @@ export type SurplusMonth = {month: string; income: number; expense: number; save
 
 export type Surplus = {
   start: string; // yyyy-mm-dd the sum starts at
+  opening: number; // the accounts' starting balance the sum starts from (not a flow)
   balance: number;
   series: number[]; // end-of-month balance per `months`, 0 before the start
   months: SurplusMonth[]; // newest first
@@ -168,7 +169,7 @@ async function getSurplus(
   months: string[],
   index: Map<string, number>,
 ): Promise<Surplus> {
-  const [bills, contracts, incomes] = await Promise.all([
+  const [bills, contracts, incomes, accounts] = await Promise.all([
     client.bill.findMany({
       where: {AND: [buildBillWhere(ws), {date: {gte: start, lt: tomorrow}}]},
       select: {date: true, totalAmount: true},
@@ -181,7 +182,12 @@ async function getSurplus(
       where: buildIncomeWhere(ws),
       select: {startDate: true, endDate: true, totalAmount: true, frequency: true},
     }),
+    client.workspace.findMany({
+      where: ws.workspaceId != null ? {id: ws.workspaceId} : undefined,
+      select: {openingBalance: true},
+    }),
   ]);
+  const opening = accounts.reduce((sum, a) => sum + Number(a.openingBalance ?? 0), 0);
 
   const income = new Map<string, number>();
   const expense = new Map<string, number>();
@@ -211,8 +217,9 @@ async function getSurplus(
     });
 
   const byMonth = new Map(rows.map((row) => [row.month, row.left]));
-  let running = 0;
+  // The starting balance is there from the start month on; the months themselves stay pure flows.
+  let running = opening;
   const series = months.map((month) => (index.get(month)! >= index.get(startMonth)! ? (running += byMonth.get(month) ?? 0) : 0));
 
-  return {start: startKey, balance: series.at(-1) ?? 0, series, months: rows.reverse()};
+  return {start: startKey, opening, balance: series.at(-1) ?? opening, series, months: rows.reverse()};
 }

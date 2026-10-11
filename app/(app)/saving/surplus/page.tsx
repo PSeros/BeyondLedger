@@ -1,6 +1,8 @@
 import {getFormatter, getTranslations} from "next-intl/server";
 import {Card} from "@heroui/react";
 import BackLink from "@/components/BackLink";
+import {client} from "@/lib/prisma";
+import SurplusOpeningButton from "@/features/saving/components/SurplusOpeningButton";
 import DataTable from "@/components/DataTable";
 import PotHistoryChart from "@/features/saving/components/PotHistoryChart";
 import {SurplusMoveButton} from "@/features/saving/components/PotActions";
@@ -12,11 +14,17 @@ import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 // The Überschuss: income − expenses − saved, month by month from the app-wide start date.
 export default async function SurplusPage() {
   const workspaceId = await getActiveWorkspaceId();
-  const [overview, options, t, format] = await Promise.all([
+  const [overview, options, t, format, accounts] = await Promise.all([
     getSavingOverview(workspaceId),
     getSavingFormOptions(),
     getTranslations("saving"),
     getFormatter(),
+    // With one account active only its starting balance is edited; "All accounts" lists every one.
+    client.workspace.findMany({
+      where: workspaceId != null ? {id: workspaceId} : undefined,
+      select: {id: true, name: true, color: true, openingBalance: true},
+      orderBy: {name: "asc"},
+    }),
   ]);
   const {surplus, months} = overview;
   const from = surplus ? Math.max(0, months.indexOf(surplus.start.slice(0, 7))) : 0;
@@ -47,11 +55,20 @@ export default async function SurplusPage() {
             <h1 className="text-2xl font-semibold tracking-tight">{t("surplus")}</h1>
             <span className="rounded-full bg-[var(--default)] px-2 py-0.5 text-xs text-muted">{t("auto")}</span>
           </div>
-          <SurplusMoveButton options={options}/>
+          <div className="flex flex-wrap gap-2">
+            <SurplusOpeningButton
+              accounts={accounts.map((a) => ({...a, openingBalance: a.openingBalance != null ? Number(a.openingBalance) : null}))}
+            />
+            <SurplusMoveButton options={options}/>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <Stat label={t("balance")} value={format.number(surplus?.balance ?? 0, "currency")}/>
+          <Stat
+            label={t("balance")}
+            value={format.number(surplus?.balance ?? 0, "currency")}
+            hint={surplus?.opening ? t("plusOpening", {amount: format.number(surplus.opening, "currencyWhole")}) : undefined}
+          />
           <Stat label={t("avgMonth")} value={lefts.length ? money(lefts.reduce((a, b) => a + b, 0) / lefts.length) : "–"}/>
           <Stat label={t("bestMonth")} value={lefts.length ? money(Math.max(...lefts)) : "–"}/>
           <Stat label={t("worstMonth")} value={lefts.length ? money(Math.min(...lefts)) : "–"}/>
@@ -82,11 +99,12 @@ export default async function SurplusPage() {
   );
 }
 
-function Stat({label, value}: {label: string; value: string}) {
+function Stat({label, value, hint}: {label: string; value: string; hint?: string}) {
   return (
     <Card className="p-4">
       <span className="text-xs text-muted">{label}</span>
       <span className="mt-1 text-xl font-semibold tabular-nums">{value}</span>
+      {hint ? <span className="text-xs text-muted tabular-nums">{hint}</span> : null}
     </Card>
   );
 }
