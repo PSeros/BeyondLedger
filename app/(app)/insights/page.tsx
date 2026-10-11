@@ -98,11 +98,11 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
               <div className="col-span-2 row-span-4 lg:col-span-2">
                 <InsightsDonut panels={donutPanels} groupLabel={groupLabel}/>
               </div>
-              <div className="col-span-2 row-span-4 lg:col-span-3">
-                <InsightsBoxPlot panels={boxPanels} title={t("boxTitle", {group: groupLabel})} hint={boxHint}/>
-              </div>
               <div className="col-span-2 row-span-3 lg:col-span-3 lg:row-span-4">
                 <InsightsKde points={density} series={[...series]} medians={medians} unitLabel={unitLabel}/>
+              </div>
+              <div className="col-span-2 row-span-4 lg:col-span-3">
+                <InsightsBoxPlot panels={boxPanels} title={t("boxTitle", {group: groupLabel})} hint={boxHint}/>
               </div>
             </div>
             <Suspense>
