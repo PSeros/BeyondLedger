@@ -679,6 +679,11 @@
     "closeOutTo": "Topf geschlossen → {pot}",
     "closeIn": "Aus geschlossenem Topf {pot}",
     "closed": "Geschlossen",
-    "reopen": "Wieder öffnen"
+    "reopen": "Wieder öffnen",
+    "openingLabel": "Anfangsbestand",
+    "openingHint": "Geld, das schon vor Beginn der Erfassung im Topf lag. Zählt zum Topf, aber nicht als Sparen aus dem Einkommen dieses Zeitraums.",
+    "openingBadge": "Anfangsbestand",
+    "kindOpening": "Anfangsbestand",
+    "plusOpening": "+ {amount} Anfangsbestand"
   }
 }

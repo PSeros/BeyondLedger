@@ -51,7 +51,8 @@ export async function getIncomeStreams(workspaceId?: number | null): Promise<Inc
 
 // Savings have the same shape as income, so they reuse the stream type and window rule.
 export async function getSavingStreams(workspaceId?: number | null): Promise<IncomeStream[]> {
-  const rows = await client.saving.findMany({where: workspaceId != null ? {workspaceId} : undefined, select: streamSelect});
+  // Starting balances were saved before tracking, not out of the window's income.
+  const rows = await client.saving.findMany({where: {isOpening: false, ...(workspaceId != null ? {workspaceId} : {})}, select: streamSelect});
   return rows.map(toStream);
 }
 

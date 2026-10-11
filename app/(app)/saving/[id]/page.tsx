@@ -28,10 +28,11 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
   if (!pot) notFound();
 
   const mine = overview.movements.filter((m) => m.potId === pot.id);
-  const paidIn = mine.filter((m) => m.amount > 0).reduce((sum, m) => sum + m.amount, 0);
-  const withdrawn = mine.filter((m) => m.amount < 0).reduce((sum, m) => sum - m.amount, 0);
+  const opening = mine.filter((m) => m.kind === "opening").reduce((sum, m) => sum + m.amount, 0);
+  const paidIn = mine.filter((m) => m.kind !== "opening" && m.amount > 0).reduce((sum, m) => sum + m.amount, 0);
+  const withdrawn = mine.filter((m) => m.kind !== "opening" && m.amount < 0).reduce((sum, m) => sum - m.amount, 0);
   const perMonth = pot.plans.reduce((sum, plan) => sum + (plan.amount * plan.frequencyValue) / 12, 0);
-  const markers = mine.filter((m) => m.kind !== "plan").map((m) => ({month: m.date.slice(0, 7), amount: m.amount, name: m.name}));
+  const markers = mine.filter((m) => m.kind === "in" || m.kind === "out").map((m) => ({month: m.date.slice(0, 7), amount: m.amount, name: m.name}));
 
   return (
     <div className="h-full min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
@@ -82,7 +83,11 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Stat label={t("balance")} value={format.number(pot.balance, "currency")}/>
-          <Stat label={t("paidInTotal")} value={format.number(paidIn, "currencyWhole")}/>
+          <Stat
+            label={t("paidInTotal")}
+            value={format.number(paidIn, "currencyWhole")}
+            hint={opening ? t("plusOpening", {amount: format.number(opening, "currencyWhole")}) : undefined}
+          />
           <Stat label={t("withdrawnTotal")} value={format.number(withdrawn, "currencyWhole")}/>
           <Stat label={t("rate")} value={perMonth ? t("perMonth", {amount: format.number(perMonth, "currencyWhole")}) : "–"}/>
         </div>
@@ -132,11 +137,12 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
   );
 }
 
-function Stat({label, value}: {label: string; value: string}) {
+function Stat({label, value, hint}: {label: string; value: string; hint?: string}) {
   return (
     <Card className="p-4">
       <span className="text-xs text-muted">{label}</span>
       <span className="mt-1 text-xl font-semibold tabular-nums">{value}</span>
+      {hint ? <span className="text-xs text-muted tabular-nums">{hint}</span> : null}
     </Card>
   );
 }

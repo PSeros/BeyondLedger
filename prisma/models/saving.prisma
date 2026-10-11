@@ -18,6 +18,10 @@ model Saving {
   target      SavingTarget @relation(fields: [targetId], references: [id])
   targetId    Int
   totalAmount Decimal
+  // A pot's starting balance (money saved before tracking began): counts toward the pot's balance but
+  // is not a saving out of the period's income, so it stays out of the Überschuss, dashboard,
+  // Analyse and budgets. One-off only.
+  isOpening   Boolean      @default(false)
   frequency   Frequency    @relation(fields: [frequencyId], references: [id])
   frequencyId Int
   startDate   DateTime

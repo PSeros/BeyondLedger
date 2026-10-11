@@ -679,6 +679,11 @@
     "closeOutTo": "Pot closed → {pot}",
     "closeIn": "From closed pot {pot}",
     "closed": "Closed",
-    "reopen": "Reopen"
+    "reopen": "Reopen",
+    "openingLabel": "Starting balance",
+    "openingHint": "Money that was already in this pot before you started tracking. Counts toward the pot, not as saving from this period's income.",
+    "openingBadge": "Starting balance",
+    "kindOpening": "Starting balance",
+    "plusOpening": "+ {amount} starting balance"
   }
 }

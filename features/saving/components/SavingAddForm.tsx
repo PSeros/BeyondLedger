@@ -11,12 +11,9 @@ import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSele
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createSavingTarget, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {SavingFormOptions} from "@/features/saving/db/savingFormOptions";
+import SavingOpeningCheckbox from "@/features/saving/components/SavingOpeningCheckbox";
 import SavingDirectionTabs, {type SavingDirection} from "@/features/saving/components/SavingDirectionTabs";
-
-// Today as yyyy-mm-dd, prefilled into the date field for the common "record what I just got" case.
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import {localToday} from "@/lib/localDate";
 
 // Set by a pot's actions: which pot, which direction, and whether it books a one-off (default), a new
 // savings plan, or a move out of the Überschuss (a one-off deposit with a preset name).
@@ -81,9 +78,12 @@ export default function SavingAddForm({options, preset, onClose}: SavingAddFormP
         />
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
         <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
-        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
+        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={localToday()} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date"/>
       </div>
+
+      {preset?.kind === "plan" || preset?.kind === "move" ? null : <SavingOpeningCheckbox/>}
+
 
       <TagMultiSelect label={tTags("label")} options={options.tags} onCreate={createTag}/>
 

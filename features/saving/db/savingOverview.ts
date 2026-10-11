@@ -35,7 +35,7 @@ export type Movement = {
   date: string; // yyyy-mm-dd
   name: string;
   amount: number;
-  kind: "plan" | "in" | "out";
+  kind: "plan" | "in" | "out" | "opening";
 };
 
 export type SurplusMonth = {month: string; income: number; expense: number; saved: number; left: number; isCurrent: boolean};
@@ -82,7 +82,7 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
     client.savingTarget.findMany({select: {id: true, name: true, goalAmount: true, closedAt: true}, orderBy: {id: "asc"}}),
     client.saving.findMany({
       where: ws,
-      select: {id: true, name: true, targetId: true, totalAmount: true, startDate: true, endDate: true, frequency: true},
+      select: {id: true, name: true, targetId: true, totalAmount: true, isOpening: true, startDate: true, endDate: true, frequency: true},
     }),
     getAnalysisStart(),
     getDataStart(workspaceId, ["bills", "contracts", "income", "savings"]),
@@ -99,14 +99,15 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
         date: dateKey(date),
         name: saving.name,
         amount,
-        kind: saving.frequency.isRecurring ? "plan" : amount < 0 ? "out" : "in",
+        kind: saving.isOpening ? "opening" : saving.frequency.isRecurring ? "plan" : amount < 0 ? "out" : "in",
       });
     });
   }
   movements.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.key < b.key ? 1 : -1));
+  const flows = movements.filter((m) => m.kind !== "opening");
 
   const surplusStart = analysisStart ?? firstRecord;
-  const firstMonth = [movements.at(-1)?.date, surplusStart ? dateKey(surplusStart) : undefined]
+  const firstMonth = [flows.at(-1)?.date ?? movements.at(-1)?.date, surplusStart ? dateKey(surplusStart) : undefined]
     .filter((day): day is string => day != null)
     .sort()[0];
   const months = firstMonth ? monthRange(monthOf(firstMonth), monthOf(dateKey(today))) : [];
@@ -122,7 +123,11 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
     .map((target, i) => {
       const byMonth = new Map<string, number>();
       for (const m of movements) {
-        if (m.potId === target.id) byMonth.set(monthOf(m.date), (byMonth.get(monthOf(m.date)) ?? 0) + m.amount);
+        if (m.potId !== target.id) continue;
+        // A starting balance was there before tracking: it sits at the start of the history, not as a
+        // jump in the month it was entered.
+        const month = m.kind === "opening" ? months[0] : monthOf(m.date);
+        byMonth.set(month, (byMonth.get(month) ?? 0) + m.amount);
       }
       const series = cumulative(byMonth);
       const plans = savings
@@ -192,7 +197,7 @@ async function getSurplus(
     forEachOccurrence(row, start, tomorrow, (date) => add(income, dateKey(date), Number(row.totalAmount)));
   }
   const startKey = dateKey(start);
-  for (const m of movements) if (m.date >= startKey) add(saved, m.date, m.amount);
+  for (const m of movements) if (m.kind !== "opening" && m.date >= startKey) add(saved, m.date, m.amount);
 
   const startMonth = monthOf(startKey);
   const currentMonth = months.at(-1);

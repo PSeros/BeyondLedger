@@ -196,7 +196,8 @@ export async function getDashboardSavingChartData(
   const wsFilter = workspaceId != null ? {workspaceId} : {};
   const [oneOffs, plans, baseline] = await Promise.all([
     client.saving.findMany({
-      where: buildSavingWhere({...wsFilter, isRecurring: false}),
+      // A starting balance isn't saved out of this period's income.
+      where: {AND: [buildSavingWhere({...wsFilter, isRecurring: false}), {isOpening: false}]},
       select: {startDate: true, totalAmount: true},
     }),
     client.saving.findMany({

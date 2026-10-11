@@ -187,6 +187,7 @@ async function savingRows(query: InsightsQuery, tags: SignedIds, window: Resolve
 
   const savings = await client.saving.findMany({
     where: {
+      isOpening: false, // a starting balance isn't a saving out of the period's income
       ...(workspaceId != null ? {workspaceId} : {}),
       ...contractOverlap,
       AND: [

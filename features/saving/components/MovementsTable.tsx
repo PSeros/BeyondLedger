@@ -36,7 +36,7 @@ export default function MovementsTable({movements, pots, filterPots, showPot = t
     .filter((m) => pot == null || m.potId === pot)
     .sort((a, b) => dir * (sort.column === "amount" ? a.amount - b.amount
       : sort.column === "name" ? a.name.localeCompare(b.name) : a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  const kind = {plan: t("kindPlan"), in: t("kindIn"), out: t("kindOut")};
+  const kind = {plan: t("kindPlan"), in: t("kindIn"), out: t("kindOut"), opening: t("kindOpening")};
 
   const rows = shown.slice(0, limit).map((m) => {
     const p = potOf.get(m.potId);

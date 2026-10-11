@@ -12,6 +12,7 @@ export type SavingDetailData = {
   frequency: string;
   frequencyId: number;
   isRecurring: boolean;
+  isOpening: boolean;
   amount: number;
   startDate: string; // ISO
   endDate: string | null; // ISO
@@ -46,6 +47,7 @@ export async function getSavingById(id: number): Promise<SavingDetailData | null
     frequency: saving.frequency.name,
     frequencyId: saving.frequencyId,
     isRecurring: saving.frequency.isRecurring,
+    isOpening: saving.isOpening,
     amount: Number(saving.totalAmount),
     startDate: saving.startDate.toISOString(),
     endDate: saving.endDate ? saving.endDate.toISOString() : null,
