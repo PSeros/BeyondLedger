@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {getFormatter, getTranslations} from "next-intl/server";
 import {Card} from "@heroui/react";
 import BackLink from "@/components/BackLink";
