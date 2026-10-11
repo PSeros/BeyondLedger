@@ -3,7 +3,6 @@ import {determineStatus} from "@/lib/status";
 import {buildBillWhere} from "@/features/expense/variable/db/billWhere";
 import {buildContractWhere} from "@/features/expense/fixed/db/contractWhere";
 import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
-import {buildSavingWhere} from "@/features/saving/db/savingWhere";
 import {
   addDays,
   addMonths,
@@ -22,7 +21,7 @@ import {fitsGranularity, forEachOccurrence} from "@/features/expense/shared/db/r
 import {getBaseline} from "@/features/settings/db/appSettings";
 
 // Dashboard cash-flow charts (Phase 12): one combined EXPENSE stream (variable bills + fixed
-// contracts), one combined INCOME stream and one SAVING stream (#7), each one-time + recurring. Same
+// contracts) and one combined INCOME stream (one-time + recurring), each fed into ChartCard. Same
 // cumulative "this period vs. rolling average of prior periods (+ upcoming forecast)" machinery as
 // the per-domain charts, but summed across both sub-streams so the dashboard shows one line per
 // direction. Honors the active account (workspaceId). Ignores date range by nature (see billChartData).
@@ -178,47 +177,6 @@ export async function getDashboardIncomeChartData(
         endDate: income.endDate,
         amount: Number(income.totalAmount),
         frequency: income.frequency,
-      })),
-    today,
-    offset,
-    baseline,
-    projectionHorizon,
-    mode,
-  );
-}
-
-// Same shape as income: one-off deposits/withdrawals at their dates plus Active plans projected.
-export async function getDashboardSavingChartData(
-  workspaceId?: number | null,
-  offset = 0,
-  mode: ChartMode = "cumulative",
-): Promise<DashboardChartData> {
-  const wsFilter = workspaceId != null ? {workspaceId} : {};
-  const [oneOffs, plans, baseline] = await Promise.all([
-    client.saving.findMany({
-      where: buildSavingWhere({...wsFilter, isRecurring: false}),
-      select: {startDate: true, totalAmount: true},
-    }),
-    client.saving.findMany({
-      where: buildSavingWhere({...wsFilter, isRecurring: true}),
-      include: {frequency: true},
-    }),
-    getBaseline(),
-  ]);
-
-  const now = new Date();
-  const today = utcDate(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  const projectionHorizon = utcDate(today.getUTCFullYear(), 11, 31);
-
-  return buildViews(
-    oneOffs.map((saving) => ({date: saving.startDate, amount: Number(saving.totalAmount)})),
-    plans
-      .filter((saving) => determineStatus(saving) === "Active")
-      .map((saving) => ({
-        startDate: saving.startDate,
-        endDate: saving.endDate,
-        amount: Number(saving.totalAmount),
-        frequency: saving.frequency,
       })),
     today,
     offset,

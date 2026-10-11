@@ -11,30 +11,28 @@ import ChartModeToggle from "@/components/ChartModeToggle";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
-type SeriesKey = "income" | "expense" | "saving";
+type SeriesKey = "income" | "expense";
 
-const SERIES: {key: SeriesKey; color: string; label: "kpiIncome" | "kpiExpenses" | "kpiSaved"}[] = [
+// Savings are left out on purpose: the Gespart KPI sits right above and the Sparen page charts them.
+const SERIES: {key: SeriesKey; color: string; label: "kpiIncome" | "kpiExpenses"}[] = [
   {key: "income", color: "var(--success)", label: "kpiIncome"},
   {key: "expense", color: "var(--danger)", label: "kpiExpenses"},
-  {key: "saving", color: "var(--accent)", label: "kpiSaved"},
 ];
 
 type MergedPoint = {label: string} & Partial<Record<`${SeriesKey}${"" | "Upcoming" | "Previous"}`, number | null>>;
 
-// Dashboard cash-flow (Phase 12, revised): income (green), expense (red) and savings (accent, only when
-// the account has any) on one shared axis, so the gaps read as the period's net at a glance. Dashed
-// continuations are each stream's projected (upcoming) portion; the faint dotted lines are each
-// stream's rolling baseline. All views share label sets per granularity, so they zip by index.
+// Dashboard cash-flow (Phase 12, revised): income (green) and expense (red) on one shared axis, so the
+// gap reads as the period's net at a glance. Dashed continuations are each stream's projected
+// (upcoming) portion; the faint dotted lines are each stream's rolling baseline. Both views share
+// label sets per granularity, so they zip by index.
 export default function CashFlowChart({
   income,
   expense,
-  saving,
   granularity,
   baselineMetric = "MEAN",
 }: {
   income: SeriesData;
   expense: SeriesData;
-  saving: SeriesData;
   granularity: Granularity;
   baselineMetric?: BaselineMetric;
   mode?: ChartMode;
@@ -44,11 +42,10 @@ export default function CashFlowChart({
   const tChart = useTranslations("chart");
   const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
-  const {points, series} = useMemo(() => {
+  const points = useMemo(() => {
     const data: Record<SeriesKey, ChartPoint[]> = {
       income: income[granularity] ?? [],
       expense: expense[granularity] ?? [],
-      saving: saving[granularity] ?? [],
     };
     const length = Math.max(...SERIES.map(({key}) => data[key].length));
     const merged: MergedPoint[] = Array.from({length}, (_, i) => {
@@ -60,10 +57,9 @@ export default function CashFlowChart({
       }
       return point;
     });
-    // No savings at all → no flat zero line cluttering the chart.
-    const hasSaving = data.saving.some((p) => p.current || p.upcoming || p.previous);
-    return {points: merged, series: SERIES.filter(({key}) => key !== "saving" || hasSaving)};
-  }, [income, expense, saving, granularity]);
+    return merged;
+  }, [income, expense, granularity]);
+  const series = SERIES;
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
@@ -97,7 +93,7 @@ export default function CashFlowChart({
                 strokeDasharray="2 3"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{r: 4}}
+                activeDot={false}
               />
             ))}
             {series.flatMap(({key, color, label}) => [
@@ -143,17 +139,37 @@ export default function CashFlowChart({
               tickFormatter={(value) => format.number(Number(value), "integer")}
               tick={{fontSize: "0.875rem", fill: "var(--muted)"}}
             />
+            {/* One row per series: the actual value (or the forecast past today), Ø beside it. Where the
+                solid and dashed lines meet both carry a value; the actual one wins. */}
             <Tooltip
               cursor={{strokeDasharray: "3 3"}}
-              contentStyle={{
-                borderRadius: "var(--radius)",
-                border: "1px solid var(--default)",
-                background: "var(--surface)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+              content={({active, payload, label}) => {
+                if (!active || !payload?.length) return null;
+                const point = payload[0].payload as MergedPoint;
+                return (
+                  <div className="rounded-[var(--radius)] border border-[var(--default)] bg-[var(--surface)] px-3 py-2 text-xs shadow-lg">
+                    <p className="mb-1 font-semibold">{label}</p>
+                    {series.map(({key, color, label: name}) => {
+                      const value = point[key] ?? point[`${key}Upcoming`];
+                      const previous = point[`${key}Previous`];
+                      return (
+                        <p key={key} className="flex items-baseline justify-between gap-4">
+                          <span className="flex items-center gap-1.5">
+                            <span className="size-2 rounded-full" style={{background: color}}/>
+                            {t(name)}
+                          </span>
+                          <span className="tabular-nums">
+                            {value == null ? "–" : format.number(value, "currencyWhole")}
+                            {previous != null ? (
+                              <span className="ms-2 text-muted">{baselineLabel} {format.number(previous, "currencyWhole")}</span>
+                            ) : null}
+                          </span>
+                        </p>
+                      );
+                    })}
+                  </div>
+                );
               }}
-              formatter={(value) =>
-                value === null || value === undefined ? "–" : format.number(Number(value), "currencyWhole")
-              }
             />
           </LineChart>
         </div>
