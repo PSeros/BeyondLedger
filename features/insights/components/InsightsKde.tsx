@@ -5,6 +5,7 @@ import {Card} from "@heroui/react";
 import {Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis} from "recharts";
 import {seriesColor} from "@/features/insights/colors";
 import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
+import InsightsCardTitle from "@/features/insights/components/InsightsCardTitle";
 import type {KdePoint} from "@/features/insights/stats";
 
 const LABEL_KEYS = {expense: "domainExpense", income: "domainIncome"} as const;
@@ -29,10 +30,7 @@ export default function InsightsKde({points, series, medians, unitLabel}: {
   return (
     <Card className="flex h-full min-h-0 flex-col gap-2 p-4">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-        <div>
-          <p className="text-sm">{t("kdeTitle")}</p>
-          <p className="text-xs text-muted">{t("kdeHint", {unit: unitLabel})}</p>
-        </div>
+        <InsightsCardTitle title={t("kdeTitle")} info={t("kdeHint", {unit: unitLabel})}/>
         {series.length > 1 ? (
           <div className="flex gap-4">
             {series.map((key) => (

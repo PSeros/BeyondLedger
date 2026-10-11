@@ -6,6 +6,7 @@ import {Button, ButtonGroup, Card} from "@heroui/react";
 import type {BoxStats} from "@/features/insights/stats";
 import {seriesColor} from "@/features/insights/colors";
 import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
+import InsightsCardTitle from "@/features/insights/components/InsightsCardTitle";
 
 export type BoxPanel = {key: "expense" | "income"; boxes: BoxStats[]};
 
@@ -40,10 +41,7 @@ export default function InsightsBoxPlot({panels, title, hint}: {panels: BoxPanel
   return (
     <Card className="flex h-full min-h-0 flex-col gap-3 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-sm">{title}</p>
-          <p className="text-xs text-muted">{hint}</p>
-        </div>
+        <InsightsCardTitle title={title} info={hint}/>
         <div className="flex flex-wrap items-center gap-2">
           {panels.length > 1 ? (
             <ButtonGroup size="sm">
