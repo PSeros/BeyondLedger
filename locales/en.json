@@ -594,6 +594,8 @@
     "deposit": "Deposit",
     "withdraw": "Withdraw",
     "withdrawFrom": "Withdraw from {target}",
-    "paidInTitle": "Paid in per target"
+    "paidInTitle": "Paid in per target",
+    "convert": "Convert to saving",
+    "convertConfirm": "Is this really a savings plan? Move it to Savings, keeping its dates, tags and attachments. Supplier and category are dropped."
   }
 }

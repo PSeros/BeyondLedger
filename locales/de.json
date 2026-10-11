@@ -594,6 +594,8 @@
     "deposit": "Einzahlung",
     "withdraw": "Entnahme",
     "withdrawFrom": "Aus {target} entnehmen",
-    "paidInTitle": "Eingezahlt je Sparziel"
+    "paidInTitle": "Eingezahlt je Sparziel",
+    "convert": "In Sparen umwandeln",
+    "convertConfirm": "Ist das eigentlich ein Sparplan? Nach Sparen verschieben – Zeitraum, Tags und Anhänge bleiben erhalten, Lieferant und Kategorie entfallen."
   }
 }
