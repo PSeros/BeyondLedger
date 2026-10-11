@@ -64,6 +64,7 @@ async function resetDatabase() {
     prisma.bill.deleteMany(),
     prisma.contract.deleteMany(),
     prisma.income.deleteMany(),
+    prisma.saving.deleteMany(),
     prisma.workspace.deleteMany(), // safe now that all records referencing it are gone
     prisma.supplier.deleteMany(),
     prisma.contractCategory.deleteMany(),
@@ -71,6 +72,7 @@ async function resetDatabase() {
     prisma.supplierCategory.deleteMany(),
     prisma.incomeCategory.deleteMany(),
     prisma.incomeSource.deleteMany(),
+    prisma.savingTarget.deleteMany(),
     prisma.frequency.deleteMany(),
   ]);
 
@@ -99,7 +101,7 @@ async function createLookupRows() {
 
   // Household supplier categories — who a family actually spends money with.
   const supplierCategories = await prisma.supplierCategory.createManyAndReturn({
-    data: ["Wohnen & Energie", "Lebensmittel", "Freizeit", "Versicherungen", "Mobilität", "Gesundheit"].map(
+    data: ["Wohnen & Energie", "Lebensmittel", "Freizeit", "Versicherungen", "Mobilität", "Gesundheit", "Finanzen"].map(
       (name) => ({name}),
     ),
   });
@@ -111,7 +113,7 @@ async function createLookupRows() {
   });
   // Fixed-expense categories — recurring household commitments.
   const contractCategories = await prisma.contractCategory.createManyAndReturn({
-    data: ["Wohnen & Energie", "Freizeit & Abos", "Versicherungen", "Mobilität"].map(
+    data: ["Wohnen & Energie", "Freizeit & Abos", "Versicherungen", "Mobilität", "Sparen"].map(
       (name) => ({name}),
     ),
   });
@@ -125,6 +127,9 @@ async function createLookupRows() {
       (name) => ({name}),
     ),
   });
+  const savingTargets = await prisma.savingTarget.createManyAndReturn({
+    data: ["Urlaub", "ETF-Depot", "Tagesgeld"].map((name) => ({name})),
+  });
 
   return {
     workspaces,
@@ -134,6 +139,7 @@ async function createLookupRows() {
     contractCategories,
     incomeCategories,
     incomeSources,
+    savingTargets,
   };
 }
 
@@ -164,7 +170,7 @@ async function main() {
     ...Array(1).fill(workspaceIdByName["Anabel"]),
   ] as number[];
 
-  // First 11 suppliers carry a recurring Contract (rent, utilities, insurance, subscriptions,
+  // First 12 suppliers carry a recurring Contract (rent, utilities, insurance, subscriptions,
   // memberships). The last 5 are one-off retailers that only ever show up on itemized Bills —
   // nobody has a "contract" with their supermarket. No overlap between the two groups.
   const contractSupplierBlueprints = [
@@ -179,6 +185,7 @@ async function main() {
     ["HUK-Coburg", "Versicherungen"],
     ["ADAC", "Mobilität"],
     ["Deutsche Bahn", "Mobilität"],
+    ["Trade Republic", "Finanzen"],
   ] as const;
   const billOnlySupplierBlueprints = [
     ["REWE", "Lebensmittel"],
@@ -209,6 +216,8 @@ async function main() {
     {supplier: "HUK-Coburg", category: "Versicherungen", label: "Haftpflichtversicherung", frequency: "Yearly", amount: [60, 150]},
     {supplier: "ADAC", category: "Mobilität", label: "Mitgliedschaft", frequency: "Yearly", amount: [55, 100]},
     {supplier: "Deutsche Bahn", category: "Mobilität", label: "BahnCard", frequency: "Yearly", amount: [250, 470]},
+    // Legacy: a savings plan booked as a contract, to exercise the contract → saving conversion.
+    {supplier: "Trade Republic", category: "Sparen", label: "Sparplan", frequency: "Monthly", amount: [100, 200]},
   ] as const;
 
   const contracts = await prisma.contract.createManyAndReturn({
@@ -281,6 +290,46 @@ async function main() {
           endDate: null,
         };
       }),
+    ],
+  });
+
+  const targetIdByName = Object.fromEntries(lookups.savingTargets.map((t) => [t.name, t.id]));
+  const lastYear = monthDate(MONTHS_TO_SEED - 12, 1);
+  await prisma.saving.createMany({
+    data: [
+      {
+        name: "Urlaubskasse",
+        targetId: targetIdByName["Urlaub"],
+        totalAmount: "150.00",
+        frequencyId: frequencyByName.Monthly.id,
+        workspaceId: sharedWorkspaceId,
+        startDate: START_DATE,
+      },
+      {
+        name: "Notgroschen",
+        targetId: targetIdByName["Tagesgeld"],
+        totalAmount: "300.00",
+        frequencyId: frequencyByName.Quarterly.id,
+        workspaceId: workspaceIdByName["Anabel"],
+        startDate: START_DATE,
+      },
+      // Yearly vacation withdrawals (negative one-offs) plus one bonus deposit.
+      ...[0, 12, 24].map((offset) => ({
+        name: `Urlaub ${yyyymm(monthDate(offset + 7, 1))}`,
+        targetId: targetIdByName["Urlaub"],
+        totalAmount: "-1400.00",
+        frequencyId: frequencyByName["One-time"].id,
+        workspaceId: sharedWorkspaceId,
+        startDate: monthDate(offset + 7, 10),
+      })).filter((row) => row.startDate <= today),
+      {
+        name: "Bonus ins Depot",
+        targetId: targetIdByName["ETF-Depot"],
+        totalAmount: "1000.00",
+        frequencyId: frequencyByName["One-time"].id,
+        workspaceId: workspaceIdByName["Phillip"],
+        startDate: lastYear,
+      },
     ],
   });
 
@@ -496,6 +545,7 @@ async function main() {
     prisma.incomeSource.count(),
     prisma.income.count(),
     prisma.budget.count(),
+    prisma.saving.count(),
   ]);
 
   console.log(
@@ -513,6 +563,7 @@ async function main() {
       `${counts[10]} income sources`,
       `${counts[11]} incomes`,
       `${counts[12]} budgets`,
+      `${counts[13]} savings`,
     ].join(", "),
   );
 }

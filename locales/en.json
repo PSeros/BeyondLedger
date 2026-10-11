@@ -55,7 +55,9 @@
     "supplier": "supplier",
     "frequency": "frequency",
     "tag": "tag",
-    "workspace": "workspace"
+    "workspace": "workspace",
+    "target": "savings target",
+    "saving": "saving"
   },
   "errors": {
     "couldNotDelete": "Could not delete.",
@@ -337,7 +339,8 @@
       "couldNotTest": "Could not run the connection test.",
       "testConnection": "Test connection",
       "testing": "Testing…"
-    }
+    },
+    "savingTargets": "Savings targets"
   },
   "detail": {
     "back": "Back",

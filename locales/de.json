@@ -55,7 +55,9 @@
     "supplier": "Lieferant",
     "frequency": "Frequenz",
     "tag": "Tag",
-    "workspace": "Workspace"
+    "workspace": "Workspace",
+    "target": "Sparziel",
+    "saving": "Sparbetrag"
   },
   "errors": {
     "couldNotDelete": "Löschen fehlgeschlagen.",
@@ -337,7 +339,8 @@
       "couldNotTest": "Verbindungstest konnte nicht ausgeführt werden.",
       "testConnection": "Verbindung testen",
       "testing": "Teste…"
-    }
+    },
+    "savingTargets": "Sparziele"
   },
   "detail": {
     "back": "Zurück",

@@ -34,12 +34,14 @@ function revalidateLookupSurfaces(): void {
   revalidatePath("/expense/variable");
   revalidatePath("/income/fixed");
   revalidatePath("/income/variable");
+  revalidatePath("/saving/fixed");
+  revalidatePath("/saving/variable");
 }
 
 // Error messages are localized (the app's active locale comes from the AppSettings singleton, read
 // server-side by next-intl's request config) since they surface to the user in Settings + the
 // inline "+ Add new…" popovers.
-type EntityKey = "category" | "source" | "supplier" | "frequency" | "tag" | "workspace";
+type EntityKey = "category" | "source" | "supplier" | "frequency" | "tag" | "workspace" | "target";
 
 async function cleanName(name: string): Promise<string> {
   const trimmed = name.trim();
@@ -191,6 +193,34 @@ export async function deleteIncomeSource(id: number): Promise<void> {
     await client.incomeSource.delete({where: {id: await cleanPositiveId(id)}});
   } catch (error) {
     throw await toDeleteError(error,"source");
+  }
+  revalidateLookupSurfaces();
+}
+
+// --- SavingTarget -----------------------------------------------------------
+
+export async function createSavingTarget(name: string): Promise<FilterOption> {
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.savingTarget.findMany({select: {id: true, name: true}}), clean);
+  const created = await client.savingTarget.create({data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return created;
+}
+
+export async function renameSavingTarget(id: number, name: string): Promise<FilterOption> {
+  const rowId = await cleanPositiveId(id);
+  const clean = await cleanName(name);
+  await assertUniqueName(await client.savingTarget.findMany({select: {id: true, name: true}}), clean, rowId);
+  const updated = await client.savingTarget.update({where: {id: rowId}, data: {name: clean}, select: {id: true, name: true}});
+  revalidateLookupSurfaces();
+  return updated;
+}
+
+export async function deleteSavingTarget(id: number): Promise<void> {
+  try {
+    await client.savingTarget.delete({where: {id: await cleanPositiveId(id)}});
+  } catch (error) {
+    throw await toDeleteError(error,"target");
   }
   revalidateLookupSurfaces();
 }
