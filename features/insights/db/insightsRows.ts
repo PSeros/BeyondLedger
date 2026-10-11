@@ -12,6 +12,7 @@ import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {dateKey} from "@/features/expense/shared/db/cumulativeChart";
 import {seriesOf, type InsightsQuery, type InsightsSeries, type SignedIds} from "@/features/insights/params";
 import {realizedBounds, type ResolvedWindow} from "@/features/insights/window";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
 // The normalized rows every Insights view (stats, charts, table, export) is built from. Expenses use
 // the budget matcher, so a filter set matches exactly what a budget with the same selectors would.
@@ -235,11 +236,14 @@ export async function getInsightsRows(query: InsightsQuery, window: ResolvedWind
   const tags = {include: sel.include.tagIds, exclude: sel.exclude.tagIds};
 
   const series = seriesOf(query.domain);
+  const analysisStart = await getAnalysisStart();
 
   const [expense, income, saving] = await Promise.all([
     series.includes("expense") ? expenseRows(sel, window, workspaceId) : [],
     series.includes("income") ? incomeRows(query, tags, window, workspaceId) : [],
     series.includes("saving") ? savingRows(query, tags, window, workspaceId) : [],
   ]);
-  return [...expense, ...income, ...saving].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  // The app-wide calculation start: older payments and bills never count.
+  const startKey = analysisStart ? dateKey(analysisStart) : null;
+  return [...expense, ...income, ...saving].filter((row) => !startKey || row.date >= startKey).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 }

@@ -348,7 +348,17 @@
       "testConnection": "Verbindung testen",
       "testing": "Teste…"
     },
-    "savingTargets": "Sparziele"
+    "savingTargets": "Sparziele",
+    "start": {
+      "heading": "Startdatum",
+      "headingDescription": "Hier beginnen alle Berechnungen: Übersicht, Diagramme und Ø-Linien, Analyse, Budgets und der Überschuss. Ältere Einträge bleiben in den Listen.",
+      "label": "Zählen ab",
+      "hint": "Einträge vor diesem Datum fließen in keine Berechnung ein.",
+      "hintEmpty": "Leer: alles ab dem ersten Eintrag zählt.",
+      "clear": "Zurücksetzen",
+      "saved": "Startdatum gespeichert.",
+      "couldNotSave": "Startdatum konnte nicht gespeichert werden."
+    }
   },
   "detail": {
     "back": "Zurück",

@@ -94,6 +94,9 @@ model AppSettings {
   // How those samples are reduced. MEDIAN by default: the charts are cumulative, so with a mean one
   // large one-off lifts every later point of the period and never falls back.
   baselineMetric     BaselineMetric @default(MEDIAN)
+  // App-wide start of every calculation (charts, Ø, KPIs, Analyse, budgets, Überschuss). Older records
+  // stay visible in lists. null = from the first record.
+  startDate          DateTime?
   updatedAt          DateTime       @updatedAt
 }
 

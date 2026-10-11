@@ -57,6 +57,7 @@ export async function getVariableIncomeChartData(
     "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,
@@ -64,6 +65,7 @@ export async function getVariableIncomeChartData(
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,
@@ -71,6 +73,7 @@ export async function getVariableIncomeChartData(
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,
@@ -129,6 +132,7 @@ export async function getFixedIncomeChartData(
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
@@ -137,6 +141,7 @@ export async function getFixedIncomeChartData(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,

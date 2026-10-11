@@ -13,7 +13,7 @@ import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery, seriesOf, type InsightsSeries} from "@/features/insights/params";
 import {previousSpan, resolveWindow, spanFor} from "@/features/insights/window";
-import {getActiveWorkspaceId, getLocale} from "@/features/settings/db/appSettings";
+import {getActiveWorkspaceId, getAnalysisStart, getLocale} from "@/features/settings/db/appSettings";
 
 async function getFilterOptions(): Promise<InsightsFilterOptions> {
   const byName = {select: {id: true, name: true}, orderBy: {name: "asc"}} as const;
@@ -35,14 +35,15 @@ async function getFilterOptions(): Promise<InsightsFilterOptions> {
 export default async function InsightsPage({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
   const query = parseInsightsQuery(await searchParams);
   const window = resolveWindow(query.window);
-  const [workspaceId, options, t, locale] = await Promise.all([
+  const [workspaceId, options, t, locale, analysisStart] = await Promise.all([
     getActiveWorkspaceId(),
     getFilterOptions(),
     getTranslations("insights"),
     getLocale(),
+    getAnalysisStart(),
   ]);
   const [rows, views] = await Promise.all([getInsightsRows(query, window, workspaceId), getSavedViews(options)]);
-  const span = spanFor(window, rows);
+  const span = spanFor(window, rows, analysisStart);
 
   const series = seriesOf(query.domain);
   const of = (domain: InsightsSeries) => rows.filter((row) => row.domain === domain);

@@ -74,6 +74,7 @@ export async function getFixedExpenseChartData(
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
@@ -82,6 +83,7 @@ export async function getFixedExpenseChartData(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,

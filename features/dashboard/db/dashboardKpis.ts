@@ -179,6 +179,13 @@ export async function getPeriodKpis(
   };
   const incomeMap = streamMap(variableIncome, fixedIncome);
   const savingMap = streamMap(oneTimeSavings, savingPlans);
+  // The app-wide calculation start: nothing before it counts, in the current period or the baseline.
+  if (baseline.start) {
+    const startKey = dateKey(baseline.start);
+    for (const map of [expenseMap, incomeMap, savingMap]) {
+      for (const key of map.keys()) if (key < startKey) map.delete(key);
+    }
+  }
 
   // Pace-to-date: compare the REALIZED slice of the selected period (day 1 → today) against the same
   // first-N-days slice of each prior period. This keeps the % honest all period long — a mid-period

@@ -348,7 +348,17 @@
       "testConnection": "Test connection",
       "testing": "Testing…"
     },
-    "savingTargets": "Savings targets"
+    "savingTargets": "Savings targets",
+    "start": {
+      "heading": "Start date",
+      "headingDescription": "Where every calculation begins: dashboard, charts and Ø lines, Analyse, budgets and the Überschuss. Older entries stay in the lists.",
+      "label": "Count from",
+      "hint": "Entries before this date are ignored in all calculations.",
+      "hintEmpty": "Empty: everything from the first entry counts.",
+      "clear": "Clear",
+      "saved": "Start date saved.",
+      "couldNotSave": "Couldn't save the start date."
+    }
   },
   "detail": {
     "back": "Back",

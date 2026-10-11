@@ -21,6 +21,8 @@ import {
   variableItemWhere,
   type FacetSelection,
 } from "@/features/budget/db/budgetSmartMatch";
+import {notBefore} from "@/features/expense/shared/db/cumulativeChart";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
 // On-demand read (a server action, called when a budget's "View entries" modal opens) listing the
 // bills and contracts that contribute to a budget in the period containing `anchor` (the page's
@@ -76,7 +78,7 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
   const sel = normalizeAllSelected(raw, totals);
 
   const now = parseMonthAnchor(anchor);
-  const {start, end} = resolveActivePeriod(
+  const {start: periodStart, end} = resolveActivePeriod(
     {
       periodType: budget.periodType as BudgetPeriodType,
       anchorMonth: budget.anchorMonth,
@@ -85,7 +87,8 @@ export async function getBudgetContributions(budgetId: number, anchor?: string):
     },
     now,
   );
-  const windowMonths = windowMonthsFor(budget.periodType as BudgetPeriodType, start, end);
+  const windowMonths = windowMonthsFor(budget.periodType as BudgetPeriodType, periodStart, end);
+  const start = notBefore(periodStart, await getAnalysisStart());
   const {dateInWindow, contractOverlap} = windowFilters(start, end);
 
   const {variable, contract} = activeDomains(sel);

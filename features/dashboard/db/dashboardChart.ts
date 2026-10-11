@@ -87,6 +87,7 @@ function buildViews(
     "1W": buildWeekView(week.totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: week.dataStart,
       today,
@@ -94,6 +95,7 @@ function buildViews(
     "1M": buildMonthView(month.totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: month.dataStart,
       futureTotalsByDay: month.upcomingTotalsByDay,
@@ -102,6 +104,7 @@ function buildViews(
     "1Y": buildYearView(year.totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart: year.dataStart,
       futureTotalsByDay: year.upcomingTotalsByDay,

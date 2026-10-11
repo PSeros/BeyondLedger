@@ -16,6 +16,8 @@ import {
 } from "@/features/budget/db/budgetIncomeTarget";
 import {facetSelectionFromMembers, getSelectorTotals, hasAnySelector} from "@/features/budget/db/budgetSmartMatch";
 import {resolveActivePeriod, windowMonthsFor, type BudgetPeriodType} from "@/features/budget/period";
+import {notBefore} from "@/features/expense/shared/db/cumulativeChart";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
 // Read side for the Budget page. Each budget carries its members, period config, and per-instance
 // overrides; actuals + the effective target are resolved for the budget's CURRENT period (each
@@ -158,6 +160,7 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
     ? await Promise.all([getIncomeStreams(workspaceId), getSavingStreams(workspaceId)])
     : [[], []];
   const periods = budgets.map((budget) => resolveActivePeriod(budget, now));
+  const analysisStart = await getAnalysisStart();
 
   // An inverse budget subtracts what the OTHER budgets of its own account claim. `budgets` already
   // holds them (the list is either scoped to one account or holds them all), so no extra query.
@@ -172,8 +175,10 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
 
   const actuals = await Promise.all(
     budgets.map((budget, index) => {
-      const {start, end} = periods[index];
-      const windowMonths = windowMonthsFor(budget.periodType, start, end);
+      const {start: periodStart, end} = periods[index];
+      const windowMonths = windowMonthsFor(budget.periodType, periodStart, end);
+      // Counting starts at the app-wide start; windowMonths keeps the period's own length.
+      const start = notBefore(periodStart, analysisStart);
       if (budget.isInverse) {
         const others = claimSources.filter(
           (_, otherIndex) => budgets[otherIndex].workspaceId === budget.workspaceId && otherIndex !== index,
@@ -194,7 +199,7 @@ export async function getBudgetsResolved(now: Date = new Date(), workspaceId?: n
 
   return budgets.map((budget, index) => {
     const period = periods[index];
-    const window = {start: period.start, end: period.end};
+    const window = {start: notBefore(period.start, analysisStart), end: period.end};
     const hasOverride = budget.overrides.some((o) => o.periodKey === period.key);
     const windowMonths = windowMonthsFor(budget.periodType, period.start, period.end);
     // Pass two: the remainder. Income arriving in this window minus savings minus what the other

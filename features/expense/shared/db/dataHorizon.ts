@@ -5,6 +5,7 @@ import {buildIncomeWhere} from "@/features/income/db/incomeWhere";
 import {buildSavingWhere} from "@/features/saving/db/savingWhere";
 import {type Granularity, utcDate} from "@/features/expense/shared/db/cumulativeChart";
 import {periodsPerYear} from "@/features/expense/shared/db/recurrence";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
 // The user's data horizon: the earliest date at which a stream holds any record. Every rolling Ø
 // baseline is clipped to this, so an install that is three weeks old is not averaged against five
@@ -47,7 +48,8 @@ export async function getDataStart(
       }
     : {};
 
-  const [bills, contracts, income, savings] = await Promise.all([
+  const [analysisStart, bills, contracts, income, savings] = await Promise.all([
+    getAnalysisStart(),
     wanted.has("bills")
       ? client.bill.aggregate({where: buildBillWhere(wsFilter), _min: {date: true}})
       : null,
@@ -81,6 +83,8 @@ export async function getDataStart(
   );
   if (!candidates.length) return null;
 
-  const earliest = candidates.reduce((min, date) => (date < min ? date : min));
+  const first = candidates.reduce((min, date) => (date < min ? date : min));
+  // Never before the app-wide calculation start.
+  const earliest = analysisStart && analysisStart > first ? analysisStart : first;
   return utcDate(earliest.getUTCFullYear(), earliest.getUTCMonth(), earliest.getUTCDate());
 }
