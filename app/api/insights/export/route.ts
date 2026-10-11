@@ -2,9 +2,11 @@ import type {NextRequest} from "next/server";
 import {getTranslations} from "next-intl/server";
 import {loadTableRows} from "@/features/insights/db/tableRows";
 import {getLocale} from "@/features/settings/db/appSettings";
-import type {InsightsTableRow} from "@/features/insights/table";
+import {parseInsightsQuery} from "@/features/insights/params";
+import type {InsightsTableRow, PeriodRow} from "@/features/insights/table";
 
-// CSV of exactly what the entry table lists (same filters, level and sort). Semicolon-separated with
+// CSV of exactly what the entry table lists (same filters, unit and sort): entries, or one row per
+// day / week / month. Semicolon-separated with
 // a UTF-8 BOM so Excel opens it directly in a German locale; ISO dates; plain numbers with the
 // locale's decimal separator.
 
@@ -16,8 +18,9 @@ function cell(value: string, isText: boolean): string {
 }
 
 export async function GET(request: NextRequest) {
-  const [rows, locale, t, tFields] = await Promise.all([
-    loadTableRows(request.nextUrl.searchParams),
+  const params = request.nextUrl.searchParams;
+  const [table, locale, t, tFields] = await Promise.all([
+    loadTableRows(params),
     getLocale(),
     getTranslations("insights"),
     getTranslations("fields"),
@@ -34,31 +37,48 @@ export async function GET(request: NextRequest) {
     incomePayment: t("kind.incomePayment"),
   };
 
-  const header = [
-    tFields("date"),
-    t("kindLabel"),
-    t("csvDomain"),
-    tFields("name"),
-    t("csvLines"),
-    t("byCounterparty"),
-    tFields("category"),
-    t("byTag"),
-    t("csvAmount"),
-  ];
-  const lines = rows.map((row) => [
-    row.date,
-    kind[row.kind],
-    t(row.domain === "income" ? "domainIncome" : "domainExpense"),
-    row.label,
-    row.lineCount != null ? String(row.lineCount) : "",
-    row.counterparty,
-    row.category,
-    row.tags.join(", "),
-    amount(row.amount),
-  ]);
+  let header: string[];
+  let lines: string[][];
+  // Columns that hold generated values (dates, counts, amounts) and skip the formula guard.
+  let generated: Set<number>;
+  if (table.mode === "entries") {
+    header = [
+      tFields("date"),
+      t("kindLabel"),
+      t("csvDomain"),
+      tFields("name"),
+      t("csvLines"),
+      t("byCounterparty"),
+      tFields("category"),
+      t("byTag"),
+      t("csvAmount"),
+    ];
+    lines = table.rows.map((row) => [
+      row.date,
+      kind[row.kind],
+      t(row.domain === "income" ? "domainIncome" : "domainExpense"),
+      row.label,
+      row.lineCount != null ? String(row.lineCount) : "",
+      row.counterparty,
+      row.category,
+      row.tags.join(", "),
+      amount(row.amount),
+    ]);
+    generated = new Set([0, 4, 8]);
+  } else {
+    // One row per period: its first day, the entry count, and the money of the shown domain(s).
+    const domain = parseInsightsQuery(params).domain;
+    const money: {label: string; value: (row: PeriodRow) => number}[] = [
+      ...(domain !== "income" ? [{label: t("domainExpense"), value: (row: PeriodRow) => row.expense}] : []),
+      ...(domain !== "expense" ? [{label: t("domainIncome"), value: (row: PeriodRow) => row.income}] : []),
+      ...(domain === "both" ? [{label: t("net"), value: (row: PeriodRow) => row.income - row.expense}] : []),
+    ];
+    const periods = table.rows;
+    header = [t("periodStart", {unit: t(`unit.${table.unit}`)}), t("csvEntries"), ...money.map((column) => column.label)];
+    lines = periods.map((row) => [row.date, String(row.count), ...money.map((column) => amount(column.value(row)))]);
+    generated = new Set(header.map((_, index) => index));
+  }
 
-  // Date, line count and amount are generated values; everything else may be user-typed text.
-  const generated = new Set([0, 4, 8]);
   const body = [header, ...lines]
     .map((line) => line.map((value, index) => cell(value, !generated.has(index))).join(";"))
     .join("\r\n");

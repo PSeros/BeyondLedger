@@ -487,10 +487,6 @@
       "contractPayment": "Vertragszahlung",
       "incomePayment": "Einnahme"
     },
-    "level": {
-      "item": "Positionen",
-      "bill": "Belege"
-    },
     "views": "Ansichten",
     "savedViews": "Gespeicherte Ansichten",
     "noViews": "Noch keine gespeicherten Ansichten.",
@@ -528,7 +524,11 @@
       "tag": "Tag"
     },
     "boxHintUnit": "Ein Wert pro {unit} · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer",
-    "boxHintDays": "Tagessummen, an Tagen mit Einträgen · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer"
+    "boxHintDays": "Tagessummen, an Tagen mit Einträgen · Box = mittlere Hälfte, Strich = Median, Punkte = Ausreißer",
+    "periodStart": "{unit} (Beginn)",
+    "csvEntries": "Einträge",
+    "periodLabel": "Zeitraum",
+    "periodCount": "{count, plural, one {# Zeitraum} other {# Zeiträume}}"
   },
   "tags": {
     "title": "Tags",

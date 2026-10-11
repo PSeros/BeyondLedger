@@ -12,7 +12,7 @@ import {boxesFor, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samp
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
 import {parseInsightsQuery} from "@/features/insights/params";
-import {previousSpan, realizedBounds, resolveWindow} from "@/features/insights/window";
+import {previousSpan, resolveWindow, spanFor} from "@/features/insights/window";
 import {getActiveWorkspaceId, getLocale} from "@/features/settings/db/appSettings";
 
 async function getFilterOptions(): Promise<InsightsFilterOptions> {
@@ -41,10 +41,7 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     getLocale(),
   ]);
   const [rows, views] = await Promise.all([getInsightsRows(query, window, workspaceId), getSavedViews(options)]);
-  // Time buckets run to today at most; all time starts at the first row.
-  const paid = realizedBounds(window);
-  const oldest = rows.at(-1);
-  const span = {start: window.start ?? (oldest ? new Date(`${oldest.date}T00:00:00Z`) : paid.end), end: paid.end};
+  const span = spanFor(window, rows);
 
   const series = (["expense", "income"] as const).filter((domain) =>
     domain === "expense" ? query.domain !== "income" : query.domain !== "expense");

@@ -1,27 +1,38 @@
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {parseInsightsQuery} from "@/features/insights/params";
-import {resolveWindow} from "@/features/insights/window";
+import {bucketTotals} from "@/features/insights/stats";
+import {resolveWindow, spanFor} from "@/features/insights/window";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
 import {
+  isPeriodUnit,
+  sortPeriodRows,
   sortTableRows,
-  TABLE_LEVELS,
   TABLE_SORT_KEYS,
+  toPeriodRows,
   toTableRows,
-  type InsightsTableRow,
-  type TableLevel,
+  type TableRows,
   type TableSortKey,
 } from "@/features/insights/table";
 
-// All matching table rows for a request's query string (page filters + level / sortBy / sortDir),
-// shared by the paged rows route and the CSV export so both list exactly the same entries.
-export async function loadTableRows(params: URLSearchParams): Promise<InsightsTableRow[]> {
+// All table rows for a request's query string (page filters + unit + sortBy / sortDir), shared by the
+// paged rows route and the CSV export so both list exactly the same thing.
+export async function loadTableRows(params: URLSearchParams): Promise<TableRows> {
   const query = parseInsightsQuery(params);
-  const rawLevel = params.get("level");
-  const level: TableLevel = (TABLE_LEVELS as readonly string[]).includes(rawLevel ?? "") ? (rawLevel as TableLevel) : "bill";
   const rawSortBy = params.get("sortBy");
   const sortBy: TableSortKey = (TABLE_SORT_KEYS as readonly string[]).includes(rawSortBy ?? "") ? (rawSortBy as TableSortKey) : "date";
   const sortDir = params.get("sortDir") === "asc" ? "asc" : "desc";
 
-  const rows = await getInsightsRows(query, resolveWindow(query.window), await getActiveWorkspaceId());
-  return sortTableRows(toTableRows(rows, level), sortBy, sortDir);
+  const window = resolveWindow(query.window);
+  const rows = await getInsightsRows(query, window, await getActiveWorkspaceId());
+  const unit = query.unit;
+  if (!isPeriodUnit(unit)) {
+    return {mode: "entries", rows: sortTableRows(toTableRows(rows, unit), sortBy, sortDir)};
+  }
+
+  const span = spanFor(window, rows);
+  const of = (domain: "expense" | "income") => rows.filter((row) => row.domain === domain);
+  // Counting = summing a 1 per row over the same buckets.
+  const counts = bucketTotals(rows.map((row) => ({...row, amount: 1})), unit, span);
+  const periods = toPeriodRows(query.domain, bucketTotals(of("expense"), unit, span), bucketTotals(of("income"), unit, span), counts);
+  return {mode: "periods", unit, rows: sortPeriodRows(periods, sortBy, sortDir)};
 }
