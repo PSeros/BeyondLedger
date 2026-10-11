@@ -653,7 +653,6 @@
     "setGoal": "Set goal",
     "editGoal": "Goal",
     "removeGoal": "Remove goal",
-    "ofGoal": "of {goal}",
     "goalProgress": "{balance} of {goal}",
     "goalReached": "Goal reached",
     "goalLeft": "{amount} to go"

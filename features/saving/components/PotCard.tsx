@@ -18,10 +18,10 @@ export function goalProgress(pot: Pot): number | null {
 }
 
 export async function PotCard({pot, options}: {pot: Pot; options: SavingFormOptions}) {
-  const [t, format] = await Promise.all([getTranslations("saving"), getFormatter()]);
+  const format = await getFormatter();
   const progress = goalProgress(pot);
   return (
-    <Card className={`${CARD_SIZE} flex flex-col gap-3 p-4`}>
+    <Card className={`${CARD_SIZE} flex flex-col gap-3 border border-transparent p-4`}>
       <Link href={`/saving/${pot.id}`} className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
         <div className="flex items-center gap-2">
           <span className="size-2.5 shrink-0 rounded-full" style={{background: pot.color}}/>
@@ -30,16 +30,15 @@ export async function PotCard({pot, options}: {pot: Pot; options: SavingFormOpti
             <span className="ms-auto text-xs text-muted tabular-nums">{format.number(progress, {style: "percent", maximumFractionDigits: 0})}</span>
           ) : null}
         </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-2xl font-semibold tracking-tight tabular-nums">{format.number(pot.balance, "currency")}</span>
-          {progress != null && pot.goal != null ? (
-            <>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--default)]">
-                <div className="h-full rounded-full" style={{width: `${progress * 100}%`, background: pot.color}}/>
-              </div>
-              <span className="text-xs text-muted tabular-nums">{t("ofGoal", {goal: format.number(pot.goal, "currencyWhole")})}</span>
-            </>
-          ) : null}
+        <div className="flex flex-col gap-2">
+          <span className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
+            <span className="text-2xl font-semibold tracking-tight">{format.number(pot.balance, "currency")}</span>
+            {pot.goal != null ? <span className="text-sm text-muted">/ {format.number(pot.goal, "currencyWhole")}</span> : null}
+          </span>
+          {/* Same slot on every card, empty without a goal, so the sparklines line up across the row. */}
+          <div className={`h-1.5 overflow-hidden rounded-full ${progress != null ? "bg-[var(--default)]" : ""}`}>
+            {progress != null ? <div className="h-full rounded-full" style={{width: `${progress * 100}%`, background: pot.color}}/> : null}
+          </div>
         </div>
         <Sparkline values={pot.series.slice(-LAST_MONTHS)} color={pot.color}/>
         <div className="flex min-h-9 flex-col gap-0.5 text-xs text-muted">
@@ -68,9 +67,12 @@ export async function SurplusCard({surplus, options}: {surplus: Surplus; options
           <span className="truncate font-semibold">{t("surplus")}</span>
           <span className="ms-auto rounded-full bg-[var(--default)] px-2 py-0.5 text-[0.7rem] text-muted">{t("auto")}</span>
         </div>
-        <span className={`text-2xl font-semibold tracking-tight tabular-nums ${surplus.balance < 0 ? "text-danger" : ""}`}>
-          {format.number(surplus.balance, "currency")}
-        </span>
+        <div className="flex flex-col gap-2">
+          <span className={`text-2xl font-semibold tracking-tight tabular-nums ${surplus.balance < 0 ? "text-danger" : ""}`}>
+            {format.number(surplus.balance, "currency")}
+          </span>
+          <div className="h-1.5"/>
+        </div>
         <Sparkline values={surplus.series.slice(-LAST_MONTHS)} color={SURPLUS_COLOR}/>
         <div className="min-h-9"/>
       </Link>
