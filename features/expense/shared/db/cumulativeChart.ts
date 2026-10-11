@@ -26,7 +26,8 @@ export type DateWindow = {start: Date; end: Date};
 export type Lookback = {weeks: number; months: number; years: number};
 
 /** The full Ø-baseline preference: how far back to sample, and how to reduce those samples. */
-export type Baseline = {lookback: Lookback; metric: BaselineMetric};
+// `start` is the app-wide calculation start (AppSettings.startDate); null = from the first record.
+export type Baseline = {lookback: Lookback; metric: BaselineMetric; start: Date | null};
 
 /**
  * Which shape the series takes. "cumulative" is a running total across the period (how much has
@@ -52,11 +53,32 @@ type ViewOptions = {
   today?: Date;
   /** Running total (default) or each bucket on its own. */
   mode?: ChartMode;
+  /** App-wide calculation start: days before it are dropped and the horizon never precedes it. */
+  start?: Date | null;
 };
+
+// Applies the app-wide start to a view's inputs.
+function fromStart<T extends {dataStart: Date | null; start?: Date | null}>(
+  totalsByDay: Map<string, number>,
+  options: T,
+): [Map<string, number>, T] {
+  const {start} = options;
+  if (!start) return [totalsByDay, options];
+  const startKey = dateKey(start);
+  const kept = new Map([...totalsByDay].filter(([key]) => key >= startKey));
+  const dataStart = options.dataStart && options.dataStart > start ? options.dataStart : kept.size ? start : null;
+  return [kept, {...options, dataStart}];
+}
 
 // Parse the ?cg param into a chart granularity. Anything unrecognized falls back to the monthly view.
 export function parseGranularity(value: string | null | undefined): Granularity {
   return value === "1W" || value === "1Y" ? value : "1M";
+}
+
+// The later of a window start and the app-wide calculation start (null start = unbounded).
+export function notBefore<T extends Date | null>(date: T, start: Date | null): T {
+  if (!start) return date;
+  return (date && date > start ? date : start) as T;
 }
 
 export function dateKey(date: Date): string {
@@ -202,10 +224,11 @@ export function sumRange(totalsByDay: Map<string, number>, start: Date, days: nu
  * future week shows nothing. Defaults `today` to `anchor` for the no-navigation case.
  */
 export function buildWeekView(
-  totalsByDay: Map<string, number>,
+  rawTotalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, today = anchor, mode = "cumulative"}: ViewOptions,
+  rawOptions: ViewOptions,
 ): ChartPoint[] {
+  const [totalsByDay, {lookback, metric, dataStart, today = anchor, mode = "cumulative"}] = fromStart(rawTotalsByDay, rawOptions);
   const anchorIndex = (anchor.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
   const weekStart = addDays(anchor, -anchorIndex);
 
@@ -244,10 +267,11 @@ export function buildWeekView(
  * then continuing the cumulative sum through the rest of the month using the future data.
  */
 export function buildMonthView(
-  totalsByDay: Map<string, number>,
+  rawTotalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  rawOptions: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
+  const [totalsByDay, {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}] = fromStart(rawTotalsByDay, rawOptions);
   const year = anchor.getUTCFullYear();
   const month = anchor.getUTCMonth();
   const monthStart = utcDate(year, month, 1);
@@ -308,10 +332,11 @@ export function buildMonthView(
  * the `futureTotalsByDay` / `upcoming` behavior.
  */
 export function buildYearView(
-  totalsByDay: Map<string, number>,
+  rawTotalsByDay: Map<string, number>,
   anchor: Date,
-  {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}: ViewOptions & {futureTotalsByDay?: Map<string, number>},
+  rawOptions: ViewOptions & {futureTotalsByDay?: Map<string, number>},
 ): ChartPoint[] {
+  const [totalsByDay, {lookback, metric, dataStart, futureTotalsByDay, today = anchor, mode = "cumulative"}] = fromStart(rawTotalsByDay, rawOptions);
   const year = anchor.getUTCFullYear();
   const yearStart = utcDate(year, 0, 1);
   const nextYearStart = utcDate(year + 1, 0, 1);

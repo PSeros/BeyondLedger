@@ -10,25 +10,26 @@ import {
 } from "@/features/budget/db/budgetSmartMatch";
 import {forEachOccurrence} from "@/features/expense/shared/db/recurrence";
 import {dateKey} from "@/features/expense/shared/db/cumulativeChart";
-import type {InsightsQuery, SignedIds} from "@/features/insights/params";
+import {seriesOf, type InsightsQuery, type InsightsSeries, type SignedIds} from "@/features/insights/params";
 import {realizedBounds, type ResolvedWindow} from "@/features/insights/window";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
 // The normalized rows every Insights view (stats, charts, table, export) is built from. Expenses use
 // the budget matcher, so a filter set matches exactly what a budget with the same selectors would.
 // Contracts and income are expanded into their actual payments inside the window (no amortizing):
 // a yearly contract shows up once in a year and only in the month it is paid. Nothing past today.
 
-export type InsightsRowKind = "item" | "contractPayment" | "incomePayment";
+export type InsightsRowKind = "item" | "contractPayment" | "incomePayment" | "savingPayment";
 
 export type InsightsRow = {
   key: string;
   kind: InsightsRowKind;
-  domain: "expense" | "income";
-  sourceId: number; // item / contract / income id
+  domain: InsightsSeries;
+  sourceId: number; // item / contract / income / saving id
   billId: number | null;
   date: string; // yyyy-mm-dd
   label: string;
-  counterparty: string; // supplier or income source
+  counterparty: string; // supplier, income source or savings target
   category: string;
   tags: string[]; // a bill's tags cascade onto its lines
   amount: number;
@@ -178,13 +179,71 @@ async function incomeRows(query: InsightsQuery, tags: SignedIds, window: Resolve
   return rows;
 }
 
+// Savings: like income, expanded into their payments; a withdrawal is a negative row. The target is
+// both counterparty and category, so grouping by either groups by target.
+async function savingRows(query: InsightsQuery, tags: SignedIds, window: ResolvedWindow, workspaceId: number | null): Promise<InsightsRow[]> {
+  const targetIds = dropAll(query.saving.targetIds, await client.savingTarget.count());
+  const {contractOverlap} = windowFilters(window.start, window.end);
+
+  const savings = await client.saving.findMany({
+    where: {
+      ...(workspaceId != null ? {workspaceId} : {}),
+      ...contractOverlap,
+      AND: [
+        ...signedWhere("targetId", targetIds),
+        ...(tags.include.length ? [{tags: {some: {tagId: {in: tags.include}}}}] : []),
+        ...(tags.exclude.length ? [{NOT: {tags: {some: {tagId: {in: tags.exclude}}}}}] : []),
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      totalAmount: true,
+      startDate: true,
+      endDate: true,
+      frequency: {select: {value: true, isRecurring: true}},
+      target: {select: {name: true}},
+      tags: TAGS,
+    },
+  });
+
+  const rows: InsightsRow[] = [];
+  const paid = realizedBounds(window);
+  for (const saving of savings) {
+    forEachOccurrence(saving, paid.start, paid.end, (date) => {
+      const day = dateKey(date);
+      rows.push({
+        key: `s${saving.id}-${day}`,
+        kind: "savingPayment",
+        domain: "saving",
+        sourceId: saving.id,
+        billId: null,
+        date: day,
+        label: saving.name,
+        counterparty: saving.target.name,
+        category: saving.target.name,
+        tags: tagNames(saving.tags),
+        amount: Number(saving.totalAmount),
+        href: `/saving/entry/${saving.id}`,
+      });
+    });
+  }
+  return rows;
+}
+
 export async function getInsightsRows(query: InsightsQuery, window: ResolvedWindow, workspaceId: number | null): Promise<InsightsRow[]> {
   const sel = normalizeAllSelected(query.expense, await getSelectorTotals());
   const tags = {include: sel.include.tagIds, exclude: sel.exclude.tagIds};
 
-  const [expense, income] = await Promise.all([
-    query.domain !== "income" ? expenseRows(sel, window, workspaceId) : [],
-    query.domain !== "expense" ? incomeRows(query, tags, window, workspaceId) : [],
+  const series = seriesOf(query.domain);
+  const analysisStart = await getAnalysisStart();
+
+  const [expense, income, saving] = await Promise.all([
+    series.includes("expense") ? expenseRows(sel, window, workspaceId) : [],
+    series.includes("income") ? incomeRows(query, tags, window, workspaceId) : [],
+    series.includes("saving") ? savingRows(query, tags, window, workspaceId) : [],
   ]);
-  return [...expense, ...income].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  // The app-wide calculation start: older payments and bills never count.
+  const startKey = analysisStart ? dateKey(analysisStart) : null;
+  return [...expense, ...income, ...saving].filter((row) => !startKey || row.date >= startKey).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 }

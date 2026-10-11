@@ -14,7 +14,9 @@ import {
   EXPENSE_PARAM_KEYS,
   INCOME_PARAM_KEYS,
   INSIGHTS_DOMAINS,
+  SAVING_PARAM_KEYS,
   serializeSignedIds,
+  seriesOf,
   type InsightsDomain,
   type SignedIds,
 } from "@/features/insights/params";
@@ -28,6 +30,7 @@ export type InsightsFilterOptions = {
   tags: FilterOption[];
   incomeCategories: FilterOption[];
   incomeSources: FilterOption[];
+  savingTargets: FilterOption[];
 };
 
 type Selector = {param: string; label: string; options: FilterOption[]; ids: SignedIds};
@@ -54,16 +57,16 @@ export default function InsightsControls({options, views}: {options: InsightsFil
   const domainLabels: Record<InsightsDomain, string> = {
     expense: t("domainExpense"),
     income: t("domainIncome"),
+    saving: t("domainSaving"),
     both: t("domainBoth"),
   };
 
   const {include, exclude} = query.expense;
   const pick = (field: keyof typeof include): SignedIds => ({include: include[field], exclude: exclude[field]});
-  const showExpense = query.domain !== "income";
-  const showIncome = query.domain !== "expense";
+  const series = seriesOf(query.domain);
 
   const selectors: Selector[] = [
-    ...(showExpense
+    ...(series.includes("expense")
       ? [
         {param: EXPENSE_PARAM_KEYS.itemCategoryIds, label: tBudget("groupItemCategories"), options: options.itemCategories, ids: pick("itemCategoryIds")},
         {param: EXPENSE_PARAM_KEYS.contractCategoryIds, label: tBudget("groupContractCategories"), options: options.contractCategories, ids: pick("contractCategoryIds")},
@@ -71,11 +74,14 @@ export default function InsightsControls({options, views}: {options: InsightsFil
         {param: EXPENSE_PARAM_KEYS.supplierIds, label: tBudget("groupSuppliers"), options: options.suppliers, ids: pick("supplierIds")},
       ]
       : []),
-    ...(showIncome
+    ...(series.includes("income")
       ? [
         {param: INCOME_PARAM_KEYS.categoryIds, label: t("groupIncomeCategories"), options: options.incomeCategories, ids: query.income.categoryIds},
         {param: INCOME_PARAM_KEYS.sourceIds, label: t("groupIncomeSources"), options: options.incomeSources, ids: query.income.sourceIds},
       ]
+      : []),
+    ...(series.includes("saving")
+      ? [{param: SAVING_PARAM_KEYS.targetIds, label: t("groupSavingTargets"), options: options.savingTargets, ids: query.saving.targetIds}]
       : []),
     {param: EXPENSE_PARAM_KEYS.tagIds, label: tBudget("groupTags"), options: options.tags, ids: pick("tagIds")},
   ];
@@ -103,7 +109,7 @@ export default function InsightsControls({options, views}: {options: InsightsFil
   });
 
   function clearFilters() {
-    update(Object.fromEntries([...Object.values(EXPENSE_PARAM_KEYS), ...Object.values(INCOME_PARAM_KEYS)].map((key) => [key, null])));
+    update(Object.fromEntries([...Object.values(EXPENSE_PARAM_KEYS), ...Object.values(INCOME_PARAM_KEYS), ...Object.values(SAVING_PARAM_KEYS)].map((key) => [key, null])));
   }
 
   return (

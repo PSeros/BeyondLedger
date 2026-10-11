@@ -1,5 +1,5 @@
 import type {InsightsRow, InsightsRowKind} from "@/features/insights/db/insightsRows";
-import type {InsightsDomain, StatUnit} from "@/features/insights/params";
+import type {InsightsDomain, InsightsSeries, StatUnit} from "@/features/insights/params";
 
 // Table rows for the Insights entry list, following the page-wide unit (?u): single entries for
 // "item" / "bill", one row per day / week / month otherwise. Pure and client-safe.
@@ -10,7 +10,7 @@ export type TableSortKey = (typeof TABLE_SORT_KEYS)[number];
 export type InsightsTableRow = {
   key: string;
   kind: InsightsRowKind | "bill";
-  domain: "expense" | "income";
+  domain: InsightsSeries;
   date: string;
   label: string; // item / contract / income name; a bill's line count goes in `lineCount`
   lineCount: number | null;
@@ -21,9 +21,9 @@ export type InsightsTableRow = {
   href: string;
 };
 
-// One day / week / month. `date` is the period's first day; `amount` is what the shown domain(s)
-// sum to (net when both are shown), so it sorts like the entry table's amount column.
-export type PeriodRow = {key: string; date: string; expense: number; income: number; amount: number; count: number};
+// One day / week / month. `date` is the period's first day; `amount` is what the shown domain sums
+// to (net = income − expense − saving when all are shown), so it sorts like the entry amount column.
+export type PeriodRow = {key: string; date: string; amount: number; count: number} & Record<InsightsSeries, number>;
 
 export type InsightsTableResponse =
   | {mode: "entries"; rows: InsightsTableRow[]; total: number; nextOffset: number | null}
@@ -81,19 +81,20 @@ export function toTableRows(rows: InsightsRow[], level: "item" | "bill"): Insigh
 // month). Empty periods are kept, so the rows match the KPI count and mean.
 export function toPeriodRows(
   domain: InsightsDomain,
-  expense: Map<string, number>,
-  income: Map<string, number>,
+  totals: Record<InsightsSeries, Map<string, number>>,
   counts: Map<string, number>,
 ): PeriodRow[] {
   return [...counts.keys()].map((key) => {
-    const exp = expense.get(key) ?? 0;
-    const inc = income.get(key) ?? 0;
+    const expense = totals.expense.get(key) ?? 0;
+    const income = totals.income.get(key) ?? 0;
+    const saving = totals.saving.get(key) ?? 0;
     return {
       key,
       date: key.length === 7 ? `${key}-01` : key,
-      expense: exp,
-      income: inc,
-      amount: domain === "expense" ? exp : domain === "income" ? inc : inc - exp,
+      expense,
+      income,
+      saving,
+      amount: domain === "both" ? income - expense - saving : {expense, income, saving}[domain],
       count: counts.get(key) ?? 0,
     };
   });

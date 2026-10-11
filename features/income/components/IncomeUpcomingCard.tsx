@@ -19,6 +19,7 @@ export default async function IncomeUpcomingCard({withinDays = 30, ...filters}: 
       rows={rows}
       windowDays={withinDays}
       basePath="/income/fixed"
+      tone="success"
     />
   );
 }

@@ -1,0 +1,84 @@
+import Link from "next/link";
+import {getFormatter, getTranslations} from "next-intl/server";
+import {Card} from "@heroui/react";
+import {LuRepeat} from "react-icons/lu";
+import Sparkline from "@/features/saving/components/Sparkline";
+import {PotQuickActions, SurplusMoveButton} from "@/features/saving/components/PotActions";
+import {SURPLUS_COLOR, SurplusDot} from "@/features/saving/components/SurplusPattern";
+import type {Pot, Surplus} from "@/features/saving/db/savingOverview";
+import type {SavingFormOptions} from "@/features/saving/db/savingFormOptions";
+
+const LAST_MONTHS = 12;
+// Cards grow to share the row but never shrink below this; past that the row scrolls.
+const CARD_SIZE = "min-w-56 flex-1 snap-start";
+
+// Progress toward a pot's goal, 0–1 (an overdrawn pot counts as 0).
+export function goalProgress(pot: Pot): number | null {
+  return pot.goal ? Math.min(1, Math.max(0, pot.balance) / pot.goal) : null;
+}
+
+export async function PotCard({pot, options}: {pot: Pot; options: SavingFormOptions}) {
+  const format = await getFormatter();
+  const progress = goalProgress(pot);
+  return (
+    <Card className={`${CARD_SIZE} flex flex-col gap-3 border border-transparent p-4`}>
+      <Link href={`/saving/${pot.id}`} className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
+        <div className="flex items-center gap-2">
+          <span className="size-2.5 shrink-0 rounded-full" style={{background: pot.color}}/>
+          <span className="truncate font-semibold">{pot.name}</span>
+          {progress != null ? (
+            <span className="ms-auto text-xs text-muted tabular-nums">{format.number(progress, {style: "percent", maximumFractionDigits: 0})}</span>
+          ) : null}
+        </div>
+        <div className="flex flex-col gap-2">
+          <span className="flex flex-wrap items-baseline gap-x-1.5 tabular-nums">
+            <span className="text-2xl font-semibold tracking-tight">{format.number(pot.balance, "currency")}</span>
+            {pot.goal != null ? <span className="text-sm text-muted">/ {format.number(pot.goal, "currencyWhole")}</span> : null}
+          </span>
+          {/* Same slot on every card, empty without a goal, so the sparklines line up across the row. */}
+          <div className={`h-1.5 overflow-hidden rounded-full ${progress != null ? "bg-[var(--default)]" : ""}`}>
+            {progress != null ? <div className="h-full rounded-full" style={{width: `${progress * 100}%`, background: pot.color}}/> : null}
+          </div>
+        </div>
+        <Sparkline values={pot.series.slice(-LAST_MONTHS)} color={pot.color}/>
+        <div className="flex min-h-9 flex-col gap-0.5 text-xs text-muted">
+          {pot.plans.map((plan) => (
+            <span key={plan.savingId} className="flex min-w-0 items-center gap-1">
+              <LuRepeat className="size-3 shrink-0"/>
+              <span className="truncate">{format.number(plan.amount, "currency")} · {plan.frequency} · {plan.name}</span>
+            </span>
+          ))}
+        </div>
+      </Link>
+      <div className="mt-auto">
+        <PotQuickActions options={options} potId={pot.id} potName={pot.name}/>
+      </div>
+    </Card>
+  );
+}
+
+export async function SurplusCard({surplus, options}: {surplus: Surplus; options: SavingFormOptions}) {
+  const [t, format] = await Promise.all([getTranslations("saving"), getFormatter()]);
+  return (
+    <Card className={`${CARD_SIZE} flex flex-col gap-3 border border-dashed border-[var(--border)] bg-transparent p-4`}>
+      <Link href="/saving/surplus" className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
+        <div className="flex items-center gap-2">
+          <SurplusDot/>
+          <span className="truncate font-semibold">{t("surplus")}</span>
+          <span className="ms-auto rounded-full bg-[var(--default)] px-2 py-0.5 text-[0.7rem] text-muted">{t("auto")}</span>
+        </div>
+        <div className="flex flex-col gap-2">
+          <span className={`text-2xl font-semibold tracking-tight tabular-nums ${surplus.balance < 0 ? "text-danger" : ""}`}>
+            {format.number(surplus.balance, "currency")}
+          </span>
+          <div className="h-1.5"/>
+        </div>
+        <Sparkline values={surplus.series.slice(-LAST_MONTHS)} color={SURPLUS_COLOR}/>
+        <div className="min-h-9"/>
+      </Link>
+      <div className="mt-auto">
+        <SurplusMoveButton options={options}/>
+      </div>
+    </Card>
+  );
+}

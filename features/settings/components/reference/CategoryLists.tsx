@@ -8,20 +8,23 @@ import {
   createIncomeCategory,
   createIncomeSource,
   createItemCategory,
+  createSavingTarget,
   createSupplierCategory,
   deleteContractCategory,
   deleteIncomeCategory,
   deleteIncomeSource,
   deleteItemCategory,
+  deleteSavingTarget,
   deleteSupplierCategory,
   renameContractCategory,
   renameIncomeCategory,
   renameIncomeSource,
   renameItemCategory,
+  renameSavingTarget,
   renameSupplierCategory,
 } from "@/features/settings/db/referenceDataMutations";
 
-// The five name-only lookup lists. They share NameSection and differ only in title + actions, so
+// The six name-only lookup lists. They share NameSection and differ only in title + actions, so
 // the wiring lives here in one client component rather than being repeated on the page.
 export default function CategoryLists({
   supplierCategories,
@@ -29,12 +32,14 @@ export default function CategoryLists({
   contractCategories,
   incomeSources,
   incomeCategories,
+  savingTargets,
 }: {
   supplierCategories: CategoryRow[];
   itemCategories: CategoryRow[];
   contractCategories: CategoryRow[];
   incomeSources: CategoryRow[];
   incomeCategories: CategoryRow[];
+  savingTargets: CategoryRow[];
 }) {
   const t = useTranslations("settings");
   return (
@@ -78,6 +83,14 @@ export default function CategoryLists({
         create={createIncomeCategory}
         rename={renameIncomeCategory}
         remove={deleteIncomeCategory}
+      />
+      <NameSection
+        id="saving-targets"
+        title={t("savingTargets")}
+        rows={savingTargets}
+        create={createSavingTarget}
+        rename={renameSavingTarget}
+        remove={deleteSavingTarget}
       />
     </>
   );

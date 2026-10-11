@@ -5,15 +5,16 @@ import {Card} from "@heroui/react";
 import {Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis} from "recharts";
 import {isoWeek} from "@/features/expense/shared/db/cumulativeChart";
 import type {TimeUnit} from "@/features/insights/stats";
-import {seriesColor} from "@/features/insights/colors";
+import {SERIES_LABEL_KEYS, seriesColor} from "@/features/insights/colors";
+import type {InsightsSeries} from "@/features/insights/params";
 
-export type TimePoint = {key: string; expense?: number; income?: number};
+export type TimePoint = {key: string} & Partial<Record<InsightsSeries, number>>;
 
 // Totals per day / week / month / year across the period.
 export default function InsightsTimeChart({points, unit, series}: {
   points: TimePoint[];
   unit: TimeUnit;
-  series: ("expense" | "income")[];
+  series: InsightsSeries[];
 }) {
   const format = useFormatter();
   const t = useTranslations("insights");
@@ -26,10 +27,7 @@ export default function InsightsTimeChart({points, unit, series}: {
     return format.dateTime(date, {day: "2-digit", month: "2-digit", timeZone: "UTC"});
   }
 
-  const meta = {
-    expense: {name: t("domainExpense"), color: seriesColor("expense", series.length)},
-    income: {name: t("domainIncome"), color: seriesColor("income", series.length)},
-  };
+  const meta = (key: InsightsSeries) => ({name: t(SERIES_LABEL_KEYS[key]), color: seriesColor(key, series.length)});
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
@@ -38,8 +36,8 @@ export default function InsightsTimeChart({points, unit, series}: {
         {series.length > 1
           ? series.map((key) => (
             <span key={key} className="flex items-center gap-1.5 text-sm text-muted">
-              <span className="size-2.5 rounded-full" style={{background: meta[key].color}}/>
-              {meta[key].name}
+              <span className="size-2.5 rounded-full" style={{background: meta(key).color}}/>
+              {meta(key).name}
             </span>
           ))
           : null}
@@ -76,7 +74,7 @@ export default function InsightsTimeChart({points, unit, series}: {
               formatter={(value) => format.number(Number(value), "currency")}
             />
             {series.map((key) => (
-              <Bar key={key} dataKey={key} name={meta[key].name} fill={meta[key].color} radius={[4, 4, 0, 0]} maxBarSize={24}/>
+              <Bar key={key} dataKey={key} name={meta(key).name} fill={meta(key).color} radius={[4, 4, 0, 0]} maxBarSize={24}/>
             ))}
           </BarChart>
         </div>

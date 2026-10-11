@@ -3,151 +3,93 @@
 import {useMemo} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
-import {Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
-import type {ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
-import type {BaselineMetric} from "@/features/settings/lookback";
-import type {ChartMode} from "@/features/expense/shared/db/cumulativeChart";
+import {Area, ComposedChart, Line, Tooltip, XAxis, YAxis} from "recharts";
+import type {ChartMode, ChartPoint, Granularity} from "@/features/expense/shared/db/cumulativeChart";
 import ChartModeToggle from "@/components/ChartModeToggle";
+import {AREA_TINT, STACK_TINT} from "@/components/chartTints";
 
 type SeriesData = Partial<Record<Granularity, ChartPoint[]>>;
 
-const INCOME_COLOR = "var(--success)";
-const EXPENSE_COLOR = "var(--danger)";
+const INCOME = "var(--success)";
+const EXPENSE = "var(--danger)";
+const SAVING = "var(--accent)";
 
-type MergedPoint = {
+type Point = {
   label: string;
   income: number | null;
-  incomeUpcoming?: number | null;
-  incomePrevious: number | null;
+  incomeUpcoming: number | null;
   expense: number | null;
-  expenseUpcoming?: number | null;
-  expensePrevious: number | null;
+  expenseUpcoming: number | null;
+  saving: number | null;
+  savingUpcoming: number | null;
 };
 
-// Dashboard cash-flow (Phase 12, revised): income (green) and expense (red) on one shared axis, so
-// the gap between the two lines reads as the month's/year's net at a glance. Dashed continuations
-// are each stream's projected (upcoming) portion; the faint dotted lines are each stream's rolling
-// baseline (average pace of the prior periods) so you can read this period against the norm. Income &
-// expense views share label sets per granularity (same buildWeek/Month/YearView), so they zip by index.
-export default function CashFlowChart({
-  income,
-  expense,
-  granularity,
-  baselineMetric = "MEAN",
-}: {
+// Dashboard cash flow: where the income went. Expenses and savings are stacked; income is a line on
+// top, so the gap between the stack and the line is the Überschuss (and a stack above the line means
+// more went out than came in). Past today the same shapes continue lighter and dashed as the forecast.
+export default function CashFlowChart({income, expense, saving, granularity}: {
   income: SeriesData;
   expense: SeriesData;
+  saving: SeriesData;
   granularity: Granularity;
-  baselineMetric?: BaselineMetric;
   mode?: ChartMode;
 }) {
   const format = useFormatter();
   const t = useTranslations("dashboard");
   const tChart = useTranslations("chart");
-  const baselineLabel = tChart(baselineMetric === "MEDIAN" ? "median" : "average");
 
-  const points = useMemo<MergedPoint[]>(() => {
+  const points = useMemo<Point[]>(() => {
     const inc = income[granularity] ?? [];
     const exp = expense[granularity] ?? [];
-    const length = Math.max(inc.length, exp.length);
+    const sav = saving[granularity] ?? [];
+    const length = Math.max(inc.length, exp.length, sav.length);
+    const value = (p?: ChartPoint) => p?.current ?? null;
+    const upcoming = (p?: ChartPoint) => p?.upcoming ?? null;
+    // An account without savings still needs a 0 saving band wherever expenses are drawn.
     return Array.from({length}, (_, i) => ({
-      label: inc[i]?.label ?? exp[i]?.label ?? "",
-      income: inc[i]?.current ?? null,
-      incomeUpcoming: inc[i]?.upcoming,
-      incomePrevious: inc[i]?.previous ?? null,
-      expense: exp[i]?.current ?? null,
-      expenseUpcoming: exp[i]?.upcoming,
-      expensePrevious: exp[i]?.previous ?? null,
+      label: inc[i]?.label ?? exp[i]?.label ?? sav[i]?.label ?? "",
+      income: value(inc[i]),
+      incomeUpcoming: upcoming(inc[i]),
+      expense: value(exp[i]),
+      expenseUpcoming: upcoming(exp[i]),
+      saving: value(sav[i]) ?? (value(exp[i]) != null ? 0 : null),
+      savingUpcoming: upcoming(sav[i]) ?? (upcoming(exp[i]) != null ? 0 : null),
     }));
-  }, [income, expense, granularity]);
+  }, [income, expense, saving, granularity]);
+
+  const legend = [
+    {key: "income", name: t("kpiIncome"), color: INCOME, line: true},
+    {key: "expense", name: t("kpiExpenses"), color: EXPENSE},
+    {key: "saving", name: t("chartSaving"), color: SAVING},
+  ];
 
   return (
     <Card className="flex h-full min-h-0 flex-col">
-      {/* Header is a color legend only: the period unit + navigator live in the dashboard toolbar, and
-          the money totals now live in the KPI cards (dropped here to avoid mirroring them). This just
-          names which line is which. */}
       <Card.Header className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1">
         <p className="text-sm">{t("cashFlowTitle")}</p>
-        <span className="flex items-center gap-1.5 text-sm text-muted">
-          <span className="size-2.5 rounded-full" style={{background: INCOME_COLOR}}/>
-          {t("kpiIncome")}
-        </span>
-        <span className="flex items-center gap-1.5 text-sm text-muted">
-          <span className="size-2.5 rounded-full" style={{background: EXPENSE_COLOR}}/>
-          {t("kpiExpenses")}
-        </span>
-
-        {/* Same ?cm param as every other chart, so the shape stays in sync across the app. */}
+        {legend.map((item) => (
+          <span key={item.key} className="flex items-center gap-1.5 text-sm text-muted">
+            {item.line
+              ? <span className="h-0.5 w-3 rounded-full" style={{background: item.color}}/>
+              : <span className="size-2.5 rounded-sm" style={{background: item.color, opacity: 0.7}}/>}
+            {item.name}
+          </span>
+        ))}
         <ChartModeToggle className="ml-auto"/>
       </Card.Header>
 
       <Card.Content className="flex min-h-0 flex-1 flex-col pt-2">
         <div className="min-h-[12rem] flex-1">
-          <LineChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
-            {/* Rolling baselines first, so they sit behind the solid current lines: each stream's
-                average pace over the prior periods, drawn faint + dotted in its own hue. */}
-            <Line
-              type="monotone"
-              dataKey="incomePrevious"
-              name={`${t("kpiIncome")} ${baselineLabel}`}
-              stroke={INCOME_COLOR}
-              strokeOpacity={0.45}
-              strokeDasharray="2 3"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{r: 4}}
-            />
-            <Line
-              type="monotone"
-              dataKey="expensePrevious"
-              name={`${t("kpiExpenses")} ${baselineLabel}`}
-              stroke={EXPENSE_COLOR}
-              strokeOpacity={0.45}
-              strokeDasharray="2 3"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{r: 4}}
-            />
-            <Line
-              type="monotone"
-              dataKey="income"
-              name={t("kpiIncome")}
-              stroke={INCOME_COLOR}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-            />
-            <Line
-              type="monotone"
-              dataKey="incomeUpcoming"
-              name={tChart("upcoming")}
-              stroke={INCOME_COLOR}
-              strokeDasharray="5 5"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-              connectNulls={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="expense"
-              name={t("kpiExpenses")}
-              stroke={EXPENSE_COLOR}
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-            />
-            <Line
-              type="monotone"
-              dataKey="expenseUpcoming"
-              name={tChart("upcoming")}
-              stroke={EXPENSE_COLOR}
-              strokeDasharray="5 5"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{r: 5}}
-              connectNulls={false}
-            />
+          <ComposedChart data={points} margin={{top: 12, right: 12, left: 0, bottom: 0}} width="100%" height="100%">
+            {/* Realized: stacked expenses + savings. */}
+            <Area type="monotone" dataKey="expense" stackId="now" stroke={EXPENSE} strokeWidth={2} fill={EXPENSE} fillOpacity={STACK_TINT} isAnimationActive={false} activeDot={false}/>
+            <Area type="monotone" dataKey="saving" stackId="now" stroke={SAVING} strokeWidth={2} fill={SAVING} fillOpacity={STACK_TINT} isAnimationActive={false} activeDot={false}/>
+            {/* Forecast: the same stack, lighter and dashed. */}
+            <Area type="monotone" dataKey="expenseUpcoming" stackId="next" stroke={EXPENSE} strokeWidth={2} strokeDasharray="5 5" fill={EXPENSE} fillOpacity={AREA_TINT} isAnimationActive={false} activeDot={false} connectNulls={false}/>
+            <Area type="monotone" dataKey="savingUpcoming" stackId="next" stroke={SAVING} strokeWidth={2} strokeDasharray="5 5" fill={SAVING} fillOpacity={AREA_TINT} isAnimationActive={false} activeDot={false} connectNulls={false}/>
+            {/* Income on top: the gap down to the stack is what's left over. */}
+            <Line type="monotone" dataKey="income" stroke={INCOME} strokeWidth={3} dot={false} activeDot={{r: 5}} isAnimationActive={false}/>
+            <Line type="monotone" dataKey="incomeUpcoming" stroke={INCOME} strokeWidth={3} strokeDasharray="5 5" dot={false} activeDot={{r: 5}} connectNulls={false} isAnimationActive={false}/>
 
             <XAxis
               dataKey="label"
@@ -160,26 +102,49 @@ export default function CashFlowChart({
               tick={{fontSize: "0.75rem", fill: "var(--muted)"}}
             />
             <YAxis
-              domain={["dataMin - 80", "dataMax + 80"]}
               axisLine={false}
               tickLine={false}
               tickMargin={10}
               tickFormatter={(value) => format.number(Number(value), "integer")}
               tick={{fontSize: "0.875rem", fill: "var(--muted)"}}
             />
+            {/* Income, expenses, saved and what's left. Where realized and forecast meet, realized wins. */}
             <Tooltip
               cursor={{strokeDasharray: "3 3"}}
-              contentStyle={{
-                borderRadius: "var(--radius)",
-                border: "1px solid var(--default)",
-                background: "var(--surface)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+              content={({active, payload, label}) => {
+                if (!active || !payload?.length) return null;
+                const p = payload[0].payload as Point;
+                const isForecast = p.income == null && p.expense == null;
+                const inc = p.income ?? p.incomeUpcoming;
+                const exp = p.expense ?? p.expenseUpcoming;
+                const sav = p.saving ?? p.savingUpcoming;
+                const left = inc != null && exp != null ? inc - exp - (sav ?? 0) : null;
+                const money = (v: number | null) => (v == null ? "–" : format.number(v, "currencyWhole"));
+                const rows = [
+                  {name: t("kpiIncome"), color: INCOME, value: inc},
+                  {name: t("kpiExpenses"), color: EXPENSE, value: exp},
+                  {name: t("chartSaving"), color: SAVING, value: sav},
+                ];
+                return (
+                  <div className="min-w-44 rounded-[var(--radius)] border border-[var(--default)] bg-[var(--surface)] px-3 py-2 text-xs shadow-lg">
+                    <p className="mb-1 font-semibold">
+                      {label}{isForecast ? <span className="ms-1.5 font-normal text-muted">{tChart("upcoming")}</span> : null}
+                    </p>
+                    {rows.map((row) => (
+                      <p key={row.name} className="flex justify-between gap-4">
+                        <span className="flex items-center gap-1.5"><span className="size-2 rounded-full" style={{background: row.color}}/>{row.name}</span>
+                        <span className="tabular-nums">{money(row.value)}</span>
+                      </p>
+                    ))}
+                    <p className="mt-1 flex justify-between gap-4 border-t border-[var(--default)] pt-1">
+                      <span>{t("leftOver")}</span>
+                      <span className={`tabular-nums ${left != null && left < 0 ? "text-danger" : ""}`}>{money(left)}</span>
+                    </p>
+                  </div>
+                );
               }}
-              formatter={(value) =>
-                value === null || value === undefined ? "–" : format.number(Number(value), "currencyWhole")
-              }
             />
-          </LineChart>
+          </ComposedChart>
         </div>
       </Card.Content>
     </Card>

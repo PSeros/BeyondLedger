@@ -10,20 +10,24 @@
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
     "openMenu": "Open menu",
-    "menu": "Navigation"
+    "menu": "Navigation",
+    "saving": "Savings"
   },
   "dashboard": {
     "warrantyTitle": "Warranties expiring ({days} days)",
     "kpiIncome": "Income",
     "kpiExpenses": "Expenses",
-    "kpiNet": "Net",
     "budgetStatusTitle": "Budget status",
     "cashFlowTitle": "Cash flow",
     "overBy": "{amount} over",
     "remaining": "{amount} left",
     "emptyTitle": "Nothing to show yet",
     "emptyText": "Add your first income, expense or budget and your dashboard will come to life.",
-    "emptyCta": "Add an expense"
+    "emptyCta": "Add an expense",
+    "kpiSaved": "Saved",
+    "kpiRate": "Savings rate",
+    "chartSaving": "Savings",
+    "leftOver": "Surplus"
   },
   "common": {
     "noData": "No data",
@@ -55,7 +59,9 @@
     "supplier": "supplier",
     "frequency": "frequency",
     "tag": "tag",
-    "workspace": "workspace"
+    "workspace": "workspace",
+    "target": "savings target",
+    "saving": "saving"
   },
   "errors": {
     "couldNotDelete": "Could not delete.",
@@ -121,7 +127,8 @@
     "unitPrice": "Unit €",
     "total": "Total",
     "billingsPerYear": "Billings per year",
-    "monthsWarranty": "{count} months warranty"
+    "monthsWarranty": "{count} months warranty",
+    "target": "Target"
   },
   "tables": {
     "variableExpenses": "Variable expenses",
@@ -177,7 +184,8 @@
     "newContractCategory": "New contract category",
     "newIncomeSource": "New income source",
     "newIncomeCategory": "New income category",
-    "expenseType": "Expense type"
+    "expenseType": "Expense type",
+    "newSavingTarget": "New savings target"
   },
   "expense": {
     "addExpense": "Add expense",
@@ -210,7 +218,7 @@
     "integrationsHeading": "Integrations",
     "integrationsHeadingDescription": "Publish app state to other systems on your network.",
     "refDataHeading": "Reference data",
-    "refDataDescription": "The suppliers, categories, income sources, and billing frequencies your expenses and income draw from. Add or tidy them here, or create them on the fly from the Add form. A row still in use can't be deleted.",
+    "refDataDescription": "The suppliers, categories, income sources, savings targets, and billing frequencies your entries draw from. Add or tidy them here, or create them on the fly from the Add form. A row still in use can't be deleted.",
     "suppliers": "Suppliers",
     "supplierCategories": "Supplier categories",
     "itemCategories": "Item categories",
@@ -337,6 +345,17 @@
       "couldNotTest": "Could not run the connection test.",
       "testConnection": "Test connection",
       "testing": "Testing…"
+    },
+    "savingTargets": "Savings targets",
+    "start": {
+      "heading": "Start date",
+      "headingDescription": "Where every calculation begins: dashboard, charts and Ø lines, Analyse, budgets and the surplus. Older entries stay in the lists.",
+      "label": "Count from",
+      "hint": "Entries before this date are ignored in all calculations.",
+      "hintEmpty": "Empty: everything from the first entry counts.",
+      "clear": "Clear",
+      "saved": "Start date saved.",
+      "couldNotSave": "Couldn't save the start date."
     }
   },
   "detail": {
@@ -345,7 +364,8 @@
     "backToVariableExpenses": "Back to variable expenses",
     "backToFixedIncome": "Back to fixed income",
     "backToVariableIncome": "Back to variable income",
-    "docNumber": "Doc. {number}"
+    "docNumber": "Doc. {number}",
+    "backToPot": "Back to {pot}"
   },
   "attachments": {
     "title": "Attachments",
@@ -437,14 +457,14 @@
     "inverseHint": "No selectors: it counts every expense in its period that no other budget of this account claims.",
     "inverseChip": "Everything else",
     "targetFromIncomeLabel": "Target = what's left of this period's income",
-    "targetFromIncomeHint": "This period's income minus what the other budgets of this account already allocate — the money still free to spend.",
-    "targetFromIncomeChip": "{income} income − {allocated} allocated by other budgets"
+    "targetFromIncomeHint": "This period's income minus what you save and what the other budgets of this account already allocate — the money still free to spend.",
+    "targetFromIncomeChip": "{income} income − {saved} saved − {allocated} allocated by other budgets"
   },
   "insights": {
     "domainExpense": "Expenses",
     "domainIncome": "Income",
-    "domainBoth": "Both",
-    "net": "Net",
+    "domainBoth": "All",
+    "net": "Surplus",
     "windowLabel": "Time window",
     "periodMonthOfYear": "Specific month",
     "windowPickRange": "Pick dates",
@@ -456,7 +476,6 @@
     "unitLabel": "Values per",
     "unit": {
       "item": "Line item",
-      "bill": "Bill / payment",
       "day": "Day",
       "week": "Week",
       "month": "Month",
@@ -473,7 +492,6 @@
     "timeChartTitle": "Total per {unit}",
     "weekLabel": "W{week}",
     "byCategory": "Category",
-    "byCounterparty": "Supplier / source",
     "byTag": "Tag",
     "other": "Other",
     "untagged": "No tag",
@@ -485,7 +503,8 @@
       "item": "Line item",
       "bill": "Bill",
       "contractPayment": "Contract payment",
-      "incomePayment": "Income"
+      "incomePayment": "Income",
+      "savingPayment": "Saving"
     },
     "views": "Views",
     "savedViews": "Saved views",
@@ -520,7 +539,6 @@
     "group": {
       "weekday": "weekday",
       "category": "category",
-      "counterparty": "supplier / source",
       "tag": "tag"
     },
     "boxHintUnit": "One value per {unit} · box = middle half, bar = median, dots = outliers",
@@ -528,7 +546,28 @@
     "periodStart": "{unit} (start)",
     "csvEntries": "Entries",
     "periodLabel": "Period",
-    "periodCount": "{count, plural, one {# period} other {# periods}}"
+    "periodCount": "{count, plural, one {# period} other {# periods}}",
+    "domainSaving": "Savings",
+    "saved": "Saved",
+    "groupSavingTargets": "Savings targets",
+    "unitBill": {
+      "expense": "Bill",
+      "income": "Payment",
+      "saving": "Booking",
+      "both": "Bill / payment"
+    },
+    "byCounterpartyIn": {
+      "expense": "Supplier",
+      "income": "Source",
+      "both": "Supplier / source"
+    },
+    "groupCounterpartyIn": {
+      "expense": "supplier",
+      "income": "source",
+      "both": "supplier / source"
+    },
+    "byTarget": "Savings target",
+    "groupTarget": "savings target"
   },
   "tags": {
     "title": "Tags",
@@ -570,5 +609,76 @@
     "monthlyFixedTitle": "Fixed costs by category",
     "other": "Other",
     "total": "Total"
+  },
+  "saving": {
+    "addSaving": "Add saving",
+    "addSavingSubtitle": "Record money set aside — the frequency decides plan or one-off",
+    "direction": "Direction",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "withdrawFrom": "Withdraw from {target}",
+    "convert": "Convert to saving",
+    "convertConfirm": "Is this really a savings plan? Move it to Savings, keeping its dates, tags and attachments. Supplier and category are dropped.",
+    "total": "Set aside in total",
+    "thisMonth": "{amount} this month",
+    "plansPerMonth": "Savings plans",
+    "perMonth": "{amount} / month",
+    "net12": "Net last 12 months",
+    "withdrawnIn": "Withdrawn in {year}",
+    "range": "Time range",
+    "range12": "12 M",
+    "rangeAll": "All",
+    "surplus": "Surplus",
+    "auto": "automatic",
+    "move": "Move to pot",
+    "moveTitle": "Move from surplus",
+    "moveHint": "Booked as a deposit into the chosen pot; the surplus drops by the same amount.",
+    "moveName": "Moved from surplus",
+    "planTitle": "New savings plan",
+    "plan": "Savings plan",
+    "depositInto": "Deposit into {target}",
+    "movements": "Movements",
+    "all": "All",
+    "kind": "Type",
+    "kindPlan": "Savings plan",
+    "kindIn": "Deposit",
+    "kindOut": "Withdrawal",
+    "backToPots": "All pots",
+    "balance": "Balance",
+    "paidInTotal": "Paid in",
+    "withdrawnTotal": "Withdrawn",
+    "rate": "Savings rate",
+    "history": "History",
+    "plans": "Savings plans",
+    "noPlan": "No savings plan for this pot yet.",
+    "avgMonth": "Ø per month",
+    "bestMonth": "Best month",
+    "worstMonth": "Worst month",
+    "monthsTitle": "Months",
+    "month": "Month",
+    "colIncome": "Income",
+    "colExpense": "Expenses",
+    "colSaved": "Saved",
+    "colLeft": "Left over",
+    "soFar": "so far",
+    "emptyTitle": "No savings yet",
+    "emptyText": "Add a savings plan or a first deposit. Each savings target becomes a pot you can watch grow.",
+    "goal": "Goal",
+    "setGoal": "Set goal",
+    "editGoal": "Goal",
+    "removeGoal": "Remove goal",
+    "goalProgress": "{balance} of {goal}",
+    "goalReached": "Goal reached",
+    "goalLeft": "{amount} to go",
+    "close": "Close pot",
+    "closeTitle": "Close {pot}?",
+    "closeBalance": "Remaining balance:",
+    "closeMoveTo": "Move remaining balance to",
+    "closeHint": "Running savings plans end today. The pot's history stays; you can reopen it later.",
+    "closeOut": "Pot closed",
+    "closeOutTo": "Pot closed → {pot}",
+    "closeIn": "From closed pot {pot}",
+    "closed": "Closed",
+    "reopen": "Reopen"
   }
 }

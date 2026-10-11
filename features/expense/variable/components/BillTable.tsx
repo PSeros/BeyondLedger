@@ -1,8 +1,7 @@
 import BillDataTable from "@/features/expense/variable/components/BillDataTable";
+import {getAnalysisStart} from "@/features/settings/db/appSettings";
 
-// Thin server wrapper. The active account (Phase 14) is passed in from the page (read from the
-// AppSettings singleton) and threaded into the client table's fetch so switching accounts — which
-// revalidates this server render — re-runs the client effect and refetches.
-export default function BillTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
-  return <BillDataTable activeWorkspaceId={activeWorkspaceId}/>;
+export default async function BillTable({activeWorkspaceId}: {activeWorkspaceId: number | null}) {
+  const start = await getAnalysisStart();
+  return <BillDataTable activeWorkspaceId={activeWorkspaceId} startDate={start ? start.toISOString().slice(0, 10) : null}/>;
 }

@@ -1,0 +1,36 @@
+// Where saved money is parked (e.g. "Urlaub", "ETF", "Tagesgeld"). User-managed lookup, like IncomeSource.
+model SavingTarget {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  // Optional goal (e.g. Urlaub 2.000 €); the pot shows progress toward it. null = open-ended (ETF, Tagesgeld).
+  goalAmount Decimal?
+  // Set when the pot is closed: hidden from the overview and the forms, history kept. null = open.
+  closedAt   DateTime?
+
+  savings Saving[]
+}
+
+// Money moved aside, not spent (#7). Shaped like Income: recurring frequency = savings plan, one-off =
+// single deposit. A withdrawal is a one-off with a NEGATIVE totalAmount. Paid-in only — no value tracking.
+model Saving {
+  id          Int          @id @default(autoincrement())
+  name        String
+  target      SavingTarget @relation(fields: [targetId], references: [id])
+  targetId    Int
+  totalAmount Decimal
+  frequency   Frequency    @relation(fields: [frequencyId], references: [id])
+  frequencyId Int
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId Int
+
+  tags  EntryTag[]
+  files FileAsset[]
+
+  @@index([targetId, frequencyId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
+}

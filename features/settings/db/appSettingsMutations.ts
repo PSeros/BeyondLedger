@@ -110,3 +110,20 @@ export async function updateBaseline({
 
   revalidatePath("/", "layout");
 }
+
+// App-wide calculation start. Every chart, KPI, budget and Analyse reads it, so revalidate the layout.
+export async function updateStartDate(value: string | null): Promise<void> {
+  let startDate: Date | null = null;
+  if (value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || Number.isNaN(Date.parse(value))) {
+      throw new Error("Invalid start date");
+    }
+    startDate = new Date(`${value}T00:00:00.000Z`);
+  }
+  await client.appSettings.upsert({
+    where: {id: APP_SETTINGS_ID},
+    create: {id: APP_SETTINGS_ID, startDate},
+    update: {startDate},
+  });
+  revalidatePath("/", "layout");
+}

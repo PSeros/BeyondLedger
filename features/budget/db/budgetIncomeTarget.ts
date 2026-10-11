@@ -2,7 +2,8 @@ import {client} from "@/lib/prisma";
 import {computeContractContribution, periodInstancesWithin, type PeriodInput, type Window} from "@/features/budget/period";
 
 // The derived target of a budget with `targetFromIncome`: the income arriving in its window MINUS
-// what the other budgets of the same account already allocate out of it.
+// what is saved in it (#7 — saved money is not free to spend; a withdrawal is negative, so it frees
+// money up) MINUS what the other budgets of the same account already allocate out of it.
 //
 // Budgeting is distributing income across expenditures, so the point of a catch-all budget is to
 // show what is left once the named budgets have taken their share — the raw income would just be a
@@ -35,26 +36,40 @@ export type IncomeStream = {
 // Every income stream of an account (or of all accounts when `workspaceId` is null), fetched once
 // so a page full of budgets costs one query. Income rows are few — unlike bills, they are one row
 // per source, not per transaction.
-export async function getIncomeStreams(workspaceId?: number | null): Promise<IncomeStream[]> {
-  const rows = await client.income.findMany({
-    where: workspaceId != null ? {workspaceId} : undefined,
-    select: {
-      workspaceId: true,
-      startDate: true,
-      endDate: true,
-      totalAmount: true,
-      frequency: {select: {value: true, isRecurring: true}},
-    },
-  });
+const streamSelect = {
+  workspaceId: true,
+  startDate: true,
+  endDate: true,
+  totalAmount: true,
+  frequency: {select: {value: true, isRecurring: true}},
+} as const;
 
-  return rows.map((row) => ({
+export async function getIncomeStreams(workspaceId?: number | null): Promise<IncomeStream[]> {
+  const rows = await client.income.findMany({where: workspaceId != null ? {workspaceId} : undefined, select: streamSelect});
+  return rows.map(toStream);
+}
+
+// Savings have the same shape as income, so they reuse the stream type and window rule.
+export async function getSavingStreams(workspaceId?: number | null): Promise<IncomeStream[]> {
+  const rows = await client.saving.findMany({where: workspaceId != null ? {workspaceId} : undefined, select: streamSelect});
+  return rows.map(toStream);
+}
+
+function toStream(row: {
+  workspaceId: number;
+  startDate: Date;
+  endDate: Date | null;
+  totalAmount: unknown;
+  frequency: {value: number; isRecurring: boolean};
+}): IncomeStream {
+  return {
     workspaceId: row.workspaceId,
     startDate: row.startDate,
     endDate: row.endDate,
     totalAmount: Number(row.totalAmount),
     frequencyValue: row.frequency.value,
     isRecurring: row.frequency.isRecurring,
-  }));
+  };
 }
 
 // One competing budget, as far as the remainder is concerned: its period and its effective target.
@@ -70,7 +85,7 @@ export function allocatedInWindow(others: Allocation[], window: Window): number 
   }, 0);
 }
 
-export function incomeInWindow(
+export function streamsInWindow(
   streams: IncomeStream[],
   workspaceId: number,
   window: Window,

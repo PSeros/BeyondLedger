@@ -15,10 +15,13 @@ type StatCardProps = {
    */
   previousAmount: number | null;
   isHigherBetter?: boolean;
+  // "percent": values are ratios (0.42 = 42 %) and the chip shows the change in percentage points.
+  kind?: "currency" | "percent";
 };
 
-export default function StatCard({title, currentAmount, previousAmount, isHigherBetter = false}: StatCardProps) {
+export default function StatCard({title, currentAmount, previousAmount, isHigherBetter = false, kind = "currency"}: StatCardProps) {
   const format = useFormatter();
+  const isPercent = kind === "percent";
   const hasBaseline = previousAmount !== null;
   const change = hasBaseline ? currentAmount - previousAmount : 0;
   const isIncrease = change >= 0;
@@ -28,28 +31,29 @@ export default function StatCard({title, currentAmount, previousAmount, isHigher
   const color = !hasBaseline ? "default" : isBad ? "danger" : "success";
   // Percent change is only meaningful against a non-zero, finite baseline (a from-zero jump or a net
   // that crossed sign has no honest percentage) — fall back to a dash then.
-  const pctChange = hasBaseline && previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
+  const pctChange = isPercent && hasBaseline ? change * 100
+    : hasBaseline && previousAmount !== 0 ? (change / Math.abs(previousAmount)) * 100 : NaN;
   const hasPct = Number.isFinite(pctChange);
 
   return (
-    // Tighter padding and gap below sm: the dashboard KPI strip keeps three cards across even on a
-    // phone, which leaves each one ~114px wide in a single 6rem grid row, and HeroUI's defaults
-    // (p-4 + gap-3) spend 44 of those 96 vertical pixels on whitespace.
-    <Card className="flex h-full flex-col gap-1 p-2 sm:gap-3 sm:p-4">
+    // Tighter padding and gap below 2xl: the dashboard KPI strip keeps four cards across even on a
+    // phone, in a single 6rem grid row, and HeroUI's defaults (p-4 + gap-3) spend 44 of those 96
+    // vertical pixels on whitespace.
+    <Card className="flex h-full flex-col gap-1 p-2 sm:p-2.5 2xl:gap-3 2xl:p-4">
       <Card.Header>
         <Card.Title className="text-muted">{title}</Card.Title>
       </Card.Header>
-      {/* Stacks below sm so three of these still fit across a phone (the dashboard KPI row keeps its
-          three columns at every width — see DashboardKpis). */}
-      <Card.Content className="flex flex-1 flex-col items-start justify-center gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+      {/* Stacks below 2xl so four of these fit across (the dashboard KPI row keeps its four columns
+          at every width — see DashboardKpis). */}
+      <Card.Content className="flex flex-1 flex-col items-start justify-center gap-1 2xl:flex-row 2xl:items-end 2xl:justify-between 2xl:gap-3">
         {/* w-full + truncate so an unusually long amount ellipsizes instead of bleeding into the
             card's padding (the card clips, so it would otherwise sit flush against the border). */}
-        <span className="w-full truncate text-sm font-bold tabular-nums sm:text-2xl">
-          {format.number(currentAmount, "currency")}
+        <span className="w-full truncate text-sm font-bold tabular-nums sm:text-xl 2xl:text-2xl">
+          {isPercent ? format.number(currentAmount, {style: "percent", maximumFractionDigits: 1}) : format.number(currentAmount, "currencyWhole")}
         </span>
         <Chip variant="soft" color={color} size="sm" className="h-fit">
           {hasBaseline ? isIncrease ? <FiArrowUp/> : <FiArrowDown/> : null}
-          <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}%` : "–"}</Chip.Label>
+          <Chip.Label>{hasPct ? `${Math.abs(pctChange).toFixed(1)}${isPercent ? " pp" : "%"}` : "–"}</Chip.Label>
         </Chip>
       </Card.Content>
     </Card>

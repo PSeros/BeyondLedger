@@ -27,6 +27,8 @@ type UpcomingDueCardProps = {
    * string (not a function) so this client component can receive it from its Server Component parents.
    */
   basePath?: string;
+  /** Bar + chip colour: red for money going out, green for money coming in, accent otherwise. */
+  tone?: "accent" | "danger" | "success";
 };
 
 function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Record<string, number>) => string): string {
@@ -38,7 +40,7 @@ function formatDueIn(dueDate: Date, today: Date, t: (key: string, values?: Recor
   return t("dueInDays", {days});
 }
 
-export default async function UpcomingDueCard({title, rows = [], windowDays = 30, basePath}: UpcomingDueCardProps = {}) {
+export default async function UpcomingDueCard({title, rows = [], windowDays = 30, basePath, tone = "accent"}: UpcomingDueCardProps = {}) {
   const format = await getFormatter();
   const t = await getTranslations("upcoming");
   const tCommon = await getTranslations("common");
@@ -86,7 +88,7 @@ export default async function UpcomingDueCard({title, rows = [], windowDays = 30
                     {formatDueIn(dueDate, today, t)} · {format.dateTime(dueDate, "short")}
                   </p>
                   {row.frequency && (
-                    <Chip size="sm" variant="soft" color="accent" className="shrink-0">
+                    <Chip size="sm" variant="soft" color={tone} className="shrink-0">
                       <Chip.Label>{row.frequency}</Chip.Label>
                     </Chip>
                   )}
@@ -94,8 +96,8 @@ export default async function UpcomingDueCard({title, rows = [], windowDays = 30
 
                 <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-default">
                   <div
-                    className="h-full rounded-full bg-[var(--accent)]"
-                    style={{width: `${Math.max(6, urgency * 100)}%`}}
+                    className="h-full rounded-full"
+                    style={{width: `${Math.max(6, urgency * 100)}%`, background: `var(--${tone})`}}
                   />
                 </div>
               </div>

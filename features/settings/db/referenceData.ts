@@ -18,6 +18,7 @@ export type LookupReferenceData = {
   contractCategories: CategoryRow[];
   incomeSources: CategoryRow[];
   incomeCategories: CategoryRow[];
+  savingTargets: CategoryRow[];
   frequencies: FrequencyRow[];
 };
 
@@ -26,7 +27,7 @@ export type TagsAndWorkspaces = {
   workspaces: WorkspaceRow[];
 };
 
-// Everything behind /settings/data: suppliers, the five name-only lists, billing frequencies.
+// Everything behind /settings/data: suppliers, the six name-only lists, billing frequencies.
 export async function getLookupReferenceData(): Promise<LookupReferenceData> {
   const [
     suppliers,
@@ -35,6 +36,7 @@ export async function getLookupReferenceData(): Promise<LookupReferenceData> {
     contractCategories,
     incomeSources,
     incomeCategories,
+    savingTargets,
     frequencies,
   ] = await Promise.all([
     client.supplier.findMany({
@@ -67,8 +69,18 @@ export async function getLookupReferenceData(): Promise<LookupReferenceData> {
       select: {id: true, name: true, _count: {select: {incomes: true}}},
       orderBy: {name: "asc"},
     }),
+    client.savingTarget.findMany({
+      select: {id: true, name: true, _count: {select: {savings: true}}},
+      orderBy: {name: "asc"},
+    }),
     client.frequency.findMany({
-      select: {id: true, name: true, value: true, isRecurring: true, _count: {select: {contracts: true, incomes: true}}},
+      select: {
+        id: true,
+        name: true,
+        value: true,
+        isRecurring: true,
+        _count: {select: {contracts: true, incomes: true, savings: true}},
+      },
       orderBy: {value: "asc"},
     }),
   ]);
@@ -86,12 +98,13 @@ export async function getLookupReferenceData(): Promise<LookupReferenceData> {
     contractCategories: contractCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.contracts})),
     incomeSources: incomeSources.map((c) => ({id: c.id, name: c.name, usage: c._count.incomes})),
     incomeCategories: incomeCategories.map((c) => ({id: c.id, name: c.name, usage: c._count.incomes})),
+    savingTargets: savingTargets.map((c) => ({id: c.id, name: c.name, usage: c._count.savings})),
     frequencies: frequencies.map((f) => ({
       id: f.id,
       name: f.name,
       value: f.value,
       isRecurring: f.isRecurring,
-      usage: f._count.contracts + f._count.incomes,
+      usage: f._count.contracts + f._count.incomes + f._count.savings,
     })),
   };
 }
@@ -108,7 +121,7 @@ export async function getTagsAndWorkspaces(): Promise<TagsAndWorkspaces> {
         id: true,
         name: true,
         color: true,
-        _count: {select: {bills: true, contracts: true, incomes: true, budgets: true}},
+        _count: {select: {bills: true, contracts: true, incomes: true, savings: true, budgets: true}},
       },
       orderBy: {name: "asc"},
     }),
@@ -120,7 +133,7 @@ export async function getTagsAndWorkspaces(): Promise<TagsAndWorkspaces> {
       id: w.id,
       name: w.name,
       color: w.color,
-      usage: w._count.bills + w._count.contracts + w._count.incomes + w._count.budgets,
+      usage: w._count.bills + w._count.contracts + w._count.incomes + w._count.savings + w._count.budgets,
     })),
   };
 }

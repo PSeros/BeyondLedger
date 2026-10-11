@@ -5,8 +5,9 @@ import AppearanceSettingsSection from "@/features/settings/components/Appearance
 import LocaleSettingsSection from "@/features/settings/components/LocaleSettingsSection";
 import WindowSettingsSection from "@/features/settings/components/WindowSettingsSection";
 import LookbackSettingsSection from "@/features/settings/components/LookbackSettingsSection";
+import StartDateSettingsSection from "@/features/settings/components/StartDateSettingsSection";
 
-// App-wide preferences: language, theme, the dashboard reminder windows, and the chart Ø lookback.
+// App-wide preferences: language, theme, the calculation start, reminder windows and the chart Ø lookback.
 export default async function Page() {
   const [t, appSettings] = await Promise.all([getTranslations("settings"), getAppSettings()]);
 
@@ -22,6 +23,10 @@ export default async function Page() {
         description={t("appearance.headingDescription")}
       >
         <AppearanceSettingsSection/>
+      </SettingsSection>
+
+      <SettingsSection id="start" heading={t("start.heading")} description={t("start.headingDescription")}>
+        <StartDateSettingsSection startDate={appSettings.startDate ? appSettings.startDate.toISOString().slice(0, 10) : null}/>
       </SettingsSection>
 
       <SettingsSection

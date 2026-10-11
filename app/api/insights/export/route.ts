@@ -2,7 +2,9 @@ import type {NextRequest} from "next/server";
 import {getTranslations} from "next-intl/server";
 import {loadTableRows} from "@/features/insights/db/tableRows";
 import {getLocale} from "@/features/settings/db/appSettings";
-import {parseInsightsQuery} from "@/features/insights/params";
+import {parseInsightsQuery, seriesOf} from "@/features/insights/params";
+import {SERIES_LABEL_KEYS} from "@/features/insights/colors";
+import {dimensionKey} from "@/features/insights/labels";
 import type {InsightsTableRow, PeriodRow} from "@/features/insights/table";
 
 // CSV of exactly what the entry table lists (same filters, unit and sort): entries, or one row per
@@ -35,6 +37,7 @@ export async function GET(request: NextRequest) {
     bill: t("kind.bill"),
     contractPayment: t("kind.contractPayment"),
     incomePayment: t("kind.incomePayment"),
+    savingPayment: t("kind.savingPayment"),
   };
 
   let header: string[];
@@ -48,7 +51,7 @@ export async function GET(request: NextRequest) {
       t("csvDomain"),
       tFields("name"),
       t("csvLines"),
-      t("byCounterparty"),
+      t(dimensionKey("counterparty", parseInsightsQuery(params).domain)),
       tFields("category"),
       t("byTag"),
       t("csvAmount"),
@@ -56,7 +59,7 @@ export async function GET(request: NextRequest) {
     lines = table.rows.map((row) => [
       row.date,
       kind[row.kind],
-      t(row.domain === "income" ? "domainIncome" : "domainExpense"),
+      t(SERIES_LABEL_KEYS[row.domain]),
       row.label,
       row.lineCount != null ? String(row.lineCount) : "",
       row.counterparty,
@@ -69,9 +72,8 @@ export async function GET(request: NextRequest) {
     // One row per period: its first day, the entry count, and the money of the shown domain(s).
     const domain = parseInsightsQuery(params).domain;
     const money: {label: string; value: (row: PeriodRow) => number}[] = [
-      ...(domain !== "income" ? [{label: t("domainExpense"), value: (row: PeriodRow) => row.expense}] : []),
-      ...(domain !== "expense" ? [{label: t("domainIncome"), value: (row: PeriodRow) => row.income}] : []),
-      ...(domain === "both" ? [{label: t("net"), value: (row: PeriodRow) => row.income - row.expense}] : []),
+      ...seriesOf(domain).map((key) => ({label: t(SERIES_LABEL_KEYS[key]), value: (row: PeriodRow) => row[key]})),
+      ...(domain === "both" ? [{label: t("net"), value: (row: PeriodRow) => row.amount}] : []),
     ];
     const periods = table.rows;
     header = [t("periodStart", {unit: t(`unit.${table.unit}`)}), t("csvEntries"), ...money.map((column) => column.label)];

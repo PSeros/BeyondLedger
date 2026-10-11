@@ -56,6 +56,7 @@ export async function getVariableExpenseChartData(
     "1W": buildWeekView(totalsByDay, addDays(today, offset * 7), {
       lookback: baseline.lookback.weeks,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,
@@ -63,6 +64,7 @@ export async function getVariableExpenseChartData(
     "1M": buildMonthView(totalsByDay, addMonths(today, offset), {
       lookback: baseline.lookback.months,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,
@@ -70,6 +72,7 @@ export async function getVariableExpenseChartData(
     "1Y": buildYearView(totalsByDay, utcDate(today.getUTCFullYear() + offset, 0, 1), {
       lookback: baseline.lookback.years,
       metric: baseline.metric,
+      start: baseline.start,
       mode,
       dataStart,
       today,

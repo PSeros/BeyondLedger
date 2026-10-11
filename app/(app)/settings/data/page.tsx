@@ -22,6 +22,7 @@ export default async function Page() {
           contractCategories={data.contractCategories}
           incomeSources={data.incomeSources}
           incomeCategories={data.incomeCategories}
+          savingTargets={data.savingTargets}
         />
       </div>
     </SettingsSection>

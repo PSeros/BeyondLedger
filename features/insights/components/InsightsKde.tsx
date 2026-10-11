@@ -3,19 +3,18 @@
 import {useFormatter, useTranslations} from "next-intl";
 import {Card} from "@heroui/react";
 import {Area, AreaChart, CartesianGrid, ReferenceLine, Tooltip, XAxis, YAxis} from "recharts";
-import {seriesColor} from "@/features/insights/colors";
+import {SERIES_LABEL_KEYS, seriesColor} from "@/features/insights/colors";
+import type {InsightsSeries} from "@/features/insights/params";
 import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
 import InsightsCardTitle from "@/features/insights/components/InsightsCardTitle";
 import type {KdePoint} from "@/features/insights/stats";
-
-const LABEL_KEYS = {expense: "domainExpense", income: "domainIncome"} as const;
 
 // How the values (per stats unit) are distributed, as a smoothed density curve (KDE) with a thin line
 // at each median. The y-axis is left off on purpose — a density's height only means "more common
 // here"; the tooltip gives the readable number: the share of values at or below the hovered amount.
 export default function InsightsKde({points, series, medians, unitLabel}: {
   points: KdePoint[];
-  series: ("expense" | "income")[];
+  series: InsightsSeries[];
   medians: (number | null)[];
   unitLabel: string;
 }) {
@@ -36,7 +35,7 @@ export default function InsightsKde({points, series, medians, unitLabel}: {
             {series.map((key) => (
               <span key={key} className="flex items-center gap-1.5 text-sm text-muted">
                 <span className="size-2.5 rounded-full" style={{background: seriesColor(key, series.length)}}/>
-                {t(LABEL_KEYS[key])}
+                {t(SERIES_LABEL_KEYS[key])}
               </span>
             ))}
           </div>
@@ -73,7 +72,7 @@ export default function InsightsKde({points, series, medians, unitLabel}: {
                         {t("kdeBelow", {
                           share: format.number(row[`${key}Below`] ?? 0, {style: "percent", maximumFractionDigits: 0}),
                         })}
-                        {series.length > 1 ? <span className="text-muted">({t(LABEL_KEYS[key])})</span> : null}
+                        {series.length > 1 ? <span className="text-muted">({t(SERIES_LABEL_KEYS[key])})</span> : null}
                       </p>
                     ))}
                   </div>

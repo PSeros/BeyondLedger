@@ -54,8 +54,10 @@ export function previousSpan(window: InsightsWindow, span: {start: Date; end: Da
 
 // The span the per-period views run over: the period, capped at today; all time starts at the oldest
 // row (rows arrive newest first).
-export function spanFor(window: ResolvedWindow, rows: {date: string}[]): {start: Date; end: Date} {
+// `notBefore` is the app-wide calculation start: empty periods before it don't count as zeros.
+export function spanFor(window: ResolvedWindow, rows: {date: string}[], notBefore: Date | null = null): {start: Date; end: Date} {
   const paid = realizedBounds(window);
   const oldest = rows.at(-1);
-  return {start: window.start ?? (oldest ? new Date(`${oldest.date}T00:00:00Z`) : paid.end), end: paid.end};
+  const start = window.start ?? (oldest ? new Date(`${oldest.date}T00:00:00Z`) : paid.end);
+  return {start: notBefore && notBefore > start ? notBefore : start, end: paid.end};
 }

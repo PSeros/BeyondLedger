@@ -30,6 +30,8 @@ export type AppSettings = {
   lookbackMonths: number;
   lookbackYears: number;
   baselineMetric: BaselineMetric;
+  // App-wide calculation start (UTC midnight); null = from the first record.
+  startDate: Date | null;
 };
 
 export const DEFAULT_WARRANTY_WARN_DAYS = 60;
@@ -50,6 +52,7 @@ export async function getAppSettings(): Promise<AppSettings> {
       lookbackMonths: true,
       lookbackYears: true,
       baselineMetric: true,
+      startDate: true,
     },
   });
   return {
@@ -61,6 +64,7 @@ export async function getAppSettings(): Promise<AppSettings> {
     lookbackMonths: row.lookbackMonths,
     lookbackYears: row.lookbackYears,
     baselineMetric: normalizeBaselineMetric(row.baselineMetric),
+    startDate: row.startDate,
   };
 }
 
@@ -90,9 +94,16 @@ export async function getUpcomingWindowDays(): Promise<number> {
 
 // Convenience: the Ø baseline preference, shaped for the chart/KPI builders.
 export async function getBaseline(): Promise<Baseline> {
-  const {lookbackWeeks, lookbackMonths, lookbackYears, baselineMetric} = await getAppSettings();
+  const {lookbackWeeks, lookbackMonths, lookbackYears, baselineMetric, startDate} = await getAppSettings();
   return {
     lookback: {weeks: lookbackWeeks, months: lookbackMonths, years: lookbackYears},
     metric: baselineMetric,
+    start: startDate,
   };
+}
+
+// Convenience: the app-wide calculation start (null = from the first record).
+export async function getAnalysisStart(): Promise<Date | null> {
+  const {startDate} = await getAppSettings();
+  return startDate;
 }

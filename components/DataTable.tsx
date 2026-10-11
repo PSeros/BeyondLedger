@@ -41,6 +41,8 @@ type DataTableProps<T extends DataTableRow> = {
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   onRowAction?: (id: Key) => void;
+  /** Rows drawn dimmed: entries before the app-wide start date, which no calculation counts. */
+  mutedRowIds?: ReadonlySet<Key>;
 };
 
 function SortableColumnHeader({
@@ -79,6 +81,7 @@ export default function DataTable<T extends DataTableRow>({
   isLoadingMore = false,
   onLoadMore,
   onRowAction,
+  mutedRowIds,
 }: DataTableProps<T>) {
   const locale = useLocale();
   const t = useTranslations("common");
@@ -227,7 +230,7 @@ export default function DataTable<T extends DataTableRow>({
               <Table.Row
                 key={row.id}
                 id={String(row.id)}
-                className={onRowAction ? "cursor-pointer" : undefined}
+                className={cn(onRowAction && "cursor-pointer", mutedRowIds?.has(row.id) && "opacity-45")}
               >
                 {columns.map((column) => (
                   // nowrap below lg so the table's min-content width actually exceeds a phone

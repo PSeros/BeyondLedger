@@ -6,6 +6,7 @@ model Frequency {
   isRecurring Boolean
   incomes     Income[]
   contracts   Contract[]
+  savings     Saving[]
 }
 
 enum FileStatusChoice {
@@ -93,6 +94,9 @@ model AppSettings {
   // How those samples are reduced. MEDIAN by default: the charts are cumulative, so with a mean one
   // large one-off lifts every later point of the period and never falls back.
   baselineMetric     BaselineMetric @default(MEDIAN)
+  // App-wide start of every calculation (charts, Ø, KPIs, Analyse, budgets, Überschuss). Older records
+  // stay visible in lists. null = from the first record.
+  startDate          DateTime?
   updatedAt          DateTime       @updatedAt
 }
 
@@ -113,7 +117,11 @@ model FileAsset {
   contractId Int?
   contract   Contract? @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
+  savingId Int?
+  saving   Saving? @relation(fields: [savingId], references: [id], onDelete: Cascade)
+
   @@index([billId, contractId, createdAt(sort: Desc)])
+  @@index([savingId])
 }
 
 // A Workspace is a bank account (Phase 14): the user's personal account, their partner's, and a
@@ -131,6 +139,7 @@ model Workspace {
   bills     Bill[]
   contracts Contract[]
   incomes   Income[]
+  savings   Saving[]
   budgets   Budget[]
 }
 
@@ -167,13 +176,17 @@ model EntryTag {
   contractId Int?
   income     Income?   @relation(fields: [incomeId], references: [id], onDelete: Cascade)
   incomeId   Int?
+  saving     Saving?   @relation(fields: [savingId], references: [id], onDelete: Cascade)
+  savingId   Int?
 
   @@unique([tagId, billId])
   @@unique([tagId, itemId])
   @@unique([tagId, contractId])
   @@unique([tagId, incomeId])
+  @@unique([tagId, savingId])
   @@index([billId])
   @@index([itemId])
   @@index([contractId])
   @@index([incomeId])
+  @@index([savingId])
 }

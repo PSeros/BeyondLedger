@@ -11,13 +11,14 @@ import InsightsTable from "@/features/insights/components/InsightsTable";
 import {boxesFor, breakdown, bucketTotals, chartUnitFor, computeStats, kde, samplesFor} from "@/features/insights/stats";
 import {getInsightsRows} from "@/features/insights/db/insightsRows";
 import {getSavedViews} from "@/features/insights/db/views";
-import {parseInsightsQuery} from "@/features/insights/params";
+import {parseInsightsQuery, seriesOf, type InsightsSeries} from "@/features/insights/params";
+import {groupKey, unitKey} from "@/features/insights/labels";
 import {previousSpan, resolveWindow, spanFor} from "@/features/insights/window";
-import {getActiveWorkspaceId, getLocale} from "@/features/settings/db/appSettings";
+import {getActiveWorkspaceId, getAnalysisStart, getLocale} from "@/features/settings/db/appSettings";
 
 async function getFilterOptions(): Promise<InsightsFilterOptions> {
   const byName = {select: {id: true, name: true}, orderBy: {name: "asc"}} as const;
-  const [itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources] = await Promise.all([
+  const [itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources, savingTargets] = await Promise.all([
     client.itemCategory.findMany(byName),
     client.contractCategory.findMany(byName),
     client.supplierCategory.findMany(byName),
@@ -25,27 +26,28 @@ async function getFilterOptions(): Promise<InsightsFilterOptions> {
     client.tag.findMany(byName),
     client.incomeCategory.findMany(byName),
     client.incomeSource.findMany(byName),
+    client.savingTarget.findMany(byName),
   ]);
-  return {itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources};
+  return {itemCategories, contractCategories, supplierCategories, suppliers, tags, incomeCategories, incomeSources, savingTargets};
 }
 
-// Insights: free-form analysis of expenses and income over a budget-style period. All state is in the URL
+// Insights: free-form analysis of expenses, income and savings over a budget-style period. All state is in the URL
 // (see features/insights/params.ts); the rows come from the budget matcher plus payment expansion.
 export default async function InsightsPage({searchParams}: {searchParams: Promise<Record<string, string | string[] | undefined>>}) {
   const query = parseInsightsQuery(await searchParams);
   const window = resolveWindow(query.window);
-  const [workspaceId, options, t, locale] = await Promise.all([
+  const [workspaceId, options, t, locale, analysisStart] = await Promise.all([
     getActiveWorkspaceId(),
     getFilterOptions(),
     getTranslations("insights"),
     getLocale(),
+    getAnalysisStart(),
   ]);
   const [rows, views] = await Promise.all([getInsightsRows(query, window, workspaceId), getSavedViews(options)]);
-  const span = spanFor(window, rows);
+  const span = spanFor(window, rows, analysisStart);
 
-  const series = (["expense", "income"] as const).filter((domain) =>
-    domain === "expense" ? query.domain !== "income" : query.domain !== "expense");
-  const of = (domain: "expense" | "income") => rows.filter((row) => row.domain === domain);
+  const series = seriesOf(query.domain);
+  const of = (domain: InsightsSeries) => rows.filter((row) => row.domain === domain);
 
   const before = previousSpan(query.window, span);
   const previousRows = before ? await getInsightsRows(query, before, workspaceId) : null;
@@ -63,8 +65,8 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
     key: domain,
     boxes: boxesFor(of(domain), query.by, query.unit, span, weekdayNames),
   }));
-  const groupLabel = t(`group.${query.by}`);
-  const unitLabel = t(`unit.${query.unit}`);
+  const groupLabel = t(groupKey(query.by, query.domain));
+  const unitLabel = t(unitKey(query.unit, query.domain));
   const weekdayFallsBack = query.by === "weekday" && (query.unit === "week" || query.unit === "month");
   const boxHint = t(weekdayFallsBack || (query.by === "weekday" && query.unit === "day") ? "boxHintDays" : "boxHintUnit", {unit: unitLabel});
 

@@ -4,11 +4,12 @@ import {useState} from "react";
 import {useFormatter, useTranslations} from "next-intl";
 import {Button, ButtonGroup, Card} from "@heroui/react";
 import type {BoxStats} from "@/features/insights/stats";
-import {seriesColor} from "@/features/insights/colors";
+import {SERIES_LABEL_KEYS, seriesColor} from "@/features/insights/colors";
 import {tooltipStyle} from "@/features/insights/components/InsightsDonut";
 import InsightsCardTitle from "@/features/insights/components/InsightsCardTitle";
+import type {InsightsSeries} from "@/features/insights/params";
 
-export type BoxPanel = {key: "expense" | "income"; boxes: BoxStats[]};
+export type BoxPanel = {key: InsightsSeries; boxes: BoxStats[]};
 
 // Nice axis ticks from 0 to just past `max`.
 function ticksFor(max: number): number[] {
@@ -47,7 +48,7 @@ export default function InsightsBoxPlot({panels, title, hint}: {panels: BoxPanel
             <ButtonGroup size="sm">
               {panels.map((p, i) => (
                 <Button key={p.key} variant={i === shown ? "secondary" : "tertiary"} onPress={() => setShown(i)}>
-                  {t(p.key === "expense" ? "domainExpense" : "domainIncome")}
+                  {t(SERIES_LABEL_KEYS[p.key])}
                 </Button>
               ))}
             </ButtonGroup>

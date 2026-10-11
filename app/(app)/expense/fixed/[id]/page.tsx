@@ -8,6 +8,8 @@ import DeleteEntityButton from "@/components/DeleteEntityButton";
 import ContractDetail from "@/features/expense/fixed/components/ContractDetail";
 import ContractEditForm from "@/features/expense/fixed/components/ContractEditForm";
 import EditLink from "@/components/EditLink";
+import ConvertToSavingButton from "@/features/saving/components/ConvertToSavingButton";
+import {getSavingTargets} from "@/features/saving/db/savingTargets";
 import {getContractById} from "@/features/expense/fixed/db/contractDetail";
 import {getContractFormOptions} from "@/features/expense/fixed/db/contractFormOptions";
 import {deleteContract} from "@/features/expense/fixed/db/contractMutations";
@@ -55,6 +57,7 @@ export default async function ContractPage({params, searchParams}: ContractPageP
           {editing ? null : (
             <div className="flex items-center gap-2">
               <DeleteEntityButton id={contract.id} action={deleteContract} label={contract.name} redirectTo="/expense/fixed"/>
+              <ConvertToSavingButton contractId={contract.id} targets={await getSavingTargets()}/>
               <EditLink id={contract.id} basePath="/expense/fixed"/>
             </div>
           )}
