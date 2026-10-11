@@ -11,11 +11,7 @@ import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSele
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createIncomeCategory, createIncomeSource, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {IncomeFormOptions} from "@/features/income/db/incomeFormOptions";
-
-// Today as yyyy-mm-dd, prefilled into the date field for the common "record what I just got" case.
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import {localToday} from "@/lib/localDate";
 
 type IncomeAddFormProps = {
   options: IncomeFormOptions;
@@ -73,7 +69,7 @@ export default function IncomeAddForm({options, onClose}: IncomeAddFormProps) {
         <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} isRequired/>
         <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
         <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
-        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
+        <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={localToday()} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date"/>
       </div>
 

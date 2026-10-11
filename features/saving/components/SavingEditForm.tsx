@@ -12,6 +12,7 @@ import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createSavingTarget, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {SavingDetailData} from "@/features/saving/db/savingDetail";
 import type {SavingFormOptions} from "@/features/saving/db/savingFormOptions";
+import SavingOpeningCheckbox from "@/features/saving/components/SavingOpeningCheckbox";
 import SavingDirectionTabs from "@/features/saving/components/SavingDirectionTabs";
 
 type SavingEditFormProps = {
@@ -76,6 +77,9 @@ export default function SavingEditForm({saving, options}: SavingEditFormProps) {
         <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={saving.startDate.slice(0, 10)} isRequired/>
         <TextInputField label={t("endDate")} name="endDate" type="date" defaultValue={saving.endDate?.slice(0, 10) ?? ""}/>
       </div>
+
+      <SavingOpeningCheckbox defaultSelected={saving.isOpening}/>
+
 
       <TagMultiSelect
         label={tTags("label")}

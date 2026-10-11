@@ -19,6 +19,7 @@ function Row({label, children}: {label: string; children: ReactNode}) {
 // Shared, read-only view of a Saving — standalone [id] page and intercepted modal, both tabs.
 export default async function SavingDetail({saving}: {saving: SavingDetailData}) {
   const t = await getTranslations("fields");
+  const tSaving = await getTranslations("saving");
   const format = await getFormatter();
 
   return (
@@ -28,7 +29,7 @@ export default async function SavingDetail({saving}: {saving: SavingDetailData})
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-3xl font-semibold tracking-tight tabular-nums">{format.number(saving.amount, "currency")}</p>
-          <p className="mt-1 text-sm text-muted">{saving.frequency}</p>
+          <p className="mt-1 text-sm text-muted">{saving.isOpening ? tSaving("openingBadge") : saving.frequency}</p>
         </div>
         <StatusChip status={saving.status}/>
       </div>

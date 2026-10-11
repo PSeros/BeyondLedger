@@ -18,14 +18,9 @@ import WorkspaceSelectField from "@/features/workspaces/components/WorkspaceSele
 import TagMultiSelect from "@/features/tags/components/TagMultiSelect";
 import {createContractCategory, createItemCategory, createTag} from "@/features/settings/db/referenceDataMutations";
 import type {ExpenseFormOptions} from "@/features/expense/shared/db/expenseFormOptions";
+import {localToday} from "@/lib/localDate";
 
 export type AddExpenseType = "variable" | "fixed";
-
-// Today's date as yyyy-mm-dd, prefilled into the date fields so the common "record what I just
-// spent today" case needs no date entry.
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 type AddExpenseFormProps = {
   options: ExpenseFormOptions;
@@ -107,7 +102,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
               isRequired
             />
             <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
-            <TextInputField label={t("date")} name="date" type="date" defaultValue={today()} isRequired/>
+            <TextInputField label={t("date")} name="date" type="date" defaultValue={localToday()} isRequired/>
             <TextInputField label={t("documentNumber")} name="documentNumber"/>
           </div>
 
@@ -155,7 +150,7 @@ export default function AddExpenseForm({options, defaultType, onClose}: AddExpen
             <SelectField label={t("frequency")} name="frequencyId" options={options.frequencies} isRequired/>
             <WorkspaceSelectField workspaces={options.workspaces} defaultValue={options.defaultWorkspaceId}/>
             <TextInputField label={t("amount")} name="amount" type="number" isRequired/>
-            <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={today()} isRequired/>
+            <TextInputField label={t("startDate")} name="startDate" type="date" defaultValue={localToday()} isRequired/>
             <TextInputField label={t("endDate")} name="endDate" type="date"/>
             <TextInputField label={t("noticePeriod")} name="noticePeriod" type="number"/>
             <TextInputField label={t("documentNumber")} name="documentNumber"/>

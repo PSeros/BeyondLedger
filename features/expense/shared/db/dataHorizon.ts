@@ -67,7 +67,7 @@ export async function getDataStart(
       : null,
     wanted.has("savings")
       ? client.saving.aggregate({
-          where: {AND: [buildSavingWhere(wsFilter), fits]},
+          where: {AND: [buildSavingWhere(wsFilter), fits, {isOpening: false}]},
           _min: {startDate: true},
         })
       : null,

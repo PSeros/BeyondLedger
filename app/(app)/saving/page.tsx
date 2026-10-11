@@ -29,9 +29,10 @@ export default async function SavingPage() {
   const monthDelta = n > 0 ? total - totalAt(n - 1) : total;
   const plannedPerMonth = pots.flatMap((pot) => pot.plans).reduce((sum, plan) => sum + (plan.amount * plan.frequencyValue) / 12, 0);
   const yearAgo = months[Math.max(0, n - 11)] ?? "";
-  const net12 = movements.filter((m) => m.date.slice(0, 7) >= yearAgo).reduce((sum, m) => sum + m.amount, 0);
+  const flows = movements.filter((m) => m.kind !== "opening");
+  const net12 = flows.filter((m) => m.date.slice(0, 7) >= yearAgo).reduce((sum, m) => sum + m.amount, 0);
   const thisYear = months[n]?.slice(0, 4) ?? "";
-  const withdrawn = movements.filter((m) => m.amount < 0 && m.date.startsWith(thisYear)).reduce((sum, m) => sum - m.amount, 0);
+  const withdrawn = flows.filter((m) => m.amount < 0 && m.date.startsWith(thisYear)).reduce((sum, m) => sum - m.amount, 0);
 
   const series = [
     ...(surplus ? [{key: "surplus", name: t("surplus"), color: SURPLUS_COLOR, values: surplus.series, isSurplus: true}] : []),

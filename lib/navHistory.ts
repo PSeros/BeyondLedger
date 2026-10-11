@@ -42,3 +42,11 @@ export function getBackTarget(currentPathname: string) {
 
   return null;
 }
+
+// Forget a page that no longer exists (e.g. a contract just converted into a saving), so a back link
+// never leads to its 404. Pair it with router.replace so the browser history agrees.
+export function forgetLocation(pathname: string) {
+  for (let i = trail.length - 1; i >= 0; i--) {
+    if (pathOf(trail[i]) === pathname) trail.splice(i, 1);
+  }
+}

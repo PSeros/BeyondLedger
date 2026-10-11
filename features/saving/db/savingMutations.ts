@@ -36,18 +36,26 @@ function revalidateSavingSurfaces() {
   nudge("saving");
 }
 
+// The "Anfangsbestand" checkbox, honoured only on a one-off (a plan can't be a starting balance).
+async function withOpening<T extends {frequencyId: number}>(data: T, formData: FormData): Promise<T & {isOpening: boolean}> {
+  if (formData.get("isOpening") !== "1") return {...data, isOpening: false};
+  const frequency = await client.frequency.findUnique({where: {id: data.frequencyId}, select: {isRecurring: true}});
+  return {...data, isOpening: frequency != null && !frequency.isRecurring};
+}
+
 // Creates a new Saving (a recurring frequency makes it a plan).
 export async function createSaving(formData: FormData): Promise<void> {
   const tagIds = parseTagIds(formData);
+  const data = await withOpening(parseSavingData(formData), formData);
   await client.saving.create({
-    data: {...parseSavingData(formData), tags: {create: tagIds.map((tagId) => ({tagId}))}},
+    data: {...data, tags: {create: tagIds.map((tagId) => ({tagId}))}},
   });
   revalidateSavingSurfaces();
 }
 
 // Updates a Saving from the edit form.
 export async function updateSaving(id: number, formData: FormData): Promise<void> {
-  const data = parseSavingData(formData);
+  const data = await withOpening(parseSavingData(formData), formData);
   const tagIds = parseTagIds(formData);
 
   await client.$transaction(async (tx) => {
