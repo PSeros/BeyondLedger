@@ -648,6 +648,14 @@
     "colLeft": "Übrig",
     "soFar": "bis heute",
     "emptyTitle": "Noch nichts gespart",
-    "emptyText": "Lege einen Sparplan oder eine erste Einzahlung an. Jedes Sparziel wird zu einem Topf, dem du beim Wachsen zusehen kannst."
+    "emptyText": "Lege einen Sparplan oder eine erste Einzahlung an. Jedes Sparziel wird zu einem Topf, dem du beim Wachsen zusehen kannst.",
+    "goal": "Ziel",
+    "setGoal": "Ziel setzen",
+    "editGoal": "Ziel",
+    "removeGoal": "Ziel entfernen",
+    "ofGoal": "von {goal}",
+    "goalProgress": "{balance} von {goal}",
+    "goalReached": "Ziel erreicht",
+    "goalLeft": "noch {amount}"
   }
 }

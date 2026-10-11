@@ -22,6 +22,7 @@ export type Pot = {
   name: string;
   color: string;
   balance: number;
+  goal: number | null; // optional target amount; null = open-ended
   series: number[]; // end-of-month balance per `months`
   plans: PotPlan[];
 };
@@ -77,7 +78,7 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
   const ws = workspaceId != null ? {workspaceId} : {};
 
   const [targets, savings, analysisStart, firstRecord] = await Promise.all([
-    client.savingTarget.findMany({select: {id: true, name: true}, orderBy: {id: "asc"}}),
+    client.savingTarget.findMany({select: {id: true, name: true, goalAmount: true}, orderBy: {id: "asc"}}),
     client.saving.findMany({
       where: ws,
       select: {id: true, name: true, targetId: true, totalAmount: true, startDate: true, endDate: true, frequency: true},
@@ -133,7 +134,15 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
           frequencyValue: s.frequency.value,
           startDate: dateKey(s.startDate),
         }));
-      return {id: target.id, name: target.name, color: PALETTE[i % PALETTE.length], balance: series.at(-1) ?? 0, series, plans};
+      return {
+        id: target.id,
+        name: target.name,
+        color: PALETTE[i % PALETTE.length],
+        balance: series.at(-1) ?? 0,
+        goal: target.goalAmount != null ? Number(target.goalAmount) : null,
+        series,
+        plans,
+      };
     })
     // A pot nobody ever paid into (on this account) stays out of the overview.
     .filter((pot) => pot.plans.length > 0 || movements.some((m) => m.potId === pot.id));

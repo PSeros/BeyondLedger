@@ -2,6 +2,8 @@
 model SavingTarget {
   id   Int    @id @default(autoincrement())
   name String @unique
+  // Optional goal (e.g. Urlaub 2.000 €); the pot shows progress toward it. null = open-ended (ETF, Tagesgeld).
+  goalAmount Decimal?
 
   savings Saving[]
 }

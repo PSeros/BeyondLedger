@@ -7,6 +7,8 @@ import BackLink from "@/components/BackLink";
 import MovementsTable from "@/features/saving/components/MovementsTable";
 import PotHistoryChart from "@/features/saving/components/PotHistoryChart";
 import {PotActions} from "@/features/saving/components/PotActions";
+import PotGoalButton from "@/features/saving/components/PotGoalButton";
+import {goalProgress} from "@/features/saving/components/PotCard";
 import {getSavingOverview} from "@/features/saving/db/savingOverview";
 import {getSavingFormOptions} from "@/features/saving/db/savingFormOptions";
 import {getActiveWorkspaceId} from "@/features/settings/db/appSettings";
@@ -39,8 +41,32 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
             <span className="size-3.5 rounded-full" style={{background: pot.color}}/>
             <h1 className="text-2xl font-semibold tracking-tight">{pot.name}</h1>
           </div>
-          <PotActions options={options} potId={pot.id} showPlan/>
+          <div className="flex flex-wrap gap-2">
+            <PotGoalButton potId={pot.id} goal={pot.goal}/>
+            <PotActions options={options} potId={pot.id} showPlan/>
+          </div>
         </div>
+
+        {pot.goal != null ? (
+          <Card className="flex flex-col gap-2 p-4">
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span className="tabular-nums">
+                {t("goalProgress", {balance: format.number(pot.balance, "currencyWhole"), goal: format.number(pot.goal, "currencyWhole")})}
+              </span>
+              <span className="font-semibold tabular-nums">
+                {format.number(goalProgress(pot) ?? 0, {style: "percent", maximumFractionDigits: 0})}
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--default)]">
+              <div className="h-full rounded-full" style={{width: `${(goalProgress(pot) ?? 0) * 100}%`, background: pot.color}}/>
+            </div>
+            <span className="text-xs text-muted">
+              {pot.balance >= pot.goal
+                ? t("goalReached")
+                : t("goalLeft", {amount: format.number(pot.goal - pot.balance, "currencyWhole")})}
+            </span>
+          </Card>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <Stat label={t("balance")} value={format.number(pot.balance, "currency")}/>

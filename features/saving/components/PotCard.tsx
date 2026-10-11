@@ -12,19 +12,35 @@ const LAST_MONTHS = 12;
 // Cards grow to share the row but never shrink below this; past that the row scrolls.
 const CARD_SIZE = "min-w-56 flex-1 snap-start";
 
-export async function PotCard({pot, total, options}: {pot: Pot; total: number; options: SavingFormOptions}) {
-  const format = await getFormatter();
+// Progress toward a pot's goal, 0–1 (an overdrawn pot counts as 0).
+export function goalProgress(pot: Pot): number | null {
+  return pot.goal ? Math.min(1, Math.max(0, pot.balance) / pot.goal) : null;
+}
+
+export async function PotCard({pot, options}: {pot: Pot; options: SavingFormOptions}) {
+  const [t, format] = await Promise.all([getTranslations("saving"), getFormatter()]);
+  const progress = goalProgress(pot);
   return (
     <Card className={`${CARD_SIZE} flex flex-col gap-3 p-4`}>
       <Link href={`/saving/${pot.id}`} className="-m-1 flex flex-col gap-3 rounded-[var(--radius)] p-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
         <div className="flex items-center gap-2">
           <span className="size-2.5 shrink-0 rounded-full" style={{background: pot.color}}/>
           <span className="truncate font-semibold">{pot.name}</span>
-          <span className="ms-auto text-xs text-muted tabular-nums">
-            {total > 0 ? format.number(Math.max(0, pot.balance) / total, {style: "percent", maximumFractionDigits: 0}) : null}
-          </span>
+          {progress != null ? (
+            <span className="ms-auto text-xs text-muted tabular-nums">{format.number(progress, {style: "percent", maximumFractionDigits: 0})}</span>
+          ) : null}
         </div>
-        <span className="text-2xl font-semibold tracking-tight tabular-nums">{format.number(pot.balance, "currency")}</span>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-2xl font-semibold tracking-tight tabular-nums">{format.number(pot.balance, "currency")}</span>
+          {progress != null && pot.goal != null ? (
+            <>
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--default)]">
+                <div className="h-full rounded-full" style={{width: `${progress * 100}%`, background: pot.color}}/>
+              </div>
+              <span className="text-xs text-muted tabular-nums">{t("ofGoal", {goal: format.number(pot.goal, "currencyWhole")})}</span>
+            </>
+          ) : null}
+        </div>
         <Sparkline values={pot.series.slice(-LAST_MONTHS)} color={pot.color}/>
         <div className="flex min-h-9 flex-col gap-0.5 text-xs text-muted">
           {pot.plans.map((plan) => (

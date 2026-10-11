@@ -648,6 +648,14 @@
     "colLeft": "Left over",
     "soFar": "so far",
     "emptyTitle": "No savings yet",
-    "emptyText": "Add a savings plan or a first deposit. Each savings target becomes a pot you can watch grow."
+    "emptyText": "Add a savings plan or a first deposit. Each savings target becomes a pot you can watch grow.",
+    "goal": "Goal",
+    "setGoal": "Set goal",
+    "editGoal": "Goal",
+    "removeGoal": "Remove goal",
+    "ofGoal": "of {goal}",
+    "goalProgress": "{balance} of {goal}",
+    "goalReached": "Goal reached",
+    "goalLeft": "{amount} to go"
   }
 }
