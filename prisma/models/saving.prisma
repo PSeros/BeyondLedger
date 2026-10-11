@@ -4,6 +4,8 @@ model SavingTarget {
   name String @unique
   // Optional goal (e.g. Urlaub 2.000 €); the pot shows progress toward it. null = open-ended (ETF, Tagesgeld).
   goalAmount Decimal?
+  // Set when the pot is closed: hidden from the overview and the forms, history kept. null = open.
+  closedAt   DateTime?
 
   savings Saving[]
 }

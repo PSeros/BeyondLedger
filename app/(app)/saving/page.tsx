@@ -38,6 +38,8 @@ export default async function SavingPage() {
     ...pots.map((pot) => ({key: `p${pot.id}`, name: pot.name, color: pot.color, values: pot.series})),
   ];
   const isEmpty = pots.length === 0;
+  // Closed pots keep their place in the history chart and the movements, but get no card or filter.
+  const openPots = pots.filter((pot) => !pot.closed);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -75,12 +77,17 @@ export default async function SavingPage() {
           {/* One row: cards share the width while they fit, then the row scrolls sideways. */}
           <div className="flex shrink-0 snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
             {surplus ? <SurplusCard surplus={surplus} options={options}/> : null}
-            {pots.map((pot) => <PotCard key={pot.id} pot={pot} options={options}/>)}
+            {openPots.map((pot) => <PotCard key={pot.id} pot={pot} options={options}/>)}
           </div>
 
           <Card className="shrink-0 p-4">
             <Card.Header className="pb-3"><Card.Title>{t("movements")}</Card.Title></Card.Header>
-            <MovementsTable movements={movements} pots={pots.map(({id, name, color}) => ({id, name, color}))} startDate={overview.analysisStart}/>
+            <MovementsTable
+              movements={movements}
+              pots={pots.map(({id, name, color}) => ({id, name, color}))}
+              filterPots={openPots.map((pot) => pot.id)}
+              startDate={overview.analysisStart}
+            />
           </Card>
         </div>
       )}

@@ -626,7 +626,6 @@
     "kindPlan": "Sparplan",
     "kindIn": "Einzahlung",
     "kindOut": "Entnahme",
-    "more": "Mehr anzeigen ({count})",
     "backToPots": "Alle Töpfe",
     "balance": "Stand",
     "paidInTotal": "Eingezahlt",
@@ -653,6 +652,16 @@
     "removeGoal": "Ziel entfernen",
     "goalProgress": "{balance} von {goal}",
     "goalReached": "Ziel erreicht",
-    "goalLeft": "noch {amount}"
+    "goalLeft": "noch {amount}",
+    "close": "Topf schließen",
+    "closeTitle": "{pot} schließen?",
+    "closeBalance": "Restbetrag:",
+    "closeMoveTo": "Restbetrag umbuchen nach",
+    "closeHint": "Laufende Sparpläne enden heute. Der Verlauf des Topfs bleibt erhalten; du kannst ihn später wieder öffnen.",
+    "closeOut": "Topf geschlossen",
+    "closeOutTo": "Topf geschlossen → {pot}",
+    "closeIn": "Aus geschlossenem Topf {pot}",
+    "closed": "Geschlossen",
+    "reopen": "Wieder öffnen"
   }
 }

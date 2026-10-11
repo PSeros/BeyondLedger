@@ -626,7 +626,6 @@
     "kindPlan": "Savings plan",
     "kindIn": "Deposit",
     "kindOut": "Withdrawal",
-    "more": "Show more ({count})",
     "backToPots": "All pots",
     "balance": "Balance",
     "paidInTotal": "Paid in",
@@ -653,6 +652,16 @@
     "removeGoal": "Remove goal",
     "goalProgress": "{balance} of {goal}",
     "goalReached": "Goal reached",
-    "goalLeft": "{amount} to go"
+    "goalLeft": "{amount} to go",
+    "close": "Close pot",
+    "closeTitle": "Close {pot}?",
+    "closeBalance": "Remaining balance:",
+    "closeMoveTo": "Move remaining balance to",
+    "closeHint": "Running savings plans end today. The pot's history stays; you can reopen it later.",
+    "closeOut": "Pot closed",
+    "closeOutTo": "Pot closed → {pot}",
+    "closeIn": "From closed pot {pot}",
+    "closed": "Closed",
+    "reopen": "Reopen"
   }
 }

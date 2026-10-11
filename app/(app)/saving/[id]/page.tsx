@@ -8,6 +8,7 @@ import MovementsTable from "@/features/saving/components/MovementsTable";
 import PotHistoryChart from "@/features/saving/components/PotHistoryChart";
 import {PotActions} from "@/features/saving/components/PotActions";
 import PotGoalButton from "@/features/saving/components/PotGoalButton";
+import {ClosePotButton, ReopenPotButton} from "@/features/saving/components/ClosePotButton";
 import {goalProgress} from "@/features/saving/components/PotCard";
 import {getSavingOverview} from "@/features/saving/db/savingOverview";
 import {getSavingFormOptions} from "@/features/saving/db/savingFormOptions";
@@ -40,14 +41,25 @@ export default async function PotPage({params}: {params: Promise<{id: string}>})
           <div className="flex items-center gap-2.5">
             <span className="size-3.5 rounded-full" style={{background: pot.color}}/>
             <h1 className="text-2xl font-semibold tracking-tight">{pot.name}</h1>
+            {pot.closed ? <span className="rounded-full bg-[var(--default)] px-2 py-0.5 text-xs text-muted">{t("closed")}</span> : null}
           </div>
-          <div className="flex flex-wrap gap-2">
-            <PotGoalButton potId={pot.id} goal={pot.goal}/>
-            <PotActions options={options} potId={pot.id} showPlan/>
-          </div>
+          {pot.closed ? (
+            <ReopenPotButton potId={pot.id}/>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              <PotGoalButton potId={pot.id} goal={pot.goal}/>
+              <PotActions options={options} potId={pot.id} showPlan/>
+              <ClosePotButton
+                potId={pot.id}
+                potName={pot.name}
+                balance={pot.balance}
+                otherPots={overview.pots.filter((p) => !p.closed && p.id !== pot.id).map(({id, name}) => ({id, name}))}
+              />
+            </div>
+          )}
         </div>
 
-        {pot.goal != null ? (
+        {pot.goal != null && !pot.closed ? (
           <Card className="flex flex-col gap-2 p-4">
             <div className="flex items-baseline justify-between gap-3 text-sm">
               <span className="tabular-nums">

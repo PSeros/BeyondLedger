@@ -23,6 +23,7 @@ export type Pot = {
   color: string;
   balance: number;
   goal: number | null; // optional target amount; null = open-ended
+  closed: boolean; // closed pots keep their history but get no card and no new bookings
   series: number[]; // end-of-month balance per `months`
   plans: PotPlan[];
 };
@@ -78,7 +79,7 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
   const ws = workspaceId != null ? {workspaceId} : {};
 
   const [targets, savings, analysisStart, firstRecord] = await Promise.all([
-    client.savingTarget.findMany({select: {id: true, name: true, goalAmount: true}, orderBy: {id: "asc"}}),
+    client.savingTarget.findMany({select: {id: true, name: true, goalAmount: true, closedAt: true}, orderBy: {id: "asc"}}),
     client.saving.findMany({
       where: ws,
       select: {id: true, name: true, targetId: true, totalAmount: true, startDate: true, endDate: true, frequency: true},
@@ -140,6 +141,7 @@ export async function getSavingOverview(workspaceId: number | null): Promise<Sav
         color: PALETTE[i % PALETTE.length],
         balance: series.at(-1) ?? 0,
         goal: target.goalAmount != null ? Number(target.goalAmount) : null,
+        closed: target.closedAt != null,
         series,
         plans,
       };

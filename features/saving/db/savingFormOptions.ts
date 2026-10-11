@@ -20,7 +20,7 @@ export type SavingFormOptions = {
 // The add/edit form offers every target/frequency; the chosen frequency decides the tab.
 export async function getSavingFormOptions(): Promise<SavingFormOptions> {
   const [targets, frequencies, tags, workspaces, activeWorkspaceId] = await Promise.all([
-    client.savingTarget.findMany({select: {id: true, name: true}, orderBy: {name: "asc"}}),
+    client.savingTarget.findMany({where: {closedAt: null}, select: {id: true, name: true}, orderBy: {name: "asc"}}),
     client.frequency.findMany({select: {id: true, name: true, isRecurring: true}, orderBy: {value: "asc"}}),
     client.tag.findMany({select: {id: true, name: true, color: true}, orderBy: {name: "asc"}}),
     getWorkspaces(),

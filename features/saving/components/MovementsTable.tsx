@@ -4,7 +4,6 @@ import {useState} from "react";
 import type {SortDescriptor} from "@heroui/react";
 import {useFormatter, useTranslations} from "next-intl";
 import {useRouter} from "next/navigation";
-import {Button} from "@heroui/react";
 import DataTable from "@/components/DataTable";
 import type {Movement} from "@/features/saving/db/savingOverview";
 
@@ -14,9 +13,10 @@ type PotRef = {id: number; name: string; color: string};
 
 // Every booked movement (plan instalments, deposits, withdrawals), newest first, filterable by pot.
 // A row opens the saving it came from.
-export default function MovementsTable({movements, pots, showPot = true, startDate = null}: {
+export default function MovementsTable({movements, pots, filterPots, showPot = true, startDate = null}: {
   movements: Movement[];
-  pots: PotRef[];
+  pots: PotRef[]; // every pot a movement can belong to (closed ones too, for their names)
+  filterPots?: number[]; // pots offered as filter chips; default all
   showPot?: boolean;
   startDate?: string | null; // movements before it are dimmed (the Überschuss doesn't count them)
 }) {
@@ -29,6 +29,7 @@ export default function MovementsTable({movements, pots, showPot = true, startDa
   const [sort, setSort] = useState<SortDescriptor>({column: "date", direction: "descending"});
 
   const potOf = new Map(pots.map((p) => [p.id, p]));
+  const chips = filterPots ? pots.filter((p) => filterPots.includes(p.id)) : pots;
   // Sorted here, before paging, so "Show more" continues the same order.
   const dir = sort.direction === "ascending" ? 1 : -1;
   const shown = movements
@@ -69,10 +70,10 @@ export default function MovementsTable({movements, pots, showPot = true, startDa
 
   return (
     <div className="flex flex-col gap-3">
-      {showPot && pots.length > 1 ? (
+      {showPot && chips.length > 1 ? (
         <div className="flex flex-wrap gap-1.5">
           <FilterChip active={pot == null} onPress={() => { setPot(null); setLimit(PAGE); }}>{t("all")}</FilterChip>
-          {pots.map((p) => (
+          {chips.map((p) => (
             <FilterChip key={p.id} active={pot === p.id} onPress={() => { setPot(p.id); setLimit(PAGE); }}>
               <span className="size-2 rounded-full" style={{background: p.color}}/>{p.name}
             </FilterChip>
@@ -88,16 +89,14 @@ export default function MovementsTable({movements, pots, showPot = true, startDa
         sortDescriptor={sort}
         onSortChange={setSort}
         scroll="page"
+        // Same infinite scroll as every other list: the next page appears near the bottom.
+        hasMore={shown.length > limit}
+        onLoadMore={() => setLimit((n) => n + PAGE * 2)}
         onRowAction={(id) => {
           const savingId = savingOf.get(String(id));
           if (savingId) router.push(`/saving/entry/${savingId}`);
         }}
       />
-      {shown.length > limit ? (
-        <Button size="sm" variant="tertiary" className="self-start" onPress={() => setLimit((n) => n + PAGE * 2)}>
-          {t("more", {count: shown.length - limit})}
-        </Button>
-      ) : null}
     </div>
   );
 }
