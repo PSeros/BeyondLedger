@@ -23,16 +23,17 @@ export default async function InsightsSummary({rows, domain}: {rows: InsightsRow
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+    // Three across even on a phone (like the dashboard KPIs), with tighter padding and type below sm.
+    <div className="grid grid-cols-3 gap-2 sm:gap-4">
       {tiles.map((tile) => (
-        <Card key={tile.key} className="flex flex-col gap-2 p-4">
+        <Card key={tile.key} className="flex flex-col gap-1 p-2 sm:gap-2 sm:p-4">
           <Card.Header>
             <Card.Title className="text-muted">{tile.title}</Card.Title>
           </Card.Header>
-          <Card.Content className="flex items-end justify-between gap-3">
-            <span className="truncate text-2xl font-bold tabular-nums">{format.number(tile.sum, "currency")}</span>
+          <Card.Content className="flex flex-col items-start gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
+            <span className="w-full truncate text-sm font-bold tabular-nums sm:w-auto sm:text-2xl">{format.number(tile.sum, "currency")}</span>
             {tile.count != null ? (
-              <span className="shrink-0 text-sm text-muted tabular-nums">{t("entryCount", {count: tile.count})}</span>
+              <span className="shrink-0 text-xs text-muted tabular-nums sm:text-sm">{t("entryCount", {count: tile.count})}</span>
             ) : null}
           </Card.Content>
         </Card>

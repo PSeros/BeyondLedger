@@ -80,9 +80,10 @@ export default function SavedViewsMenu({views}: {views: SavedView[]}) {
         setError(null);
       }
     }}>
-      <Button size="sm" variant={active ? "secondary" : "tertiary"} className="max-w-56">
+      <Button size="sm" variant={active ? "secondary" : "tertiary"} className="max-w-56" aria-label={active ? active.name : t("views")}>
         <LuBookmark className="shrink-0"/>
-        <span className="truncate">{active ? active.name : t("views")}</span>
+        {/* The generic label hides on phones; a view's own name stays, since it says which view is open. */}
+        <span className={`truncate ${active ? "" : "hidden sm:inline"}`}>{active ? active.name : t("views")}</span>
         {isModified ? <span className="text-warning" aria-label={t("viewModified")}>•</span> : null}
       </Button>
       <Popover.Content placement="bottom end">

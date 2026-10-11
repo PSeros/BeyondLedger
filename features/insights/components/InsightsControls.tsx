@@ -109,9 +109,9 @@ export default function InsightsControls({options, views}: {options: InsightsFil
         <InsightsWindowPicker window={query.window} onChange={update}/>
         <div className="ml-auto flex items-center gap-2">
           <SavedViewsMenu views={views}/>
-          <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)}>
+          <Button size="sm" variant={isOpen ? "secondary" : "tertiary"} onPress={() => setIsOpen((open) => !open)} aria-label={tFilters("filter")}>
             <LuFilter/>
-            {tFilters("filter")}
+            <span className="hidden sm:inline">{tFilters("filter")}</span>
             {activeCount ? <span className="tabular-nums">({activeCount})</span> : null}
           </Button>
         </div>

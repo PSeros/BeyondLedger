@@ -24,7 +24,7 @@ export default function InsightsStatsControls() {
         aria-label={t("unitLabel")}
         value={query.unit}
         onChange={(key) => key != null && update({u: key === DEFAULT_STAT_UNIT ? null : String(key)})}
-        className="w-40"
+        className="w-48"
       >
         <Select.Trigger>
           <Select.Value/>

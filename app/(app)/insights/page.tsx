@@ -58,12 +58,13 @@ export default async function InsightsPage({searchParams}: {searchParams: Promis
   }));
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    // Below lg the toolbar wraps to several rows, so the whole page scrolls instead of pinning it.
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto lg:overflow-hidden">
       <Suspense>
         <InsightsControls options={options} views={views}/>
       </Suspense>
 
-      <div className="mt-4 min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
+      <div className="mt-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:[scrollbar-gutter:stable]">
         {rows.length === 0 ? (
           <p className="text-muted py-16 text-center text-sm">{t("noResults")}</p>
         ) : (
